@@ -33,3 +33,91 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* ===== Header Animations ===== */
+
+/* Nav links fade in + slide down on page load */
+.header-nav-item {
+  opacity: 0;
+  animation: header-nav-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes header-nav-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(-12px) scale(0.98);
+    filter: blur(4px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Mobile menu items stagger in when menu opens */
+.mobile-menu-item {
+  opacity: 0;
+  animation: mobile-menu-enter 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+@keyframes mobile-menu-enter {
+  0% {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ===== Preloader Animations ===== */
+
+/* Letters rise in with a subtle blur-to-focus */
+@keyframes preloader-letter {
+  0% {
+    opacity: 0;
+    transform: translateY(36px) scale(0.9);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Gold "N" shimmer glow */
+@keyframes preloader-n-glow {
+  0%, 100% {
+    text-shadow: 0 0 18px rgba(194, 166, 126, 0.35);
+  }
+  50% {
+    text-shadow: 0 0 42px rgba(194, 166, 126, 0.9);
+  }
+}
+
+/* Tagline expands its letter-spacing */
+@keyframes preloader-tagline {
+  0% {
+    opacity: 0;
+    letter-spacing: 0.5em;
+  }
+  100% {
+    opacity: 1;
+    letter-spacing: 0.62em;
+  }
+}
+
+/* Gold underline draws from the center outward */
+@keyframes preloader-line {
+  0% {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  100% {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}

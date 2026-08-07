@@ -33,7 +33,7 @@ export function Home() {
           <img
             src={images.heroBg}
             alt=""
-            className="w-full h-full object-cover opacity-30"
+            className="w-full h-full object-cover opacity-0.35 "
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#1f2122]/70 via-[#1f2122]/60 to-[#1f2122]" />
         </div>
@@ -41,7 +41,7 @@ export function Home() {
           <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-[0.15em] uppercase text-[#f2f2f2]">
             LU<span className="text-[#c2a67e]">N</span>ORE
           </h1>
-          <p className="mt-6 text-sm md:text-base tracking-[0.5em] uppercase text-[#a3a3a3]">
+          <p className="mt-6 text-sm text-amber-50 tracking-[0.5em] uppercase text-[#a3a3a3]">
             Luxe Decor Studio
           </p>
           <div className="mt-10 w-16 h-px bg-[#c2a67e] mx-auto" />

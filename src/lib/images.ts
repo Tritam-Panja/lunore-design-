@@ -1,6 +1,6 @@
 export const images = {
   // Home hero background
-  heroBg: 'https://images.pexels.com/photos/31435546/pexels-photo-31435546.jpeg?auto=compress&cs=tinysrgb&w=1600',
+  heroBg: 'https://i.pinimg.com/736x/4f/f1/5b/4ff15b710b08d50e2abacaff45ea7772.jpg',
 
   // Products (6 sculptures) — keyed by product name
   products: {
