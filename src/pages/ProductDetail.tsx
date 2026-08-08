@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { supabase, type Product } from '@/lib/supabase';
 import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
+import { Reveal } from '@/components/Reveal';
 
 export function ProductDetail() {
   const { id } = useParams();
@@ -50,14 +51,16 @@ export function ProductDetail() {
           <ArrowLeft className="w-4 h-4" /> Back to Collection
         </Link>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
-          <Placeholder
-            className="aspect-[3/4]"
-            label={product.category}
-            src={images.products[product.name]}
-          />
+<div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+          <Reveal direction="zoom">
+            <Placeholder
+              className="aspect-[3/4]"
+              label={product.category}
+              src={images.products[product.name]}
+            />
+          </Reveal>
 
-          <div className="flex flex-col justify-center">
+          <Reveal direction="right" className="flex flex-col justify-center">
             <p className="text-xs tracking-[0.3em] uppercase text-[#c2a67e] mb-4">
               {product.category}
             </p>
@@ -68,11 +71,11 @@ export function ProductDetail() {
             </p>
             <Link
               to="/contact"
-              className="mt-10 inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#c2a67e] text-xs tracking-[0.3em] uppercase text-[#c2a67e] hover:bg-[#c2a67e] hover:text-[#1f2122] transition-all w-fit"
+              className="mt-10 inline-flex items-center justify-center gap-2 px-8 py-4 border border-[#c2a67e] text-xs tracking-[0.3em] uppercase text-[#c2a67e] hover:bg-[#c2a67e] hover:text-[#1f2122] transition-all w-fit shimmer"
             >
               Inquire About This Piece
             </Link>
-          </div>
+          </Reveal>
         </div>
       </section>
     </div>

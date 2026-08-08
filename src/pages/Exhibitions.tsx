@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase, type Exhibition } from '@/lib/supabase';
 import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
+import { Reveal } from '@/components/Reveal';
 
 const fallback: Exhibition[] = [
   {
@@ -43,21 +44,23 @@ export function Exhibitions() {
 
   return (
     <div>
-      <section className="px-6 pt-32 pb-16 md:pt-44 md:pb-20 text-center max-w-4xl mx-auto">
-        <p className="text-xs tracking-[0.3em] uppercase text-[#c2a67e] mb-5">
-          Exhibitions
-        </p>
-        <h1 className="text-4xl md:text-6xl font-light">Showcases &amp; Events</h1>
-        <div className="mt-8 w-16 h-px bg-[#c2a67e] mx-auto" />
+<section className="px-6 pt-32 pb-16 md:pt-44 md:pb-20 text-center max-w-4xl mx-auto">
+        <Reveal>
+          <p className="text-xs tracking-[0.3em] uppercase text-[#c2a67e] mb-5">
+            Exhibitions
+          </p>
+          <h1 className="text-4xl md:text-6xl font-light">Showcases &amp; Events</h1>
+          <div className="mt-8 w-16 h-px bg-[#c2a67e] mx-auto" />
+        </Reveal>
       </section>
 
       <section className="py-12 md:py-16 border-t border-[rgba(255,255,255,0.1)]">
         <div className="max-w-5xl mx-auto px-6 space-y-12">
-          {exhibitions.map((ex) => (
-            <article
-              key={ex.id}
-              className="border border-[rgba(255,255,255,0.1)] bg-[#2a2c2d]/30 overflow-hidden"
-            >
+          {exhibitions.map((ex, i) => (
+            <Reveal key={ex.id} direction={i % 2 === 0 ? 'left' : 'right'}>
+              <article
+                className="hover-lift border border-[rgba(255,255,255,0.1)] bg-[#2a2c2d]/30 overflow-hidden"
+              >
               <Placeholder
                 className="aspect-[16/9] w-full"
                 label={ex.title}
@@ -86,7 +89,8 @@ export function Exhibitions() {
                   {ex.description}
                 </p>
               </div>
-            </article>
+              </article>
+            </Reveal>
           ))}
         </div>
       </section>

@@ -1,5 +1,6 @@
 import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
+import { Reveal } from '@/components/Reveal';
 
 const steps = [
   {
@@ -36,12 +37,14 @@ export function Process() {
         <div className="mt-8 w-16 h-px bg-[#c2a67e] mx-auto" />
       </section>
 
-      <section className="py-12 md:py-20 border-t border-[rgba(255,255,255,0.1)]">
+<section className="py-12 md:py-20 border-t border-[rgba(255,255,255,0.1)]">
         <div className="max-w-5xl mx-auto px-6 space-y-20">
-          {steps.map((s) => (
+          {steps.map((s, i) => (
             <div key={s.num} className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-              <Placeholder className="aspect-[4/3]" label={s.title} src={s.img} />
-              <div>
+              <Reveal direction={i % 2 === 0 ? 'left' : 'right'}>
+                <Placeholder className="aspect-[4/3]" label={s.title} src={s.img} />
+              </Reveal>
+              <Reveal direction={i % 2 === 0 ? 'right' : 'left'} delay={0.15}>
                 <span className="text-5xl md:text-6xl font-light text-[#c2a67e]">
                   {s.num}
                 </span>
@@ -50,7 +53,7 @@ export function Process() {
                 <p className="text-lg text-[#a3a3a3] leading-relaxed font-light">
                   {s.desc}
                 </p>
-              </div>
+              </Reveal>
             </div>
           ))}
         </div>

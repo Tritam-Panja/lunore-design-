@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { supabase, type Product } from '@/lib/supabase';
 import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
+import { Reveal } from '@/components/Reveal';
 
 export function Products() {
   const [products, setProducts] = useState<Product[]>([]);
@@ -16,13 +17,15 @@ export function Products() {
   }, []);
 
   return (
-    <div>
+<div>
       <section className="px-6 pt-32 pb-16 md:pt-44 md:pb-20 text-center max-w-4xl mx-auto">
-        <p className="text-xs tracking-[0.3em] uppercase text-[#c2a67e] mb-5">
-          Collection
-        </p>
-        <h1 className="text-4xl md:text-6xl font-light">Signature Sculptures</h1>
-        <div className="mt-8 w-16 h-px bg-[#c2a67e] mx-auto" />
+        <Reveal>
+          <p className="text-xs tracking-[0.3em] uppercase text-[#c2a67e] mb-5">
+            Collection
+          </p>
+          <h1 className="text-4xl md:text-6xl font-light">Signature Sculptures</h1>
+          <div className="mt-8 w-16 h-px bg-[#c2a67e] mx-auto" />
+        </Reveal>
       </section>
 
       <section className="py-12 md:py-16 border-t border-[rgba(255,255,255,0.1)]">
@@ -39,20 +42,22 @@ export function Products() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
-              {products.map((p) => (
-                <Link key={p.id} to={`/products/${p.id}`} className="group">
-                  <Placeholder
-                    className="aspect-[3/4] mb-5"
-                    label={p.category}
-                    src={images.products[p.name]}
-                  />
-                  <h3 className="text-xl font-light group-hover:text-[#c2a67e] transition-colors">
-                    {p.name}
-                  </h3>
-                  <p className="mt-1 text-xs tracking-[0.2em] uppercase text-[#a3a3a3]">
-                    {p.category}
-                  </p>
-                </Link>
+              {products.map((p, i) => (
+                <Reveal key={p.id} delay={(i % 3) * 0.1}>
+                  <Link to={`/products/${p.id}`} className="group block">
+                    <Placeholder
+                      className="aspect-[3/4] mb-5"
+                      label={p.category}
+                      src={images.products[p.name]}
+                    />
+                    <h3 className="text-xl font-light group-hover:text-[#c2a67e] transition-colors">
+                      {p.name}
+                    </h3>
+                    <p className="mt-1 text-xs tracking-[0.2em] uppercase text-[#a3a3a3]">
+                      {p.category}
+                    </p>
+                  </Link>
+                </Reveal>
               ))}
             </div>
           )}

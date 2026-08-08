@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { MapPin, Phone, Mail, Send, Check } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
+import { Reveal } from '@/components/Reveal';
 
 export function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
@@ -26,20 +27,22 @@ export function Contact() {
   return (
     <div>
       <section className="px-6 pt-32 pb-16 md:pt-44 md:pb-20 text-center max-w-4xl mx-auto">
-        <p className="text-xs tracking-[0.3em] uppercase text-[#c2a67e] mb-5">
-          Contact Us
-        </p>
-        <h1 className="text-4xl md:text-6xl font-light">Connect</h1>
-        <p className="mt-6 text-sm tracking-[0.3em] uppercase text-[#a3a3a3]">
-          Inquiries &amp; Consultations
-        </p>
-        <div className="mt-8 w-16 h-px bg-[#c2a67e] mx-auto" />
+        <Reveal>
+          <p className="text-xs tracking-[0.3em] uppercase text-[#c2a67e] mb-5">
+            Contact Us
+          </p>
+          <h1 className="text-4xl md:text-6xl font-light text-shimmer">Connect</h1>
+          <p className="mt-6 text-sm tracking-[0.3em] uppercase text-[#a3a3a3]">
+            Inquiries &amp; Consultations
+          </p>
+          <div className="mt-8 w-16 h-px bg-[#c2a67e] mx-auto" />
+        </Reveal>
       </section>
 
       <section className="py-12 md:py-16 border-t border-[rgba(255,255,255,0.1)]">
         <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-          {/* Form */}
-          <div>
+{/* Form */}
+          <Reveal direction="left">
             {status === 'success' ? (
               <div className="p-8 border border-[#c2a67e] bg-[#c2a67e]/5 text-center">
                 <Check className="w-10 h-10 text-[#c2a67e] mx-auto mb-4" strokeWidth={1.5} />
@@ -120,10 +123,11 @@ export function Contact() {
                 </button>
               </form>
             )}
-          </div>
+          </Reveal>
 
           {/* Studio info */}
-          <div className="space-y-8">
+          <Reveal direction="right">
+            <div className="space-y-8">
             <div>
               <h3 className="text-xs tracking-[0.3em] uppercase text-[#c2a67e] mb-5">
                 Studio
@@ -150,11 +154,12 @@ export function Contact() {
                   href="mailto:support@lunoreluxedecorstudio.com"
                   className="text-[#a3a3a3] hover:text-[#f2f2f2] transition-colors break-all"
                 >
-                  support@lunoreluxedecorstudio.com
+support@lunoreluxedecorstudio.com
                 </a>
               </div>
             </div>
-          </div>
+            </div>
+          </Reveal>
         </div>
       </section>
     </div>

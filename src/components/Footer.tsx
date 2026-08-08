@@ -15,7 +15,7 @@ export function Footer() {
   return (
     <footer className="border-t border-[rgba(255,255,255,0.1)] bg-[#1f2122] mt-20">
       <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+<div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
             <Logo />
             <p className="mt-5 text-sm text-[#a3a3a3] leading-relaxed max-w-xs">
@@ -33,8 +33,9 @@ export function Footer() {
                 <li key={link.to}>
                   <Link
                     to={link.to}
-                    className="text-sm text-[#a3a3a3] hover:text-[#f2f2f2] transition-colors"
+                    className="group relative inline-flex items-center gap-1 text-sm text-[#a3a3a3] hover:text-[#f2f2f2] transition-colors"
                   >
+                    <span className="w-0 h-px bg-[#c2a67e] transition-all duration-300 group-hover:w-3" />
                     {link.label}
                   </Link>
                 </li>
