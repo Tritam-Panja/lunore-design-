@@ -1,26 +1,39 @@
 import { useEffect, useState } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { Logo } from './Logo';
+import { useLenis } from './SmoothScroll';
 
-const navLinks = [
-  { label: 'Home', to: '/' },
-  { label: 'About Us', to: '/about' },
+interface NavItem {
+  label: string;
+  to: string;
+  hash?: string;
+  children?: { label: string; to: string }[];
+}
+
+const navLinks: NavItem[] = [
+  { label: 'Home', to: '/', hash: '#hero' },
+  { label: 'About Us', to: '/about', hash: '#about' },
   {
     label: 'Services',
+    to: '/#services',
+    hash: '#services',
     children: [
       { label: 'Interior Design', to: '/interior-design' },
       { label: 'Marble & Granite', to: '/marble-granite' },
     ],
   },
-  { label: 'Collection', to: '/products' },
+  { label: 'Collection', to: '/products', hash: '#projects' },
   { label: 'Projects', to: '/dream-project' },
+  { label: 'Process', to: '/process', hash: '#process' },
   { label: 'Exhibitions', to: '/exhibitions' },
-  { label: 'Contact Us', to: '/contact' },
+  { label: 'Contact Us', to: '/contact', hash: '#contact' },
 ];
 
 export function Header() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { scrollTo } = useLenis();
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
@@ -42,8 +55,24 @@ export function Header() {
     setOpen(false);
   }, [location.pathname]);
 
+  const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: NavItem) => {
+    if (location.pathname === '/' && link.hash) {
+      const targetEl = document.querySelector(link.hash);
+      if (targetEl) {
+        e.preventDefault();
+        scrollTo(targetEl as HTMLElement);
+        setOpen(false);
+        return;
+      }
+    } else if (location.pathname !== '/' && link.hash) {
+      e.preventDefault();
+      setOpen(false);
+      navigate(`/${link.hash}`);
+    }
+  };
+
   const headerBg = scrolled
-    ? 'bg-[#1f2122]/85 backdrop-blur-xl shadow-lg shadow-black/20 border-b border-[rgba(255,255,255,0.06)]'
+    ? 'bg-[#1f2122]/90 backdrop-blur-xl shadow-lg shadow-black/30 border-b border-[rgba(255,255,255,0.08)]'
     : 'bg-transparent border-b border-transparent';
 
   const headerHeight = scrolled ? 'h-16' : 'h-20 md:h-24';
@@ -53,11 +82,13 @@ export function Header() {
       <div className={`max-w-7xl mx-auto px-6 lg:px-10 transition-all duration-500 ease-out ${headerHeight}`}>
         <div className="flex items-center justify-between h-full">
           <div className={scrolled ? 'scale-90 origin-left transition-transform duration-500' : 'scale-100 transition-transform duration-500'}>
-            <Logo />
+            <NavLink to="/" onClick={(e) => handleLinkClick(e, { label: 'Home', to: '/', hash: '#hero' })}>
+              <Logo />
+            </NavLink>
           </div>
 
           {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-8">
+          <nav className="hidden lg:flex items-center gap-7">
             {navLinks.map((link, i) =>
               link.children ? (
                 <div
@@ -67,7 +98,9 @@ export function Header() {
                   onMouseEnter={() => setServicesOpen(true)}
                   onMouseLeave={() => setServicesOpen(false)}
                 >
-                  <button
+                  <a
+                    href={link.hash || link.to}
+                    onClick={(e) => handleLinkClick(e, link)}
                     className={`flex items-center gap-1.5 text-xs tracking-[0.2em] uppercase py-2 group transition-colors ${
                       scrolled ? 'text-[#e8e8e8]' : 'text-[#f2f2f2]'
                     }`}
@@ -83,7 +116,7 @@ export function Header() {
                         servicesOpen ? 'rotate-180 text-[#c2a67e]' : ''
                       }`}
                     />
-                  </button>
+                  </a>
 
                   {/* Dropdown */}
                   <div
@@ -124,11 +157,12 @@ export function Header() {
                 </div>
               ) : (
                 <NavLink
-                  key={link.to}
-                  to={link.to!}
+                  key={link.label}
+                  to={link.to}
+                  onClick={(e) => handleLinkClick(e, link)}
                   className={({ isActive }) =>
                     `header-nav-item relative group text-xs tracking-[0.2em] uppercase py-2 transition-colors duration-300 ${
-                      isActive
+                      isActive && !link.hash
                         ? 'text-[#c2a67e]'
                         : scrolled
                           ? 'text-[#e8e8e8] hover:text-[#c2a67e]'
@@ -142,7 +176,7 @@ export function Header() {
                       <span className="pb-0.5">{link.label}</span>
                       <span
                         className={`absolute bottom-0 left-0 h-px bg-[#c2a67e] transition-all duration-300 ease-out ${
-                          isActive ? 'w-full' : 'w-0 group-hover:w-full'
+                          isActive && !link.hash ? 'w-full' : 'w-0 group-hover:w-full'
                         }`}
                       />
                     </>
@@ -182,7 +216,7 @@ export function Header() {
       {/* Mobile menu */}
       <div
         className={`lg:hidden absolute top-full inset-x-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          open ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'
+          open ? 'max-h-[550px] opacity-100' : 'max-h-0 opacity-0'
         }`}
       >
         <nav className="border-t border-[rgba(255,255,255,0.08)] bg-[#1f2122]/95 backdrop-blur-xl shadow-2xl shadow-black/40">
@@ -194,10 +228,14 @@ export function Header() {
                   className={`py-2 ${open ? 'mobile-menu-item' : ''}`}
                   style={{ animationDelay: `${0.05 + i * 0.06}s` }}
                 >
-                  <span className="text-xs tracking-[0.25em] uppercase text-[#c2a67e] font-medium">
+                  <a
+                    href={link.hash || link.to}
+                    onClick={(e) => handleLinkClick(e, link)}
+                    className="text-xs tracking-[0.25em] uppercase text-[#c2a67e] font-medium block mb-2"
+                  >
                     {link.label}
-                  </span>
-                  <div className="ml-4 mt-2 flex flex-col gap-1 border-l border-[rgba(194,166,126,0.3)] pl-4">
+                  </a>
+                  <div className="ml-4 flex flex-col gap-1 border-l border-[rgba(194,166,126,0.3)] pl-4">
                     {link.children.map((child) => (
                       <NavLink
                         key={child.to}
@@ -218,14 +256,14 @@ export function Header() {
                 </div>
               ) : (
                 <NavLink
-                  key={`${link.to}-${open ? 'open' : 'closed'}`}
-                  to={link.to!}
-                  onClick={() => setOpen(false)}
+                  key={`${link.label}-${open ? 'open' : 'closed'}`}
+                  to={link.to}
+                  onClick={(e) => handleLinkClick(e, link)}
                   className={({ isActive }) =>
                     `py-2.5 text-xs tracking-[0.2em] uppercase transition-all duration-200 hover:pl-2 ${
                       open ? 'mobile-menu-item' : ''
                     } ${
-                      isActive
+                      isActive && !link.hash
                         ? 'text-[#c2a67e]'
                         : 'text-[#e8e8e8] hover:text-[#c2a67e]'
                     }`
