@@ -125,7 +125,7 @@ export function Home() {
               The Space that only you could live in 
             </h2>
             <p className="mt-4 text-xs tracking-[0.2em] uppercase text-[#b9b5ae]">
-              Founded by Dinkesh Sharma &amp; Suchitra Pandey
+              
             </p>
             <div className="mt-8 w-16 h-px bg-[#b89a62] mx-auto" />
           </Reveal>
@@ -136,14 +136,7 @@ export function Home() {
             </p>
           </Reveal>
 
-          <Reveal delay={0.2} className="mt-12">
-            <Link
-              to="/brand-story"
-              className="inline-flex items-center gap-3 px-8 py-4 border border-[#b89a62] text-xs tracking-[0.3em] uppercase text-[#b89a62] hover:bg-[#b89a62] hover:text-[#0d0e0e] transition-all group shimmer"
-            >
-              Explore Full Brand Story <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Reveal>
+          
         </div>
 
         {/* Organic Curved Scroll Line - Brand Story */}
