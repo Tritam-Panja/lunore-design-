@@ -3,7 +3,6 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { Logo } from './Logo';
 import { useLenis } from './SmoothScroll';
-import { ExperienceToggle } from './ExperienceToggle';
 
 interface NavItem {
   label: string;
@@ -84,7 +83,7 @@ export function Header() {
     <>
       {/* UNIVERSAL HEADER */}
       <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-out ${headerBg}`}>
-        <div className={`max-w-7xl mx-auto px-6 lg:px-10 transition-all duration-500 ease-out ${headerHeight}`}>
+        <div className={`w-full max-w-none px-6 md:px-12 transition-all duration-500 ease-out ${headerHeight}`}>
           <div className="flex items-center justify-between h-full">
             {/* Logo on Left */}
             <div className={scrolled ? 'scale-90 origin-left transition-transform duration-500' : 'scale-100 transition-transform duration-500'}>
@@ -93,10 +92,8 @@ export function Header() {
               </NavLink>
             </div>
 
-            {/* Universal Right Action Cluster (Experience Toggle + Universal Hamburger Trigger) */}
+            {/* Universal Right Action Cluster (Universal Hamburger Trigger) */}
             <div className="flex items-center gap-4 md:gap-6">
-              <ExperienceToggle className="hidden sm:inline-flex scale-95" />
-
               {/* Refined Universal Hamburger Trigger (All Breakpoints) */}
               <button
                 type="button"
@@ -162,8 +159,7 @@ export function Header() {
               </div>
 
               <div className="pt-12">
-                <ExperienceToggle />
-                <div className="mt-8 pt-6 border-t border-[rgba(184,154,98,0.15)] text-xs text-[#85817a]">
+                <div className="pt-6 border-t border-[rgba(184,154,98,0.15)] text-xs text-[#85817a]">
                   <p>Mumbai, India</p>
                   <p className="mt-1">+91 97697 08628</p>
                 </div>
@@ -213,7 +209,6 @@ export function Header() {
 
           {/* Footer inside menu for mobile/tablet */}
           <div className="lg:hidden pt-8 border-t border-[rgba(184,154,98,0.16)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <ExperienceToggle />
             <p className="text-xs text-[#85817a]">
               © {new Date().getFullYear()} LUNORE Luxe Decor Studio
             </p>

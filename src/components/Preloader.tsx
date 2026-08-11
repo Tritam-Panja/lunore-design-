@@ -2,31 +2,89 @@ import React, { useEffect, useState, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { PreloaderMoonCanvas } from './PreloaderMoonCanvas';
 
-const INTRO_LINES = [
-  { line: 'ARE YOU READY', delay: '0.3s' },
-  { line: 'TO EXPERIENCE', delay: '0.85s' },
-  { line: 'SOMETHING NEW?', delay: '1.4s', highlight: true },
-];
-
 const BRAND_LETTERS = ['L', 'U', 'N', 'O', 'R', 'E'];
+
+const FULL_LINES = [
+  'ARE YOU READY',
+  'TO EXPERIENCE',
+  'SOMETHING NEW?'
+];
 
 export function Preloader() {
   // Status phases: 'reveal' -> 'ready' (CTA appears) -> 'transitioning' (Moon approach) -> 'brandReveal' (Stage 6 LUNORE reveal inside crater) -> 'opening' (Stage 7 subtle fade/recede into site) -> 'done'
   const [phase, setPhase] = useState<'reveal' | 'ready' | 'transitioning' | 'brandReveal' | 'opening' | 'done'>('reveal');
   const [btnClicked, setBtnClicked] = useState(false);
+  const [showButton, setShowButton] = useState<boolean>(false);
+
+  // Typewriter state variables
+  const [typed0, setTyped0] = useState('');
+  const [typed1, setTyped1] = useState('');
+  const [typed2, setTyped2] = useState('');
+  const [activeLine, setActiveLine] = useState(0); // 0, 1, 2, or 3 (complete)
+
   const timersRef = useRef<number[]>([]);
 
   useEffect(() => {
     // Lock page scroll during cinematic entry
     document.body.style.overflow = 'hidden';
 
-    // Timer to enable CTA after text reveal completes (2.1s)
-    const readyTimer = window.setTimeout(() => {
-      setPhase('ready');
-    }, 2100);
-    timersRef.current.push(readyTimer);
+    let isCancelled = false;
+
+    // Typewriter effect function
+    const typeLine = (
+      fullText: string,
+      setTypedText: React.Dispatch<React.SetStateAction<string>>,
+      onComplete: () => void
+    ) => {
+      let currentLength = 0;
+      const typeInterval = setInterval(() => {
+        if (isCancelled) {
+          clearInterval(typeInterval);
+          return;
+        }
+        currentLength++;
+        setTypedText(fullText.substring(0, currentLength));
+
+        if (currentLength >= fullText.length) {
+          clearInterval(typeInterval);
+          onComplete();
+        }
+      }, 90); // typing speed per character
+    };
+
+    // Sequential Typing Timeline:
+    // Line 0 -> 400ms pause -> Line 1 -> 450ms pause -> Line 2 -> 700ms hold -> CTA button
+    const startTypewriterSequence = () => {
+      typeLine(FULL_LINES[0], setTyped0, () => {
+        if (isCancelled) return;
+        const t1 = window.setTimeout(() => {
+          setActiveLine(1);
+          typeLine(FULL_LINES[1], setTyped1, () => {
+            if (isCancelled) return;
+            const t2 = window.setTimeout(() => {
+              setActiveLine(2);
+              typeLine(FULL_LINES[2], setTyped2, () => {
+                if (isCancelled) return;
+                setActiveLine(3); // Completed typing
+
+                const t3 = window.setTimeout(() => {
+                  setShowButton(true);
+                  setPhase('ready');
+                }, 700);
+                timersRef.current.push(t3);
+              });
+            }, 450);
+            timersRef.current.push(t2);
+          });
+        }, 400);
+        timersRef.current.push(t1);
+      });
+    };
+
+    startTypewriterSequence();
 
     return () => {
+      isCancelled = true;
       document.body.style.overflow = '';
       timersRef.current.forEach((t) => window.clearTimeout(t));
     };
@@ -48,9 +106,9 @@ export function Preloader() {
     // 4.2s-7.2s: LUNORE Brand Reveal + LUXE DECOR STUDIO in crater darkness (Hold logo)
     // 7.2s-8.8s: Stage 7 subtle fade and recede of preloader layer to seamlessly reveal website
     // 8.8s: Entry complete ('done'), unmasking website completely and restoring full scroll & interaction
-    const brandTimer = window.setTimeout(() => setPhase('brandReveal'), 4200);
-    const fadeTimer = window.setTimeout(() => setPhase('opening'), 7200);
-    const doneTimer = window.setTimeout(() => setPhase('done'), 8800);
+    const brandTimer = window.setTimeout(() => setPhase('brandReveal'), 8500);
+    const fadeTimer = window.setTimeout(() => setPhase('opening'), 11500);
+    const doneTimer = window.setTimeout(() => setPhase('done'), 13000);
 
     timersRef.current.push(brandTimer, fadeTimer, doneTimer);
   };
@@ -72,12 +130,22 @@ export function Preloader() {
       }`}
       aria-hidden={isOpening}
     >
+      <style>{`
+        @keyframes luxury-blink {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        .animate-luxury-blink {
+          animation: luxury-blink 1.0s step-end infinite;
+        }
+      `}</style>
+
       {/* 3D Cinematic Preloader Moon Canvas (Stage 4 & 5 Shots 1, 2 & 3 + Crater Entry) */}
       <PreloaderMoonCanvas active={isTransitioning || isOpening || isBrandReveal} />
 
-      {/* STAGE 2 & 3 CONTENT CONTAINER (Initial Text + CLICK HERE CTA) */}
+      {/* INTRO TITLE CARD CONTAINER */}
       <div
-        className={`absolute inset-0 z-10 flex flex-col items-center justify-center px-6 transition-all duration-1000 ease-[cubic-bezier(0.77,0,0.18,1)] ${
+        className={`absolute inset-0 z-10 flex flex-col items-center justify-center px-4 sm:px-8 transition-all duration-1000 ease-[cubic-bezier(0.77,0,0.18,1)] ${
           isOpening || isBrandReveal
             ? 'opacity-0 scale-95 pointer-events-none'
             : isTransitioning
@@ -85,45 +153,96 @@ export function Preloader() {
               : 'opacity-100 scale-100'
         }`}
       >
-        <div className="flex flex-col items-center justify-center text-center space-y-3 sm:space-y-4 max-w-3xl">
-          {INTRO_LINES.map((item, index) => (
-            <div key={index} className="overflow-hidden py-1">
-              <h2
-                className={`font-light tracking-[0.25em] uppercase text-2xl sm:text-4xl md:text-5xl lg:text-6xl transition-all duration-700 ${
-                  item.highlight ? 'text-[#b89a62]' : 'text-[#f1eee7]'
-                }`}
-                style={{
-                  fontFamily: 'var(--font-display)',
-                  animation: `cinematic-line-mask 1.1s cubic-bezier(0.16, 1, 0.3, 1) ${item.delay} both`,
-                }}
-              >
-                {item.line}
-              </h2>
-            </div>
-          ))}
+        <div className="flex flex-col items-center justify-center text-center max-w-4xl sm:max-w-5xl w-full min-h-[220px] sm:min-h-[300px] relative space-y-4 md:space-y-6">
+          
+          {/* LINE 1: ARE YOU READY */}
+          <div 
+            className="w-full relative flex items-center justify-center min-h-[3rem] sm:min-h-[4.5rem]"
+            style={{
+              fontFamily: "var(--font-display), 'Cormorant Garamond', 'Playfair Display', serif",
+              fontWeight: 300,
+              letterSpacing: '0.12em',
+              color: '#f1eee7',
+            }}
+          >
+            {/* Invisible structural layer enforces strict layout stability */}
+            <span className="invisible text-4xl sm:text-5xl md:text-6xl uppercase tracking-[0.12em] select-none">
+              {FULL_LINES[0]}
+            </span>
+            <span className="absolute left-0 right-0 text-center text-4xl sm:text-5xl md:text-6xl uppercase whitespace-nowrap">
+              {typed0}
+              {activeLine === 0 && (
+                <span className="inline-block w-[1.5px] h-[0.9em] bg-[#b89a62] ml-2 align-middle animate-luxury-blink" />
+              )}
+            </span>
+          </div>
+
+          {/* LINE 2: TO EXPERIENCE */}
+          <div 
+            className="w-full relative flex items-center justify-center min-h-[2.5rem] sm:min-h-[3.8rem]"
+            style={{
+              fontFamily: "var(--font-display), 'Cormorant Garamond', 'Playfair Display', serif",
+              fontWeight: 300,
+              letterSpacing: '0.12em',
+              color: '#f1eee7',
+            }}
+          >
+            <span className="invisible text-3xl sm:text-4xl md:text-5xl uppercase tracking-[0.12em] select-none">
+              {FULL_LINES[1]}
+            </span>
+            <span className="absolute left-0 right-0 text-center text-3xl sm:text-4xl md:text-5xl uppercase whitespace-nowrap">
+              {typed1}
+              {activeLine === 1 && (
+                <span className="inline-block w-[1.5px] h-[0.9em] bg-[#b89a62] ml-2 align-middle animate-luxury-blink" />
+              )}
+            </span>
+          </div>
+
+          {/* LINE 3: SOMETHING NEW? */}
+          <div 
+            className="w-full relative flex items-center justify-center min-h-[3rem] sm:min-h-[4.5rem]"
+            style={{
+              fontFamily: "var(--font-display), 'Cormorant Garamond', 'Playfair Display', serif",
+              fontWeight: 300,
+              letterSpacing: '0.12em',
+              color: '#f1eee7',
+            }}
+          >
+            <span className="invisible text-4xl sm:text-5xl md:text-6xl uppercase tracking-[0.12em] select-none">
+              {FULL_LINES[2]}
+            </span>
+            <span className="absolute left-0 right-0 text-center text-4xl sm:text-5xl md:text-6xl uppercase whitespace-nowrap">
+              {typed2}
+              {activeLine === 2 && (
+                <span className="inline-block w-[1.5px] h-[0.9em] bg-[#b89a62] ml-2 align-middle animate-luxury-blink" />
+              )}
+              {activeLine === 3 && (
+                <span className="inline-block w-[1.5px] h-[0.9em] bg-[#b89a62] ml-2 align-middle animate-luxury-blink" />
+              )}
+            </span>
+          </div>
+
         </div>
 
         {/* Minimal Underline Accent */}
         <div
-          className="mt-8 sm:mt-10 h-px w-32 sm:w-48 bg-gradient-to-r from-transparent via-[#b89a62]/60 to-transparent"
-          style={{ animation: 'preloader-line 1.2s cubic-bezier(0.16, 1, 0.3, 1) 1.9s both' }}
+          className={`mt-6 sm:mt-8 h-px w-28 sm:w-40 bg-gradient-to-r from-transparent via-[#b89a62]/60 to-transparent transition-opacity duration-1000 ${
+            showButton ? 'opacity-100' : 'opacity-0'
+          }`}
         />
 
-        {/* STAGE 3 — EDITORIAL CTA INVITATION ("CLICK HERE") */}
+        {/* EDITORIAL CTA INVITATION ("CLICK HERE") */}
         <div
-          className={`mt-10 sm:mt-12 transition-all duration-700 ease-out ${
-            phase === 'reveal'
-              ? 'opacity-0 translate-y-4 pointer-events-none'
-              : btnClicked
-                ? 'opacity-0 scale-90 translate-y-2 pointer-events-none'
-                : 'opacity-100 translate-y-0 pointer-events-auto'
+          className={`mt-8 sm:mt-10 transition-all duration-700 ease-out ${
+            showButton && phase === 'ready' && !btnClicked
+              ? 'opacity-100 translate-y-0 pointer-events-auto'
+              : 'opacity-0 translate-y-4 pointer-events-none'
           }`}
-          style={{ animation: phase === 'ready' ? 'fade-in-up 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.1s both' : undefined }}
         >
           <button
             type="button"
             onClick={handleActivateClick}
-            className="group relative inline-flex items-center gap-3 px-8 py-3.5 rounded-full border border-[rgba(184,154,98,0.35)] bg-[#141514]/80 backdrop-blur-md text-[#f1eee7] text-xs tracking-[0.3em] uppercase transition-all duration-500 hover:border-[#b89a62] hover:text-[#b89a62] hover:bg-[#181917] hover:px-9 focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50 cursor-pointer shadow-lg shadow-black/40"
+            className="group relative inline-flex items-center gap-3 px-8 py-3 rounded-full border border-[rgba(184,154,98,0.35)] bg-[#141514]/80 backdrop-blur-md text-[#f1eee7] text-xs tracking-[0.3em] uppercase transition-all duration-500 hover:border-[#b89a62] hover:text-[#b89a62] hover:bg-[#181917] hover:px-9 focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50 cursor-pointer shadow-lg shadow-black/40"
           >
             <span className="relative z-10 font-light">CLICK HERE</span>
             <ArrowRight className="w-3.5 h-3.5 text-[#b89a62] transition-transform duration-300 group-hover:translate-x-1" />
@@ -181,4 +300,3 @@ export function Preloader() {
     </div>
   );
 }
-

@@ -15,25 +15,10 @@ export function useExperience() {
 }
 
 export function ExperienceProvider({ children }: { children: ReactNode }) {
-  const [isExperienceActive, setIsExperienceActive] = useState<boolean>(() => {
-    try {
-      const saved = localStorage.getItem('lunore_experience_mode');
-      return saved ? JSON.parse(saved) : false;
-    } catch {
-      return false;
-    }
-  });
+  const [isExperienceActive, setIsExperienceActive] = useState<boolean>(true);
 
   const toggleExperience = () => {
-    setIsExperienceActive((prev) => {
-      const nextState = !prev;
-      try {
-        localStorage.setItem('lunore_experience_mode', JSON.stringify(nextState));
-      } catch {
-        // Fallback gracefully
-      }
-      return nextState;
-    });
+    setIsExperienceActive((prev) => !prev);
   };
 
   useEffect(() => {

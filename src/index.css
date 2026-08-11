@@ -39,6 +39,7 @@
   --font-heading: 'Cormorant Garamond', serif;
   --font-display: 'Playfair Display', 'Cormorant Garamond', serif;
   --font-body: 'Inter', sans-serif;
+  --font-cursive: 'Great Vibes', 'Parisienne', 'MonteCarlo', cursive;
 }
 
 :root {
