@@ -7,7 +7,7 @@ import { SmoothScroll } from './SmoothScroll';
 export function Layout() {
   return (
     <SmoothScroll>
-      <div className="min-h-screen flex flex-col bg-[#1f2122] text-[#f2f2f2]">
+      <div className="min-h-screen flex flex-col bg-[#0d0e0e] text-[#f1eee7] transition-colors duration-500">
         <ScrollToTop />
         <Header />
         <main className="flex-1">

@@ -1,13 +1,54 @@
 @import 'tailwindcss';
 
 @theme {
-  --color-base: #1f2122;
-  --color-ink: #f2f2f2;
-  --color-muted: #a3a3a3;
-  --color-gold: #c2a67e;
-  --color-line: rgba(255, 255, 255, 0.1);
+  --color-base: #0d0e0e;
+  --color-ink: #f1eee7;
+  --color-muted: #b9b5ae;
+  --color-gold: #b89a62;
+  --color-line: rgba(184, 154, 98, 0.15);
+
+  /* LUNORE Central Palette: LUNA (Moon) + ORE (Gold) Dark Luxury Architecture */
+  /* Primary Backgrounds (70% Dark Luxury Studio): Dark Graphite, Deep Smoked Charcoal */
+  --lunore-bg-dark: #0d0e0e;
+  --lunore-bg-warm: #111211;
+  --lunore-bg-section: #151615;
+
+  /* Secondary Surfaces: Dark Architectural Surfaces & Smoked Panels */
+  --lunore-surface-card: #181917;
+  --lunore-surface-panel: #1d1d1b;
+  --lunore-surface-elevated: #22211f;
+  --lunore-surface-card-border: rgba(184, 154, 98, 0.16);
+
+  /* Typography: Warm Ivory, Soft Warm Grey, Muted Shadow */
+  --lunore-text-primary: #f1eee7;
+  --lunore-text-muted: #b9b5ae;
+  --lunore-text-subtle: #85817a;
+
+  /* Lunar Influence (20% Moonlit Softness): Soft Lunar Grey, Moonlit Mist */
+  --lunore-lunar-grey: #a6a39d;
+  --lunore-lunar-mist: rgba(241, 238, 231, 0.06);
+  --lunore-lunar-silver: rgba(166, 163, 157, 0.2);
+
+  /* Gold / Ore Influence (10% Brushed Champagne Metallic): Brushed Antique Gold */
+  --lunore-gold-champagne: #b89a62;
+  --lunore-gold-muted: #8e7447;
+  --lunore-gold-light: #c4a86f;
+  --lunore-gold-brushed: rgba(184, 154, 98, 0.35);
+  --lunore-gold-border: rgba(184, 154, 98, 0.22);
+
   --font-heading: 'Cormorant Garamond', serif;
+  --font-display: 'Playfair Display', 'Cormorant Garamond', serif;
   --font-body: 'Inter', sans-serif;
+}
+
+:root {
+  /* Central Theme System Tokens */
+  --color-lunore-base: var(--lunore-bg-dark);
+  --color-lunore-surface: var(--lunore-surface-card);
+  --color-lunore-text: var(--lunore-text-primary);
+  --color-lunore-muted: var(--lunore-text-muted);
+  --color-lunore-lunar: var(--lunore-lunar-grey);
+  --color-lunore-gold: var(--lunore-gold-champagne);
 }
 
 @layer base {
@@ -27,13 +68,14 @@
     overflow: hidden;
   }
   body {
-    background-color: #1f2122;
-    color: #f2f2f2;
+    background-color: #0d0e0e;
+    color: #f1eee7;
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
   }
   h1, h2, h3, h4, h5 {
     font-family: 'Cormorant Garamond', serif;
+    color: #f1eee7;
   }
 }
 

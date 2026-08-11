@@ -1,6 +1,6 @@
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ChevronDown } from 'lucide-react';
+import { Menu, X, ArrowRight } from 'lucide-react';
 import { Logo } from './Logo';
 import { useLenis } from './SmoothScroll';
 import { ExperienceToggle } from './ExperienceToggle';
@@ -9,26 +9,18 @@ interface NavItem {
   label: string;
   to: string;
   hash?: string;
-  children?: { label: string; to: string }[];
+  sublabel?: string;
 }
 
 const navLinks: NavItem[] = [
-  { label: 'Home', to: '/', hash: '#hero' },
-  { label: 'About Us', to: '/about', hash: '#about' },
-  {
-    label: 'Services',
-    to: '/#services',
-    hash: '#services',
-    children: [
-      { label: 'Interior Design', to: '/interior-design' },
-      { label: 'Marble & Granite', to: '/marble-granite' },
-    ],
-  },
-  { label: 'Collection', to: '/products', hash: '#projects' },
-  { label: 'Projects', to: '/dream-project' },
-  { label: 'Process', to: '/process', hash: '#process' },
-  { label: 'Exhibitions', to: '/exhibitions' },
-  { label: 'Contact Us', to: '/contact', hash: '#contact' },
+  { label: 'HOME', to: '/', hash: '#hero', sublabel: 'LUNORE Entrance' },
+  { label: 'ABOUT US', to: '/about', hash: '#about', sublabel: 'Legacy & Philosophy' },
+  { label: 'SERVICES', to: '/interior-design', hash: '#services', sublabel: 'Turnkey & Monoliths' },
+  { label: 'COLLECTION', to: '/products', hash: '#projects', sublabel: 'Signature Sculptures' },
+  { label: 'PROJECTS', to: '/dream-project', sublabel: 'Visionary Concepts' },
+  { label: 'PROCESS', to: '/process', hash: '#process', sublabel: 'Master Craftsmanship' },
+  { label: 'EXHIBITIONS', to: '/exhibitions', sublabel: 'Gallery & Showcase' },
+  { label: 'CONTACT US', to: '/contact', hash: '#contact', sublabel: 'Studio Consultations' },
 ];
 
 export function Header() {
@@ -36,10 +28,9 @@ export function Header() {
   const navigate = useNavigate();
   const { scrollTo } = useLenis();
   const [scrolled, setScrolled] = useState(false);
-  const [open, setOpen] = useState(false);
-  const [servicesOpen, setServicesOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
-  // Track scroll position to toggle header styling
+  // Track scroll position for header blur backdrop
   useEffect(() => {
     const handleScroll = () => {
       const isScrolled = window.scrollY > 40;
@@ -51,241 +42,184 @@ export function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close mobile menu when route changes
+  // Close overlay on route change
   useEffect(() => {
-    setOpen(false);
+    setMenuOpen(false);
   }, [location.pathname]);
 
+  // Lock body scroll when overlay is open
+  useEffect(() => {
+    if (menuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [menuOpen]);
+
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: NavItem) => {
+    setMenuOpen(false);
     if (location.pathname === '/' && link.hash) {
       const targetEl = document.querySelector(link.hash);
       if (targetEl) {
         e.preventDefault();
         scrollTo(targetEl as HTMLElement);
-        setOpen(false);
         return;
       }
     } else if (location.pathname !== '/' && link.hash) {
       e.preventDefault();
-      setOpen(false);
       navigate(`/${link.hash}`);
     }
   };
 
   const headerBg = scrolled
-    ? 'bg-[#1f2122]/90 backdrop-blur-xl shadow-lg shadow-black/30 border-b border-[rgba(255,255,255,0.08)]'
+    ? 'bg-[#0d0e0e]/85 backdrop-blur-xl shadow-2xl shadow-black/60 border-b border-[rgba(184,154,98,0.16)]'
     : 'bg-transparent border-b border-transparent';
 
-  const headerHeight = scrolled ? 'h-16' : 'h-20 md:h-24';
+  const headerHeight = scrolled ? 'h-16 md:h-18' : 'h-20 md:h-24';
 
   return (
-    <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-out ${headerBg}`}>
-      <div className={`max-w-7xl mx-auto px-6 lg:px-10 transition-all duration-500 ease-out ${headerHeight}`}>
-        <div className="flex items-center justify-between h-full">
-          <div className={scrolled ? 'scale-90 origin-left transition-transform duration-500' : 'scale-100 transition-transform duration-500'}>
-            <NavLink to="/" onClick={(e) => handleLinkClick(e, { label: 'Home', to: '/', hash: '#hero' })}>
-              <Logo />
-            </NavLink>
-          </div>
+    <>
+      {/* UNIVERSAL HEADER */}
+      <header className={`fixed inset-x-0 top-0 z-50 transition-all duration-500 ease-out ${headerBg}`}>
+        <div className={`max-w-7xl mx-auto px-6 lg:px-10 transition-all duration-500 ease-out ${headerHeight}`}>
+          <div className="flex items-center justify-between h-full">
+            {/* Logo on Left */}
+            <div className={scrolled ? 'scale-90 origin-left transition-transform duration-500' : 'scale-100 transition-transform duration-500'}>
+              <NavLink to="/" onClick={(e) => handleLinkClick(e, { label: 'HOME', to: '/', hash: '#hero' })}>
+                <Logo />
+              </NavLink>
+            </div>
 
-          {/* Desktop nav */}
-          <nav className="hidden lg:flex items-center gap-7">
-            {navLinks.map((link, i) =>
-              link.children ? (
+            {/* Universal Right Action Cluster (Experience Toggle + Universal Hamburger Trigger) */}
+            <div className="flex items-center gap-4 md:gap-6">
+              <ExperienceToggle className="hidden sm:inline-flex scale-95" />
+
+              {/* Refined Universal Hamburger Trigger (All Breakpoints) */}
+              <button
+                type="button"
+                onClick={() => setMenuOpen(!menuOpen)}
+                aria-expanded={menuOpen}
+                aria-label="Toggle Navigation Menu"
+                className="group relative inline-flex items-center gap-3 px-3.5 py-2 rounded-full border border-[rgba(184,154,98,0.25)] bg-[#181917]/80 backdrop-blur-md text-[#f1eee7] hover:border-[#b89a62] hover:text-[#b89a62] transition-all duration-300 focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50"
+              >
+                <span className="text-[10px] tracking-[0.25em] uppercase font-light pl-1 hidden xs:inline-block">
+                  {menuOpen ? 'CLOSE' : 'MENU'}
+                </span>
+
+                {/* Minimal Animated Hamburger / X Transformation */}
+                <div className="relative w-4 h-3.5 flex flex-col justify-between items-center overflow-hidden">
+                  <span
+                    className={`w-full h-0.5 bg-current transform transition-all duration-300 ease-out origin-center ${
+                      menuOpen ? 'translate-y-[6px] rotate-45 text-[#b89a62]' : ''
+                    }`}
+                  />
+                  <span
+                    className={`w-full h-0.5 bg-current transition-all duration-200 ease-out ${
+                      menuOpen ? 'opacity-0 scale-x-0' : 'opacity-100 scale-x-100'
+                    }`}
+                  />
+                  <span
+                    className={`w-full h-0.5 bg-current transform transition-all duration-300 ease-out origin-center ${
+                      menuOpen ? '-translate-y-[6px] -rotate-45 text-[#b89a62]' : ''
+                    }`}
+                  />
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      {/* FULL-SCREEN OVERLAY NAVIGATION (ALL SCREEN SIZES) */}
+      <div
+        className={`fixed inset-0 z-40 bg-[#0d0e0e]/98 backdrop-blur-2xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-y-auto ${
+          menuOpen
+            ? 'opacity-100 pointer-events-auto scale-100'
+            : 'opacity-0 pointer-events-none scale-105'
+        }`}
+        aria-hidden={!menuOpen}
+      >
+        {/* Subtle Ambient Radial Glow */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#b89a62]/10 rounded-full blur-[150px] pointer-events-none" />
+
+        <div className="min-h-screen max-w-7xl mx-auto px-6 lg:px-10 pt-28 pb-16 flex flex-col justify-between relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start my-auto">
+            {/* Left Brand Identity & Atmosphere Info (Desktop) */}
+            <div className="lg:col-span-5 hidden lg:flex flex-col justify-between h-full border-r border-[rgba(184,154,98,0.16)] pr-12">
+              <div>
+                <p className="text-xs tracking-[0.35em] uppercase text-[#b89a62] mb-4 font-light">
+                  Luxe Decor Studio
+                </p>
+                <h2 className="text-4xl xl:text-5xl font-light leading-tight text-[#f1eee7]" style={{ fontFamily: 'var(--font-display)' }}>
+                  Architectural Elegance &amp; Fine Stone Sculpture
+                </h2>
+                <p className="mt-6 text-sm text-[#b9b5ae] font-light leading-relaxed max-w-sm">
+                  Blending modern luxury interior design with rare imported monoliths, creating enduring legacy for bespoke spaces.
+                </p>
+              </div>
+
+              <div className="pt-12">
+                <ExperienceToggle />
+                <div className="mt-8 pt-6 border-t border-[rgba(184,154,98,0.15)] text-xs text-[#85817a]">
+                  <p>Mumbai, India</p>
+                  <p className="mt-1">+91 97697 08628</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Right Large Editorial Navigation Items */}
+            <div className="lg:col-span-7 flex flex-col space-y-3 lg:pl-8">
+              {navLinks.map((link, index) => (
                 <div
                   key={link.label}
-                  className="relative header-nav-item"
-                  style={{ animationDelay: `${0.3 + i * 0.08}s` }}
-                  onMouseEnter={() => setServicesOpen(true)}
-                  onMouseLeave={() => setServicesOpen(false)}
+                  className={`group transition-all duration-700 ease-out transform ${
+                    menuOpen
+                      ? 'translate-y-0 opacity-100'
+                      : 'translate-y-6 opacity-0'
+                  }`}
+                  style={{ transitionDelay: `${menuOpen ? 150 + index * 50 : 0}ms` }}
                 >
                   <a
                     href={link.hash || link.to}
                     onClick={(e) => handleLinkClick(e, link)}
-                    className={`flex items-center gap-1.5 text-xs tracking-[0.2em] uppercase py-2 group transition-colors ${
-                      scrolled ? 'text-[#e8e8e8]' : 'text-[#f2f2f2]'
-                    }`}
+                    className="flex items-center justify-between py-2.5 border-b border-[rgba(184,154,98,0.12)] group-hover:border-[#b89a62]/60 transition-colors"
                   >
-                    <span className="relative overflow-hidden pb-0.5">
-                      <span className="hover:text-[#c2a67e] transition-colors">
+                    <div className="flex items-baseline gap-4">
+                      <span className="text-xs tracking-[0.2em] text-[#b89a62] font-mono opacity-60 group-hover:opacity-100 transition-opacity">
+                        0{index + 1}
+                      </span>
+                      <span
+                        className="text-2xl sm:text-4xl xl:text-5xl font-light tracking-[0.08em] text-[#f1eee7] group-hover:text-[#b89a62] group-hover:translate-x-3 transition-all duration-500 ease-out"
+                        style={{ fontFamily: 'var(--font-display)' }}
+                      >
                         {link.label}
                       </span>
-                      <span className="absolute bottom-0 left-0 w-full h-px bg-[#c2a67e] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300 ease-out" />
-                    </span>
-                    <ChevronDown
-                      className={`w-3 h-3 text-[#a3a3a3] transition-transform duration-300 ${
-                        servicesOpen ? 'rotate-180 text-[#c2a67e]' : ''
-                      }`}
-                    />
-                  </a>
-
-                  {/* Dropdown */}
-                  <div
-                    className={`absolute top-full left-0 pt-3 transition-all duration-300 ease-out ${
-                      servicesOpen
-                        ? 'opacity-100 translate-y-0 pointer-events-auto'
-                        : 'opacity-0 -translate-y-2 pointer-events-none'
-                    }`}
-                  >
-                    <div className="min-w-[210px] rounded-sm bg-[#2a2c2d]/95 backdrop-blur-xl border border-[rgba(255,255,255,0.08)] py-2 shadow-2xl shadow-black/30 overflow-hidden">
-                      <div className="absolute top-0 left-8 w-10 h-px bg-gradient-to-r from-transparent via-[#c2a67e] to-transparent" />
-                      {link.children.map((child) => (
-                        <NavLink
-                          key={child.to}
-                          to={child.to}
-                          className={({ isActive }) =>
-                            `relative block px-6 py-2.5 text-xs tracking-[0.15em] uppercase transition-all duration-200 hover:pl-8 ${
-                              isActive
-                                ? 'text-[#c2a67e] bg-[#c2a67e]/5'
-                                : 'text-[#d8d8d8] hover:text-[#c2a67e] hover:bg-[#c2a67e]/5'
-                            }`
-                          }
-                        >
-                          {({ isActive }) => (
-                            <>
-                              <span
-                                className={`absolute left-0 top-1/2 -translate-y-1/2 w-0.5 bg-[#c2a67e] transition-all duration-300 ${
-                                  isActive ? 'h-1/2' : 'h-0'
-                                }`}
-                              />
-                              {child.label}
-                            </>
-                          )}
-                        </NavLink>
-                      ))}
                     </div>
-                  </div>
+
+                    <div className="flex items-center gap-3">
+                      <span className="text-[11px] tracking-[0.2em] uppercase text-[#85817a] group-hover:text-[#b9b5ae] transition-colors hidden sm:inline-block">
+                        {link.sublabel}
+                      </span>
+                      <ArrowRight className="w-5 h-5 text-[#b89a62] opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300" />
+                    </div>
+                  </a>
                 </div>
-              ) : (
-                <NavLink
-                  key={link.label}
-                  to={link.to}
-                  onClick={(e) => handleLinkClick(e, link)}
-                  className={({ isActive }) =>
-                    `header-nav-item relative group text-xs tracking-[0.2em] uppercase py-2 transition-colors duration-300 ${
-                      isActive && !link.hash
-                        ? 'text-[#c2a67e]'
-                        : scrolled
-                          ? 'text-[#e8e8e8] hover:text-[#c2a67e]'
-                          : 'text-[#f2f2f2] hover:text-[#c2a67e]'
-                    }`
-                  }
-                  style={{ animationDelay: `${0.3 + i * 0.08}s` }}
-                >
-                  {({ isActive }) => (
-                    <>
-                      <span className="pb-0.5">{link.label}</span>
-                      <span
-                        className={`absolute bottom-0 left-0 h-px bg-[#c2a67e] transition-all duration-300 ease-out ${
-                          isActive && !link.hash ? 'w-full' : 'w-0 group-hover:w-full'
-                        }`}
-                      />
-                    </>
-                  )}
-                </NavLink>
-              )
-            )}
-
-            {/* Desktop Experience Toggle */}
-            <div className="header-nav-item ml-2" style={{ animationDelay: '0.9s' }}>
-              <ExperienceToggle />
+              ))}
             </div>
-          </nav>
+          </div>
 
-          {/* Mobile menu header action */}
-          <div className="flex items-center gap-3 lg:hidden">
-            <ExperienceToggle className="scale-90" />
-            <button
-              className="relative w-10 h-10 flex items-center justify-center text-[#f2f2f2] focus:outline-none"
-              onClick={() => setOpen(!open)}
-              aria-label="Menu"
-            >
-              <div
-                className={`absolute inset-0 rounded-sm border border-[rgba(255,255,255,0.15)] transition-all duration-300 ${
-                  open ? 'border-[#c2a67e]/60 bg-[#c2a67e]/10 rotate-45' : ''
-                }`}
-              />
-              <Menu
-                className={`absolute w-5 h-5 transition-all duration-300 ${
-                  open ? 'opacity-0 scale-50 rotate-90' : 'opacity-100 scale-100 rotate-0'
-                }`}
-              />
-              <X
-                className={`absolute w-5 h-5 transition-all duration-300 ${
-                  open
-                    ? 'opacity-100 scale-100 rotate-0 text-[#c2a67e]'
-                    : 'opacity-0 scale-50 -rotate-90'
-                }`}
-              />
-            </button>
+          {/* Footer inside menu for mobile/tablet */}
+          <div className="lg:hidden pt-8 border-t border-[rgba(184,154,98,0.16)] flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <ExperienceToggle />
+            <p className="text-xs text-[#85817a]">
+              © {new Date().getFullYear()} LUNORE Luxe Decor Studio
+            </p>
           </div>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      <div
-        className={`lg:hidden absolute top-full inset-x-0 overflow-hidden transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-          open ? 'max-h-[550px] opacity-100' : 'max-h-0 opacity-0'
-        }`}
-      >
-        <nav className="border-t border-[rgba(255,255,255,0.08)] bg-[#1f2122]/95 backdrop-blur-xl shadow-2xl shadow-black/40">
-          <div className="px-6 py-6 flex flex-col gap-1">
-            {navLinks.map((link, i) =>
-              link.children ? (
-                <div
-                  key={`${link.label}-${open ? 'open' : 'closed'}`}
-                  className={`py-2 ${open ? 'mobile-menu-item' : ''}`}
-                  style={{ animationDelay: `${0.05 + i * 0.06}s` }}
-                >
-                  <a
-                    href={link.hash || link.to}
-                    onClick={(e) => handleLinkClick(e, link)}
-                    className="text-xs tracking-[0.25em] uppercase text-[#c2a67e] font-medium block mb-2"
-                  >
-                    {link.label}
-                  </a>
-                  <div className="ml-4 flex flex-col gap-1 border-l border-[rgba(194,166,126,0.3)] pl-4">
-                    {link.children.map((child) => (
-                      <NavLink
-                        key={child.to}
-                        to={child.to}
-                        onClick={() => setOpen(false)}
-                        className={({ isActive }) =>
-                          `py-1.5 text-xs tracking-[0.15em] uppercase transition-all duration-200 hover:pl-2 ${
-                            isActive
-                              ? 'text-[#c2a67e]'
-                              : 'text-[#d8d8d8] hover:text-[#c2a67e]'
-                          }`
-                        }
-                      >
-                        {child.label}
-                      </NavLink>
-                    ))}
-                  </div>
-                </div>
-              ) : (
-                <NavLink
-                  key={`${link.label}-${open ? 'open' : 'closed'}`}
-                  to={link.to}
-                  onClick={(e) => handleLinkClick(e, link)}
-                  className={({ isActive }) =>
-                    `py-2.5 text-xs tracking-[0.2em] uppercase transition-all duration-200 hover:pl-2 ${
-                      open ? 'mobile-menu-item' : ''
-                    } ${
-                      isActive && !link.hash
-                        ? 'text-[#c2a67e]'
-                        : 'text-[#e8e8e8] hover:text-[#c2a67e]'
-                    }`
-                  }
-                  style={{ animationDelay: `${0.05 + i * 0.06}s` }}
-                >
-                  {link.label}
-                </NavLink>
-              )
-            )}
-          </div>
-        </nav>
-      </div>
-    </header>
+    </>
   );
 }

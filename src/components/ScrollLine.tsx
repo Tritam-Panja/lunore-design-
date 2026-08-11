@@ -31,7 +31,7 @@ export function ScrollLine({
   viewBox = "0 0 1000 600",
   className = "",
   svgClassName = "",
-  strokeColor = "rgba(194, 166, 126, 0.45)",
+  strokeColor = "rgba(184, 152, 101, 0.45)",
   strokeWidth = 1.5,
   strokeDasharray,
   glow = false,
