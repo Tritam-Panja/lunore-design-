@@ -350,6 +350,46 @@
   transform: scale(1);
 }
 
+/* ===== Lunore Atmosphere Mode Visual Transformations ===== */
+
+html.lunore-experience-active {
+  background-color: #171819 !important;
+  transition: background-color 0.8s ease;
+}
+
+html.lunore-experience-active body {
+  background-color: #171819 !important;
+  color: #f8f6f2 !important;
+  transition: background-color 0.8s ease, color 0.8s ease;
+}
+
+/* Subtle ambient gold radial glow in header/hero when active */
+html.lunore-experience-active section {
+  transition: border-color 0.8s ease, background-color 0.8s ease;
+}
+
+html.lunore-experience-active .bg-\[\#2a2c2d\]\/30,
+html.lunore-experience-active .bg-\[\#2a2c2d\]\/40 {
+  background-color: rgba(38, 35, 31, 0.6) !important;
+  border-color: rgba(194, 166, 126, 0.25) !important;
+  box-shadow: 0 0 30px rgba(194, 166, 126, 0.05);
+  transition: all 0.8s ease;
+}
+
+/* Image warmth and contrast enrichment in experience mode */
+html.lunore-experience-active img {
+  filter: contrast(1.08) saturate(1.15) brightness(0.96);
+  transition: filter 0.8s ease;
+}
+
+/* Typography subtle enhancement */
+html.lunore-experience-active h1,
+html.lunore-experience-active h2,
+html.lunore-experience-active h3 {
+  letter-spacing: 0.05em;
+  transition: letter-spacing 0.8s ease;
+}
+
 /* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {
   .reveal,

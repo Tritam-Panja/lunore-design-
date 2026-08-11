@@ -3,6 +3,7 @@ import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, X, ChevronDown } from 'lucide-react';
 import { Logo } from './Logo';
 import { useLenis } from './SmoothScroll';
+import { ExperienceToggle } from './ExperienceToggle';
 
 interface NavItem {
   label: string;
@@ -184,32 +185,40 @@ export function Header() {
                 </NavLink>
               )
             )}
+
+            {/* Desktop Experience Toggle */}
+            <div className="header-nav-item ml-2" style={{ animationDelay: '0.9s' }}>
+              <ExperienceToggle />
+            </div>
           </nav>
 
-          {/* Mobile menu button */}
-          <button
-            className="lg:hidden relative w-10 h-10 flex items-center justify-center text-[#f2f2f2] focus:outline-none"
-            onClick={() => setOpen(!open)}
-            aria-label="Menu"
-          >
-            <div
-              className={`absolute inset-0 rounded-sm border border-[rgba(255,255,255,0.15)] transition-all duration-300 ${
-                open ? 'border-[#c2a67e]/60 bg-[#c2a67e]/10 rotate-45' : ''
-              }`}
-            />
-            <Menu
-              className={`absolute w-5 h-5 transition-all duration-300 ${
-                open ? 'opacity-0 scale-50 rotate-90' : 'opacity-100 scale-100 rotate-0'
-              }`}
-            />
-            <X
-              className={`absolute w-5 h-5 transition-all duration-300 ${
-                open
-                  ? 'opacity-100 scale-100 rotate-0 text-[#c2a67e]'
-                  : 'opacity-0 scale-50 -rotate-90'
-              }`}
-            />
-          </button>
+          {/* Mobile menu header action */}
+          <div className="flex items-center gap-3 lg:hidden">
+            <ExperienceToggle className="scale-90" />
+            <button
+              className="relative w-10 h-10 flex items-center justify-center text-[#f2f2f2] focus:outline-none"
+              onClick={() => setOpen(!open)}
+              aria-label="Menu"
+            >
+              <div
+                className={`absolute inset-0 rounded-sm border border-[rgba(255,255,255,0.15)] transition-all duration-300 ${
+                  open ? 'border-[#c2a67e]/60 bg-[#c2a67e]/10 rotate-45' : ''
+                }`}
+              />
+              <Menu
+                className={`absolute w-5 h-5 transition-all duration-300 ${
+                  open ? 'opacity-0 scale-50 rotate-90' : 'opacity-100 scale-100 rotate-0'
+                }`}
+              />
+              <X
+                className={`absolute w-5 h-5 transition-all duration-300 ${
+                  open
+                    ? 'opacity-100 scale-100 rotate-0 text-[#c2a67e]'
+                    : 'opacity-0 scale-50 -rotate-90'
+                }`}
+              />
+            </button>
+          </div>
         </div>
       </div>
 

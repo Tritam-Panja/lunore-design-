@@ -5,6 +5,7 @@ import { supabase, type Product } from '@/lib/supabase';
 import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
 import { Reveal } from '@/components/Reveal';
+import { ScrollLine } from '@/components/ScrollLine';
 
 const HERO_LETTERS = ['L', 'U', 'N', 'O', 'R', 'E'];
 
@@ -145,6 +146,15 @@ export function Home() {
             </Link>
           </Reveal>
         </div>
+
+        {/* Organic Curved Scroll Line - Brand Story */}
+        <ScrollLine
+          path="M 50,0 C 250,150 750,50 950,200 C 1150,350 150,450 500,550"
+          viewBox="0 0 1000 600"
+          className="absolute inset-0 z-0 opacity-40 md:opacity-70"
+          strokeColor="rgba(194, 166, 126, 0.4)"
+          strokeWidth={1.5}
+        />
       </section>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.1)] to-transparent" />
@@ -188,6 +198,15 @@ export function Home() {
             </Reveal>
           </div>
         </div>
+
+        {/* Organic Curved Scroll Line - About */}
+        <ScrollLine
+          path="M 0,100 C 300,0 700,400 1000,200 C 800,500 200,300 0,600"
+          viewBox="0 0 1000 600"
+          className="absolute inset-0 z-0 opacity-30 md:opacity-60"
+          strokeColor="rgba(194, 166, 126, 0.35)"
+          strokeWidth={1.2}
+        />
       </section>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(194,166,126,0.3)] to-transparent" />
@@ -363,6 +382,15 @@ export function Home() {
             ))}
           </div>
         </div>
+
+        {/* Organic Curved Scroll Line - Projects */}
+        <ScrollLine
+          path="M 100,0 C 400,200 100,500 600,300 C 1000,100 800,600 1100,700"
+          viewBox="0 0 1000 700"
+          className="absolute inset-0 z-0 opacity-25 md:opacity-50"
+          strokeColor="rgba(194, 166, 126, 0.4)"
+          strokeWidth={1.5}
+        />
       </section>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(194,166,126,0.3)] to-transparent" />
@@ -382,7 +410,7 @@ export function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {processSteps.map((s, i) => (
-              <Reveal key={s.num} direction="up" delay={i * 0.1} className="p-8 border border-[rgba(255,255,255,0.08)] bg-[#2a2c2d]/30 relative hover-lift">
+              <Reveal key={s.num} direction="up" delay={i * 0.1} className="p-8 border border-[rgba(255,255,255,0.08)] bg-[#2a2c2d]/30 relative hover-lift z-10">
                 <span className="text-4xl md:text-5xl font-light text-[#c2a67e] block mb-4">
                   {s.num}
                 </span>
@@ -404,13 +432,23 @@ export function Home() {
             </Reveal>
           </div>
         </div>
+
+        {/* Organic Flowing Curve connecting Process Steps 01 -> 02 -> 03 */}
+        <ScrollLine
+          path="M 120,280 C 250,180 350,380 500,280 C 650,180 750,380 880,280"
+          viewBox="0 0 1000 500"
+          className="absolute inset-0 z-0 opacity-50 md:opacity-80"
+          strokeColor="rgba(194, 166, 126, 0.6)"
+          strokeWidth={1.8}
+          glow={true}
+        />
       </section>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(255,255,255,0.1)] to-transparent" />
 
       {/* 7. CALL TO ACTION (CTA) SECTION */}
-      <section id="cta" className="py-20 md:py-32 relative text-center bg-gradient-to-b from-[#1f2122] via-[#242628] to-[#1f2122]">
-        <div className="max-w-3xl mx-auto px-6">
+      <section id="cta" className="py-20 md:py-32 relative text-center bg-gradient-to-b from-[#1f2122] via-[#242628] to-[#1f2122] overflow-hidden">
+        <div className="max-w-3xl mx-auto px-6 relative z-10">
           <Reveal>
             <p className="text-xs tracking-[0.3em] uppercase text-[#c2a67e] mb-4">
               Bespoke Spaces
@@ -437,6 +475,15 @@ export function Home() {
             </div>
           </Reveal>
         </div>
+
+        {/* Organic Curved Scroll Line guiding eye toward CTA */}
+        <ScrollLine
+          path="M 0,250 C 300,50 700,450 1000,250"
+          viewBox="0 0 1000 500"
+          className="absolute inset-0 z-0 opacity-40 md:opacity-75"
+          strokeColor="rgba(194, 166, 126, 0.5)"
+          strokeWidth={1.5}
+        />
       </section>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(194,166,126,0.3)] to-transparent" />

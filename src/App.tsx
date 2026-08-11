@@ -14,12 +14,15 @@ import { Process } from '@/pages/Process';
 import { Contact } from '@/pages/Contact';
 import { NotFound } from '@/pages/NotFound';
 
+import { ExperienceProvider } from '@/components/ExperienceContext';
+
 function App() {
   return (
-    <BrowserRouter>
-      <Preloader />
-      <Routes>
-        <Route element={<Layout />}>
+    <ExperienceProvider>
+      <BrowserRouter>
+        <Preloader />
+        <Routes>
+          <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/brand-story" element={<BrandStory />} />
@@ -35,6 +38,7 @@ function App() {
         </Route>
       </Routes>
     </BrowserRouter>
+    </ExperienceProvider>
   );
 }
 

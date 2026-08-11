@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Hammer, Mountain, Eye, Landmark } from 'lucide-react';
 import { images } from '@/lib/images';
 import { Reveal } from '@/components/Reveal';
+import { ScrollLine } from '@/components/ScrollLine';
 
 const features = [
   {
@@ -45,6 +46,13 @@ export function About() {
             stone sculptures for elite spaces.
           </p>
         </Reveal>
+        <ScrollLine
+          path="M 0,200 C 300,50 700,350 1000,200"
+          viewBox="0 0 1000 400"
+          className="absolute inset-0 z-0 opacity-40 md:opacity-60"
+          strokeColor="rgba(194, 166, 126, 0.4)"
+          strokeWidth={1.4}
+        />
       </section>
 
 <section className="py-20 md:py-28 border-t border-[rgba(255,255,255,0.1)]">
