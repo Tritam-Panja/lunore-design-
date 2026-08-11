@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { PreloaderMoonCanvas } from './PreloaderMoonCanvas';
 
@@ -11,9 +11,10 @@ const INTRO_LINES = [
 const BRAND_LETTERS = ['L', 'U', 'N', 'O', 'R', 'E'];
 
 export function Preloader() {
-  // Status phases: 'reveal' -> 'ready' (CTA appears) -> 'transitioning' (Moon approach) -> 'brandReveal' (Stage 6 LUNORE reveal inside crater) -> 'opening' -> 'done'
+  // Status phases: 'reveal' -> 'ready' (CTA appears) -> 'transitioning' (Moon approach) -> 'brandReveal' (Stage 6 LUNORE reveal inside crater) -> 'opening' (Stage 7 subtle fade/recede into site) -> 'done'
   const [phase, setPhase] = useState<'reveal' | 'ready' | 'transitioning' | 'brandReveal' | 'opening' | 'done'>('reveal');
   const [btnClicked, setBtnClicked] = useState(false);
+  const timersRef = useRef<number[]>([]);
 
   useEffect(() => {
     // Lock page scroll during cinematic entry
@@ -23,10 +24,11 @@ export function Preloader() {
     const readyTimer = window.setTimeout(() => {
       setPhase('ready');
     }, 2100);
+    timersRef.current.push(readyTimer);
 
     return () => {
       document.body.style.overflow = '';
-      window.clearTimeout(readyTimer);
+      timersRef.current.forEach((t) => window.clearTimeout(t));
     };
   }, []);
 
@@ -43,18 +45,14 @@ export function Preloader() {
 
     // STAGE 7 Complete Timeline:
     // 0s-4.2s: Shot 1, 2, 3 3D Moon Orbit & Camera Crater Entry into darkness
-    // 4.2s-7.2s: LUNORE Brand Reveal + LUXE DECOR STUDIO in crater darkness
-    // 7.2s-8.4s: Hold logo briefly & begin subtle fade/recede
-    // 8.4s-9.6s: Split gates slide open, unmasking the dark graphite LUNORE website
+    // 4.2s-7.2s: LUNORE Brand Reveal + LUXE DECOR STUDIO in crater darkness (Hold logo)
+    // 7.2s-8.8s: Stage 7 subtle fade and recede of preloader layer to seamlessly reveal website
+    // 8.8s: Entry complete ('done'), unmasking website completely and restoring full scroll & interaction
     const brandTimer = window.setTimeout(() => setPhase('brandReveal'), 4200);
     const fadeTimer = window.setTimeout(() => setPhase('opening'), 7200);
-    const doneTimer = window.setTimeout(() => setPhase('done'), 8600);
+    const doneTimer = window.setTimeout(() => setPhase('done'), 8800);
 
-    return () => {
-      window.clearTimeout(brandTimer);
-      window.clearTimeout(fadeTimer);
-      window.clearTimeout(doneTimer);
-    };
+    timersRef.current.push(brandTimer, fadeTimer, doneTimer);
   };
 
   if (phase === 'done') return null;
@@ -65,10 +63,14 @@ export function Preloader() {
 
   return (
     <div
-      className={`fixed inset-0 z-[999] bg-[#0d0e0e] overflow-hidden select-none transition-colors duration-1000 ${
-        isTransitioning || isBrandReveal ? 'bg-[#040404]' : 'bg-[#0d0e0e]'
+      className={`fixed inset-0 z-[9999] select-none transition-all duration-[1400ms] ease-out ${
+        isOpening
+          ? 'opacity-0 scale-105 pointer-events-none'
+          : phase === 'reveal' || phase === 'ready'
+          ? 'opacity-100 scale-100 bg-[#0d0e0e]'
+          : 'opacity-100 scale-100 bg-[#040404]'
       }`}
-      aria-hidden="true"
+      aria-hidden={isOpening}
     >
       {/* 3D Cinematic Preloader Moon Canvas (Stage 4 & 5 Shots 1, 2 & 3 + Crater Entry) */}
       <PreloaderMoonCanvas active={isTransitioning || isOpening || isBrandReveal} />
@@ -129,20 +131,22 @@ export function Preloader() {
         </div>
       </div>
 
-      {/* STAGE 6 — LUNORE BRAND REVEAL IN CRATER DARKNESS */}
+      {/* STAGE 6 & 7 — LUNORE BRAND REVEAL IN CRATER DARKNESS + SEAMLESS FADE/RECEDE */}
       <div
         className={`absolute inset-0 z-20 flex flex-col items-center justify-center pointer-events-none px-6 transition-all duration-1000 ease-[cubic-bezier(0.77,0,0.18,1)] ${
-          isBrandReveal && !isOpening
-            ? 'opacity-100 scale-100'
-            : 'opacity-0 scale-98'
+          isBrandReveal || isOpening
+            ? isOpening
+              ? 'opacity-0 scale-110 blur-sm'
+              : 'opacity-100 scale-100 blur-none'
+            : 'opacity-0 scale-95'
         }`}
       >
         {/* Expanding Champagne Gold Line */}
         <div
           className="h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent mb-8 transition-all duration-1000"
           style={{
-            animation: isBrandReveal ? 'preloader-line 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both' : undefined,
-            width: isBrandReveal ? '240px' : '0px',
+            animation: isBrandReveal || isOpening ? 'preloader-line 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s both' : undefined,
+            width: isBrandReveal || isOpening ? '240px' : '0px',
           }}
         />
 
@@ -174,20 +178,7 @@ export function Preloader() {
           Luxe Decor Studio
         </span>
       </div>
-
-      {/* Left gate */}
-      <div
-        className={`absolute inset-y-0 left-0 w-1/2 bg-[#0d0e0e] border-r border-[#b89a62]/30 transition-transform duration-[1200ms] ease-[cubic-bezier(0.77,0,0.18,1)] ${
-          isOpening ? '-translate-x-full' : 'translate-x-0'
-        }`}
-      />
-
-      {/* Right gate */}
-      <div
-        className={`absolute inset-y-0 right-0 w-1/2 bg-[#0d0e0e] border-l border-[#b89a62]/30 transition-transform duration-[1200ms] ease-[cubic-bezier(0.77,0,0.18,1)] ${
-          isOpening ? 'translate-x-full' : 'translate-x-0'
-        }`}
-      />
     </div>
   );
 }
+
