@@ -106,9 +106,9 @@ export function Preloader() {
     // 4.2s-7.2s: LUNORE Brand Reveal + LUXE DECOR STUDIO in crater darkness (Hold logo)
     // 7.2s-8.8s: Stage 7 subtle fade and recede of preloader layer to seamlessly reveal website
     // 8.8s: Entry complete ('done'), unmasking website completely and restoring full scroll & interaction
-    const brandTimer = window.setTimeout(() => setPhase('brandReveal'), 8500);
-    const fadeTimer = window.setTimeout(() => setPhase('opening'), 11500);
-    const doneTimer = window.setTimeout(() => setPhase('done'), 13000);
+    const brandTimer = window.setTimeout(() => setPhase('brandReveal'), 10700);
+    const fadeTimer = window.setTimeout(() => setPhase('opening'), 12400);
+    const doneTimer = window.setTimeout(() => setPhase('done'), 13800);
 
     timersRef.current.push(brandTimer, fadeTimer, doneTimer);
   };

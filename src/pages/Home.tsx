@@ -42,75 +42,38 @@ const processSteps = [
 interface TeamMember {
   name: string;
   role: string;
-  quote: string;
   testimonial: string;
   image: string;
 }
 
 const directors: TeamMember[] = [
   {
-    name: "Marcus Vane",
-    role: "Founding Director & Principal Sculptor",
-    quote: "Stone is the language of geological time.",
-    testimonial: "To carve is to listen to the stone's memory. We do not impose our will; we release the form that has waited for millennia inside the quarry.",
-    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=compress&cs=tinysrgb&w=800&q=80"
+    name: "DINKESH SHARMA",
+    role: "Founder & Director — Interior Design & Project Execution",
+    testimonial: "As founder, Dinkesh brings  creative vision and craftsmanship to every project. He steers luxury interiors from initial concept through to beautifully realised spaces , Whether intimate homes, sprawling villas or hospitality venues. Dinkesh works closely with clients to understand their dreams, and leads a talented design team to bring them to life. His philosophy is simple: listen carefully, design thoughtfully, and execute flawlessly..",
+    image: "../src/assets/images/Director Dhinkesh.PNG"
+  },
+  
+  {
+    name: "Suchitra Pandey ",
+    role: "Director — Human Resources",
+    testimonial: "Suchitra is passionate about building a team where talented people do their best work. She leads recruitment, shapes HR policies, and nurtures a workplace culture grounded in respect, growth and collaboration. As Lunore expands, Suchitra ensures that our people feel valued, supported and connected to our shared mission: creating extraordinary spaces and experiences.",
+    image: "../src/assets/images/Director Suchitra .jpeg"
   },
   {
-    name: "Elena Rostova",
-    role: "Co-Director & Head of Stone Sourcing",
-    quote: "Every quarry tells a story of the deep Earth.",
-    testimonial: "I travel the world to find monoliths that possess a singular soul. The line, the density, the mineral veining—they are the DNA of our future legacy.",
-    image: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=compress&cs=tinysrgb&w=800&q=80"
+    name: "CHIRAG GODSE",
+    role: "Director — Marketing, Business Development & Aurexa",
+    testimonial: "Every touchpoint tells a story. Chirag oversees Lunore's brand strategy, digital presence and business development with an eye toward creating memorable experiences. Through Aurexa, his passion project of luxury art events and auctions, Chirag has opened a direct channel to high-net-worth collectors and design influencers. He believes that authentic brands are built on genuine expertise and meaningful relationships , principles that guide everything from social media content to high-stakes client meetings.",
+    image: "../src/assets/images/Director Chirag.PNG"
   },
   {
-    name: "Aidan Sterling",
-    role: "Lead Structural Engineer",
-    quote: "Gravitational balance is silent poetry.",
-    testimonial: "A monumental sculpture must defy gravity while respecting the natural physics of the stone. We merge engineering rigor with pure artistic expression.",
-    image: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=compress&cs=tinysrgb&w=800&q=80"
-  },
-  {
-    name: "Sienna Moretti",
-    role: "Master Carver & Finishing Artist",
-    quote: "The final polish is a reflection of light.",
-    testimonial: "In the final stages, the tool marks give way to smooth, light-absorbing planes. It is the moment the raw granite transforms into fluid silk.",
-    image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=compress&cs=tinysrgb&w=800&q=80"
-  },
-  {
-    name: "Julian Vance",
-    role: "Architectural Integration Director",
-    quote: "Art should define the space it occupies.",
-    testimonial: "We collaborate with architects from day one, ensuring that each monumental installation becomes a permanent, structural component of the space.",
-    image: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=compress&cs=tinysrgb&w=800&q=80"
-  },
-  {
-    name: "Clara Thorne",
-    role: "Art Historian & Design Custodian",
-    quote: "We design for the next five hundred years.",
-    testimonial: "Our references span classical antiquity and modern brutalism. We seek a timeless aesthetic that refuses to acknowledge passing trends.",
+    name: "JITANDAR LOHAR ",
+    role: "Director — Finance & Administration",
+    testimonial: "Jitandar  keeps Lunore running smoothly behind the scenes. He manages finances with precision, handles compliance and statutory requirements, and builds the operational systems that let the team focus on creative work. Jitandar believes that strong administration and clear financial health are the foundation of sustainable growth and he takes pride in creating that foundation.",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=compress&cs=tinysrgb&w=800&q=80"
   },
-  {
-    name: "Viktor Petrov",
-    role: "Senior Stone Artisan",
-    quote: "The chisel is an extension of the heartbeat.",
-    testimonial: "Hand-carving is a meditative labor. Every impact is precise, guided by decades of feeling the resistance, grain, and temperature of the rock.",
-    image: "https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?auto=compress&cs=tinysrgb&w=800&q=80"
-  },
-  {
-    name: "Nadia Al-Jamil",
-    role: "Spatial Curator",
-    quote: "Placement dictates how a sculpture breathes.",
-    testimonial: "The void around a sculpture is as important as the mass itself. We orchestrate shadows, natural light, and viewing angles to maximize emotional scale.",
-    image: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=compress&cs=tinysrgb&w=800&q=80"
-  },
-  {
-    name: "Thomas Drake",
-    role: "Director of Monumental Projects",
-    quote: "We build landmarks, not simple displays.",
-    testimonial: "Our scale is civic and residential-monumental. We aim to install works of stone that become focal points for communities and generational estates.",
-    image: "https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?auto=compress&cs=tinysrgb&w=800&q=80"
-  }
+  
+ 
 ];
 
 export function Home() {
@@ -318,14 +281,10 @@ export function Home() {
       <section id="about" className="bg-[#F2F0E6] text-[#2b2a27] font-sans selection:bg-[#2b2a27]/10 relative">
         {/* Intro Editorial Header */}
         <div className="px-6 pt-24 pb-12 text-center max-w-3xl mx-auto">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-[#85817a] mb-4">Studio Leadership</p>
           <h2 className="text-4xl md:text-5xl font-light font-display tracking-tight text-[#1a1a19] leading-tight">
             Directors of Lunore
           </h2>
           <div className="mt-6 w-12 h-[1px] bg-[#2b2a27]/20 mx-auto" />
-          <p className="mt-6 text-base text-[#65625c] leading-relaxed font-light">
-            A collective of master sculptors, visionary curators, and innovative architects shaping monumental geological art. Scroll down to meet the team.
-          </p>
         </div>
 
         {/* Sticky Scroll container */}
@@ -339,14 +298,14 @@ export function Home() {
                 <div className="flex flex-col items-center justify-center text-center space-y-6 pt-10">
                   {/* Active Role Label */}
                   <div className="flex flex-col items-center">
-                    <span className="text-[10px] tracking-[0.3em] uppercase text-[#85817a] font-medium">
+                    <span className="text-[10px] tracking-[0.3em] uppercase text-[#2b2a27] font-medium">
                       {activeMember.role}
                     </span>
-                    <div className="w-8 h-[1px] bg-[#2b2a27]/20 mt-2" />
+                    <div className="w-8 h-[1px] bg-[#2b2a27]/30 mt-2" />
                   </div>
 
                   {/* Active Name */}
-                  <h3 className="text-2xl font-light font-display text-[#1a1a19]">
+                  <h3 className="text-2xl font-normal font-display text-[#1a1a19]">
                     {activeMember.name}
                   </h3>
 
@@ -363,7 +322,7 @@ export function Home() {
                   <div className="max-w-md px-4 mt-2">
                     <span className="text-5xl font-serif text-[#85817a] opacity-30 leading-none select-none block">“</span>
                     <p className="text-sm font-light text-[#65625c] leading-relaxed italic mb-3">
-                      "{activeMember.quote}"
+                     
                     </p>
                     <p className="text-xs text-[#85817a] leading-relaxed font-light">
                       {activeMember.testimonial}
@@ -411,11 +370,11 @@ export function Home() {
                     
                     {/* Role and Name label above the central portrait */}
                     <div className="absolute left-[38%] translate-x-[-125px] top-4 z-40 w-[250px] text-left pointer-events-none">
-                      <span className="text-[10px] tracking-[0.3em] uppercase text-[#85817a] block font-light">
+                      <span className="text-[10px] tracking-[0.3em] uppercase text-[#2b2a27] block font-medium">
                         {activeMember.role}
                       </span>
-                      <div className="w-8 h-[1px] bg-[#2b2a27]/20 my-2" />
-                      <span className="text-sm font-light tracking-wide text-[#65625c] block">
+                      <div className="w-8 h-[1px] bg-[#2b2a27]/30 my-2" />
+                      <span className="text-sm font-normal tracking-wide text-[#1a1a19] block">
                         {activeMember.name}
                       </span>
                     </div>
@@ -466,16 +425,8 @@ export function Home() {
                   {/* Lower Section: Testimonial & Quote (Offset to the right, beneath active portrait) */}
                   <div className="w-full grid grid-cols-12 relative z-30">
                     <div className="col-start-6 col-span-6 md:col-start-6 md:col-span-5 text-left pl-4">
-                      {/* Oversized Quote Marks */}
-                      <span className="text-7xl font-serif text-[#85817a] opacity-15 leading-none select-none block -mb-4 -ml-2">
-                        “
-                      </span>
-                      {/* Quote statement */}
-                      <p className="text-base font-light font-display italic text-[#4a4843] mb-2 leading-relaxed">
-                        "{activeMember.quote}"
-                      </p>
                       {/* Muted testimonial paragraph */}
-                      <p className="text-xs text-[#85817a] font-light leading-relaxed max-w-md">
+                      <p className="text-base font-light font-display italic text-[#4a4843] mb-2 leading-relaxed">
                         {activeMember.testimonial}
                       </p>
                     </div>
@@ -484,11 +435,7 @@ export function Home() {
                 </div>
               )}
 
-              {/* Slide Indicators / Navigation Hints at Bottom */}
-              <div className="absolute bottom-10 left-6 right-6 flex items-center justify-between text-[10px] tracking-[0.2em] uppercase text-[#85817a]/60">
-                <div>0{activeIndex + 1} &mdash; 09</div>
-                <div className="hidden md:block">Scroll down to traverse leadership</div>
-              </div>
+
 
             </div>
           </div>

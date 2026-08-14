@@ -178,9 +178,7 @@ export function About() {
         <p className="mt-8 text-base md:text-lg text-[#65625c] leading-relaxed font-light">
           A collective of master sculptors, visionary curators, and innovative architects shaping monumental geological art. Scroll down to meet the team.
         </p>
-      </section>
-
-      {/* Sticky Scroll container */}
+      </section>      {/* Sticky Scroll container */}
       <div ref={containerRef} className="relative h-[600vh]">
         {/* Sticky wrapper */}
         <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden">
@@ -191,14 +189,14 @@ export function About() {
               <div className="flex flex-col items-center justify-center text-center space-y-6 pt-10">
                 {/* Active Role Label */}
                 <div className="flex flex-col items-center">
-                  <span className="text-[10px] tracking-[0.3em] uppercase text-[#85817a] font-medium">
+                  <span className="text-[10px] tracking-[0.3em] uppercase text-[#2b2a27] font-medium">
                     {activeMember.role}
                   </span>
-                  <div className="w-8 h-[1px] bg-[#2b2a27]/20 mt-2" />
+                  <div className="w-8 h-[1px] bg-[#2b2a27]/30 mt-2" />
                 </div>
 
                 {/* Active Name */}
-                <h2 className="text-2xl font-light font-display text-[#1a1a19]">
+                <h2 className="text-2xl font-normal font-display text-[#1a1a19]">
                   {activeMember.name}
                 </h2>
 
@@ -263,11 +261,11 @@ export function About() {
                   
                   {/* Role and Name label above the central portrait */}
                   <div className="absolute left-[38%] translate-x-[-125px] top-4 z-40 w-[250px] text-left pointer-events-none">
-                    <span className="text-[10px] tracking-[0.3em] uppercase text-[#85817a] block font-light">
+                    <span className="text-[10px] tracking-[0.3em] uppercase text-[#2b2a27] block font-medium">
                       {activeMember.role}
                     </span>
-                    <div className="w-8 h-[1px] bg-[#2b2a27]/20 my-2" />
-                    <span className="text-sm font-light tracking-wide text-[#65625c] block">
+                    <div className="w-8 h-[1px] bg-[#2b2a27]/30 my-2" />
+                    <span className="text-sm font-normal tracking-wide text-[#1a1a19] block">
                       {activeMember.name}
                     </span>
                   </div>
@@ -335,12 +333,6 @@ export function About() {
 
               </div>
             )}
-
-            {/* Slide Indicators / Navigation Hints at Bottom */}
-            <div className="absolute bottom-10 left-6 right-6 flex items-center justify-between text-[10px] tracking-[0.2em] uppercase text-[#85817a]/60">
-              <div>0{activeIndex + 1} &mdash; 09</div>
-              <div className="hidden md:block">Scroll down to traverse leadership</div>
-            </div>
 
           </div>
         </div>
