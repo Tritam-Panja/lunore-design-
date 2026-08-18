@@ -36,10 +36,12 @@
   --lunore-gold-brushed: rgba(184, 154, 98, 0.35);
   --lunore-gold-border: rgba(184, 154, 98, 0.22);
 
-  --font-heading: 'Cormorant Garamond', serif;
+  --font-heading: 'Syne', 'Outfit', sans-serif;
   --font-display: 'Playfair Display', 'Cormorant Garamond', serif;
-  --font-body: 'Inter', sans-serif;
-  --font-cursive: 'Great Vibes', 'Parisienne', 'MonteCarlo', cursive;
+  --font-body: 'Plus Jakarta Sans', 'Inter', sans-serif;
+  --font-modern: 'Syne', 'Outfit', sans-serif;
+  --font-serif: 'Playfair Display', 'Cormorant Garamond', serif;
+  --font-sans: 'Plus Jakarta Sans', 'Inter', sans-serif;
 }
 
 :root {
@@ -71,12 +73,14 @@
   body {
     background-color: #0d0e0e;
     color: #f1eee7;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
+    letter-spacing: -0.01em;
   }
   h1, h2, h3, h4, h5 {
-    font-family: 'Cormorant Garamond', serif;
+    font-family: 'Syne', 'Outfit', sans-serif;
     color: #f1eee7;
+    letter-spacing: -0.015em;
   }
 }
 
@@ -87,6 +91,120 @@
 .no-scrollbar {
   -ms-overflow-style: none;
   scrollbar-width: none;
+}
+
+/* ===== Liquid Glass Theme System ===== */
+
+.liquid-glass-nav {
+  background: rgba(15, 16, 16, 0.65);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 
+    0 20px 50px -15px rgba(0, 0, 0, 0.8),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.28),
+    inset 0 -1px 1px 0 rgba(0, 0, 0, 0.4);
+}
+
+.liquid-glass-pill {
+  background: rgba(18, 19, 19, 0.55);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow: 
+    0 12px 32px -8px rgba(0, 0, 0, 0.65),
+    inset 0 1px 1.5px 0 rgba(255, 255, 255, 0.22);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-glass-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 
+    0 16px 40px -8px rgba(0, 0, 0, 0.75),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.35),
+    0 0 24px rgba(255, 255, 255, 0.08);
+}
+
+.liquid-glass-card {
+  background: rgba(18, 19, 19, 0.5);
+  backdrop-filter: blur(24px) saturate(175%);
+  -webkit-backdrop-filter: blur(24px) saturate(175%);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  box-shadow: 
+    0 24px 48px -12px rgba(0, 0, 0, 0.7),
+    inset 0 1px 1.2px 0 rgba(255, 255, 255, 0.16);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-glass-card:hover {
+  background: rgba(26, 27, 27, 0.72);
+  border-color: rgba(184, 154, 98, 0.32);
+  box-shadow: 
+    0 28px 60px -12px rgba(0, 0, 0, 0.85),
+    inset 0 1px 2px 0 rgba(255, 255, 255, 0.28),
+    0 0 32px rgba(184, 154, 98, 0.1);
+}
+
+.liquid-glass-btn-primary {
+  background: #ffffff;
+  color: #0d0e0e;
+  font-weight: 500;
+  border-radius: 9999px;
+  box-shadow: 
+    0 8px 24px rgba(255, 255, 255, 0.18),
+    inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-glass-btn-primary:hover {
+  background: #f3f0e8;
+  transform: translateY(-1px) scale(1.02);
+  box-shadow: 
+    0 14px 32px rgba(255, 255, 255, 0.28),
+    inset 0 1px 1px rgba(255, 255, 255, 1);
+}
+
+.liquid-glass-btn-secondary {
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  color: #f1eee7;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 9999px;
+  box-shadow: 
+    0 10px 28px rgba(0, 0, 0, 0.5),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.24);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.liquid-glass-btn-secondary:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.35);
+  box-shadow: 
+    0 14px 36px rgba(0, 0, 0, 0.6),
+    inset 0 1px 2px rgba(255, 255, 255, 0.35),
+    0 0 24px rgba(255, 255, 255, 0.1);
+  transform: translateY(-1px) scale(1.02);
+}
+
+.liquid-glass-input {
+  background: rgba(18, 19, 19, 0.5) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.12) !important;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5), inset 0 1px 1px 0 rgba(255, 255, 255, 0.05) !important;
+  color: #f1eee7 !important;
+  transition: all 0.3s ease !important;
+}
+
+.liquid-glass-input:focus {
+  background: rgba(24, 25, 25, 0.75) !important;
+  border-color: rgba(184, 154, 98, 0.5) !important;
+  box-shadow: 
+    0 0 24px rgba(184, 154, 98, 0.18),
+    inset 0 1px 2px rgba(0, 0, 0, 0.6) !important;
+  outline: none !important;
 }
 
 /* ===== Header Animations ===== */
@@ -125,6 +243,35 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* ===== LUNORE Brand Glow & Animations ===== */
+
+.lunore-brand-letter {
+  display: inline-block;
+  animation: lunore-letter-reveal 1.2s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes lunore-letter-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(35px) scale(0.9);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+.lunore-n-glow {
+  color: #b89a62 !important;
+  text-shadow: 
+    0 0 10px rgba(184, 154, 98, 0.9),
+    0 0 25px rgba(184, 154, 98, 0.75),
+    0 0 50px rgba(184, 154, 98, 0.5),
+    0 0 80px rgba(184, 154, 98, 0.3);
 }
 
 /* ===== Preloader / Cinematic Entry Animations ===== */

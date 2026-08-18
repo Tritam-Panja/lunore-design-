@@ -6,7 +6,6 @@ import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
 import { Reveal } from '@/components/Reveal';
 import { ScrollLine } from '@/components/ScrollLine';
-import { MoonHeroCanvas } from '@/components/MoonHeroCanvas';
 
 const HERO_LETTERS = ['L', 'U', 'N', 'O', 'R', 'E'];
 
@@ -51,20 +50,20 @@ const directors: TeamMember[] = [
     name: "DINKESH SHARMA",
     role: "Founder & Director — Interior Design & Project Execution",
     testimonial: "As founder, Dinkesh brings  creative vision and craftsmanship to every project. He steers luxury interiors from initial concept through to beautifully realised spaces , Whether intimate homes, sprawling villas or hospitality venues. Dinkesh works closely with clients to understand their dreams, and leads a talented design team to bring them to life. His philosophy is simple: listen carefully, design thoughtfully, and execute flawlessly..",
-    image: "../src/assets/images/Director Dhinkesh.PNG"
+    image: "/assets/images/Director Dhinkesh.PNG"
   },
   
   {
     name: "Suchitra Pandey ",
     role: "Director — Human Resources",
     testimonial: "Suchitra is passionate about building a team where talented people do their best work. She leads recruitment, shapes HR policies, and nurtures a workplace culture grounded in respect, growth and collaboration. As Lunore expands, Suchitra ensures that our people feel valued, supported and connected to our shared mission: creating extraordinary spaces and experiences.",
-    image: "../src/assets/images/Director Suchitra .jpeg"
+    image: "/assets/images/Director Suchitra .jpeg"
   },
   {
     name: "CHIRAG GODSE",
     role: "Director — Marketing, Business Development & Aurexa",
     testimonial: "Every touchpoint tells a story. Chirag oversees Lunore's brand strategy, digital presence and business development with an eye toward creating memorable experiences. Through Aurexa, his passion project of luxury art events and auctions, Chirag has opened a direct channel to high-net-worth collectors and design influencers. He believes that authentic brands are built on genuine expertise and meaningful relationships , principles that guide everything from social media content to high-stakes client meetings.",
-    image: "../src/assets/images/Director Chirag.PNG"
+    image: "/assets/images/Director Chirag.PNG"
   },
   {
     name: "JITANDAR LOHAR ",
@@ -72,8 +71,6 @@ const directors: TeamMember[] = [
     testimonial: "Jitandar  keeps Lunore running smoothly behind the scenes. He manages finances with precision, handles compliance and statutory requirements, and builds the operational systems that let the team focus on creative work. Jitandar believes that strong administration and clear financial health are the foundation of sustainable growth and he takes pride in creating that foundation.",
     image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=compress&cs=tinysrgb&w=800&q=80"
   },
-  
- 
 ];
 
 export function Home() {
@@ -198,41 +195,59 @@ export function Home() {
   return (
     <div className="relative bg-[#0d0e0e] text-[#f1eee7]">
       {/* 1. HERO SECTION */}
-      <section id="hero" className="relative flex flex-col items-center justify-center text-center px-6 pt-32 pb-24 md:pt-48 md:pb-36 min-h-[95vh] overflow-hidden bg-[#0d0e0e]">
-        {/* 3D Realistic Cinematic Moon Hero Canvas */}
-        <MoonHeroCanvas />
-
-        {/* Seamless Crater Exit Gradient Overlay into Dark Graphite World */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none z-1">
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0d0e0e]/20 via-[#0d0e0e]/60 to-[#0d0e0e]" />
+      <section id="hero" className="relative w-full h-[92vh] md:h-screen min-h-[600px] overflow-hidden bg-[#0d0e0e] flex items-center">
+        {/* Background Hero Video (Original aspect ratio aligned to right) */}
+        <div className="absolute inset-0 flex justify-end items-center overflow-hidden pointer-events-none">
+          <video
+            autoPlay
+            loop
+            muted
+            playsInline
+            className="h-full w-auto max-w-none object-contain"
+          >
+            <source src="/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4" type="video/mp4" />
+          </video>
         </div>
-        
-        {/* Subtle Ambient Radial Glow */}
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#b89a62]/10 rounded-full blur-[140px] pointer-events-none" />
 
-        <div className="relative z-10 max-w-4xl">
-          <h1 className="text-6xl md:text-8xl lg:text-9xl font-light tracking-[0.2em] uppercase text-[#f1eee7]" style={{ perspective: '800px', fontFamily: 'var(--font-display)' }}>
-            {HERO_LETTERS.map((letter, i) => (
+        {/* Subtle Vignette Overlay for smooth page transition */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#0d0e0e] pointer-events-none" />
+        <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0d0e0e] via-[#0d0e0e]/70 to-transparent pointer-events-none" />
+
+        {/* Subtle Ambient Radial Glow */}
+        <div className="absolute -top-24 left-1/6 w-[600px] h-[600px] bg-[#b89a62]/15 rounded-full blur-[150px] pointer-events-none" />
+
+        {/* Left Side LUNORE Branding with Glowing Golden 'N' */}
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex items-center">
+          <div className="max-w-xl text-left">
+            {/* Main L U N O R E Wordmark with Golden Glowing N */}
+            <h1
+              className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-light tracking-[0.16em] uppercase text-[#f1eee7] leading-none select-none"
+              style={{ fontFamily: 'var(--font-display)', perspective: '1000px' }}
+            >
+              <span className="lunore-brand-letter inline-block" style={{ animationDelay: '0.2s' }}>L</span>
+              <span className="lunore-brand-letter inline-block" style={{ animationDelay: '0.32s' }}>U</span>
               <span
-                key={i}
-                className={`hero-word ${i === 2 ? 'text-[#b89a62]' : ''}`}
-                style={{ animationDelay: `${0.2 + i * 0.12}s` }}
+                className="lunore-brand-letter lunore-n-glow inline-block text-[#b89a62]"
+                style={{
+                  animationDelay: '0.44s',
+                  color: '#b89a62',
+                  textShadow: '0 0 12px rgba(184,154,98,0.9), 0 0 28px rgba(184,154,98,0.7), 0 0 55px rgba(184,154,98,0.45)',
+                }}
               >
-                {letter}
+                N
               </span>
-            ))}
-          </h1>
-          <p className="mt-6 text-sm tracking-[0.5em] uppercase text-[#b9b5ae] hero-word" style={{ animationDelay: '1.1s' }}>
-            Luxe Decor Studio
-          </p>
-          <div className="mt-10 w-16 h-px bg-[#b89a62] mx-auto" />
-          <p className="mt-8 text-lg md:text-xl text-[#b9b5ae] font-light max-w-xl mx-auto leading-relaxed hero-word" style={{ animationDelay: '1.3s' }}>
-           
-          </p>
-          <div className="mt-12 flex justify-center hero-word" style={{ animationDelay: '1.5s' }}>
-            <a href="#brand-story" className="inline-block w-5 h-8 border border-[#b89a62]/60 rounded-full relative animate-bounce transition-colors hover:border-[#b89a62]">
-              <span className="absolute top-1.5 left-1/2 -translate-x-1/2 w-1 h-2 bg-[#b89a62] rounded-full" />
-            </a>
+              <span className="lunore-brand-letter inline-block" style={{ animationDelay: '0.56s' }}>O</span>
+              <span className="lunore-brand-letter inline-block" style={{ animationDelay: '0.68s' }}>R</span>
+              <span className="lunore-brand-letter inline-block" style={{ animationDelay: '0.8s' }}>E</span>
+            </h1>
+
+            {/* Subtle Divider Line & Tagline */}
+            <div className="mt-8 flex items-center gap-4 lunore-brand-letter" style={{ animationDelay: '1s' }}>
+              <div className="w-12 h-px bg-gradient-to-r from-[#b89a62] to-transparent" />
+              <p className="text-[11px] sm:text-xs tracking-[0.35em] uppercase text-[#b9b5ae] font-light">
+                Spaces with Character
+              </p>
+            </div>
           </div>
         </div>
       </section>
@@ -278,176 +293,177 @@ export function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
 
       {/* 3. ABOUT PREVIEW SECTION (TEAM PARADE) */}
-      <section id="about" className="bg-[#F2F0E6] text-[#2b2a27] font-sans selection:bg-[#2b2a27]/10 relative">
+      <section id="about" className="bg-[#0d0e0e] text-[#f1eee7] font-sans selection:bg-white/10 relative overflow-hidden">
+        {/* Ambient Radial Glows */}
+        <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] bg-[#b89a62]/5 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-white/[0.02] rounded-full blur-[140px] pointer-events-none" />
+
         {/* Intro Editorial Header */}
-        <div className="px-6 pt-24 pb-12 text-center max-w-3xl mx-auto">
-          <h2 className="text-4xl md:text-5xl font-light font-display tracking-tight text-[#1a1a19] leading-tight">
+        <div className="px-6 pt-24 pb-12 text-center max-w-3xl mx-auto relative z-10">
+          <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-3">
+            Leadership
+          </p>
+          <h2 className="text-4xl md:text-5xl font-light font-display tracking-tight text-[#f1eee7] leading-tight">
             Directors of Lunore
           </h2>
-          <div className="mt-6 w-12 h-[1px] bg-[#2b2a27]/20 mx-auto" />
+          <div className="mt-6 w-12 h-[1px] bg-[#b89a62]/40 mx-auto" />
         </div>
 
-        {/* Sticky Scroll container */}
-        <div ref={aboutRef} className="relative h-[600vh]">
-          {/* Sticky wrapper */}
-          <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden">
-            <div className="max-w-7xl mx-auto w-full px-6 md:px-12 flex flex-col h-full justify-center relative">
-              
-              {isMobile ? (
-                /* Mobile Vertical Stack Layout */
-                <div className="flex flex-col items-center justify-center text-center space-y-6 pt-10">
-                  {/* Active Role Label */}
-                  <div className="flex flex-col items-center">
-                    <span className="text-[10px] tracking-[0.3em] uppercase text-[#2b2a27] font-medium">
+        {/* Interactive Directors Parade */}
+        <div className="relative py-12 md:py-16">
+          <div className="max-w-7xl mx-auto w-full px-6 md:px-12 flex flex-col justify-center relative">
+            
+            {isMobile ? (
+              /* Mobile Vertical Stack Layout */
+              <div className="flex flex-col items-center justify-center text-center space-y-6">
+                {/* Active Role Label */}
+                <div className="flex flex-col items-center">
+                  <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62] font-medium">
+                    {activeMember.role}
+                  </span>
+                  <div className="w-8 h-[1px] bg-[#b89a62]/40 mt-2" />
+                </div>
+
+                {/* Active Name */}
+                <h3 className="text-2xl font-normal font-display text-[#f1eee7]">
+                  {activeMember.name}
+                </h3>
+
+                {/* Large Portrait */}
+                <div className="w-[180px] h-[180px] rounded-full overflow-hidden border border-[#b89a62]/30 p-1 bg-[#181917] shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+                  <img
+                    src={activeMember.image}
+                    alt={activeMember.name}
+                    className="w-full h-full object-cover rounded-full"
+                  />
+                </div>
+
+                {/* Testimonial Quote & Text */}
+                <div className="max-w-md px-4 mt-2">
+                  <span className="text-5xl font-serif text-[#b89a62] opacity-40 leading-none select-none block">“</span>
+                  <p
+                    className="text-sm md:text-base text-[#e6cb97] leading-relaxed font-light font-display italic tracking-wide"
+                    style={{ color: '#e6cb97' }}
+                  >
+                    {activeMember.testimonial}
+                  </p>
+                </div>
+
+                {/* Mobile Avatar Parade (Centered Row) */}
+                <div className="w-full pt-4 overflow-x-auto no-scrollbar">
+                  <div className="flex items-center justify-center gap-3 px-6">
+                    {directors.map((member, idx) => (
+                      <button
+                        key={member.name}
+                        onClick={() => setActiveIndex(idx)}
+                        className={`relative rounded-full overflow-hidden flex-shrink-0 transition-all duration-500 ${
+                          idx === activeIndex
+                            ? 'w-12 h-12 border-2 border-[#b89a62] scale-110 shadow-[0_0_20px_rgba(184,154,98,0.4)]'
+                            : 'w-8 h-8 opacity-40 hover:opacity-80 border border-white/10'
+                        }`}
+                      >
+                        <img
+                          src={member.image}
+                          alt={member.name}
+                          className="w-full h-full object-cover"
+                        />
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              /* Desktop & Tablet Layout */
+              <div className="relative w-full h-[550px] flex flex-col justify-between">
+                
+                {/* Upper Section: Parade and Role Label */}
+                <div className="relative w-full h-[320px]">
+                  
+                  {/* Role and Name label above the central portrait */}
+                  <div className="absolute left-[38%] translate-x-[-125px] top-4 z-40 w-[250px] text-left pointer-events-none">
+                    <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62] block font-medium">
                       {activeMember.role}
                     </span>
-                    <div className="w-8 h-[1px] bg-[#2b2a27]/30 mt-2" />
+                    <div className="w-8 h-[1px] bg-[#b89a62]/40 my-2" />
+                    <span className="text-sm font-normal tracking-wide text-[#f1eee7] block">
+                      {activeMember.name}
+                    </span>
                   </div>
 
-                  {/* Active Name */}
-                  <h3 className="text-2xl font-normal font-display text-[#1a1a19]">
-                    {activeMember.name}
-                  </h3>
+                  {/* Horizontal Parade Field */}
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
+                      {directors.map((member, idx) => {
+                        const { size, opacity, x } = getAvatarStyle(idx);
+                        const isActive = idx === activeIndex;
 
-                  {/* Large Portrait */}
-                  <div className="w-[180px] h-[180px] rounded-full overflow-hidden border border-[#2b2a27]/10 p-1 bg-[#F2F0E6]">
-                    <img
-                      src={activeMember.image}
-                      alt={activeMember.name}
-                      className="w-full h-full object-cover rounded-full"
-                    />
+                        return (
+                          <div
+                            key={member.name}
+                            onClick={() => setActiveIndex(idx)}
+                            style={{
+                              width: `${size}px`,
+                              height: `${size}px`,
+                              opacity: opacity,
+                              transform: `translate3d(${x}px, ${isActive ? 15 : 0}px, 0)`,
+                              zIndex: isActive ? 30 : 20 - Math.abs(idx - activeIndex),
+                            }}
+                            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden cursor-pointer transition-all ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-700 ${
+                              isActive ? 'p-1.5 border-2 border-[#b89a62] bg-[#181917] shadow-[0_0_40px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.25)]' : 'border border-white/10 hover:opacity-80'
+                            }`}
+                          >
+                            <img
+                              src={member.image}
+                              alt={member.name}
+                              className="w-full h-full object-cover rounded-full select-none"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
+                </div>
 
-                  {/* Testimonial Quote & Text */}
-                  <div className="max-w-md px-4 mt-2">
-                    <span className="text-5xl font-serif text-[#85817a] opacity-30 leading-none select-none block">“</span>
-                    <p className="text-sm font-light text-[#65625c] leading-relaxed italic mb-3">
-                     
-                    </p>
-                    <p className="text-xs text-[#85817a] leading-relaxed font-light">
+                {/* Lower Section: Testimonial & Quote */}
+                <div className="w-full grid grid-cols-12 relative z-30">
+                  <div className="col-start-6 col-span-6 md:col-start-6 md:col-span-5 text-left pl-4">
+                    {/* Radiant Golden testimonial paragraph */}
+                    <p
+                      className="text-base md:text-lg font-light font-display italic text-[#e6cb97] mb-2 leading-relaxed tracking-wide"
+                      style={{ color: '#e6cb97' }}
+                    >
                       {activeMember.testimonial}
                     </p>
                   </div>
-
-                  {/* Mobile Avatar Parade (Centered Row) */}
-                  <div className="w-full pt-4 overflow-x-auto no-scrollbar">
-                    <div className="flex items-center justify-center gap-3 px-6">
-                      {directors.map((member, idx) => (
-                        <button
-                          key={member.name}
-                          onClick={() => {
-                            const scrollElement = aboutRef.current;
-                            if (scrollElement) {
-                              const stepHeight = (scrollElement.scrollHeight - window.innerHeight) / directors.length;
-                              window.scrollTo({
-                                top: scrollElement.offsetTop + (idx * stepHeight) + 10,
-                                behavior: 'smooth'
-                              });
-                            }
-                          }}
-                          className={`relative rounded-full overflow-hidden flex-shrink-0 transition-all duration-500 ${
-                            idx === activeIndex
-                              ? 'w-12 h-12 border border-[#2b2a27]/40 scale-110'
-                              : 'w-8 h-8 opacity-40 hover:opacity-80'
-                          }`}
-                        >
-                          <img
-                            src={member.image}
-                            alt={member.name}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
-                      ))}
-                    </div>
-                  </div>
                 </div>
-              ) : (
-                /* Desktop & Tablet Layout */
-                <div className="relative w-full h-[550px] flex flex-col justify-between">
-                  
-                  {/* Upper Section: Parade and Role Label */}
-                  <div className="relative w-full h-[320px]">
-                    
-                    {/* Role and Name label above the central portrait */}
-                    <div className="absolute left-[38%] translate-x-[-125px] top-4 z-40 w-[250px] text-left pointer-events-none">
-                      <span className="text-[10px] tracking-[0.3em] uppercase text-[#2b2a27] block font-medium">
-                        {activeMember.role}
-                      </span>
-                      <div className="w-8 h-[1px] bg-[#2b2a27]/30 my-2" />
-                      <span className="text-sm font-normal tracking-wide text-[#1a1a19] block">
-                        {activeMember.name}
-                      </span>
-                    </div>
 
-                    {/* Horizontal Parade Field */}
-                    <div className="absolute inset-0 flex items-center justify-center">
-                      <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
-                        {directors.map((member, idx) => {
-                          const { size, opacity, x } = getAvatarStyle(idx);
-                          const isActive = idx === activeIndex;
-
-                          return (
-                            <div
-                              key={member.name}
-                              onClick={() => {
-                                const scrollElement = aboutRef.current;
-                                if (scrollElement) {
-                                  const stepHeight = (scrollElement.scrollHeight - window.innerHeight) / directors.length;
-                                  window.scrollTo({
-                                    top: scrollElement.offsetTop + (idx * stepHeight) + 10,
-                                    behavior: 'smooth'
-                                  });
-                                }
-                              }}
-                              style={{
-                                width: `${size}px`,
-                                height: `${size}px`,
-                                opacity: opacity,
-                                transform: `translate3d(${x}px, ${isActive ? 15 : 0}px, 0)`,
-                                zIndex: isActive ? 30 : 20 - Math.abs(idx - activeIndex),
-                              }}
-                              className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden cursor-pointer transition-all ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-1000 ${
-                                isActive ? 'p-1.5 border border-[#2b2a27]/10 bg-[#F2F0E6]' : ''
-                              }`}
-                            >
-                              <img
-                                src={member.image}
-                                alt={member.name}
-                                className="w-full h-full object-cover rounded-full select-none"
-                              />
-                            </div>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Lower Section: Testimonial & Quote (Offset to the right, beneath active portrait) */}
-                  <div className="w-full grid grid-cols-12 relative z-30">
-                    <div className="col-start-6 col-span-6 md:col-start-6 md:col-span-5 text-left pl-4">
-                      {/* Muted testimonial paragraph */}
-                      <p className="text-base font-light font-display italic text-[#4a4843] mb-2 leading-relaxed">
-                        {activeMember.testimonial}
-                      </p>
-                    </div>
-                  </div>
-
+                {/* Navigation Dots */}
+                <div className="flex items-center justify-center gap-2 pt-4">
+                  {directors.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveIndex(idx)}
+                      aria-label={`Select director ${idx + 1}`}
+                      className={`h-1.5 rounded-full transition-all duration-300 ${
+                        idx === activeIndex ? 'w-8 bg-[#b89a62]' : 'w-2 bg-white/20 hover:bg-white/40'
+                      }`}
+                    />
+                  ))}
                 </div>
-              )}
 
+              </div>
+            )}
 
-
-            </div>
           </div>
         </div>
 
         {/* Footer Navigation Link back to collection */}
-        <div className="py-16 text-center border-t border-[#2b2a27]/10 bg-[#F2F0E6]">
+        <div className="py-14 text-center border-t border-white/[0.08] bg-[#0d0e0e]">
           <Link
             to="/about"
-            className="px-8 py-4 border border-[#2b2a27]/20 text-xs tracking-[0.3em] uppercase text-[#2b2a27] hover:bg-[#2b2a27] hover:text-[#F2F0E6] transition-all inline-flex items-center justify-center gap-2"
+            className="liquid-glass-btn-secondary px-8 py-3.5 text-xs tracking-[0.3em] uppercase text-[#f1eee7] inline-flex items-center justify-center gap-2 hover:border-[#b89a62]/60 hover:text-[#b89a62] transition-all"
           >
-            Learn More About Our Team <ArrowRight className="w-4 h-4" />
+            Learn More About Our Team <ArrowRight className="w-4 h-4 text-[#b89a62]" />
           </Link>
         </div>
       </section>
@@ -469,17 +485,17 @@ export function Home() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Service 1: Interior Design */}
-            <Reveal direction="left" className="p-8 md:p-12 border border-[rgba(184,154,98,0.16)] bg-[#181917] flex flex-col justify-between hover-lift shadow-xl shadow-black/30">
+            <Reveal direction="left" className="p-8 md:p-12 rounded-3xl liquid-glass-card flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-8">
-                  <span className="text-xs tracking-[0.3em] uppercase text-[#b89a62]">Full-Scope</span>
+                  <span className="text-xs tracking-[0.3em] uppercase text-[#b89a62] px-3 py-1 rounded-full liquid-glass-pill">Full-Scope</span>
                   <Ruler className="w-8 h-8 text-[#b89a62]" strokeWidth={1} />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-light mb-4 text-[#f1eee7]">Interior Design Solutions</h3>
                 <p className="text-[#b9b5ae] leading-relaxed font-light mb-6">
                   Complete interior solutions from concept development and space planning to bespoke material selection and turnkey execution.
                 </p>
-                <ul className="space-y-2 mb-8">
+                <ul className="space-y-2.5 mb-8">
                   {['Space Planning & Concepts', 'Turnkey Execution', 'Residential & Commercial'].map((item) => (
                     <li key={item} className="flex items-center gap-3 text-sm text-[#b9b5ae]">
                       <Check className="w-4 h-4 text-[#b89a62]" />
@@ -490,24 +506,24 @@ export function Home() {
               </div>
               <Link
                 to="/interior-design"
-                className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#b89a62] hover:underline mt-4 group"
+                className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#b89a62] hover:text-white mt-4 group"
               >
                 Explore Interior Design <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
             </Reveal>
 
             {/* Service 2: Marble & Granite */}
-            <Reveal direction="right" className="p-8 md:p-12 border border-[rgba(184,154,98,0.16)] bg-[#181917] flex flex-col justify-between hover-lift shadow-xl shadow-black/30">
+            <Reveal direction="right" className="p-8 md:p-12 rounded-3xl liquid-glass-card flex flex-col justify-between">
               <div>
                 <div className="flex items-center justify-between mb-8">
-                  <span className="text-xs tracking-[0.3em] uppercase text-[#b89a62]">Curated Stones</span>
+                  <span className="text-xs tracking-[0.3em] uppercase text-[#b89a62] px-3 py-1 rounded-full liquid-glass-pill">Curated Stones</span>
                   <Sparkles className="w-8 h-8 text-[#b89a62]" strokeWidth={1} />
                 </div>
                 <h3 className="text-2xl md:text-3xl font-light mb-4 text-[#f1eee7]">Marble &amp; Granite Solutions</h3>
                 <p className="text-[#b9b5ae] leading-relaxed font-light mb-6">
                   Imported marble sourced from Italy and global quarries, durable granite, and exotic natural stone collections for statement spaces.
                 </p>
-                <ul className="space-y-2 mb-8">
+                <ul className="space-y-2.5 mb-8">
                   {['Imported Marble Sourcing', 'Exotic Stone Collection', 'Precision Cutting & Finish'].map((item) => (
                     <li key={item} className="flex items-center gap-3 text-sm text-[#b9b5ae]">
                       <Check className="w-4 h-4 text-[#b89a62]" />
@@ -518,7 +534,7 @@ export function Home() {
               </div>
               <Link
                 to="/marble-granite"
-                className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#b89a62] hover:underline mt-4 group"
+                className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#b89a62] hover:text-white mt-4 group"
               >
                 Explore Marble &amp; Granite <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
@@ -653,13 +669,13 @@ export function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {processSteps.map((s, i) => (
-              <Reveal key={s.num} direction="up" delay={i * 0.1} className="p-8 border border-[rgba(184,154,98,0.16)] bg-[#181917] relative hover-lift z-10 shadow-xl shadow-black/30">
+              <Reveal key={s.num} direction="up" delay={i * 0.1} className="p-8 rounded-3xl liquid-glass-card relative z-10">
                 <span className="text-4xl md:text-5xl font-light text-[#b89a62] block mb-4">
                   {s.num}
                 </span>
                 <h3 className="text-xl font-light mb-3 text-[#f1eee7]">{s.title}</h3>
                 <div className="w-10 h-px bg-[#b89a62]/60 mb-4" />
-                <p className="text-sm text-[#b9b5ae] leading-relaxed">{s.desc}</p>
+                <p className="text-sm text-[#b9b5ae] leading-relaxed font-light">{s.desc}</p>
               </Reveal>
             ))}
           </div>
@@ -668,7 +684,7 @@ export function Home() {
             <Reveal>
               <Link
                 to="/process"
-                className="inline-flex items-center gap-3 px-8 py-4 border border-[#b89a62] text-xs tracking-[0.3em] uppercase text-[#b89a62] hover:bg-[#b89a62] hover:text-[#0d0e0e] transition-all group shimmer"
+                className="liquid-glass-btn-secondary inline-flex items-center gap-3 px-8 py-4 text-xs tracking-[0.25em] uppercase text-[#f1eee7] group shadow-lg"
               >
                 Discover Full Process <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
               </Link>
@@ -691,27 +707,30 @@ export function Home() {
 
       {/* 7. CALL TO ACTION (CTA) SECTION */}
       <section id="cta" className="py-20 md:py-32 relative text-center bg-gradient-to-b from-[#0d0e0e] via-[#151615] to-[#0d0e0e] overflow-hidden">
-        <div className="max-w-3xl mx-auto px-6 relative z-10">
-          <Reveal>
-            <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4">
-              Bespoke Spaces
-            </p>
+        <div className="max-w-4xl mx-auto px-6 relative z-10">
+          <Reveal className="liquid-glass-card rounded-3xl p-10 md:p-16 text-center">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass-pill mb-6">
+              <Sparkles className="w-3.5 h-3.5 text-[#b89a62]" />
+              <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62]">
+                Bespoke Spaces
+              </span>
+            </div>
             <h2 className="text-3xl md:text-5xl font-light leading-tight text-[#f1eee7]">
               Let's Build Your Dream Space
             </h2>
-            <p className="mt-6 text-lg text-[#b9b5ae] leading-relaxed font-light">
+            <p className="mt-6 text-lg text-[#b9b5ae] leading-relaxed font-light max-w-2xl mx-auto">
               Whether it's a private residence, luxury villa, commercial office, or curated hospitality environment — we shape stone into enduring experiences.
             </p>
             <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
               <a
                 href="#contact"
-                className="px-8 py-4 border border-[#b89a62] text-xs tracking-[0.3em] uppercase text-[#b89a62] hover:bg-[#b89a62] hover:text-[#0d0e0e] transition-all inline-flex items-center justify-center gap-2 shimmer"
+                className="liquid-glass-btn-primary px-8 py-4 text-xs tracking-[0.25em] uppercase text-[#0d0e0e] font-semibold inline-flex items-center justify-center gap-2 shadow-xl"
               >
                 Book a Consultation <ArrowRight className="w-4 h-4" />
               </a>
               <Link
                 to="/contact"
-                className="px-8 py-4 border border-[rgba(184,154,98,0.25)] text-xs tracking-[0.3em] uppercase text-[#b9b5ae] hover:border-[#b89a62] hover:text-[#b89a62] transition-all inline-flex items-center justify-center"
+                className="liquid-glass-btn-secondary px-8 py-4 text-xs tracking-[0.25em] uppercase text-[#f1eee7] inline-flex items-center justify-center"
               >
                 Contact Page
               </Link>
@@ -744,11 +763,11 @@ export function Home() {
             </p>
           </Reveal>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Form */}
-            <Reveal direction="left">
+            <Reveal direction="left" className="liquid-glass-card p-8 md:p-10 rounded-3xl">
               {status === 'success' ? (
-                <div className="p-8 border border-[#b89a62] bg-[#b89a62]/10 text-center">
+                <div className="p-8 border border-[#b89a62] bg-[#b89a62]/10 rounded-2xl text-center">
                   <Check className="w-10 h-10 text-[#b89a62] mx-auto mb-4" strokeWidth={1.5} />
                   <h3 className="text-2xl font-light mb-3 text-[#f1eee7]">Inquiry Received</h3>
                   <p className="text-[#b9b5ae] leading-relaxed">
@@ -762,7 +781,7 @@ export function Home() {
                   </button>
                 </div>
               ) : (
-                <form onSubmit={handleContactSubmit} className="space-y-6">
+                <form onSubmit={handleContactSubmit} className="space-y-5">
                   <div>
                     <label className="block text-xs tracking-[0.2em] uppercase text-[#b9b5ae] mb-2">
                       Name
@@ -772,7 +791,7 @@ export function Home() {
                       required
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full bg-transparent border-b border-[rgba(184,154,98,0.25)] py-3 text-[#f1eee7] focus:border-[#b89a62] focus:outline-none transition-colors"
+                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-sm focus:outline-none"
                     />
                   </div>
                   <div>
@@ -784,7 +803,7 @@ export function Home() {
                       required
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full bg-transparent border-b border-[rgba(184,154,98,0.25)] py-3 text-[#f1eee7] focus:border-[#b89a62] focus:outline-none transition-colors"
+                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-sm focus:outline-none"
                     />
                   </div>
                   <div>
@@ -796,7 +815,7 @@ export function Home() {
                       required
                       value={form.subject}
                       onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                      className="w-full bg-transparent border-b border-[rgba(184,154,98,0.25)] py-3 text-[#f1eee7] focus:border-[#b89a62] focus:outline-none transition-colors"
+                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-sm focus:outline-none"
                     />
                   </div>
                   <div>
@@ -808,7 +827,7 @@ export function Home() {
                       rows={4}
                       value={form.message}
                       onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      className="w-full bg-transparent border-b border-[rgba(184,154,98,0.25)] py-3 text-[#f1eee7] focus:border-[#b89a62] focus:outline-none transition-colors resize-none"
+                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-sm focus:outline-none resize-none"
                     />
                   </div>
                   {status === 'error' && (
@@ -819,7 +838,7 @@ export function Home() {
                   <button
                     type="submit"
                     disabled={status === 'sending'}
-                    className="inline-flex items-center gap-2 px-8 py-4 border border-[#b89a62] text-xs tracking-[0.3em] uppercase text-[#b89a62] hover:bg-[#b89a62] hover:text-[#0d0e0e] transition-all disabled:opacity-50"
+                    className="liquid-glass-btn-primary w-full py-4 text-xs tracking-[0.25em] uppercase font-semibold text-[#0d0e0e] inline-flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg cursor-pointer"
                   >
                     {status === 'sending' ? 'Sending…' : 'Send Inquiry'}
                     {status !== 'sending' && <Send className="w-4 h-4" />}
@@ -829,9 +848,9 @@ export function Home() {
             </Reveal>
 
             {/* Studio Info */}
-            <Reveal direction="right" className="space-y-8 flex flex-col justify-between">
+            <Reveal direction="right" className="liquid-glass-card p-8 md:p-10 rounded-3xl space-y-8 flex flex-col justify-between">
               <div>
-                <h3 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-5">
+                <h3 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-6">
                   Studio Details
                 </h3>
                 <div className="flex items-start gap-4 mb-6">
@@ -861,10 +880,10 @@ export function Home() {
                 </div>
               </div>
 
-              <div className="pt-8 border-t border-[rgba(184,154,98,0.16)]">
+              <div className="pt-8 border-t border-white/10">
                 <Link
                   to="/contact"
-                  className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#b89a62] hover:underline group"
+                  className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#b89a62] hover:text-white group"
                 >
                   View Full Contact &amp; Location Page <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
                 </Link>

@@ -40,8 +40,11 @@ export function Footer() {
   };
 
   return (
-    <footer className="border-t border-[rgba(184,154,98,0.16)] bg-[#111211] mt-24">
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16">
+    <footer className="border-t border-white/10 bg-[#0d0e0e]/95 backdrop-blur-2xl mt-24 relative overflow-hidden">
+      {/* Subtle radial glow in footer */}
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#b89a62]/5 rounded-full blur-[140px] pointer-events-none" />
+
+      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16 relative z-10">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
           <div>
             <Logo />
@@ -61,7 +64,7 @@ export function Footer() {
                   <Link
                     to={link.to}
                     onClick={(e) => handleFooterLinkClick(e, link)}
-                    className="group relative inline-flex items-center gap-1.5 text-xs tracking-[0.1em] uppercase text-[#b9b5ae] hover:text-[#f1eee7] transition-colors"
+                    className="group relative inline-flex items-center gap-1.5 text-xs tracking-[0.1em] uppercase text-[#b9b5ae] hover:text-white transition-colors"
                   >
                     <span className="w-0 h-px bg-[#b89a62] transition-all duration-300 group-hover:w-3" />
                     {link.label}
@@ -85,7 +88,7 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-[rgba(184,154,98,0.15)] flex flex-col md:flex-row justify-between gap-2">
+        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between gap-2">
           <p className="text-xs text-[#85817a]">
             © {new Date().getFullYear()} LUNORE Luxe Decor Studio. All rights reserved.
           </p>
@@ -95,3 +98,4 @@ export function Footer() {
     </footer>
   );
 }
+
