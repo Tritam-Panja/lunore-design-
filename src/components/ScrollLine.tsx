@@ -42,6 +42,7 @@ export function ScrollLine({
   const containerRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const [pathLength, setPathLength] = useState<number>(0);
+  const isVisibleRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (pathRef.current) {
@@ -52,13 +53,25 @@ export function ScrollLine({
     }
   }, [path]);
 
+  // Only calculate on scroll when visible in viewport (eliminates layout thrashing)
   useEffect(() => {
-    if (!pathLength) return;
+    if (!pathLength || !containerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisibleRef.current = entry.isIntersecting;
+      },
+      { rootMargin: '100px 0px 100px 0px' }
+    );
+
+    observer.observe(containerRef.current);
 
     let animationFrameId: number;
+    let isTicking = false;
 
-    const handleScroll = () => {
-      if (!containerRef.current || !pathRef.current) return;
+    const updateScrollLine = () => {
+      isTicking = false;
+      if (!isVisibleRef.current || !containerRef.current || !pathRef.current) return;
 
       const rect = containerRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
@@ -73,18 +86,22 @@ export function ScrollLine({
       progress = Math.max(0, Math.min(1, progress));
 
       const drawLength = pathLength * (1 - progress);
-      pathRef.current.style.strokeDashoffset = `${drawLength}`;
+      pathRef.current.style.strokeDashoffset = `${drawLength.toFixed(1)}`;
     };
 
     const onScroll = () => {
-      animationFrameId = requestAnimationFrame(handleScroll);
+      if (!isTicking) {
+        isTicking = true;
+        animationFrameId = requestAnimationFrame(updateScrollLine);
+      }
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
-    handleScroll();
+    updateScrollLine();
 
     return () => {
+      observer.disconnect();
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
       cancelAnimationFrame(animationFrameId);
@@ -120,8 +137,7 @@ export function ScrollLine({
           strokeDasharray={strokeDasharray}
           filter={glow || isExperienceActive ? "url(#gold-glow-intense)" : undefined}
           style={{
-            transition: 'stroke-dashoffset 0.1s ease-out, stroke 0.8s ease, stroke-width 0.8s ease',
-            willChange: 'stroke-dashoffset, stroke, stroke-width',
+            willChange: 'stroke-dashoffset',
           }}
         />
       </svg>

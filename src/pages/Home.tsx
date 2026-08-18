@@ -6,6 +6,7 @@ import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
 import { Reveal } from '@/components/Reveal';
 import { ScrollLine } from '@/components/ScrollLine';
+import { InteriorExperience } from '@/components/InteriorExperience';
 
 const HERO_LETTERS = ['L', 'U', 'N', 'O', 'R', 'E'];
 
@@ -195,23 +196,24 @@ export function Home() {
   return (
     <div className="relative bg-[#0d0e0e] text-[#f1eee7]">
       {/* 1. HERO SECTION */}
-      <section id="hero" className="relative w-full h-[92vh] md:h-screen min-h-[600px] overflow-hidden bg-[#0d0e0e] flex items-center">
-        {/* Background Hero Video (Original aspect ratio aligned to right) */}
+      <section id="hero" className="relative w-full min-h-[85vh] sm:min-h-[90vh] md:h-screen md:min-h-[600px] overflow-hidden bg-[#0d0e0e] flex items-center pt-24 sm:pt-28 md:pt-0">
+        {/* Background Hero Video */}
         <div className="absolute inset-0 flex justify-end items-center overflow-hidden pointer-events-none">
           <video
             autoPlay
             loop
             muted
             playsInline
-            className="h-full w-auto max-w-none object-contain"
+            className="h-full w-full object-cover object-[70%_center] sm:object-right md:w-auto md:max-w-none md:object-contain"
           >
             <source src="/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4" type="video/mp4" />
           </video>
         </div>
 
-        {/* Subtle Vignette Overlay for smooth page transition */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-transparent to-[#0d0e0e] pointer-events-none" />
-        <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0d0e0e] via-[#0d0e0e]/70 to-transparent pointer-events-none" />
+        {/* Responsive Gradient Vignette Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-[#0d0e0e] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0e0e] via-[#0d0e0e]/50 to-transparent sm:hidden pointer-events-none" />
+        <div className="hidden sm:block absolute inset-y-0 left-0 w-1/2 lg:w-1/3 bg-gradient-to-r from-[#0d0e0e] via-[#0d0e0e]/75 to-transparent pointer-events-none" />
 
         {/* Subtle Ambient Radial Glow */}
         <div className="absolute -top-24 left-1/6 w-[600px] h-[600px] bg-[#b89a62]/15 rounded-full blur-[150px] pointer-events-none" />
@@ -221,7 +223,7 @@ export function Home() {
           <div className="max-w-xl text-left">
             {/* Main L U N O R E Wordmark with Golden Glowing N */}
             <h1
-              className="text-5xl sm:text-7xl md:text-8xl lg:text-9xl font-light tracking-[0.16em] uppercase text-[#f1eee7] leading-none select-none"
+              className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.12em] sm:tracking-[0.16em] uppercase text-[#f1eee7] leading-none select-none whitespace-nowrap"
               style={{ fontFamily: 'var(--font-display)', perspective: '1000px' }}
             >
               <span className="lunore-brand-letter inline-block" style={{ animationDelay: '0.2s' }}>L</span>
@@ -242,9 +244,9 @@ export function Home() {
             </h1>
 
             {/* Subtle Divider Line & Tagline */}
-            <div className="mt-8 flex items-center gap-4 lunore-brand-letter" style={{ animationDelay: '1s' }}>
-              <div className="w-12 h-px bg-gradient-to-r from-[#b89a62] to-transparent" />
-              <p className="text-[11px] sm:text-xs tracking-[0.35em] uppercase text-[#b9b5ae] font-light">
+            <div className="mt-6 sm:mt-8 flex items-center gap-4 lunore-brand-letter" style={{ animationDelay: '1s' }}>
+              <div className="w-8 sm:w-12 h-px bg-gradient-to-r from-[#b89a62] to-transparent" />
+              <p className="text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.35em] uppercase text-[#b9b5ae] font-light">
                 Spaces with Character
               </p>
             </div>
@@ -256,35 +258,30 @@ export function Home() {
       <div className="relative z-10 w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.3)] to-transparent" />
 
       {/* 2. BRAND STORY PREVIEW SECTION */}
-      <section id="brand-story" className="py-24 md:py-36 relative overflow-hidden bg-[#111211]">
+      <section id="brand-story" className="py-20 sm:py-24 md:py-36 relative overflow-hidden bg-[#111211]">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <Reveal>
             <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4">
               about Lunore 
             </p>
-            <h2 className="text-3xl md:text-5xl font-light leading-tight text-[#f1eee7]">
+            <h2 className="text-2xl sm:text-3xl md:text-5xl font-light leading-tight text-[#f1eee7]">
               The Space that only you could live in 
             </h2>
-            <p className="mt-4 text-xs tracking-[0.2em] uppercase text-[#b9b5ae]">
-              
-            </p>
-            <div className="mt-8 w-16 h-px bg-[#b89a62] mx-auto" />
+            <div className="mt-6 sm:mt-8 w-16 h-px bg-[#b89a62] mx-auto" />
           </Reveal>
 
-          <Reveal delay={0.1} className="mt-10">
-            <p className="text-lg md:text-xl text-[#b9b5ae] leading-relaxed font-light">
-          Luxury homes begin with three things: exquisite space, exceptional materials, and meaningful art. Lunore masters all three. From turnkey interior design to premium marble sourcing to curated sculptures and paintings, we deliver homes that are completely, irreplaceably yours.
+          <Reveal delay={0.1} className="mt-8 sm:mt-10">
+            <p className="text-base sm:text-lg md:text-xl text-[#b9b5ae] leading-relaxed font-light px-2">
+              Luxury homes begin with three things: exquisite space, exceptional materials, and meaningful art. Lunore masters all three. From turnkey interior design to premium marble sourcing to curated sculptures and paintings, we deliver homes that are completely, irreplaceably yours.
             </p>
           </Reveal>
-
-          
         </div>
 
         {/* Organic Curved Scroll Line - Brand Story */}
         <ScrollLine
           path="M 50,0 C 250,150 750,50 950,200 C 1150,350 150,450 500,550"
           viewBox="0 0 1000 600"
-          className="absolute inset-0 z-0 opacity-40 md:opacity-60"
+          className="absolute inset-0 z-0 opacity-30 md:opacity-60 pointer-events-none"
           strokeColor="rgba(184, 154, 98, 0.35)"
           strokeWidth={1.5}
         />
@@ -299,38 +296,38 @@ export function Home() {
         <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-white/[0.02] rounded-full blur-[140px] pointer-events-none" />
 
         {/* Intro Editorial Header */}
-        <div className="px-6 pt-24 pb-12 text-center max-w-3xl mx-auto relative z-10">
+        <div className="px-6 pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 text-center max-w-3xl mx-auto relative z-10">
           <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-3">
             Leadership
           </p>
-          <h2 className="text-4xl md:text-5xl font-light font-display tracking-tight text-[#f1eee7] leading-tight">
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light font-display tracking-tight text-[#f1eee7] leading-tight">
             Directors of Lunore
           </h2>
           <div className="mt-6 w-12 h-[1px] bg-[#b89a62]/40 mx-auto" />
         </div>
 
         {/* Interactive Directors Parade */}
-        <div className="relative py-12 md:py-16">
-          <div className="max-w-7xl mx-auto w-full px-6 md:px-12 flex flex-col justify-center relative">
+        <div className="relative py-8 sm:py-12 md:py-16">
+          <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-12 flex flex-col justify-center relative">
             
             {isMobile ? (
               /* Mobile Vertical Stack Layout */
-              <div className="flex flex-col items-center justify-center text-center space-y-6">
+              <div className="flex flex-col items-center justify-center text-center space-y-5">
                 {/* Active Role Label */}
-                <div className="flex flex-col items-center">
-                  <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62] font-medium">
+                <div className="flex flex-col items-center px-4">
+                  <span className="text-[10px] tracking-[0.25em] uppercase text-[#b89a62] font-medium">
                     {activeMember.role}
                   </span>
                   <div className="w-8 h-[1px] bg-[#b89a62]/40 mt-2" />
                 </div>
 
                 {/* Active Name */}
-                <h3 className="text-2xl font-normal font-display text-[#f1eee7]">
+                <h3 className="text-xl sm:text-2xl font-normal font-display text-[#f1eee7]">
                   {activeMember.name}
                 </h3>
 
                 {/* Large Portrait */}
-                <div className="w-[180px] h-[180px] rounded-full overflow-hidden border border-[#b89a62]/30 p-1 bg-[#181917] shadow-[0_0_30px_rgba(0,0,0,0.8)]">
+                <div className="w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] rounded-full overflow-hidden border-2 border-[#b89a62]/40 p-1 bg-[#181917] shadow-[0_0_30px_rgba(0,0,0,0.8),0_0_20px_rgba(184,154,98,0.2)]">
                   <img
                     src={activeMember.image}
                     alt={activeMember.name}
@@ -340,9 +337,9 @@ export function Home() {
 
                 {/* Testimonial Quote & Text */}
                 <div className="max-w-md px-4 mt-2">
-                  <span className="text-5xl font-serif text-[#b89a62] opacity-40 leading-none select-none block">“</span>
+                  <span className="text-4xl font-serif text-[#b89a62] opacity-40 leading-none select-none block mb-1">“</span>
                   <p
-                    className="text-sm md:text-base text-[#e6cb97] leading-relaxed font-light font-display italic tracking-wide"
+                    className="text-sm leading-relaxed font-light font-display italic tracking-wide"
                     style={{ color: '#e6cb97' }}
                   >
                     {activeMember.testimonial}
@@ -351,15 +348,15 @@ export function Home() {
 
                 {/* Mobile Avatar Parade (Centered Row) */}
                 <div className="w-full pt-4 overflow-x-auto no-scrollbar">
-                  <div className="flex items-center justify-center gap-3 px-6">
+                  <div className="flex items-center justify-center gap-3 px-4">
                     {directors.map((member, idx) => (
                       <button
                         key={member.name}
                         onClick={() => setActiveIndex(idx)}
-                        className={`relative rounded-full overflow-hidden flex-shrink-0 transition-all duration-500 ${
+                        className={`relative rounded-full overflow-hidden flex-shrink-0 transition-all duration-300 ${
                           idx === activeIndex
-                            ? 'w-12 h-12 border-2 border-[#b89a62] scale-110 shadow-[0_0_20px_rgba(184,154,98,0.4)]'
-                            : 'w-8 h-8 opacity-40 hover:opacity-80 border border-white/10'
+                            ? 'w-12 h-12 border-2 border-[#b89a62] scale-110 shadow-[0_0_20px_rgba(184,154,98,0.5)]'
+                            : 'w-9 h-9 opacity-40 hover:opacity-80 border border-white/10'
                         }`}
                       >
                         <img
@@ -371,80 +368,90 @@ export function Home() {
                     ))}
                   </div>
                 </div>
-              </div>
-            ) : (
-              /* Desktop & Tablet Layout */
-              <div className="relative w-full h-[550px] flex flex-col justify-between">
-                
-                {/* Upper Section: Parade and Role Label */}
-                <div className="relative w-full h-[320px]">
-                  
-                  {/* Role and Name label above the central portrait */}
-                  <div className="absolute left-[38%] translate-x-[-125px] top-4 z-40 w-[250px] text-left pointer-events-none">
-                    <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62] block font-medium">
-                      {activeMember.role}
-                    </span>
-                    <div className="w-8 h-[1px] bg-[#b89a62]/40 my-2" />
-                    <span className="text-sm font-normal tracking-wide text-[#f1eee7] block">
-                      {activeMember.name}
-                    </span>
-                  </div>
 
-                  {/* Horizontal Parade Field */}
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
-                      {directors.map((member, idx) => {
-                        const { size, opacity, x } = getAvatarStyle(idx);
-                        const isActive = idx === activeIndex;
-
-                        return (
-                          <div
-                            key={member.name}
-                            onClick={() => setActiveIndex(idx)}
-                            style={{
-                              width: `${size}px`,
-                              height: `${size}px`,
-                              opacity: opacity,
-                              transform: `translate3d(${x}px, ${isActive ? 15 : 0}px, 0)`,
-                              zIndex: isActive ? 30 : 20 - Math.abs(idx - activeIndex),
-                            }}
-                            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden cursor-pointer transition-all ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-700 ${
-                              isActive ? 'p-1.5 border-2 border-[#b89a62] bg-[#181917] shadow-[0_0_40px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.25)]' : 'border border-white/10 hover:opacity-80'
-                            }`}
-                          >
-                            <img
-                              src={member.image}
-                              alt={member.name}
-                              className="w-full h-full object-cover rounded-full select-none"
-                            />
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Lower Section: Testimonial & Quote */}
-                <div className="w-full grid grid-cols-12 relative z-30">
-                  <div className="col-start-6 col-span-6 md:col-start-6 md:col-span-5 text-left pl-4">
-                    {/* Radiant Golden testimonial paragraph */}
-                    <p
-                      className="text-base md:text-lg font-light font-display italic text-[#e6cb97] mb-2 leading-relaxed tracking-wide"
-                      style={{ color: '#e6cb97' }}
-                    >
-                      {activeMember.testimonial}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Navigation Dots */}
-                <div className="flex items-center justify-center gap-2 pt-4">
+                {/* Mobile Dots */}
+                <div className="flex items-center justify-center gap-2 pt-2">
                   {directors.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveIndex(idx)}
                       aria-label={`Select director ${idx + 1}`}
                       className={`h-1.5 rounded-full transition-all duration-300 ${
+                        idx === activeIndex ? 'w-6 bg-[#b89a62]' : 'w-1.5 bg-white/20'
+                      }`}
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : (
+              /* Desktop & Tablet Layout */
+              <div className="relative w-full min-h-[520px] flex flex-col justify-between">
+                
+                {/* Active Role and Name label above the central portrait */}
+                <div className="text-center mb-4 z-40">
+                  <span className="text-xs tracking-[0.3em] uppercase text-[#b89a62] block font-medium">
+                    {activeMember.role}
+                  </span>
+                  <div className="w-8 h-[1px] bg-[#b89a62]/40 mx-auto my-2" />
+                  <span className="text-base font-normal tracking-wide text-[#f1eee7] block">
+                    {activeMember.name}
+                  </span>
+                </div>
+
+                {/* Horizontal Parade Field */}
+                <div className="relative w-full h-[260px] sm:h-[300px] flex items-center justify-center">
+                  <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
+                    {directors.map((member, idx) => {
+                      const { size, opacity, x } = getAvatarStyle(idx);
+                      const isActive = idx === activeIndex;
+
+                      return (
+                        <div
+                          key={member.name}
+                          onClick={() => setActiveIndex(idx)}
+                          style={{
+                            width: `${size}px`,
+                            height: `${size}px`,
+                            opacity: opacity,
+                            transform: `translate3d(${x}px, ${isActive ? 10 : 0}px, 0)`,
+                            zIndex: isActive ? 30 : 20 - Math.abs(idx - activeIndex),
+                          }}
+                          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden cursor-pointer transition-all ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-700 ${
+                            isActive
+                              ? 'p-1.5 border-2 border-[#b89a62] bg-[#181917] shadow-[0_0_40px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.3)]'
+                              : 'border border-white/15 hover:opacity-90 hover:scale-105'
+                          }`}
+                        >
+                          <img
+                            src={member.image}
+                            alt={member.name}
+                            className="w-full h-full object-cover rounded-full select-none"
+                          />
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Centered Testimonial & Quote for perfect tablet & desktop symmetry */}
+                <div className="w-full max-w-2xl mx-auto text-center px-6 mt-4">
+                  <span className="text-4xl font-serif text-[#b89a62] opacity-40 leading-none select-none block mb-1">“</span>
+                  <p
+                    className="text-base sm:text-lg font-light font-display italic leading-relaxed tracking-wide"
+                    style={{ color: '#e6cb97' }}
+                  >
+                    {activeMember.testimonial}
+                  </p>
+                </div>
+
+                {/* Navigation Dots */}
+                <div className="flex items-center justify-center gap-2 pt-6">
+                  {directors.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setActiveIndex(idx)}
+                      aria-label={`Select director ${idx + 1}`}
+                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
                         idx === activeIndex ? 'w-8 bg-[#b89a62]' : 'w-2 bg-white/20 hover:bg-white/40'
                       }`}
                     />
@@ -458,90 +465,30 @@ export function Home() {
         </div>
 
         {/* Footer Navigation Link back to collection */}
-        <div className="py-14 text-center border-t border-white/[0.08] bg-[#0d0e0e]">
+        <div className="py-12 sm:py-14 text-center border-t border-white/[0.08] bg-[#0d0e0e] relative z-10">
           <Link
             to="/about"
-            className="liquid-glass-btn-secondary px-8 py-3.5 text-xs tracking-[0.3em] uppercase text-[#f1eee7] inline-flex items-center justify-center gap-2 hover:border-[#b89a62]/60 hover:text-[#b89a62] transition-all"
+            className="liquid-glass-btn-secondary px-6 sm:px-8 py-3.5 text-[11px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-[#f1eee7] inline-flex items-center justify-center gap-2 hover:border-[#b89a62]/60 hover:text-[#b89a62] transition-all"
           >
             Learn More About Our Team <ArrowRight className="w-4 h-4 text-[#b89a62]" />
           </Link>
         </div>
+
+        {/* Organic Curved Scroll Line - Flowing smoothly along the side periphery framing the directors */}
+        <ScrollLine
+          path="M 880,0 C 960,180 970,340 880,440 C 760,540 840,680 890,780 C 940,880 780,930 640,950"
+          viewBox="0 0 1000 950"
+          className="absolute inset-0 z-0 opacity-30 md:opacity-50 pointer-events-none"
+          strokeColor="rgba(184, 154, 98, 0.45)"
+          strokeWidth={1.6}
+          glow={true}
+        />
       </section>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
-      {/* 4. SERVICES PREVIEW SECTION */}
-      <section id="services" className="py-24 md:py-36 relative bg-[#111211]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <Reveal className="text-center max-w-3xl mx-auto mb-16">
-            <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4">
-              Our Expertise
-            </p>
-            <h2 className="text-3xl md:text-5xl font-light text-[#f1eee7]">Services &amp; Craft</h2>
-            <p className="mt-6 text-lg text-[#b9b5ae] leading-relaxed font-light">
-              From full-scope interior design execution to curating rare marble &amp; granite monoliths across India.
-            </p>
-          </Reveal>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {/* Service 1: Interior Design */}
-            <Reveal direction="left" className="p-8 md:p-12 rounded-3xl liquid-glass-card flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-8">
-                  <span className="text-xs tracking-[0.3em] uppercase text-[#b89a62] px-3 py-1 rounded-full liquid-glass-pill">Full-Scope</span>
-                  <Ruler className="w-8 h-8 text-[#b89a62]" strokeWidth={1} />
-                </div>
-                <h3 className="text-2xl md:text-3xl font-light mb-4 text-[#f1eee7]">Interior Design Solutions</h3>
-                <p className="text-[#b9b5ae] leading-relaxed font-light mb-6">
-                  Complete interior solutions from concept development and space planning to bespoke material selection and turnkey execution.
-                </p>
-                <ul className="space-y-2.5 mb-8">
-                  {['Space Planning & Concepts', 'Turnkey Execution', 'Residential & Commercial'].map((item) => (
-                    <li key={item} className="flex items-center gap-3 text-sm text-[#b9b5ae]">
-                      <Check className="w-4 h-4 text-[#b89a62]" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <Link
-                to="/interior-design"
-                className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#b89a62] hover:text-white mt-4 group"
-              >
-                Explore Interior Design <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Reveal>
-
-            {/* Service 2: Marble & Granite */}
-            <Reveal direction="right" className="p-8 md:p-12 rounded-3xl liquid-glass-card flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-8">
-                  <span className="text-xs tracking-[0.3em] uppercase text-[#b89a62] px-3 py-1 rounded-full liquid-glass-pill">Curated Stones</span>
-                  <Sparkles className="w-8 h-8 text-[#b89a62]" strokeWidth={1} />
-                </div>
-                <h3 className="text-2xl md:text-3xl font-light mb-4 text-[#f1eee7]">Marble &amp; Granite Solutions</h3>
-                <p className="text-[#b9b5ae] leading-relaxed font-light mb-6">
-                  Imported marble sourced from Italy and global quarries, durable granite, and exotic natural stone collections for statement spaces.
-                </p>
-                <ul className="space-y-2.5 mb-8">
-                  {['Imported Marble Sourcing', 'Exotic Stone Collection', 'Precision Cutting & Finish'].map((item) => (
-                    <li key={item} className="flex items-center gap-3 text-sm text-[#b9b5ae]">
-                      <Check className="w-4 h-4 text-[#b89a62]" />
-                      <span>{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-              <Link
-                to="/marble-granite"
-                className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#b89a62] hover:text-white mt-4 group"
-              >
-                Explore Marble &amp; Granite <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Reveal>
-          </div>
-        </div>
-      </section>
+      {/* 4. INTERACTIVE INTERIOR EXPERIENCE SECTION */}
+      <InteriorExperience />
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
 
