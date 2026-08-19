@@ -1,27 +1,79 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { Sparkles, SunMedium, Flashlight } from 'lucide-react';
+import { Flashlight, ChevronDown, ArrowRight } from 'lucide-react';
 import { ScrollLine } from '@/components/ScrollLine';
+import { useLenis } from '@/components/SmoothScroll';
 
 interface InteriorExperienceProps {
   className?: string;
 }
 
+const TITLE_WORDS = ['Interior', 'Design', 'Experts'];
+
+const PARAGRAPH_1_LINES = [
+  'Luxury interiors deserve a partner, not a middleman.',
+  'Lunore designs, specifies and builds every project as one cohesive experience — from concept to the day you move in.',
+  'We source our own materials, supervise our own work, and stand behind every detail.',
+  'You get accountability, consistency and beauty, all from one team that genuinely cares about your space.',
+];
+
+const JOURNEY_STEPS = [
+  {
+    step: '01',
+    title: 'Discovery',
+    desc: 'Free site visit. We listen to how you live, not just your budget.',
+  },
+  {
+    step: '02',
+    title: 'Spatial Planning',
+    desc: 'Layout approved before any design. No wasted renderings.',
+  },
+  {
+    step: '03',
+    title: 'Design Story',
+    desc: 'Mood boards, materials, 3D renders. Your vision comes alive.',
+  },
+  {
+    step: '04',
+    title: 'Precision',
+    desc: 'Quotation locked, contract signed, no surprises.',
+  },
+  {
+    step: '05',
+    title: 'Orchestrated Execution',
+    desc: 'Weekly updates every Saturday. One team, full transparency.',
+  },
+  {
+    step: '06',
+    title: 'Final Curation',
+    desc: 'Quality checks, warranty docs, handover complete.',
+  },
+];
+
 export function InteriorExperience({ className = '' }: InteriorExperienceProps) {
+  const { lenis } = useLenis();
+  
   // Flashlight vs Full Illumination mode
   const [isFlashlightMode, setIsFlashlightMode] = useState<boolean>(true);
   
-  // Spotlight beam radius in pixels (default: 260px)
-  const [beamSize, setBeamSize] = useState<number>(260);
+  // Spotlight beam radius in pixels (default: 180px Focused)
+  const beamSize = 180;
   const [hasEntered, setHasEntered] = useState<boolean>(false);
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [isIlluminating, setIsIlluminating] = useState<boolean>(false);
   
-  // Tracks if the user has tapped the main button (glows continuously until first tap)
+  // Tracks active story stage: 
+  // 0 = Title (INSIGHT magazine style), 1 = Paragraph (User copy), 2 = Journey, 3 = Explore CTA
+  const [storyStage, setStoryStage] = useState<number>(0);
+  
+  // Tracks if the user has tapped the main button
   const [hasBeenTapped, setHasBeenTapped] = useState<boolean>(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const isHoveredRef = useRef<boolean>(false);
   const isFlashlightModeRef = useRef<boolean>(true);
+  const storyStageRef = useRef<number>(0);
+  const lastScrollTime = useRef<number>(0);
+  const touchStartY = useRef<number>(0);
 
   // Position physics stored in mutable ref for zero React re-render lag
   const posRef = useRef({
@@ -34,23 +86,145 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
   // Synchronize refs with state
   useEffect(() => {
     isFlashlightModeRef.current = isFlashlightMode;
+    storyStageRef.current = storyStage;
     if (containerRef.current) {
       containerRef.current.style.setProperty('--beam-size', `${beamSize}px`);
     }
-  }, [isFlashlightMode, beamSize]);
+  }, [isFlashlightMode, beamSize, storyStage]);
 
   // Handle Full Illumination switch with subtle bloom animation
   const handleToggleClick = () => {
     if (!hasBeenTapped) {
       setHasBeenTapped(true);
     }
-    // Switch to Full Illumination and permanently dismiss the center button
     setIsFlashlightMode(false);
+    setStoryStage(0);
+    storyStageRef.current = 0;
     setIsIlluminating(true);
+
+    if (containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const targetScroll = window.scrollY + rect.top - (window.innerHeight - rect.height) / 2;
+      if (lenis) {
+        lenis.scrollTo(targetScroll, { duration: 0.8 });
+      }
+    }
+
     setTimeout(() => setIsIlluminating(false), 1200);
   };
 
-  // High-performance direct GPU render loop (0 React re-renders during mouse movement)
+  // Window-level capture listener: strictly locks outside window scroll on stages 0, 1, 2
+  useEffect(() => {
+    const onWindowWheel = (e: WheelEvent) => {
+      if (isFlashlightModeRef.current) return;
+
+      const el = containerRef.current;
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      const isInView = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
+      if (!isInView) return;
+
+      const currentStage = storyStageRef.current;
+      const now = Date.now();
+
+      if (e.deltaY > 5) {
+        // Scrolling DOWN
+        if (currentStage < 3) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 220) {
+            setStoryStage((prev) => {
+              const next = Math.min(3, prev + 1);
+              storyStageRef.current = next;
+              return next;
+            });
+            lastScrollTime.current = now;
+          }
+        }
+      } else if (e.deltaY < -5) {
+        // Scrolling UP
+        if (currentStage > 0 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 220) {
+            setStoryStage((prev) => {
+              const next = Math.max(0, prev - 1);
+              storyStageRef.current = next;
+              return next;
+            });
+            lastScrollTime.current = now;
+          }
+        }
+      }
+    };
+
+    const onWindowTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        touchStartY.current = e.touches[0].clientY;
+      }
+    };
+
+    const onWindowTouchMove = (e: TouchEvent) => {
+      if (isFlashlightModeRef.current) return;
+      const el = containerRef.current;
+      if (!el || e.touches.length === 0) return;
+
+      const rect = el.getBoundingClientRect();
+      const isInView = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
+      if (!isInView) return;
+
+      const currentY = e.touches[0].clientY;
+      const deltaY = touchStartY.current - currentY;
+      const currentStage = storyStageRef.current;
+      const now = Date.now();
+
+      // Swiping UP to scroll down
+      if (deltaY > 15 && currentStage < 3) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        if (now - lastScrollTime.current > 220) {
+          setStoryStage((prev) => {
+            const next = Math.min(3, prev + 1);
+            storyStageRef.current = next;
+            return next;
+          });
+          lastScrollTime.current = now;
+        }
+      } else if (deltaY < -15 && currentStage > 0 && rect.top >= -80) {
+        e.preventDefault();
+        e.stopPropagation();
+        e.stopImmediatePropagation();
+
+        if (now - lastScrollTime.current > 220) {
+          setStoryStage((prev) => {
+            const next = Math.max(0, prev - 1);
+            storyStageRef.current = next;
+            return next;
+          });
+          lastScrollTime.current = now;
+        }
+      }
+    };
+
+    window.addEventListener('wheel', onWindowWheel, { passive: false, capture: true });
+    window.addEventListener('touchstart', onWindowTouchStart, { passive: true, capture: true });
+    window.addEventListener('touchmove', onWindowTouchMove, { passive: false, capture: true });
+
+    return () => {
+      window.removeEventListener('wheel', onWindowWheel, { capture: true } as any);
+      window.removeEventListener('touchstart', onWindowTouchStart, { capture: true } as any);
+      window.removeEventListener('touchmove', onWindowTouchMove, { capture: true } as any);
+    };
+  }, []);
+
+  // High-performance direct GPU render loop
   useEffect(() => {
     let animationFrameId: number;
 
@@ -59,12 +233,10 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       const isHovered = isHoveredRef.current;
       const isFlash = isFlashlightModeRef.current;
 
-      // Only follow active cursor when hovered in flashlight mode
       if (isHovered && isFlash) {
         p.currentX += (p.targetX - p.currentX) * 0.25;
         p.currentY += (p.targetY - p.currentY) * 0.25;
 
-        // Direct DOM update via CSS variables
         if (containerRef.current) {
           containerRef.current.style.setProperty('--spotlight-x', `${p.currentX.toFixed(2)}%`);
           containerRef.current.style.setProperty('--spotlight-y', `${p.currentY.toFixed(2)}%`);
@@ -79,7 +251,6 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     return () => cancelAnimationFrame(animationFrameId);
   }, []);
 
-  // Mouse move handler
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
     if (!containerRef.current) return;
     const rect = containerRef.current.getBoundingClientRect();
@@ -87,16 +258,16 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     posRef.current.targetY = ((e.clientY - rect.top) / rect.height) * 100;
   }, []);
 
-  // Touch drag handler for mobile/tablets
-  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+  const handleTouchMoveFlashlight = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
     if (!containerRef.current || e.touches.length === 0) return;
-    const rect = containerRef.current.getBoundingClientRect();
-    const touch = e.touches[0];
-    posRef.current.targetX = Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100));
-    posRef.current.targetY = Math.max(0, Math.min(100, ((touch.clientY - rect.top) / rect.height) * 100));
-  }, []);
+    if (isFlashlightMode) {
+      const rect = containerRef.current.getBoundingClientRect();
+      const touch = e.touches[0];
+      posRef.current.targetX = Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100));
+      posRef.current.targetY = Math.max(0, Math.min(100, ((touch.clientY - rect.top) / rect.height) * 100));
+    }
+  }, [isFlashlightMode]);
 
-  // Entrance observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -122,7 +293,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       {/* Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#b89a62]/5 rounded-full blur-[180px] pointer-events-none" />
 
-      {/* Organic Curved Scroll Line - Loops above section and merges directly into the middle center button */}
+      {/* Organic Curved Scroll Line */}
       {isFlashlightMode && (
         <ScrollLine
           path="M 480,0 C 180,80 120,240 380,270 C 680,300 890,200 820,380 C 760,520 620,590 500,595"
@@ -136,7 +307,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 relative z-10">
         
-        {/* Header */}
+        {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full liquid-glass-pill mb-4 border border-white/10">
             <Flashlight className="w-3.5 h-3.5 text-[#b89a62]" />
@@ -144,65 +315,74 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               Interactive Illumination Experience
             </span>
           </div>
-          <h2 className="text-2xl sm:text-3xl md:text-5xl font-light text-[#f1eee7] tracking-tight">
-            Discover The Penthouse In The Dark
+          <h2
+            className="text-2xl sm:text-3xl md:text-5xl font-normal text-[#f1eee7] tracking-tight"
+            style={{ fontFamily: 'var(--font-serif)' }}
+          >
+            “Some Spaces Are Seen. Ours Are Experienced.”
           </h2>
           <p className="mt-3 text-xs sm:text-sm text-[#b9b5ae] font-light max-w-xl mx-auto leading-relaxed">
-            Hover your cursor across the dark penthouse to explore architectural details with a soft white spotlight.
+            Hover your cursor across the dark penthouse to explore architectural details with a soft spotlight.
           </p>
         </div>
 
         {/* Main Stage Container */}
         <div
           ref={containerRef}
+          data-lenis-prevent={!isFlashlightMode && storyStage < 3 ? 'true' : undefined}
           onMouseMove={handleMouseMove}
           onMouseEnter={() => {
-            isHoveredRef.current = true;
-            setIsHovered(true);
+            if (isFlashlightMode) {
+              isHoveredRef.current = true;
+              setIsHovered(true);
+            }
           }}
           onMouseLeave={() => {
-            isHoveredRef.current = false;
-            setIsHovered(false);
+            if (isFlashlightMode) {
+              isHoveredRef.current = false;
+              setIsHovered(false);
+            }
           }}
           onTouchStart={() => {
-            isHoveredRef.current = true;
-            setIsHovered(true);
+            if (isFlashlightMode) {
+              isHoveredRef.current = true;
+              setIsHovered(true);
+            }
           }}
-          onTouchMove={handleTouchMove}
+          onTouchMove={handleTouchMoveFlashlight}
           onTouchEnd={() => {
-            isHoveredRef.current = false;
-            setIsHovered(false);
+            if (isFlashlightMode) {
+              isHoveredRef.current = false;
+              setIsHovered(false);
+            }
           }}
           style={{
             ['--spotlight-x' as string]: '50%',
             ['--spotlight-y' as string]: '50%',
             ['--beam-size' as string]: `${beamSize}px`,
           }}
-          className="relative w-full overflow-hidden rounded-2xl sm:rounded-3xl lg:rounded-[2.5rem] border border-white/15 bg-[#030405] shadow-[0_30px_90px_rgba(0,0,0,0.95)] cursor-crosshair select-none group"
+          className="relative w-full overflow-hidden rounded-2xl sm:rounded-3xl lg:rounded-[2.5rem] border border-white/15 bg-[#030405] shadow-[0_30px_90px_rgba(0,0,0,0.95)] cursor-default select-none group"
         >
-          <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[21/11] min-h-[500px] sm:min-h-[600px] md:min-h-[700px] overflow-hidden">
+          <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[21/11] min-h-[580px] sm:min-h-[640px] md:min-h-[720px] overflow-hidden">
             
             {/* ============================================================ */}
-            {/* 1. BASE DARK INTERIOR IMAGE (Visible at ~25-30% ambient level)*/}
+            {/* 1. BASE DARK INTERIOR IMAGE (Flashlight mode ambient base)   */}
             {/* ============================================================ */}
             <div className="absolute inset-0 overflow-hidden bg-[#060709]">
               <img
                 src="/assets/images/interior dark.png"
                 alt="LUNORE Luxury Penthouse Interior in the Dark"
-                className={`w-full h-full object-cover object-center transition-transform duration-[2000ms] ease-out filter brightness-[0.52] contrast-[1.08] ${
-                  hasEntered ? 'scale-100' : 'scale-[1.035]'
-                }`}
+                className="w-full h-full object-cover object-center scale-100 filter brightness-[0.52] contrast-[1.08]"
               />
               <div className="absolute inset-0 bg-black/25 mix-blend-multiply pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40 pointer-events-none" />
             </div>
 
             {/* ============================================================ */}
-            {/* 2. ILLUMINATED INTERIOR IMAGE (interior light .png)          */}
-            {/*    Active only on hover in Flashlight mode / 100% in Full    */}
+            {/* 2. ILLUMINATED INTERIOR IMAGE (WITH MISTY LEFT-SIDE BLUR)   */}
             {/* ============================================================ */}
             <div
-              className={`absolute inset-0 overflow-hidden pointer-events-none transition-all duration-[700ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
+              className={`absolute inset-0 overflow-hidden pointer-events-none transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 !isFlashlightMode
                   ? 'opacity-100'
                   : isHovered
@@ -215,30 +395,43 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                       maskImage: 'radial-gradient(circle var(--beam-size) at var(--spotlight-x) var(--spotlight-y), rgba(0,0,0,1) 0%, rgba(0,0,0,0.92) 40%, rgba(0,0,0,0.2) 75%, rgba(0,0,0,0) 100%)',
                       WebkitMaskImage: 'radial-gradient(circle var(--beam-size) at var(--spotlight-x) var(--spotlight-y), rgba(0,0,0,1) 0%, rgba(0,0,0,0.92) 40%, rgba(0,0,0,0.2) 75%, rgba(0,0,0,0) 100%)',
                     }
-                  : {
-                      opacity: 1,
-                    }
+                  : undefined
               }
             >
+              {/* Sharp image layer */}
               <img
                 src="/assets/images/interior light .png"
                 alt="LUNORE Luxury Penthouse Interior Fully Illuminated"
-                className={`w-full h-full object-cover object-center transition-transform duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                  isIlluminating ? 'scale-[1.015] filter brightness-[1.06]' : 'scale-100 filter brightness-100'
+                className={`w-full h-full object-cover object-center scale-100 ${
+                  isIlluminating ? 'filter brightness-[1.04]' : 'filter brightness-100'
                 }`}
               />
+
+              {/* LIQUID GLASS LEFT PANEL OVERLAY (20% BLUR, 80% CRYSTAL GLASS) */}
+              {!isFlashlightMode && (
+                <div
+                  className="absolute inset-0 pointer-events-none transition-opacity duration-1000"
+                  style={{
+                    maskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.98) 46%, rgba(0,0,0,0.3) 58%, rgba(0,0,0,0) 68%)',
+                    WebkitMaskImage: 'linear-gradient(to right, rgba(0,0,0,1) 0%, rgba(0,0,0,0.98) 46%, rgba(0,0,0,0.3) 58%, rgba(0,0,0,0) 68%)',
+                    background: 'linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(18, 19, 19, 0.36) 45%, rgba(10, 10, 10, 0.16) 100%)',
+                    backdropFilter: 'blur(8px) saturate(185%) brightness(102%)',
+                    WebkitBackdropFilter: 'blur(8px) saturate(185%) brightness(102%)',
+                    boxShadow: 'inset 0 1.5px 2px 0 rgba(255, 255, 255, 0.32), inset 0 -1px 1px 0 rgba(0, 0, 0, 0.3), 0 20px 45px -10px rgba(0, 0, 0, 0.5)',
+                    borderRight: '1px solid rgba(255, 255, 255, 0.16)',
+                  }}
+                />
+              )}
             </div>
 
-            {/* Subtle Light Bloom Flash Animation when hitting Full Illumination */}
+            {/* Subtle Light Bloom Flash Animation */}
             <div
               className={`absolute inset-0 bg-white/15 mix-blend-screen pointer-events-none transition-opacity duration-1000 ease-out ${
                 isIlluminating ? 'opacity-100' : 'opacity-0'
               }`}
             />
 
-            {/* ============================================================ */}
-            {/* 3. REFINED SOFT WHITE SPOTLIGHT HALO (Hover only)           */}
-            {/* ============================================================ */}
+            {/* Soft white spotlight halo in dark mode */}
             {isFlashlightMode && isHovered && (
               <div
                 className="absolute inset-0 pointer-events-none transition-opacity duration-400 will-change-transform"
@@ -249,85 +442,190 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               />
             )}
 
-            {/* ============================================================ */}
-            {/* 4. SOFT WHITE SPOTLIGHT RETICLE (Hover only)                */}
-            {/* ============================================================ */}
-            {isFlashlightMode && isHovered && (
-              <div
-                className="absolute pointer-events-none -translate-x-1/2 -translate-y-1/2 z-30 will-change-transform transition-opacity duration-300"
-                style={{
-                  left: 'var(--spotlight-x)',
-                  top: 'var(--spotlight-y)',
-                }}
-              >
-                <div className="relative flex items-center justify-center">
-                  <div className="w-8 h-8 rounded-full border border-white/60 bg-white/10 backdrop-blur-xs flex items-center justify-center shadow-[0_0_20px_rgba(255,255,255,0.6)]">
-                    <div className="w-1.5 h-1.5 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1)]" />
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {/* ============================================================ */}
-            {/* 5. CENTER BUTTON (DISAPPEARS PERMANENTLY AFTER ILLUMINATION) */}
-            {/* ============================================================ */}
+            {/* CENTER CLICK HERE BUTTON (FLASHLIGHT MODE) */}
             {isFlashlightMode && (
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-auto flex items-center justify-center transition-all duration-700">
+              <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-center transition-all duration-700">
                 <button
                   type="button"
                   onClick={handleToggleClick}
-                  className={`flex items-center gap-2.5 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full liquid-glass-pill backdrop-blur-2xl border transition-all duration-500 hover:scale-105 cursor-pointer shadow-[0_12px_40px_rgba(0,0,0,0.8)] select-none ${
+                  className={`pointer-events-auto flex items-center justify-center px-7 py-3 rounded-full liquid-glass-pill backdrop-blur-2xl border transition-all duration-500 hover:scale-105 cursor-pointer shadow-[0_12px_40px_rgba(0,0,0,0.8)] select-none ${
                     !hasBeenTapped
                       ? 'button-scroll-glow border-[#e6cb97] bg-black/80 text-white'
                       : 'border-white/50 bg-black/75 text-white shadow-[0_0_24px_rgba(255,255,255,0.15)] hover:border-white'
                   }`}
                 >
-                  <SunMedium className="w-4 h-4 text-[#e6cb97]" />
                   <span className="text-[10px] sm:text-[11px] tracking-[0.22em] uppercase font-medium text-[#f1eee7]">
-                    FULL ILLUMINATION
+                    CLICK HERE
                   </span>
                 </button>
               </div>
             )}
 
-            {/* Storytelling container slot */}
-            <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-end p-6 sm:p-10 lg:p-14">
-              <div className="max-w-xl pointer-events-auto">
-                <div id="interior-experience-content" className="space-y-4" />
+            {/* ============================================================ */}
+            {/* 3. EDITORIAL MAGAZINE LAYOUT (CLEAN TEXT OVER LEFT BLUR)     */}
+            {/* ============================================================ */}
+            {!isFlashlightMode && (
+              <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-start p-6 sm:p-10 md:p-14 lg:p-16">
+                
+                {/* MIDDLE CONTENT: PERSISTENT HEADER + DYNAMIC SCROLL CONTENT */}
+                <div className="w-full max-w-2xl text-left py-4 sm:py-6 flex flex-col justify-center">
+                  
+                  {/* PERSISTENT IMAGE-MASKED SERIF HEADING (STAYS FOREVER ACROSS ALL SCROLLS) */}
+                  <div
+                    className={`transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                      storyStage === 0 ? 'py-4 sm:py-6' : 'mb-4 sm:mb-6'
+                    }`}
+                  >
+                    <h3
+                      className={`font-bold tracking-tight uppercase leading-[0.92] select-none transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                        storyStage === 0
+                          ? 'text-4xl sm:text-6xl md:text-7xl lg:text-8xl'
+                          : 'text-2xl sm:text-3xl md:text-4xl lg:text-5xl'
+                      }`}
+                      style={{
+                        fontFamily: 'var(--font-serif)',
+                      }}
+                    >
+                      {['INTERIOR', 'DESIGN', 'EXPERTS'].map((line, lineIdx) => (
+                        <span key={line} className="block overflow-hidden">
+                          <span
+                            className="inline-block"
+                            style={{
+                              backgroundImage: 'url("/assets/images/interior%20light%20.png")',
+                              backgroundSize: '160% auto',
+                              backgroundPosition: 'left center',
+                              WebkitBackgroundClip: 'text',
+                              backgroundClip: 'text',
+                              WebkitTextFillColor: 'transparent',
+                              color: 'transparent',
+                              WebkitTextStroke: storyStage === 0 ? '1.2px rgba(255, 255, 255, 0.45)' : '0.9px rgba(255, 255, 255, 0.4)',
+                              filter: 'drop-shadow(0 4px 25px rgba(0,0,0,0.95)) drop-shadow(0 0 2px rgba(255,255,255,0.4))',
+                              animation: 'lunore-letter-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both',
+                              animationDelay: `${lineIdx * 0.12}s`,
+                            }}
+                          >
+                            {line}
+                          </span>
+                        </span>
+                      ))}
+                    </h3>
+                  </div>
+
+                  {/* DYNAMIC SCROLL CONTENT BELOW PERSISTENT HEADING */}
+                  <div className="w-full">
+                    {/* STAGE 1: 1ST SCROLL -> USER COPY PARAGRAPH */}
+                    {storyStage === 1 && (
+                      <div key="stage-1" className="space-y-3 max-w-xl animate-in fade-in zoom-in-98 duration-700">
+                        {PARAGRAPH_1_LINES.map((line, lineIdx) => (
+                          <p
+                            key={lineIdx}
+                            className="text-sm sm:text-base md:text-lg lg:text-xl font-light text-white leading-relaxed tracking-wide select-none"
+                            style={{
+                              fontFamily: 'var(--font-heading)',
+                              textShadow: '0 2px 20px rgba(0,0,0,0.9)',
+                            }}
+                          >
+                            {line.split(' ').map((word, wordIdx) => (
+                              <span
+                                key={`${word}-${wordIdx}`}
+                                className="inline-block overflow-hidden mr-[0.24em] last:mr-0 align-bottom"
+                              >
+                                <span
+                                  className="inline-block text-white"
+                                  style={{
+                                    animation: 'lunore-letter-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) both',
+                                    animationDelay: `${0.05 + lineIdx * 0.18 + wordIdx * 0.025}s`,
+                                  }}
+                                >
+                                  {word}
+                                </span>
+                              </span>
+                            ))}
+                          </p>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* STAGE 2: 2ND SCROLL -> THE LUNORE DESIGN JOURNEY (6 STEPS) */}
+                    {storyStage === 2 && (
+                      <div key="stage-2" className="space-y-3 max-w-3xl animate-in fade-in zoom-in-98 duration-700">
+                        <p className="text-xs sm:text-sm font-medium text-[#b89a62] tracking-wider uppercase">
+                          The Lunore Design Journey
+                        </p>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left">
+                          {JOURNEY_STEPS.map((item, idx) => (
+                            <div
+                              key={item.step}
+                              className="p-2.5 sm:p-3 rounded-xl bg-black/40 backdrop-blur-md border border-white/15 hover:border-[#b89a62]/50 transition-all duration-300 shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+                              style={{
+                                animation: 'lunore-letter-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both',
+                                animationDelay: `${0.06 + idx * 0.06}s`,
+                              }}
+                            >
+                              <div className="flex items-center gap-2 mb-0.5">
+                                <span className="text-[10px] font-mono text-[#b89a62] font-semibold">
+                                  {item.step}
+                                </span>
+                                <span className="text-xs sm:text-sm font-medium text-white">
+                                  {item.title}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-[#f1eee7]/80 font-light leading-relaxed">
+                                {item.desc}
+                              </p>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* STAGE 3: 3RD/4TH SCROLL -> "EXPLORE MORE" CTA */}
+                    {storyStage === 3 && (
+                      <div key="stage-3" className="space-y-5 animate-in fade-in zoom-in-98 duration-700 max-w-xl">
+                        <div className="space-y-2">
+                          <h4
+                            className="text-2xl sm:text-3xl md:text-4xl font-light text-white tracking-tight leading-tight"
+                            style={{ fontFamily: 'var(--font-heading)' }}
+                          >
+                            Step Into The Experience
+                          </h4>
+                          <p className="text-xs sm:text-sm text-[#f1eee7]/85 font-light leading-relaxed">
+                            Explore our signature penthouses, curated marble collections, and bespoke architectural portfolio.
+                          </p>
+                        </div>
+
+                        <div className="pt-1">
+                          <a
+                            href="#projects"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              const el = document.getElementById('projects');
+                              if (el) {
+                                if (lenis) {
+                                  lenis.scrollTo(el, { offset: -70 });
+                                } else {
+                                  el.scrollIntoView({ behavior: 'smooth' });
+                                }
+                              }
+                            }}
+                            className="pointer-events-auto inline-flex items-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full liquid-glass-pill backdrop-blur-2xl border border-[#b89a62] bg-black/85 text-[#f1eee7] hover:text-[#0d0e0e] hover:bg-[#b89a62] font-medium text-[11px] sm:text-xs tracking-[0.22em] uppercase transition-all duration-500 hover:scale-105 shadow-[0_0_30px_rgba(184,154,98,0.35)] cursor-pointer select-none group"
+                          >
+                            <span>EXPLORE MORE</span>
+                            <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                          </a>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                </div>
+
               </div>
-            </div>
+            )}
 
           </div>
         </div>
-
-        {/* Beam Width Control Strip (Visible in Flashlight Mode) */}
-        {isFlashlightMode && (
-          <div className="mt-6 flex flex-wrap items-center justify-center gap-4 text-xs">
-            <span className="text-[10px] tracking-[0.25em] uppercase text-[#b9b5ae] font-light">
-              Spotlight Aperture:
-            </span>
-            <div className="flex items-center gap-2 bg-black/40 backdrop-blur-md p-1 rounded-full border border-white/10">
-              {[
-                { label: 'Focused', size: 180 },
-                { label: 'Medium', size: 260 },
-                { label: 'Wide Aperture', size: 360 },
-              ].map((beam) => (
-                <button
-                  key={beam.label}
-                  onClick={() => setBeamSize(beam.size)}
-                  className={`px-3 py-1 rounded-full text-[9px] sm:text-[10px] tracking-[0.15em] uppercase transition-all cursor-pointer ${
-                    beamSize === beam.size
-                      ? 'bg-white text-[#0d0e0e] font-semibold shadow-[0_0_12px_rgba(255,255,255,0.6)]'
-                      : 'text-[#b9b5ae] hover:text-white'
-                  }`}
-                >
-                  {beam.label}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
       </div>
     </section>
   );
