@@ -28,17 +28,21 @@ export function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Track scroll position for header blur backdrop
+  const isHome = location.pathname === '/';
+
+  // Track scroll position: hide on first section (hero), show once scrolled to second section
   useEffect(() => {
     const handleScroll = () => {
-      const isScrolled = window.scrollY > 40;
-      setScrolled((prev) => (prev === isScrolled ? prev : isScrolled));
+      // On home page, show header once user scrolls past the hero into the next section
+      const threshold = isHome ? Math.min(300, window.innerHeight * 0.45) : 40;
+      const isScrolled = window.scrollY > threshold;
+      setScrolled(isScrolled);
     };
 
     handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
+  }, [isHome]);
 
   // Close overlay on route change
   useEffect(() => {
@@ -83,20 +87,31 @@ export function Header() {
     }
   };
 
+  const isHeaderVisible = !isHome || scrolled || menuOpen;
+
   return (
     <>
-      {/* MINIMAL TOP BAR: BRANDING TOP-LEFT, HAMBURGER TOP-RIGHT */}
-      <header className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 sm:px-10 md:px-14 py-6 md:py-8 pointer-events-none transition-all duration-300">
+      {/* MINIMAL TOP BAR: APPEARS WHEN SCROLLED PAST HERO */}
+      <header
+        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 sm:px-10 md:px-14 py-6 md:py-8 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+          isHeaderVisible
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 -translate-y-8'
+        }`}
+      >
         {/* Brand / Logo in Top Left Corner */}
         <div className="pointer-events-auto">
           <NavLink
             to="/"
             onClick={(e) => handleLinkClick(e, { label: 'HOME', to: '/', hash: '#hero' })}
-            className="flex items-center gap-3 group cursor-pointer"
-            aria-label="LUNORE Home"
+            className="flex flex-col group cursor-pointer select-none"
+            aria-label="LUNORE Luxe Decor Studio"
           >
-            <span className="font-[var(--font-heading)] text-2xl md:text-3xl tracking-[0.28em] uppercase text-[#f1eee7] font-semibold group-hover:text-white transition-all duration-300 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
+            <span className="font-[var(--font-heading)] text-xl sm:text-2xl md:text-3xl tracking-[0.28em] uppercase text-[#f1eee7] font-semibold group-hover:text-white transition-all duration-300 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] leading-none">
               LU<span className="text-[#b89a62]">N</span>ORE
+            </span>
+            <span className="text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.34em] uppercase text-[#b89a62] font-light mt-1 group-hover:text-[#c4a86f] transition-colors leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+              Luxe Decor Studio
             </span>
           </NavLink>
         </div>
