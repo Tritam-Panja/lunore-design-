@@ -57,6 +57,17 @@ export function Header() {
     };
   }, [menuOpen]);
 
+  // Close menu on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && menuOpen) {
+        setMenuOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [menuOpen]);
+
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: NavItem) => {
     setMenuOpen(false);
     if (location.pathname === '/' && link.hash) {
@@ -74,72 +85,49 @@ export function Header() {
 
   return (
     <>
-      {/* FLOATING LIQUID GLASS CAPSULE HEADER */}
-      <header className="fixed top-4 md:top-6 inset-x-0 z-50 flex justify-center px-4 md:px-8 pointer-events-none transition-all duration-500">
-        <div className="pointer-events-auto w-full max-w-6xl mx-auto flex items-center justify-between px-5 md:px-8 py-3 md:py-3.5 rounded-full liquid-glass-nav transition-all duration-300">
-          {/* Logo / Brand on Left */}
+      {/* MINIMAL TOP BAR: BRANDING TOP-LEFT, HAMBURGER TOP-RIGHT */}
+      <header className="fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 sm:px-10 md:px-14 py-6 md:py-8 pointer-events-none transition-all duration-300">
+        {/* Brand / Logo in Top Left Corner */}
+        <div className="pointer-events-auto">
           <NavLink
             to="/"
             onClick={(e) => handleLinkClick(e, { label: 'HOME', to: '/', hash: '#hero' })}
-            className="flex items-center gap-2.5 group cursor-pointer"
+            className="flex items-center gap-3 group cursor-pointer"
+            aria-label="LUNORE Home"
           >
-            <span className="font-[var(--font-heading)] text-xl md:text-2xl tracking-[0.25em] uppercase text-[#f1eee7] font-semibold group-hover:text-white transition-colors">
+            <span className="font-[var(--font-heading)] text-2xl md:text-3xl tracking-[0.28em] uppercase text-[#f1eee7] font-semibold group-hover:text-white transition-all duration-300 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)]">
               LU<span className="text-[#b89a62]">N</span>ORE
             </span>
           </NavLink>
+        </div>
 
-          {/* Desktop Capsule Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-7 xl:gap-9">
-            {navLinks.slice(0, 5).map((link) => (
-              <a
-                key={link.label}
-                href={link.hash || link.to}
-                onClick={(e) => handleLinkClick(e, link)}
-                className="text-[11px] tracking-[0.22em] uppercase text-[#b9b5ae] hover:text-[#f1eee7] transition-all duration-200 hover:scale-105 cursor-pointer relative py-1 after:content-[''] after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-px after:bg-[#b89a62] hover:after:w-full after:transition-all after:duration-300"
-              >
-                {link.label}
-              </a>
-            ))}
-          </nav>
-
-          {/* Right Action Cluster */}
-          <div className="flex items-center gap-3 md:gap-4">
-            {/* Start a Project CTA Button */}
-            <a
-              href="#contact"
-              onClick={(e) => handleLinkClick(e, { label: 'CONTACT', to: '/contact', hash: '#contact' })}
-              className="liquid-glass-btn-primary px-4 md:px-5 py-2 text-[10px] md:text-xs tracking-[0.2em] uppercase font-semibold text-[#0d0e0e] hidden sm:inline-flex items-center justify-center cursor-pointer shadow-md"
-            >
-              Start a Project
-            </a>
-
-            {/* Liquid Glass Hamburger Trigger */}
-            <button
-              type="button"
-              onClick={() => setMenuOpen(!menuOpen)}
-              aria-expanded={menuOpen}
-              aria-label="Toggle Navigation Menu"
-              className="liquid-glass-pill p-2.5 md:p-3 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50"
-            >
-              <div className="relative w-4 h-3.5 flex flex-col justify-between items-center overflow-hidden">
-                <span
-                  className={`w-full h-0.5 bg-current transform transition-all duration-300 ease-out origin-center ${
-                    menuOpen ? 'translate-y-[6px] rotate-45 text-[#b89a62]' : ''
-                  }`}
-                />
-                <span
-                  className={`w-full h-0.5 bg-current transition-all duration-200 ease-out ${
-                    menuOpen ? 'opacity-0 scale-x-0' : 'opacity-100 scale-x-100'
-                  }`}
-                />
-                <span
-                  className={`w-full h-0.5 bg-current transform transition-all duration-300 ease-out origin-center ${
-                    menuOpen ? '-translate-y-[6px] -rotate-45 text-[#b89a62]' : ''
-                  }`}
-                />
-              </div>
-            </button>
-          </div>
+        {/* Hamburger Menu Trigger in Top Right Corner */}
+        <div className="pointer-events-auto">
+          <button
+            type="button"
+            onClick={() => setMenuOpen(!menuOpen)}
+            aria-expanded={menuOpen}
+            aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
+            className="liquid-glass-pill w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50 shadow-2xl backdrop-blur-xl bg-black/40 border border-white/15 hover:border-[#b89a62]/60 hover:bg-white/10 transition-all duration-300"
+          >
+            <div className="relative w-5 h-4 flex flex-col justify-between items-center overflow-hidden">
+              <span
+                className={`w-full h-0.5 bg-current transform transition-all duration-300 ease-out origin-center ${
+                  menuOpen ? 'translate-y-[7px] rotate-45 text-[#b89a62]' : ''
+                }`}
+              />
+              <span
+                className={`w-full h-0.5 bg-current transition-all duration-200 ease-out ${
+                  menuOpen ? 'opacity-0 scale-x-0' : 'opacity-100 scale-x-100'
+                }`}
+              />
+              <span
+                className={`w-full h-0.5 bg-current transform transition-all duration-300 ease-out origin-center ${
+                  menuOpen ? '-translate-y-[7px] -rotate-45 text-[#b89a62]' : ''
+                }`}
+              />
+            </div>
+          </button>
         </div>
       </header>
 
