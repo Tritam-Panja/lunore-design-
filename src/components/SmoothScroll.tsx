@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from 'react';
 import { useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
+import 'lenis/dist/lenis.css';
 
 interface LenisContextType {
   lenis: Lenis | null;
@@ -26,16 +27,21 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     if (prefersReducedMotion) return;
 
     const instance = new Lenis({
-      duration: 1.2,
+      duration: 1.3,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      touchMultiplier: 1.5,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.6,
+      infinite: false,
     });
 
     lenisRef.current = instance;
     setLenis(instance);
+
+    // Apply lenis class to html root
+    document.documentElement.classList.add('lenis', 'lenis-smooth');
 
     let rafId: number;
     function raf(time: number) {
@@ -47,6 +53,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
     return () => {
       cancelAnimationFrame(rafId);
+      document.documentElement.classList.remove('lenis', 'lenis-smooth');
       instance.destroy();
       lenisRef.current = null;
       setLenis(null);

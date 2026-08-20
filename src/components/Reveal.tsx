@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { useReveal } from '@/lib/useReveal';
 
-type Direction = 'up' | 'left' | 'right' | 'zoom';
+type Direction = 'up' | 'down' | 'left' | 'right' | 'zoom' | 'blur';
 
 interface RevealProps {
   children: ReactNode;

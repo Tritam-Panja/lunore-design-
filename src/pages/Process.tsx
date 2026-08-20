@@ -1,7 +1,6 @@
 import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
 import { Reveal } from '@/components/Reveal';
-import { ScrollLine } from '@/components/ScrollLine';
 
 const steps = [
   {
@@ -38,7 +37,7 @@ export function Process() {
         <div className="mt-8 w-16 h-px bg-[#c2a67e] mx-auto" />
       </section>
 
-<section className="py-12 md:py-20 border-t border-[rgba(255,255,255,0.1)] relative overflow-hidden">
+      <section className="py-12 md:py-20 border-t border-[rgba(255,255,255,0.1)] relative overflow-hidden">
         <div className="max-w-5xl mx-auto px-6 space-y-20 relative z-10">
           {steps.map((s, i) => (
             <div key={s.num} className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
@@ -58,16 +57,6 @@ export function Process() {
             </div>
           ))}
         </div>
-
-        {/* Organic S-Curve flowing down through Process page steps */}
-        <ScrollLine
-          path="M 250,0 C 750,200 100,500 750,800 C 900,1000 200,1200 500,1400"
-          viewBox="0 0 1000 1400"
-          className="absolute inset-0 z-0 opacity-40 md:opacity-75"
-          strokeColor="rgba(194, 166, 126, 0.55)"
-          strokeWidth={1.6}
-          glow={true}
-        />
       </section>
     </div>
   );

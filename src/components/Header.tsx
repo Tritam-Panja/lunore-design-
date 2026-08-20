@@ -93,7 +93,7 @@ export function Header() {
     <>
       {/* MINIMAL TOP BAR: APPEARS WHEN SCROLLED PAST HERO */}
       <header
-        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-6 sm:px-10 md:px-14 py-6 md:py-8 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-14 py-4 sm:py-6 md:py-8 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isHeaderVisible
             ? 'opacity-100 translate-y-0'
             : 'opacity-0 -translate-y-8'
@@ -107,10 +107,10 @@ export function Header() {
             className="flex flex-col group cursor-pointer select-none"
             aria-label="LUNORE Luxe Decor Studio"
           >
-            <span className="font-[var(--font-heading)] text-xl sm:text-2xl md:text-3xl tracking-[0.28em] uppercase text-[#f1eee7] font-semibold group-hover:text-white transition-all duration-300 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] leading-none">
+            <span className="font-[var(--font-heading)] text-lg sm:text-2xl md:text-3xl tracking-[0.22em] sm:tracking-[0.28em] uppercase text-[#f1eee7] font-semibold group-hover:text-white transition-all duration-300 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] leading-none">
               LU<span className="text-[#b89a62]">N</span>ORE
             </span>
-            <span className="text-[8px] sm:text-[9px] md:text-[10px] tracking-[0.34em] uppercase text-[#b89a62] font-light mt-1 group-hover:text-[#c4a86f] transition-colors leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+            <span className="text-[7.5px] sm:text-[9px] md:text-[10px] tracking-[0.28em] sm:tracking-[0.34em] uppercase text-[#b89a62] font-light mt-1 group-hover:text-[#c4a86f] transition-colors leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
               Luxe Decor Studio
             </span>
           </NavLink>
@@ -123,7 +123,7 @@ export function Header() {
             onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
-            className="liquid-glass-pill w-12 h-12 md:w-14 md:h-14 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50 shadow-2xl backdrop-blur-xl bg-black/40 border border-white/15 hover:border-[#b89a62]/60 hover:bg-white/10 transition-all duration-300"
+            className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50 shadow-2xl backdrop-blur-xl bg-black/40 border border-white/15 hover:border-[#b89a62]/60 hover:bg-white/10 transition-all duration-300"
           >
             <div className="relative w-5 h-4 flex flex-col justify-between items-center overflow-hidden">
               <span

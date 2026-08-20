@@ -1,12 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 
+export interface UseRevealOptions extends IntersectionObserverInit {
+  once?: boolean;
+}
+
 /**
- * useReveal — returns a ref + boolean flag that becomes true
- * once the element enters the viewport. Useful for scroll-triggered
- * entrance animations without an external library.
+ * useReveal — returns a ref + boolean flag that tracks viewport intersection.
+ * Supports smooth forward and reversible "undo" motion on reverse scroll.
  */
 export function useReveal<T extends HTMLElement = HTMLDivElement>(
-  options: IntersectionObserverInit = { threshold: 0.15 }
+  options: UseRevealOptions = { threshold: 0.12, once: false }
 ) {
   const ref = useRef<T | null>(null);
   const [visible, setVisible] = useState(false);
@@ -20,19 +23,26 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(
       return;
     }
 
+    const { once = false, ...observerOptions } = options;
+
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
           setVisible(true);
-          observer.unobserve(entry.target);
+          if (once) {
+            observer.unobserve(entry.target);
+          }
+        } else {
+          if (!once) {
+            setVisible(false);
+          }
         }
       });
-    }, options);
+    }, observerOptions);
 
     observer.observe(el);
     return () => observer.disconnect();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [options.root, options.rootMargin, options.threshold, options.once]);
 
   return { ref, visible };
 }

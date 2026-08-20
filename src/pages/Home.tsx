@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Hammer, Mountain, Eye, Landmark, Ruler, PenTool, Layers, Check, Sparkles, MapPin, Phone, Mail, Send } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Hammer, Mountain, Eye, Landmark, Ruler, PenTool, Layers, Check, Sparkles, MapPin, Phone, Mail, Send } from 'lucide-react';
 import { supabase, type Product } from '@/lib/supabase';
 import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
 import { Reveal } from '@/components/Reveal';
-import { ScrollLine } from '@/components/ScrollLine';
+import { TextReveal } from '@/components/TextReveal';
+import { ScrollColorText } from '@/components/ScrollColorText';
 import { InteriorExperience } from '@/components/InteriorExperience';
 
 const HERO_LETTERS = ['L', 'U', 'N', 'O', 'R', 'E'];
@@ -247,7 +248,7 @@ export function Home() {
             <div className="mt-6 sm:mt-8 flex items-center gap-4 lunore-brand-letter" style={{ animationDelay: '1s' }}>
               <div className="w-8 sm:w-12 h-px bg-gradient-to-r from-[#b89a62] to-transparent" />
               <p className="text-[10px] sm:text-xs tracking-[0.3em] sm:tracking-[0.35em] uppercase text-[#b9b5ae] font-light">
-                Spaces with Character
+               Luxe decor studio 
               </p>
             </div>
           </div>
@@ -258,33 +259,35 @@ export function Home() {
       <div className="relative z-10 w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.3)] to-transparent" />
 
       {/* 2. BRAND STORY PREVIEW SECTION */}
-      <section id="brand-story" className="py-20 sm:py-24 md:py-36 relative overflow-hidden bg-[#111211]">
-        <div className="max-w-4xl mx-auto px-6 text-center">
-          <Reveal>
-            <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4">
-              about Lunore 
-            </p>
-            <h2 className="text-2xl sm:text-3xl md:text-5xl font-light leading-tight text-[#f1eee7]">
-              The Space that only you could live in 
-            </h2>
-            <div className="mt-6 sm:mt-8 w-16 h-px bg-[#b89a62] mx-auto" />
+      <section id="brand-story" className="py-24 sm:py-32 md:py-44 relative overflow-hidden bg-[#0d0e0e]">
+        {/* Ambient Radial Gold Glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#b89a62]/10 rounded-full blur-[180px] pointer-events-none" />
+
+        <div className="max-w-5xl mx-auto px-6 relative z-10 text-center">
+          {/* Main Headline with Staggered Word Mask */}
+          <TextReveal
+            text="The Space that only you could live in"
+            as="h2"
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-light leading-tight text-white tracking-tight"
+            wordClassName="text-white"
+            delay={0.1}
+            stagger={0.06}
+          />
+
+          <Reveal direction="zoom" delay={0.3}>
+            <div className="my-8 sm:my-10 w-24 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent mx-auto" />
           </Reveal>
 
-          <Reveal delay={0.1} className="mt-8 sm:mt-10">
-            <p className="text-base sm:text-lg md:text-xl text-[#b9b5ae] leading-relaxed font-light px-2">
-              Luxury homes begin with three things: exquisite space, exceptional materials, and meaningful art. Lunore masters all three. From turnkey interior design to premium marble sourcing to curated sculptures and paintings, we deliver homes that are completely, irreplaceably yours.
-            </p>
-          </Reveal>
+          {/* Scroll Color Text Animation (Illuminates word-by-word into champagne gold as you scroll) */}
+          <div className="mt-8 sm:mt-10">
+            <ScrollColorText
+              text="Luxury homes begin with three things: exquisite space, exceptional materials, and meaningful art. Lunore masters all three. From turnkey interior design to premium marble sourcing to curated sculptures and paintings, we deliver homes that are completely, irreplaceably yours."
+              className="text-lg sm:text-xl md:text-2xl lg:text-3xl leading-relaxed font-light max-w-4xl mx-auto"
+              style={{ fontFamily: 'var(--font-serif)' }}
+            />
+          </div>
         </div>
 
-        {/* Organic Curved Scroll Line - Brand Story */}
-        <ScrollLine
-          path="M 50,0 C 250,150 750,50 950,200 C 1150,350 150,450 500,550"
-          viewBox="0 0 1000 600"
-          className="absolute inset-0 z-0 opacity-30 md:opacity-60 pointer-events-none"
-          strokeColor="rgba(184, 154, 98, 0.35)"
-          strokeWidth={1.5}
-        />
       </section>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
@@ -297,13 +300,15 @@ export function Home() {
 
         {/* Intro Editorial Header */}
         <div className="px-6 pt-16 sm:pt-20 md:pt-24 pb-8 sm:pb-12 text-center max-w-3xl mx-auto relative z-10">
-          <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-3">
-            Leadership
-          </p>
-          <h2 className="text-3xl sm:text-4xl md:text-5xl font-light font-display tracking-tight text-[#f1eee7] leading-tight">
-            Directors of Lunore
-          </h2>
-          <div className="mt-6 w-12 h-[1px] bg-[#b89a62]/40 mx-auto" />
+          <Reveal direction="down">
+            <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-3">
+              Leadership
+            </p>
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-light font-display tracking-tight text-[#f1eee7] leading-tight">
+              Directors of Lunore
+            </h2>
+            <div className="mt-6 w-12 h-[1px] bg-[#b89a62]/40 mx-auto" />
+          </Reveal>
         </div>
 
         {/* Interactive Directors Parade */}
@@ -312,151 +317,218 @@ export function Home() {
             
             {isMobile ? (
               /* Mobile Vertical Stack Layout */
-              <div className="flex flex-col items-center justify-center text-center space-y-5">
+              <div className="flex flex-col items-center justify-center text-center space-y-4 max-w-full overflow-hidden">
                 {/* Active Role Label */}
-                <div className="flex flex-col items-center px-4">
-                  <span className="text-[10px] tracking-[0.25em] uppercase text-[#b89a62] font-medium">
-                    {activeMember.role}
-                  </span>
-                  <div className="w-8 h-[1px] bg-[#b89a62]/40 mt-2" />
-                </div>
+                <Reveal direction="up" delay={0.1}>
+                  <div className="flex flex-col items-center px-2 max-w-xs mx-auto">
+                    <span className="text-[9px] sm:text-[10px] tracking-[0.2em] uppercase text-[#b9b5ae] font-light">
+                      {activeMember.role}
+                    </span>
+                    <div className="w-8 h-[1px] bg-[#b89a62]/40 mt-1.5" />
+                  </div>
+                </Reveal>
 
-                {/* Active Name */}
-                <h3 className="text-xl sm:text-2xl font-normal font-display text-[#f1eee7]">
-                  {activeMember.name}
-                </h3>
+                {/* Active Name in Champagne Gold */}
+                <Reveal direction="up" delay={0.15}>
+                  <h3
+                    className="text-xl sm:text-2xl font-normal font-display tracking-[0.12em] sm:tracking-[0.14em] uppercase text-[#b89a62] drop-shadow-[0_2px_14px_rgba(184,154,98,0.45)] px-2 break-words"
+                    style={{ color: '#b89a62' }}
+                  >
+                    {activeMember.name}
+                  </h3>
+                </Reveal>
 
-                {/* Large Portrait */}
-                <div className="w-[160px] h-[160px] sm:w-[180px] sm:h-[180px] rounded-full overflow-hidden border-2 border-[#b89a62]/40 p-1 bg-[#181917] shadow-[0_0_30px_rgba(0,0,0,0.8),0_0_20px_rgba(184,154,98,0.2)]">
-                  <img
-                    src={activeMember.image}
-                    alt={activeMember.name}
-                    className="w-full h-full object-cover rounded-full"
-                  />
-                </div>
+                {/* Large Portrait with Mobile Navigation Arrows */}
+                <Reveal direction="zoom" delay={0.2} className="w-full">
+                  <div className="flex items-center justify-center gap-2 sm:gap-5 w-full px-2">
+                    {/* Previous Arrow */}
+                    <button
+                      onClick={() => setActiveIndex((prev) => (prev === 0 ? directors.length - 1 : prev - 1))}
+                      aria-label="Previous Director"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-90 cursor-pointer shrink-0"
+                    >
+                      <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </button>
+
+                    {/* Main Avatar */}
+                    <div className="w-[130px] h-[130px] sm:w-[160px] sm:h-[160px] rounded-full overflow-hidden border-2 border-[#b89a62]/50 p-1 bg-[#181917] shadow-[0_0_25px_rgba(0,0,0,0.8),0_0_15px_rgba(184,154,98,0.3)] shrink-0">
+                      <img
+                        src={activeMember.image}
+                        alt={activeMember.name}
+                        className="w-full h-full object-cover rounded-full"
+                      />
+                    </div>
+
+                    {/* Next Arrow */}
+                    <button
+                      onClick={() => setActiveIndex((prev) => (prev === directors.length - 1 ? 0 : prev + 1))}
+                      aria-label="Next Director"
+                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-90 cursor-pointer shrink-0"
+                    >
+                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                    </button>
+                  </div>
+                </Reveal>
 
                 {/* Testimonial Quote & Text */}
-                <div className="max-w-md px-4 mt-2">
-                  <span className="text-4xl font-serif text-[#b89a62] opacity-40 leading-none select-none block mb-1">“</span>
-                  <p
-                    className="text-sm leading-relaxed font-light font-display italic tracking-wide"
-                    style={{ color: '#e6cb97' }}
-                  >
-                    {activeMember.testimonial}
-                  </p>
-                </div>
+                <Reveal direction="blur" delay={0.25}>
+                  <div className="w-full max-w-sm sm:max-w-md px-3 sm:px-4 mt-1">
+                    <span className="text-3xl font-serif text-[#b89a62] opacity-40 leading-none select-none block mb-0.5">“</span>
+                    <p
+                      className="text-xs sm:text-sm leading-relaxed font-light font-display italic tracking-wide break-words"
+                      style={{ color: '#e6cb97' }}
+                    >
+                      {activeMember.testimonial}
+                    </p>
+                  </div>
+                </Reveal>
 
                 {/* Mobile Avatar Parade (Centered Row) */}
-                <div className="w-full pt-4 overflow-x-auto no-scrollbar">
-                  <div className="flex items-center justify-center gap-3 px-4">
-                    {directors.map((member, idx) => (
-                      <button
-                        key={member.name}
-                        onClick={() => setActiveIndex(idx)}
-                        className={`relative rounded-full overflow-hidden flex-shrink-0 transition-all duration-300 ${
-                          idx === activeIndex
-                            ? 'w-12 h-12 border-2 border-[#b89a62] scale-110 shadow-[0_0_20px_rgba(184,154,98,0.5)]'
-                            : 'w-9 h-9 opacity-40 hover:opacity-80 border border-white/10'
-                        }`}
-                      >
-                        <img
-                          src={member.image}
-                          alt={member.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </button>
-                    ))}
+                <Reveal direction="up" delay={0.3} className="w-full">
+                  <div className="w-full pt-3 overflow-x-auto no-scrollbar">
+                    <div className="flex items-center justify-center gap-2 sm:gap-3 px-2">
+                      {directors.map((member, idx) => (
+                        <button
+                          key={member.name}
+                          onClick={() => setActiveIndex(idx)}
+                          className={`relative rounded-full overflow-hidden flex-shrink-0 transition-all duration-300 ${
+                            idx === activeIndex
+                              ? 'w-10 h-10 sm:w-12 sm:h-12 border-2 border-[#b89a62] scale-110 shadow-[0_0_15px_rgba(184,154,98,0.5)]'
+                              : 'w-8 h-8 sm:w-9 sm:h-9 opacity-40 hover:opacity-80 border border-white/10'
+                          }`}
+                        >
+                          <img
+                            src={member.image}
+                            alt={member.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
+                </Reveal>
 
                 {/* Mobile Dots */}
-                <div className="flex items-center justify-center gap-2 pt-2">
-                  {directors.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveIndex(idx)}
-                      aria-label={`Select director ${idx + 1}`}
-                      className={`h-1.5 rounded-full transition-all duration-300 ${
-                        idx === activeIndex ? 'w-6 bg-[#b89a62]' : 'w-1.5 bg-white/20'
-                      }`}
-                    />
-                  ))}
-                </div>
+                <Reveal direction="blur" delay={0.35}>
+                  <div className="flex items-center justify-center gap-2 pt-2">
+                    {directors.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveIndex(idx)}
+                        aria-label={`Select director ${idx + 1}`}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                          idx === activeIndex ? 'w-6 bg-[#b89a62]' : 'w-1.5 bg-white/20'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </Reveal>
               </div>
             ) : (
               /* Desktop & Tablet Layout */
               <div className="relative w-full min-h-[520px] flex flex-col justify-between">
                 
                 {/* Active Role and Name label above the central portrait */}
-                <div className="text-center mb-4 z-40">
-                  <span className="text-xs tracking-[0.3em] uppercase text-[#b89a62] block font-medium">
-                    {activeMember.role}
-                  </span>
-                  <div className="w-8 h-[1px] bg-[#b89a62]/40 mx-auto my-2" />
-                  <span className="text-base font-normal tracking-wide text-[#f1eee7] block">
-                    {activeMember.name}
-                  </span>
-                </div>
-
-                {/* Horizontal Parade Field */}
-                <div className="relative w-full h-[260px] sm:h-[300px] flex items-center justify-center">
-                  <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
-                    {directors.map((member, idx) => {
-                      const { size, opacity, x } = getAvatarStyle(idx);
-                      const isActive = idx === activeIndex;
-
-                      return (
-                        <div
-                          key={member.name}
-                          onClick={() => setActiveIndex(idx)}
-                          style={{
-                            width: `${size}px`,
-                            height: `${size}px`,
-                            opacity: opacity,
-                            transform: `translate3d(${x}px, ${isActive ? 10 : 0}px, 0)`,
-                            zIndex: isActive ? 30 : 20 - Math.abs(idx - activeIndex),
-                          }}
-                          className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden cursor-pointer transition-all ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-700 ${
-                            isActive
-                              ? 'p-1.5 border-2 border-[#b89a62] bg-[#181917] shadow-[0_0_40px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.3)]'
-                              : 'border border-white/15 hover:opacity-90 hover:scale-105'
-                          }`}
-                        >
-                          <img
-                            src={member.image}
-                            alt={member.name}
-                            className="w-full h-full object-cover rounded-full select-none"
-                          />
-                        </div>
-                      );
-                    })}
+                <Reveal direction="up" delay={0.1}>
+                  <div className="text-center mb-4 z-40">
+                    <span className="text-xs tracking-[0.3em] uppercase text-[#b9b5ae] block font-light">
+                      {activeMember.role}
+                    </span>
+                    <div className="w-8 h-[1px] bg-[#b89a62]/40 mx-auto my-2" />
+                    <h3
+                      className="text-2xl sm:text-3xl font-normal font-display tracking-[0.14em] uppercase text-[#b89a62] block drop-shadow-[0_2px_14px_rgba(184,154,98,0.45)]"
+                      style={{ color: '#b89a62' }}
+                    >
+                      {activeMember.name}
+                    </h3>
                   </div>
-                </div>
+                </Reveal>
 
-                {/* Centered Testimonial & Quote for perfect tablet & desktop symmetry */}
-                <div className="w-full max-w-2xl mx-auto text-center px-6 mt-4">
-                  <span className="text-4xl font-serif text-[#b89a62] opacity-40 leading-none select-none block mb-1">“</span>
-                  <p
-                    className="text-base sm:text-lg font-light font-display italic leading-relaxed tracking-wide"
-                    style={{ color: '#e6cb97' }}
-                  >
-                    {activeMember.testimonial}
-                  </p>
-                </div>
+                {/* Horizontal Parade Field with Left and Right Navigation Arrows */}
+                <Reveal direction="zoom" delay={0.2} className="w-full">
+                  <div className="relative w-full h-[260px] sm:h-[300px] flex items-center justify-center">
+                    
+                    {/* Left Navigation Arrow */}
+                    <button
+                      onClick={() => setActiveIndex((prev) => (prev === 0 ? directors.length - 1 : prev - 1))}
+                      aria-label="Previous Director"
+                      className="absolute left-2 sm:left-6 md:left-12 lg:left-24 z-40 w-11 h-11 sm:w-13 sm:h-13 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white hover:border-[#b89a62] hover:bg-[#b89a62]/20 flex items-center justify-center transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.6)] hover:scale-110 active:scale-95 cursor-pointer group"
+                    >
+                      <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:-translate-x-0.5" />
+                    </button>
+
+                    {/* Central Parade Orbit */}
+                    <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
+                      {directors.map((member, idx) => {
+                        const { size, opacity, x } = getAvatarStyle(idx);
+                        const isActive = idx === activeIndex;
+
+                        return (
+                          <div
+                            key={member.name}
+                            onClick={() => setActiveIndex(idx)}
+                            style={{
+                              width: `${size}px`,
+                              height: `${size}px`,
+                              opacity: opacity,
+                              transform: `translate3d(${x}px, ${isActive ? 10 : 0}px, 0)`,
+                              zIndex: isActive ? 30 : 20 - Math.abs(idx - activeIndex),
+                            }}
+                            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden cursor-pointer transition-all ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-700 ${
+                              isActive
+                                ? 'p-1.5 border-2 border-[#b89a62] bg-[#181917] shadow-[0_0_40px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.3)]'
+                                : 'border border-white/15 hover:opacity-90 hover:scale-105'
+                            }`}
+                          >
+                            <img
+                              src={member.image}
+                              alt={member.name}
+                              className="w-full h-full object-cover rounded-full select-none"
+                            />
+                          </div>
+                        );
+                      })}
+                    </div>
+
+                    {/* Right Navigation Arrow */}
+                    <button
+                      onClick={() => setActiveIndex((prev) => (prev === directors.length - 1 ? 0 : prev + 1))}
+                      aria-label="Next Director"
+                      className="absolute right-2 sm:right-6 md:right-12 lg:right-24 z-40 w-11 h-11 sm:w-13 sm:h-13 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white hover:border-[#b89a62] hover:bg-[#b89a62]/20 flex items-center justify-center transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.6)] hover:scale-110 active:scale-95 cursor-pointer group"
+                    >
+                      <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6 transition-transform duration-300 group-hover:translate-x-0.5" />
+                    </button>
+                  </div>
+                </Reveal>
+
+                {/* Centered Testimonial & Quote */}
+                <Reveal direction="blur" delay={0.25}>
+                  <div className="w-full max-w-2xl mx-auto text-center px-6 mt-4">
+                    <span className="text-4xl font-serif text-[#b89a62] opacity-40 leading-none select-none block mb-1">“</span>
+                    <p
+                      className="text-base sm:text-lg font-light font-display italic leading-relaxed tracking-wide"
+                      style={{ color: '#e6cb97' }}
+                    >
+                      {activeMember.testimonial}
+                    </p>
+                  </div>
+                </Reveal>
 
                 {/* Navigation Dots */}
-                <div className="flex items-center justify-center gap-2 pt-6">
-                  {directors.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveIndex(idx)}
-                      aria-label={`Select director ${idx + 1}`}
-                      className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                        idx === activeIndex ? 'w-8 bg-[#b89a62]' : 'w-2 bg-white/20 hover:bg-white/40'
-                      }`}
-                    />
-                  ))}
-                </div>
+                <Reveal direction="up" delay={0.3}>
+                  <div className="flex items-center justify-center gap-2 pt-6">
+                    {directors.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveIndex(idx)}
+                        aria-label={`Select director ${idx + 1}`}
+                        className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                          idx === activeIndex ? 'w-8 bg-[#b89a62]' : 'w-2 bg-white/20 hover:bg-white/40'
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </Reveal>
 
               </div>
             )}
@@ -473,16 +545,6 @@ export function Home() {
             Learn More About Our Team <ArrowRight className="w-4 h-4 text-[#b89a62]" />
           </Link>
         </div>
-
-        {/* Organic Curved Scroll Line - Flowing smoothly along the side periphery framing the directors */}
-        <ScrollLine
-          path="M 880,0 C 960,180 970,340 880,440 C 760,540 840,680 890,780 C 940,880 780,930 640,950"
-          viewBox="0 0 1000 950"
-          className="absolute inset-0 z-0 opacity-30 md:opacity-50 pointer-events-none"
-          strokeColor="rgba(184, 154, 98, 0.45)"
-          strokeWidth={1.6}
-          glow={true}
-        />
       </section>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
@@ -495,7 +557,7 @@ export function Home() {
       {/* 5. FEATURED PROJECTS & SIGNATURE COLLECTION SECTION */}
       <section id="projects" className="py-24 md:py-36 relative overflow-hidden bg-[#0d0e0e]">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <Reveal className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12">
+          <Reveal direction="left" className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12">
             <div>
               <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-3">
                 Featured Portfolio
@@ -513,53 +575,55 @@ export function Home() {
 
         {/* Marquee Carousel */}
         <div className="overflow-hidden mb-20">
-          <div className="marquee-track flex gap-6 px-6 lg:px-10 pb-4">
-            {products.map((p) => (
-              <Link
-                key={p.id}
-                to={`/products/${p.id}`}
-                className="group w-[280px] md:w-[320px] flex-shrink-0"
-              >
-                <Placeholder
-                  className="aspect-[3/4] mb-5 gold-frame"
-                  label={p.category}
-                  src={images.products[p.name]}
-                />
-                <h3 className="text-xl font-light text-[#f1eee7] group-hover:text-[#b89a62] transition-colors">
-                  {p.name}
-                </h3>
-                <p className="mt-1 text-xs tracking-[0.2em] uppercase text-[#b9b5ae]">
-                  {p.category}
-                </p>
-              </Link>
-            ))}
-            {/* Duplicate set for seamless infinite loop */}
-            {products.map((p) => (
-              <Link
-                key={`dup-${p.id}`}
-                to={`/products/${p.id}`}
-                className="group w-[280px] md:w-[320px] flex-shrink-0"
-                aria-hidden="true"
-              >
-                <Placeholder
-                  className="aspect-[3/4] mb-5 gold-frame"
-                  label={p.category}
-                  src={images.products[p.name]}
-                />
-                <h3 className="text-xl font-light text-[#f1eee7] group-hover:text-[#b89a62] transition-colors">
-                  {p.name}
-                </h3>
-                <p className="mt-1 text-xs tracking-[0.2em] uppercase text-[#b9b5ae]">
-                  {p.category}
-                </p>
-              </Link>
-            ))}
-          </div>
+          <Reveal direction="zoom" delay={0.15}>
+            <div className="marquee-track flex gap-6 px-6 lg:px-10 pb-4">
+              {products.map((p) => (
+                <Link
+                  key={p.id}
+                  to={`/products/${p.id}`}
+                  className="group w-[280px] md:w-[320px] flex-shrink-0"
+                >
+                  <Placeholder
+                    className="aspect-[3/4] mb-5 gold-frame"
+                    label={p.category}
+                    src={images.products[p.name]}
+                  />
+                  <h3 className="text-xl font-light text-[#f1eee7] group-hover:text-[#b89a62] transition-colors">
+                    {p.name}
+                  </h3>
+                  <p className="mt-1 text-xs tracking-[0.2em] uppercase text-[#b9b5ae]">
+                    {p.category}
+                  </p>
+                </Link>
+              ))}
+              {/* Duplicate set for seamless infinite loop */}
+              {products.map((p) => (
+                <Link
+                  key={`dup-${p.id}`}
+                  to={`/products/${p.id}`}
+                  className="group w-[280px] md:w-[320px] flex-shrink-0"
+                  aria-hidden="true"
+                >
+                  <Placeholder
+                    className="aspect-[3/4] mb-5 gold-frame"
+                    label={p.category}
+                    src={images.products[p.name]}
+                  />
+                  <h3 className="text-xl font-light text-[#f1eee7] group-hover:text-[#b89a62] transition-colors">
+                    {p.name}
+                  </h3>
+                  <p className="mt-1 text-xs tracking-[0.2em] uppercase text-[#b9b5ae]">
+                    {p.category}
+                  </p>
+                </Link>
+              ))}
+            </div>
+          </Reveal>
         </div>
 
         {/* Visionary Concepts Grid Preview */}
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <Reveal className="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 border-t border-[rgba(184,154,98,0.16)] pt-12">
+          <Reveal direction="right" className="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 border-t border-[rgba(184,154,98,0.16)] pt-12">
             <div>
               <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-2">
                 Conceptual Works
@@ -576,7 +640,7 @@ export function Home() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {dreamConcepts.map((item, i) => (
-              <Reveal key={item.title} direction="up" delay={i * 0.08}>
+              <Reveal key={item.title} direction="zoom" delay={i * 0.09}>
                 <Placeholder
                   className="aspect-[4/3] mb-4"
                   label={item.title}
@@ -589,14 +653,6 @@ export function Home() {
           </div>
         </div>
 
-        {/* Organic Curved Scroll Line - Projects */}
-        <ScrollLine
-          path="M 100,0 C 400,200 100,500 600,300 C 1000,100 800,600 1100,700"
-          viewBox="0 0 1000 700"
-          className="absolute inset-0 z-0 opacity-25 md:opacity-45"
-          strokeColor="rgba(184, 154, 98, 0.35)"
-          strokeWidth={1.5}
-        />
       </section>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
@@ -604,19 +660,35 @@ export function Home() {
       {/* 6. DESIGN PHILOSOPHY & PROCESS SECTION */}
       <section id="process" className="py-24 md:py-36 relative bg-[#111211]">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <Reveal className="text-center max-w-3xl mx-auto mb-16">
-            <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4">
-              Design Philosophy
-            </p>
-            <h2 className="text-3xl md:text-5xl font-light text-[#f1eee7]">Hand-Carved Excellence</h2>
-            <p className="mt-6 text-lg text-[#b9b5ae] leading-relaxed font-light">
-              Every masterpiece follows a journey of intense dedication and reverence for natural stone.
-            </p>
-          </Reveal>
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Reveal direction="down">
+              <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4">
+                Design Philosophy
+              </p>
+            </Reveal>
+            <TextReveal
+              text="Hand-Carved Excellence"
+              as="h2"
+              className="text-3xl md:text-5xl font-light text-[#f1eee7]"
+              wordClassName="text-[#f1eee7]"
+              delay={0.1}
+              stagger={0.06}
+            />
+            <Reveal direction="blur" delay={0.25}>
+              <p className="mt-6 text-lg text-[#b9b5ae] leading-relaxed font-light">
+                Every masterpiece follows a journey of intense dedication and reverence for natural stone.
+              </p>
+            </Reveal>
+          </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {processSteps.map((s, i) => (
-              <Reveal key={s.num} direction="up" delay={i * 0.1} className="p-8 rounded-3xl liquid-glass-card relative z-10">
+              <Reveal
+                key={s.num}
+                direction={i === 0 ? 'left' : i === 1 ? 'up' : 'right'}
+                delay={i * 0.12}
+                className="p-8 rounded-3xl liquid-glass-card relative z-10"
+              >
                 <span className="text-4xl md:text-5xl font-light text-[#b89a62] block mb-4">
                   {s.num}
                 </span>
@@ -628,7 +700,7 @@ export function Home() {
           </div>
 
           <div className="mt-16 text-center">
-            <Reveal>
+            <Reveal direction="zoom" delay={0.2}>
               <Link
                 to="/process"
                 className="liquid-glass-btn-secondary inline-flex items-center gap-3 px-8 py-4 text-xs tracking-[0.25em] uppercase text-[#f1eee7] group shadow-lg"
@@ -639,15 +711,6 @@ export function Home() {
           </div>
         </div>
 
-        {/* Organic Flowing Curve connecting Process Steps 01 -> 02 -> 03 */}
-        <ScrollLine
-          path="M 120,280 C 250,180 350,380 500,280 C 650,180 750,380 880,280"
-          viewBox="0 0 1000 500"
-          className="absolute inset-0 z-0 opacity-40 md:opacity-65"
-          strokeColor="rgba(184, 154, 98, 0.45)"
-          strokeWidth={1.8}
-          glow={true}
-        />
       </section>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
@@ -655,7 +718,7 @@ export function Home() {
       {/* 7. CALL TO ACTION (CTA) SECTION */}
       <section id="cta" className="py-20 md:py-32 relative text-center bg-gradient-to-b from-[#0d0e0e] via-[#151615] to-[#0d0e0e] overflow-hidden">
         <div className="max-w-4xl mx-auto px-6 relative z-10">
-          <Reveal className="liquid-glass-card rounded-3xl p-10 md:p-16 text-center">
+          <Reveal direction="zoom" delay={0.15} className="liquid-glass-card rounded-3xl p-10 md:p-16 text-center">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass-pill mb-6">
               <Sparkles className="w-3.5 h-3.5 text-[#b89a62]" />
               <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62]">
@@ -685,14 +748,6 @@ export function Home() {
           </Reveal>
         </div>
 
-        {/* Organic Curved Scroll Line guiding eye toward CTA */}
-        <ScrollLine
-          path="M 0,250 C 300,50 700,450 1000,250"
-          viewBox="0 0 1000 500"
-          className="absolute inset-0 z-0 opacity-40 md:opacity-60"
-          strokeColor="rgba(184, 154, 98, 0.4)"
-          strokeWidth={1.5}
-        />
       </section>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
@@ -700,15 +755,26 @@ export function Home() {
       {/* 8. CONTACT PREVIEW SECTION */}
       <section id="contact" className="py-24 md:py-36 relative bg-[#0d0e0e]">
         <div className="max-w-6xl mx-auto px-6">
-          <Reveal className="text-center max-w-3xl mx-auto mb-16">
-            <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4">
-              Get in Touch
-            </p>
-            <h2 className="text-3xl md:text-5xl font-light text-[#f1eee7]">Connect With The Studio</h2>
-            <p className="mt-4 text-sm tracking-[0.25em] uppercase text-[#b9b5ae]">
-              Inquiries &amp; Consultations
-            </p>
-          </Reveal>
+          <div className="text-center max-w-3xl mx-auto mb-16">
+            <Reveal direction="down">
+              <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4">
+                Get in Touch
+              </p>
+            </Reveal>
+            <TextReveal
+              text="Connect With The Studio"
+              as="h2"
+              className="text-3xl md:text-5xl font-light text-[#f1eee7]"
+              wordClassName="text-[#f1eee7]"
+              delay={0.1}
+              stagger={0.06}
+            />
+            <Reveal direction="blur" delay={0.25}>
+              <p className="mt-4 text-sm tracking-[0.25em] uppercase text-[#b9b5ae]">
+                Inquiries &amp; Consultations
+              </p>
+            </Reveal>
+          </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Form */}

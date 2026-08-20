@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChevronDown, ArrowRight } from 'lucide-react';
-import { ScrollLine } from '@/components/ScrollLine';
 import { useLenis } from '@/components/SmoothScroll';
 
 interface InteriorExperienceProps {
@@ -108,12 +107,99 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     };
   }, []);
 
+  // Play signature Samsung Galaxy / One UI droplet tap sound effect via Web Audio API
+  const playSwitchSound = () => {
+    try {
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      const ctx = new AudioCtx();
+      if (ctx.state === 'suspended') {
+        ctx.resume();
+      }
+      const now = ctx.currentTime;
+
+      // 1. Primary Samsung Droplet "Tok" Tone (Fast downward pitch sweep)
+      const oscPrimary = ctx.createOscillator();
+      const gainPrimary = ctx.createGain();
+      oscPrimary.type = 'sine';
+      oscPrimary.frequency.setValueAtTime(2200, now);
+      oscPrimary.frequency.exponentialRampToValueAtTime(720, now + 0.052);
+
+      gainPrimary.gain.setValueAtTime(0.55, now);
+      gainPrimary.gain.exponentialRampToValueAtTime(0.001, now + 0.052);
+
+      oscPrimary.connect(gainPrimary);
+      gainPrimary.connect(ctx.destination);
+      oscPrimary.start(now);
+      oscPrimary.stop(now + 0.052);
+
+      // 2. High-harmonic Glassy Droplet Ring (~3400Hz)
+      const oscChime = ctx.createOscillator();
+      const gainChime = ctx.createGain();
+      oscChime.type = 'sine';
+      oscChime.frequency.setValueAtTime(3400, now);
+      oscChime.frequency.exponentialRampToValueAtTime(1200, now + 0.038);
+
+      gainChime.gain.setValueAtTime(0.28, now);
+      gainChime.gain.exponentialRampToValueAtTime(0.001, now + 0.038);
+
+      oscChime.connect(gainChime);
+      gainChime.connect(ctx.destination);
+      oscChime.start(now);
+      oscChime.stop(now + 0.038);
+
+      // 3. Warm Tactile Acoustic Body (~480Hz)
+      const oscBody = ctx.createOscillator();
+      const gainBody = ctx.createGain();
+      oscBody.type = 'triangle';
+      oscBody.frequency.setValueAtTime(480, now);
+      oscBody.frequency.exponentialRampToValueAtTime(160, now + 0.045);
+
+      gainBody.gain.setValueAtTime(0.32, now);
+      gainBody.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+
+      oscBody.connect(gainBody);
+      gainBody.connect(ctx.destination);
+      oscBody.start(now);
+      oscBody.stop(now + 0.045);
+
+      // 4. Subtle Initial Percussive Transient
+      const bufferSize = Math.floor(ctx.sampleRate * 0.012); // 12ms
+      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+      const output = noiseBuffer.getChannelData(0);
+      for (let i = 0; i < bufferSize; i++) {
+        output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.003));
+      }
+      const noise = ctx.createBufferSource();
+      noise.buffer = noiseBuffer;
+
+      const filter = ctx.createBiquadFilter();
+      filter.type = 'highpass';
+      filter.frequency.value = 3000;
+
+      const noiseGain = ctx.createGain();
+      noiseGain.gain.setValueAtTime(0.2, now);
+      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.012);
+
+      noise.connect(filter);
+      filter.connect(noiseGain);
+      noiseGain.connect(ctx.destination);
+      noise.start(now);
+      noise.stop(now + 0.012);
+    } catch {
+      // AudioContext fallback
+    }
+  };
+
   // Handle Full Illumination switch: animate toggle knob -> soft white light -> reveal image for 2s -> reveal blur & clean white text
   const handleToggleClick = () => {
     if (isSwitchToggled) return;
     if (!hasBeenTapped) {
       setHasBeenTapped(true);
     }
+
+    // Play tactile mechanical switch on sound effect
+    playSwitchSound();
     
     // 1. Immediately animate toggle switch sliding to the other side
     setIsSwitchToggled(true);
@@ -330,18 +416,6 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     >
       {/* Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#b89a62]/5 rounded-full blur-[180px] pointer-events-none" />
-
-      {/* Organic Curved Scroll Line */}
-      {isFlashlightMode && (
-        <ScrollLine
-          path="M 480,0 C 180,80 120,240 380,270 C 680,300 890,200 820,380 C 760,520 620,590 500,595"
-          viewBox="0 0 1000 800"
-          className="absolute inset-0 z-0 opacity-40 md:opacity-70 pointer-events-none transition-opacity duration-700"
-          strokeColor="rgba(184, 154, 98, 0.45)"
-          strokeWidth={1.8}
-          glow={true}
-        />
-      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 relative z-10">
         
@@ -578,7 +652,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                               key={lineIdx}
                               className="text-sm sm:text-base md:text-lg lg:text-xl font-light text-white leading-relaxed tracking-wide select-none"
                               style={{
-                                fontFamily: 'var(--font-heading)',
+                                fontFamily: 'var(--font-serif)',
                                 textShadow: '0 2px 20px rgba(0,0,0,0.9)',
                               }}
                             >
