@@ -755,9 +755,32 @@ html.lunore-experience-active img {
   filter: blur(16px);
 }
 
+/* 3D Card Flip on Scroll Reveal */
+.reveal-flip {
+  transform: perspective(1200px) rotateY(-65deg) rotateX(12deg) translateZ(-80px) scale(0.88);
+  filter: blur(8px);
+}
+
+.reveal-flip-y {
+  transform: perspective(1400px) rotateY(-80deg) translate3d(-20px, 0, -60px) scale(0.92);
+  transform-origin: left center;
+  filter: blur(6px);
+}
+
+.reveal-flip-x {
+  transform: perspective(1200px) rotateX(65deg) translateZ(-80px) scale(0.88);
+  filter: blur(10px);
+}
+
+.reveal-flip-right {
+  transform: perspective(1400px) rotateY(80deg) translate3d(20px, 0, -60px) scale(0.92);
+  transform-origin: right center;
+  filter: blur(6px);
+}
+
 .reveal-visible {
   opacity: 1 !important;
-  transform: translate3d(0, 0, 0) scale(1) !important;
+  transform: perspective(1200px) translate3d(0, 0, 0) rotateY(0deg) rotateX(0deg) scale(1) !important;
   filter: blur(0px) !important;
 }
 

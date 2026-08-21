@@ -8,6 +8,7 @@ import { Reveal } from '@/components/Reveal';
 import { TextReveal } from '@/components/TextReveal';
 import { ScrollColorText } from '@/components/ScrollColorText';
 import { InteriorExperience } from '@/components/InteriorExperience';
+import { SculpturesExperience } from '@/components/SculpturesExperience';
 
 const HERO_LETTERS = ['L', 'U', 'N', 'O', 'R', 'E'];
 
@@ -555,105 +556,7 @@ export function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
 
       {/* 5. FEATURED PROJECTS & SIGNATURE COLLECTION SECTION */}
-      <section id="projects" className="py-24 md:py-36 relative overflow-hidden bg-[#0d0e0e]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <Reveal direction="left" className="flex flex-col md:flex-row items-start md:items-end justify-between mb-12">
-            <div>
-              <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-3">
-                Featured Portfolio
-              </p>
-              <h2 className="text-3xl md:text-5xl font-light text-[#f1eee7]">Signature Sculptures</h2>
-            </div>
-            <Link
-              to="/products"
-              className="mt-4 md:mt-0 flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-[#b9b5ae] hover:text-[#b89a62] transition-colors group"
-            >
-              View Full Collection <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-            </Link>
-          </Reveal>
-        </div>
-
-        {/* Marquee Carousel */}
-        <div className="overflow-hidden mb-20">
-          <Reveal direction="zoom" delay={0.15}>
-            <div className="marquee-track flex gap-6 px-6 lg:px-10 pb-4">
-              {products.map((p) => (
-                <Link
-                  key={p.id}
-                  to={`/products/${p.id}`}
-                  className="group w-[280px] md:w-[320px] flex-shrink-0"
-                >
-                  <Placeholder
-                    className="aspect-[3/4] mb-5 gold-frame"
-                    label={p.category}
-                    src={images.products[p.name]}
-                  />
-                  <h3 className="text-xl font-light text-[#f1eee7] group-hover:text-[#b89a62] transition-colors">
-                    {p.name}
-                  </h3>
-                  <p className="mt-1 text-xs tracking-[0.2em] uppercase text-[#b9b5ae]">
-                    {p.category}
-                  </p>
-                </Link>
-              ))}
-              {/* Duplicate set for seamless infinite loop */}
-              {products.map((p) => (
-                <Link
-                  key={`dup-${p.id}`}
-                  to={`/products/${p.id}`}
-                  className="group w-[280px] md:w-[320px] flex-shrink-0"
-                  aria-hidden="true"
-                >
-                  <Placeholder
-                    className="aspect-[3/4] mb-5 gold-frame"
-                    label={p.category}
-                    src={images.products[p.name]}
-                  />
-                  <h3 className="text-xl font-light text-[#f1eee7] group-hover:text-[#b89a62] transition-colors">
-                    {p.name}
-                  </h3>
-                  <p className="mt-1 text-xs tracking-[0.2em] uppercase text-[#b9b5ae]">
-                    {p.category}
-                  </p>
-                </Link>
-              ))}
-            </div>
-          </Reveal>
-        </div>
-
-        {/* Visionary Concepts Grid Preview */}
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <Reveal direction="right" className="flex flex-col md:flex-row items-start md:items-end justify-between mb-10 border-t border-[rgba(184,154,98,0.16)] pt-12">
-            <div>
-              <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-2">
-                Conceptual Works
-              </p>
-              <h3 className="text-2xl md:text-4xl font-light text-[#f1eee7]">Dream Projects</h3>
-            </div>
-            <Link
-              to="/dream-project"
-              className="mt-4 md:mt-0 flex items-center gap-2 text-xs tracking-[0.2em] uppercase text-[#b9b5ae] hover:text-[#b89a62] transition-colors group"
-            >
-              Explore Dream Projects <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-            </Link>
-          </Reveal>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {dreamConcepts.map((item, i) => (
-              <Reveal key={item.title} direction="zoom" delay={i * 0.09}>
-                <Placeholder
-                  className="aspect-[4/3] mb-4"
-                  label={item.title}
-                  src={images.dreamProject[item.title]}
-                />
-                <h4 className="text-lg font-light text-[#f1eee7]">{item.title}</h4>
-                <p className="text-xs tracking-[0.2em] uppercase text-[#b9b5ae] mt-1">{item.desc}</p>
-              </Reveal>
-            ))}
-          </div>
-        </div>
-
-      </section>
+      <SculpturesExperience />
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
@@ -681,19 +584,32 @@ export function Home() {
             </Reveal>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {processSteps.map((s, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 [perspective:1400px]">
+            {processSteps.map((s) => (
               <Reveal
                 key={s.num}
-                direction={i === 0 ? 'left' : i === 1 ? 'up' : 'right'}
-                delay={i * 0.12}
-                className="p-8 rounded-3xl liquid-glass-card relative z-10"
+                direction="flip-right"
+                delay={1.0}
+                threshold={0.35}
+                rootMargin="-40px"
+                className="group relative p-8 sm:p-10 rounded-3xl liquid-glass-card z-10 [transform-style:preserve-3d] transition-all duration-500 hover:-translate-y-2.5 hover:shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_40px_rgba(184,154,98,0.18)] border border-white/10 hover:border-[#b89a62]/50 overflow-hidden"
               >
-                <span className="text-4xl md:text-5xl font-light text-[#b89a62] block mb-4">
+                {/* Top Specular Edge Glow on Card */}
+                <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:via-[#b89a62]/80 transition-all duration-500" />
+
+                <span
+                  className="text-4xl md:text-5xl font-light text-[#b89a62] block mb-4 transition-transform duration-500 group-hover:scale-105"
+                  style={{ fontFamily: 'var(--font-serif)' }}
+                >
                   {s.num}
                 </span>
-                <h3 className="text-xl font-light mb-3 text-[#f1eee7]">{s.title}</h3>
-                <div className="w-10 h-px bg-[#b89a62]/60 mb-4" />
+                <h3
+                  className="text-xl md:text-2xl font-light mb-3 text-[#f1eee7] group-hover:text-white transition-colors"
+                  style={{ fontFamily: 'var(--font-serif)' }}
+                >
+                  {s.title}
+                </h3>
+                <div className="w-10 h-px bg-[#b89a62]/60 mb-4 group-hover:w-16 group-hover:bg-[#b89a62] transition-all duration-500" />
                 <p className="text-sm text-[#b9b5ae] leading-relaxed font-light">{s.desc}</p>
               </Reveal>
             ))}

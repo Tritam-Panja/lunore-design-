@@ -12,6 +12,7 @@ export const localImages = {
 export const publicImages = {
   hero: '/assets/images/hero.jpg',
   marble: '/assets/images/marble.jpg',
+  sculptureHero: '/assets/images/sculpture hero .jpeg',
 };
 
 // Online Image URLs (Unsplash / Pexels CDN)
