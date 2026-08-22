@@ -191,7 +191,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     }
   };
 
-  // Handle Full Illumination switch: animate toggle knob -> soft white light -> reveal image for 2s -> reveal blur & clean white text
+  // Handle Full Illumination switch: animate toggle knob -> soft white light -> wait in pure image until user scrolls to reveal text
   const handleToggleClick = () => {
     if (isSwitchToggled) return;
     if (!hasBeenTapped) {
@@ -227,20 +227,13 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
           lenis.scrollTo(targetScroll, { duration: 0.8 });
         }
       }
-
-      // 2-second pause with pure real image before showing blur & clean text overlay
-      if (timerRef.current) clearTimeout(timerRef.current);
-      timerRef.current = setTimeout(() => {
-        setOverlayReady(true);
-        overlayReadyRef.current = true;
-      }, 2000);
     }, 380);
   };
 
-  // Window-level capture listener: strictly locks outside window scroll on stages 0, 1, 2
+  // Window-level capture listener: strictly locks outside window scroll until narrative is explored
   useEffect(() => {
     const onWindowWheel = (e: WheelEvent) => {
-      if (isFlashlightModeRef.current || !overlayReadyRef.current) return;
+      if (isFlashlightModeRef.current) return;
 
       const el = containerRef.current;
       if (!el) return;
@@ -249,12 +242,27 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       const isInView = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
       if (!isInView) return;
 
+      const isReady = overlayReadyRef.current;
       const currentStage = storyStageRef.current;
       const now = Date.now();
 
       if (e.deltaY > 5) {
         // Scrolling DOWN
-        if (currentStage < 3) {
+        if (!isReady) {
+          // First scroll while in pure illuminated image -> reveal overlay & stage 0
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 180) {
+            setOverlayReady(true);
+            overlayReadyRef.current = true;
+            setStoryStage(0);
+            storyStageRef.current = 0;
+            lastScrollTime.current = now;
+          }
+        } else if (currentStage < 3) {
+          // Scrolling through stages 0 -> 1 -> 2 -> 3
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
@@ -270,7 +278,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
         }
       } else if (e.deltaY < -5) {
         // Scrolling UP
-        if (currentStage > 0 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
+        if (isReady && currentStage > 0 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
@@ -281,6 +289,17 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               storyStageRef.current = next;
               return next;
             });
+            lastScrollTime.current = now;
+          }
+        } else if (isReady && currentStage === 0 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
+          // Scroll up from stage 0 returns to pure image view
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 220) {
+            setOverlayReady(false);
+            overlayReadyRef.current = false;
             lastScrollTime.current = now;
           }
         }
@@ -294,7 +313,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     };
 
     const onWindowTouchMove = (e: TouchEvent) => {
-      if (isFlashlightModeRef.current || !overlayReadyRef.current) return;
+      if (isFlashlightModeRef.current) return;
       const el = containerRef.current;
       if (!el || e.touches.length === 0) return;
 
@@ -304,35 +323,62 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
 
       const currentY = e.touches[0].clientY;
       const deltaY = touchStartY.current - currentY;
+      const isReady = overlayReadyRef.current;
       const currentStage = storyStageRef.current;
       const now = Date.now();
 
       // Swiping UP to scroll down
-      if (deltaY > 15 && currentStage < 3) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
+      if (deltaY > 15) {
+        if (!isReady) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
 
-        if (now - lastScrollTime.current > 220) {
-          setStoryStage((prev) => {
-            const next = Math.min(3, prev + 1);
-            storyStageRef.current = next;
-            return next;
-          });
-          lastScrollTime.current = now;
+          if (now - lastScrollTime.current > 180) {
+            setOverlayReady(true);
+            overlayReadyRef.current = true;
+            setStoryStage(0);
+            storyStageRef.current = 0;
+            lastScrollTime.current = now;
+          }
+        } else if (currentStage < 3) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 220) {
+            setStoryStage((prev) => {
+              const next = Math.min(3, prev + 1);
+              storyStageRef.current = next;
+              return next;
+            });
+            lastScrollTime.current = now;
+          }
         }
-      } else if (deltaY < -15 && currentStage > 0 && rect.top >= -80) {
-        e.preventDefault();
-        e.stopPropagation();
-        e.stopImmediatePropagation();
+      } else if (deltaY < -15) {
+        if (isReady && currentStage > 0 && rect.top >= -80) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
 
-        if (now - lastScrollTime.current > 220) {
-          setStoryStage((prev) => {
-            const next = Math.max(0, prev - 1);
-            storyStageRef.current = next;
-            return next;
-          });
-          lastScrollTime.current = now;
+          if (now - lastScrollTime.current > 220) {
+            setStoryStage((prev) => {
+              const next = Math.max(0, prev - 1);
+              storyStageRef.current = next;
+              return next;
+            });
+            lastScrollTime.current = now;
+          }
+        } else if (isReady && currentStage === 0 && rect.top >= -80) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 220) {
+            setOverlayReady(false);
+            overlayReadyRef.current = false;
+            lastScrollTime.current = now;
+          }
         }
       }
     };
@@ -432,7 +478,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
         {/* Main Stage Container */}
         <div
           ref={containerRef}
-          data-lenis-prevent={!isFlashlightMode && overlayReady && storyStage < 3 ? 'true' : undefined}
+          data-lenis-prevent={!isFlashlightMode && storyStage < 3 ? 'true' : undefined}
           onMouseMove={handleMouseMove}
           onMouseEnter={() => {
             if (isFlashlightMode) {
@@ -508,7 +554,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                 className="w-full h-full object-cover object-center scale-100 filter brightness-100"
               />
 
-              {/* LIQUID GLASS LEFT PANEL OVERLAY (APPEARS AFTER 2-SECOND PURE IMAGE PAUSE) */}
+              {/* LIQUID GLASS LEFT PANEL OVERLAY (APPEARS ON SCROLL) */}
               {!isFlashlightMode && (
                 <div
                   className={`absolute inset-0 pointer-events-none transition-opacity duration-1000 ease-out ${
@@ -584,8 +630,36 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               </div>
             )}
 
+            {/* CUE WHEN ILLUMINATED: Prompt user that they can scroll to reveal the story */}
+            {!isFlashlightMode && !overlayReady && (
+              <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center animate-bounce">
+                {/* Back Golden Aura Glow */}
+                <div className="absolute -inset-1 rounded-full bg-gradient-to-r from-[#b89a62]/30 via-[#d4af37]/45 to-[#b89a62]/30 blur-md opacity-80 animate-pulse pointer-events-none" />
+                
+                <button
+                  type="button"
+                  onClick={() => {
+                    setOverlayReady(true);
+                    overlayReadyRef.current = true;
+                    setStoryStage(0);
+                    storyStageRef.current = 0;
+                  }}
+                  className="relative cursor-pointer pointer-events-auto group inline-flex items-center gap-3 px-6 sm:px-8 py-3 rounded-full bg-[rgba(15,16,16,0.82)] hover:bg-[rgba(25,26,26,0.92)] border border-[#b89a62]/60 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_0_25px_rgba(184,154,98,0.35),0_12px_35px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_0_35px_rgba(184,154,98,0.55),0_16px_40px_rgba(0,0,0,0.95)] transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] backdrop-blur-2xl select-none"
+                >
+                  {/* Subtle Top Specular Highlight */}
+                  <span className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-[#e5c98d]/60 to-transparent" />
+                  
+                  <span className="text-xs sm:text-sm tracking-[0.28em] uppercase font-light text-[#f1eee7] group-hover:text-white transition-colors drop-shadow-[0_1px_10px_rgba(0,0,0,0.8)]">
+                    Scroll to explore
+                  </span>
+                  
+                  <ChevronDown className="w-4 h-4 text-[#b89a62] group-hover:text-[#d4af37] transition-transform duration-300 group-hover:translate-y-0.5 drop-shadow-[0_0_8px_rgba(184,154,98,0.6)]" />
+                </button>
+              </div>
+            )}
+
             {/* ============================================================ */}
-            {/* 3. EDITORIAL MAGAZINE LAYOUT (APPEARS AFTER 2-SEC PAUSE)     */}
+            {/* 3. EDITORIAL MAGAZINE LAYOUT (APPEARS UPON SCROLLING)       */}
             {/* ============================================================ */}
             {!isFlashlightMode && overlayReady && (
               <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-start p-6 sm:p-10 md:p-14 lg:p-16 animate-in fade-in duration-1000">

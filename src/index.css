@@ -888,4 +888,34 @@ html.lunore-experience-active h3 {
   }
 }
 
+/* Shattered Glass Shockwave Burst Animation */
+@keyframes shockwave-expand {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 0.85;
+    filter: blur(0px);
+  }
+  60% {
+    opacity: 0.4;
+    filter: blur(4px);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(8);
+    opacity: 0;
+    filter: blur(12px);
+  }
+}
 
+/* 3D Liquid Glass Carousel Dynamic Pop-Out Entrance */
+@keyframes carousel-pop-out {
+  0% {
+    opacity: 0;
+    transform: scale(0.84) translateZ(-260px) translateY(24px);
+    filter: blur(8px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateZ(0px) translateY(0px);
+    filter: blur(0px);
+  }
+}
