@@ -118,9 +118,9 @@ export function SculpturesExperience() {
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  // Lock page scrolling when in interactive sculpture experience
+  // Lock page scrolling ONLY during the pinch-in transition, release as soon as image sets into the carousel
   useEffect(() => {
-    if (experienceState === 'interactive') {
+    if (experienceState === 'interactive' && pinchProgress < 0.96) {
       lenis?.stop();
     } else {
       lenis?.start();
@@ -128,7 +128,7 @@ export function SculpturesExperience() {
     return () => {
       lenis?.start();
     };
-  }, [experienceState, lenis]);
+  }, [experienceState, pinchProgress, lenis]);
 
   // Step 1: Click "ENTER" -> Lock scroll on this section and switch to interactive mode
   const handleEnterExperience = useCallback(() => {
@@ -218,38 +218,24 @@ export function SculpturesExperience() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [experienceState, handlePrev, handleNext, handleResetExperience]);
 
-  // Scroll Wheel Handler with normalized delta smoothing:
+  // Scroll Wheel Handler:
+  // - When pinching (pinchProgress < 0.96): Intercepts wheel to smoothly pinch image into carousel
+  // - Once docked (pinchProgress >= 0.96): Releases lock so page can scroll naturally!
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     const onWheel = (e: WheelEvent) => {
-      if (experienceState === 'interactive') {
+      if (experienceState === 'interactive' && currentPinchRef.current < 0.96) {
         e.preventDefault();
         e.stopPropagation();
 
         const rawDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-        // Normalize delta to avoid harsh spikes on fast mouse wheels
         const delta = Math.sign(rawDelta) * Math.min(Math.abs(rawDelta), 100);
 
-        if (currentPinchRef.current < 0.96) {
-          // Continuous scroll-driven pinch-in & morph into portrait
-          const step = delta * 0.0016;
-          targetPinchRef.current = Math.max(0, Math.min(1, targetPinchRef.current + step));
-        } else {
-          // Carousel rotation mode
-          if (delta < 0 && Math.abs(currentRotationRef.current) < 0.04 && targetRotationRef.current === 0) {
-            // Scroll back out to story when at initial card
-            targetPinchRef.current = Math.max(0, targetPinchRef.current + delta * 0.0016);
-          } else {
-            targetRotationRef.current += delta * 0.0035;
-
-            if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
-            snapTimerRef.current = setTimeout(() => {
-              targetRotationRef.current = Math.round(targetRotationRef.current);
-            }, 160);
-          }
-        }
+        // Continuous scroll-driven pinch-in & morph into portrait
+        const step = delta * 0.0016;
+        targetPinchRef.current = Math.max(0, Math.min(1, targetPinchRef.current + step));
       }
     };
 
@@ -275,17 +261,20 @@ export function SculpturesExperience() {
     const diffY = touchStartRef.current.y - clientY;
     const diffX = touchStartRef.current.x - clientX;
 
-    if (currentPinchRef.current < 0.95) {
+    if (currentPinchRef.current < 0.96) {
       targetPinchRef.current = Math.max(0, Math.min(1, touchStartRef.current.pinch + diffY * 0.0028));
     } else {
-      targetRotationRef.current = touchStartRef.current.rot + diffX * 0.0042;
+      // Horizontal swipe rotates carousel
+      if (Math.abs(diffX) > Math.abs(diffY) * 1.2) {
+        targetRotationRef.current = touchStartRef.current.rot + diffX * 0.0042;
+      }
     }
   };
 
   const handleTouchEnd = () => {
     if (!touchStartRef.current) return;
     touchStartRef.current = null;
-    if (currentPinchRef.current >= 0.95) {
+    if (currentPinchRef.current >= 0.96) {
       targetRotationRef.current = Math.round(targetRotationRef.current);
     }
   };
@@ -331,8 +320,10 @@ export function SculpturesExperience() {
     <section
       ref={containerRef}
       id="projects"
-      data-lenis-prevent="true"
-      className="relative w-full h-[100dvh] min-h-[100dvh] bg-[#050607] overflow-hidden select-none touch-none"
+      data-lenis-prevent={!isFullyDocked ? 'true' : undefined}
+      className={`relative w-full h-[100dvh] min-h-[100dvh] bg-[#050607] overflow-hidden select-none ${
+        !isFullyDocked ? 'touch-none' : 'touch-pan-y'
+      }`}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
