@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, RotateCcw } from 'lucide-react';
 import { images } from '@/lib/images';
 
@@ -16,13 +16,13 @@ interface SculptureItem {
 const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
   {
     id: '01',
-    title: 'Obsidian Figure',
-    category: 'Abstract Sculpture',
-    material: 'Raw Volcanic Obsidian & Matte Bronze',
-    dimensions: '220 × 85 × 60 cm',
+    title: 'Classical Sanctuary',
+    category: 'Classical Masterpiece',
+    material: 'Hand-Carved Carrara Marble & Gilded Bronze',
+    dimensions: '240 × 120 × 90 cm',
     year: '2026',
-    edition: 'Unique 1 of 1',
-    image: 'https://images.pexels.com/photos/34710655/pexels-photo-34710655.jpeg?auto=compress&cs=tinysrgb&w=800',
+    edition: 'Masterpiece 1 of 1',
+    image: images.sculptureHero,
   },
   {
     id: '02',
@@ -86,165 +86,81 @@ const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
   },
 ];
 
-interface Shard {
-  id: number;
-  clipPath: string;
-  cx: number;
-  cy: number;
-  dx: number;
-  dy: number;
-  rotX: number;
-  rotY: number;
-  rotZ: number;
-  scale: number;
-  delay: number;
-  duration: number;
-}
-
-// Generate realistic crystalline shattered glass polygons with physical downward gravity fall
-function generateGlassShards(): Shard[] {
-  const triangles = [
-    // Top Left & Center
-    [[0,0], [25,0], [20,20]],
-    [[0,0], [20,20], [0,25]],
-    [[25,0], [50,0], [45,28]],
-    [[25,0], [20,20], [45,28]],
-    [[50,0], [75,0], [55,22]],
-    [[50,0], [45,28], [55,22]],
-    [[75,0], [100,0], [80,25]],
-    [[75,0], [55,22], [80,25]],
-    [[100,0], [100,25], [80,25]],
-
-    // Mid Upper
-    [[0,25], [20,20], [18,52]],
-    [[0,25], [18,52], [0,50]],
-    [[20,20], [45,28], [38,48]],
-    [[20,20], [18,52], [38,48]],
-    [[45,28], [55,22], [50,50]],
-    [[45,28], [38,48], [50,50]],
-    [[55,22], [80,25], [62,53]],
-    [[55,22], [50,50], [62,53]],
-    [[80,25], [100,25], [82,48]],
-    [[80,25], [62,53], [82,48]],
-    [[100,25], [100,50], [82,48]],
-
-    // Mid Lower
-    [[0,50], [18,52], [22,78]],
-    [[0,50], [22,78], [0,75]],
-    [[18,52], [38,48], [42,72]],
-    [[18,52], [22,78], [42,72]],
-    [[38,48], [50,50], [42,72]],
-    [[50,50], [58,77], [42,72]],
-    [[50,50], [62,53], [58,77]],
-    [[62,53], [82,48], [78,74]],
-    [[62,53], [58,77], [78,74]],
-    [[82,48], [100,50], [100,75]],
-    [[82,48], [78,74], [100,75]],
-
-    // Bottom
-    [[0,75], [22,78], [0,100]],
-    [[0,100], [22,78], [25,100]],
-    [[22,78], [42,72], [25,100]],
-    [[25,100], [42,72], [50,100]],
-    [[42,72], [58,77], [50,100]],
-    [[58,77], [75,100], [50,100]],
-    [[58,77], [78,74], [75,100]],
-    [[78,74], [100,100], [75,100]],
-    [[78,74], [100,75], [100,100]],
-  ];
-
-  return triangles.map((tri, i) => {
-    const cx = (tri[0][0] + tri[1][0] + tri[2][0]) / 3;
-    const cy = (tri[0][1] + tri[1][1] + tri[2][1]) / 3;
-
-    const impactX = 50;
-    const impactY = 70;
-    const vx = cx - impactX;
-    const vy = cy - impactY;
-    const dist = Math.sqrt(vx * vx + vy * vy) || 1;
-
-    // Horizontal dispersal
-    const angleJitter = (Math.random() - 0.5) * 0.4;
-    const normX = (vx / dist) + angleJitter;
-
-    // Gravity pull: shards drop down 1100px - 1500px, tumbling completely off screen
-    const horizSpread = normX * (80 + Math.random() * 180);
-    const fallDistance = 1100 + (100 - cy) * 6 + Math.random() * 350;
-
-    return {
-      id: i,
-      clipPath: `polygon(${tri[0][0]}% ${tri[0][1]}%, ${tri[1][0]}% ${tri[1][1]}%, ${tri[2][0]}% ${tri[2][1]}%)`,
-      cx,
-      cy,
-      dx: horizSpread,
-      dy: fallDistance,
-      rotX: (Math.random() - 0.5) * 140,
-      rotY: (Math.random() - 0.5) * 160,
-      rotZ: (Math.random() - 0.5) * 90,
-      scale: 0.9 + Math.random() * 0.1,
-      delay: (dist / 100) * 0.1 + Math.random() * 0.06,
-      duration: 1.45 + Math.random() * 0.3,
-    };
-  });
-}
-
 export function SculpturesExperience() {
-  const [experienceState, setExperienceState] = useState<'entrance' | 'shattering' | 'active'>('entrance');
+  const [experienceState, setExperienceState] = useState<'entrance' | 'interactive'>('entrance');
+  
+  // Continuous scroll progress for the pinch-in animation (0.0 = fullscreen, 1.0 = portrait docked carousel)
+  const [pinchProgress, setPinchProgress] = useState<number>(0);
   const [rotation, setRotation] = useState<number>(0);
-  const [hasShardsExploded, setHasShardsExploded] = useState<boolean>(false);
+  const [viewport, setViewport] = useState({ w: 1440, h: 900 });
+
+  const targetPinchRef = useRef<number>(0);
+  const currentPinchRef = useRef<number>(0);
 
   const targetRotationRef = useRef<number>(0);
   const currentRotationRef = useRef<number>(0);
   const snapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const stageRef = useRef<HTMLDivElement>(null);
-  const touchStartRef = useRef<{ x: number; rot: number } | null>(null);
+  const containerRef = useRef<HTMLElement>(null);
+  const touchStartRef = useRef<{ x: number; y: number; pinch: number; rot: number } | null>(null);
 
-  const shards = useMemo(() => generateGlassShards(), []);
   const total = SCULPTURE_CAROUSEL_ITEMS.length;
   const activeIndex = ((Math.round(rotation) % total) + total) % total;
 
-  // Handle "ENTER" Click: Trigger Shatter, Watch Shards Fall Off Completely, Then Pop Out Carousel
+  // Track viewport dimensions for seamless morph interpolation
+  useEffect(() => {
+    const updateSize = () => {
+      setViewport({ w: window.innerWidth, h: window.innerHeight });
+    };
+    updateSize();
+    window.addEventListener('resize', updateSize);
+    return () => window.removeEventListener('resize', updateSize);
+  }, []);
+
+  // Step 1: Click "ENTER" -> Switch to interactive scrollable mode
   const handleEnterExperience = useCallback(() => {
     if (experienceState !== 'entrance') return;
-
-    setExperienceState('shattering');
-
-    requestAnimationFrame(() => {
-      setHasShardsExploded(true);
-    });
-
-    // Wait until all glass shards have visibly fallen completely off screen (~1.85s)
-    setTimeout(() => {
-      setExperienceState('active');
-    }, 1850);
+    setExperienceState('interactive');
+    targetPinchRef.current = 0;
+    currentPinchRef.current = 0;
+    setPinchProgress(0);
   }, [experienceState]);
 
-  // Reset to entrance screen
+  // Reset back to initial entrance screen
   const handleResetExperience = useCallback(() => {
-    setHasShardsExploded(false);
     setExperienceState('entrance');
+    targetPinchRef.current = 0;
+    currentPinchRef.current = 0;
+    setPinchProgress(0);
     targetRotationRef.current = 0;
     currentRotationRef.current = 0;
     setRotation(0);
   }, []);
 
-  // Continuous physics animation loop when in active carousel
+  // Continuous 60fps physics interpolation
   useEffect(() => {
-    if (experienceState !== 'active') return;
-
     let animId: number;
+
     const updatePhysics = () => {
-      const diff = targetRotationRef.current - currentRotationRef.current;
-      if (Math.abs(diff) > 0.0005) {
-        currentRotationRef.current += diff * 0.18;
+      // 1. Lerp pinch progress (buttery smooth deceleration)
+      const pinchDiff = targetPinchRef.current - currentPinchRef.current;
+      if (Math.abs(pinchDiff) > 0.0004) {
+        currentPinchRef.current += pinchDiff * 0.12;
+        setPinchProgress(currentPinchRef.current);
+      }
+
+      // 2. Lerp carousel rotation
+      const rotDiff = targetRotationRef.current - currentRotationRef.current;
+      if (Math.abs(rotDiff) > 0.0004) {
+        currentRotationRef.current += rotDiff * 0.16;
         setRotation(currentRotationRef.current);
       }
+
       animId = requestAnimationFrame(updatePhysics);
     };
 
     animId = requestAnimationFrame(updatePhysics);
     return () => cancelAnimationFrame(animId);
-  }, [experienceState]);
+  }, []);
 
   const handlePrev = useCallback(() => {
     targetRotationRef.current = Math.round(targetRotationRef.current) - 1;
@@ -254,66 +170,147 @@ export function SculpturesExperience() {
     targetRotationRef.current = Math.round(targetRotationRef.current) + 1;
   }, []);
 
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (experienceState !== 'active') return;
-      if (e.key === 'ArrowLeft') {
-        handlePrev();
-      } else if (e.key === 'ArrowRight') {
-        handleNext();
-      } else if (e.key === 'Escape') {
-        handleResetExperience();
+      if (experienceState !== 'interactive') return;
+
+      if (currentPinchRef.current < 0.95) {
+        if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          targetPinchRef.current = Math.min(1, targetPinchRef.current + 0.35);
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          targetPinchRef.current = Math.max(0, targetPinchRef.current - 0.35);
+        }
+      } else {
+        if (e.key === 'ArrowLeft') {
+          handlePrev();
+        } else if (e.key === 'ArrowRight') {
+          handleNext();
+        } else if (e.key === 'Escape') {
+          handleResetExperience();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [experienceState, handlePrev, handleNext, handleResetExperience]);
 
+  // Scroll Wheel Handler:
+  // - When pinchProgress < 0.96: Mouse scroll directly drives the pinch & portrait morph progress
+  // - When pinchProgress >= 0.96: Mouse scroll rotates the 3D portrait carousel
   useEffect(() => {
-    const el = stageRef.current;
-    if (!el || experienceState !== 'active') return;
+    const el = containerRef.current;
+    if (!el) return;
 
     const onWheel = (e: WheelEvent) => {
-      e.preventDefault();
-      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-      targetRotationRef.current += delta * 0.004;
+      if (experienceState !== 'entrance') {
+        e.preventDefault();
+      }
+      if (experienceState !== 'interactive') return;
 
-      if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
-      snapTimerRef.current = setTimeout(() => {
-        targetRotationRef.current = Math.round(targetRotationRef.current);
-      }, 160);
+      const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
+
+      if (currentPinchRef.current < 0.95) {
+        // Continuous scroll-driven pinch-in & morph into portrait
+        const step = delta * 0.0018;
+        targetPinchRef.current = Math.max(0, Math.min(1, targetPinchRef.current + step));
+      } else {
+        // Carousel rotation mode
+        if (delta < 0 && Math.abs(currentRotationRef.current) < 0.05 && targetRotationRef.current === 0) {
+          // Scroll back out to story when at initial card
+          targetPinchRef.current = Math.max(0, targetPinchRef.current + delta * 0.0018);
+        } else {
+          targetRotationRef.current += delta * 0.0038;
+
+          if (snapTimerRef.current) clearTimeout(snapTimerRef.current);
+          snapTimerRef.current = setTimeout(() => {
+            targetRotationRef.current = Math.round(targetRotationRef.current);
+          }, 160);
+        }
+      }
     };
 
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, [experienceState]);
 
+  // Touch Swipe & Drag Handling
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (experienceState !== 'active') return;
+    if (experienceState !== 'interactive') return;
     touchStartRef.current = {
       x: e.touches[0].clientX,
+      y: e.touches[0].clientY,
+      pinch: targetPinchRef.current,
       rot: targetRotationRef.current,
     };
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStartRef.current) return;
+    if (!touchStartRef.current || experienceState !== 'interactive') return;
+    const clientY = e.touches[0].clientY;
     const clientX = e.touches[0].clientX;
-    const diff = clientX - touchStartRef.current.x;
-    targetRotationRef.current = touchStartRef.current.rot - diff * 0.0045;
+    const diffY = touchStartRef.current.y - clientY;
+    const diffX = touchStartRef.current.x - clientX;
+
+    if (currentPinchRef.current < 0.95) {
+      targetPinchRef.current = Math.max(0, Math.min(1, touchStartRef.current.pinch + diffY * 0.003));
+    } else {
+      targetRotationRef.current = touchStartRef.current.rot + diffX * 0.0045;
+    }
   };
 
   const handleTouchEnd = () => {
     if (!touchStartRef.current) return;
     touchStartRef.current = null;
-    targetRotationRef.current = Math.round(targetRotationRef.current);
+    if (currentPinchRef.current >= 0.95) {
+      targetRotationRef.current = Math.round(targetRotationRef.current);
+    }
   };
 
+  const isEntrance = experienceState === 'entrance';
+  const isFullyDocked = pinchProgress >= 0.95;
+
+  // Visual interpolations based on pinchProgress (0.0 -> 1.0)
+  const p = Math.max(0, Math.min(1, pinchProgress));
+
+  // 1. Text overlay opacity & translate: fades out early (from 0 to 0.35)
+  const textOpacity = Math.max(0, 1 - p * 2.8);
+  const textTranslateY = -p * 90;
+  const textScale = 1 - p * 0.04;
+
+  // 2. Portrait Card Dimensions (Target sizes for 3D Carousel)
+  const isMobile = viewport.w < 640;
+  const isTablet = viewport.w >= 640 && viewport.w < 1024;
+  const targetCardW = isMobile ? 260 : isTablet ? 300 : 350;
+  const targetCardH = isMobile ? 390 : isTablet ? 450 : 520;
+
+  // Continuous morph: smoothly interpolates width and height from fullscreen (100vw x 100vh) down to portrait card (350px x 520px)
+  const currentCardW = viewport.w + (targetCardW - viewport.w) * p;
+  const currentCardH = viewport.h + (targetCardH - viewport.h) * p;
+  const heroBorderRadius = p * 16;
+  const heroPadding = p * 14;
+  const heroGlassOpacity = Math.max(0, (p - 0.15) / 0.85);
+
+  // 3. Sibling 3D Portrait Fan-Out progress: starts fanning out from p = 0.25 to 1.0
+  const fanP = Math.max(0, (p - 0.25) / 0.75);
+
+  // 4. UI Controls opacity: revealed when almost docked
+  const controlsOpacity = Math.max(0, (p - 0.82) / 0.18);
+
   return (
-    <section id="projects" className="relative w-full h-screen min-h-[100vh] bg-[#050607] overflow-hidden select-none">
+    <section
+      ref={containerRef}
+      id="projects"
+      className="relative w-full h-screen min-h-[100vh] bg-[#050607] overflow-hidden select-none"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
       
       {/* ========================================================================= */}
-      {/* 1. ATMOSPHERIC EMPTY VOID BACKGROUND (REVEALED WHEN GLASS FALLS OFF)      */}
+      {/* 1. ATMOSPHERIC VOID BACKGROUND                                            */}
       {/* ========================================================================= */}
       <div className="absolute inset-0 bg-[#070809] flex items-center justify-center pointer-events-none">
         <div className="absolute w-[900px] h-[900px] rounded-full bg-gradient-to-b from-[#b89a62]/10 via-transparent to-transparent blur-[160px]" />
@@ -322,138 +319,73 @@ export function SculpturesExperience() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. FULL SCREEN SCULPTURE HERO IMAGE -> SHATTERED GLASS MESH ON ENTER      */}
+      {/* 2. STEP 1: INITIAL ENTRANCE SCREEN ("EXPERIENCE THE SCULPTURES" & "ENTER") */}
       {/* ========================================================================= */}
-      {experienceState === 'entrance' && (
-        <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
-          <img
-            src={images.sculptureHero}
-            alt="LUNORE Signature Sculptures Gallery"
-            className="w-full h-full object-cover object-center brightness-100 contrast-100"
-          />
-          {/* Ambient Lighting Vignette */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/40 pointer-events-none" />
-        </div>
-      )}
+      {isEntrance && (
+        <>
+          {/* Fullscreen hero image for entrance */}
+          <div className="absolute inset-0 z-10 overflow-hidden pointer-events-none">
+            <img
+              src={images.sculptureHero}
+              alt="LUNORE Signature Sculptures Gallery"
+              className="w-full h-full object-cover object-center brightness-100 contrast-100"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/40 pointer-events-none" />
+          </div>
 
-      {experienceState === 'shattering' && (
-        <div
-          className="absolute inset-0 z-20 overflow-hidden pointer-events-none [perspective:1400px]"
-          style={{ transformStyle: 'preserve-3d' }}
-        >
-          {/* Shattered Polygons Matrix (VISIBLE THROUGHOUT ENTIRE DOWNWARD FALL) */}
-          {shards.map((shard) => (
-            <div
-              key={shard.id}
-              className="absolute inset-0 will-change-transform opacity-100"
-              style={{
-                clipPath: shard.clipPath,
-                WebkitClipPath: shard.clipPath,
-                transformOrigin: `${shard.cx}% ${shard.cy}%`,
-                transform: hasShardsExploded
-                  ? `translate3d(${shard.dx}px, ${shard.dy}px, ${-40 - Math.random() * 80}px) rotateX(${shard.rotX}deg) rotateY(${shard.rotY}deg) rotateZ(${shard.rotZ}deg) scale(${shard.scale})`
-                  : 'translate3d(0px, 0px, 0px) rotateX(0deg) rotateY(0deg) rotateZ(0deg) scale(1)',
-                transition: hasShardsExploded
-                  ? `transform ${shard.duration}s cubic-bezier(0.38, 0, 0.75, 0.95) ${shard.delay}s`
-                  : 'none',
-              }}
-            >
-              {/* Shard Image Slice */}
-              <img
-                src={images.sculptureHero}
-                alt="Sculpture shard"
-                className="w-full h-full object-cover object-center brightness-105"
-              />
-
-              {/* Subtle Glass Edge Fracture Highlight */}
-              <div
-                className="absolute inset-0 pointer-events-none"
-                style={{
-                  background: 'linear-gradient(135deg, rgba(255,255,255,0.45) 0%, rgba(184,154,98,0.25) 50%, rgba(255,255,255,0.1) 100%)',
-                  mixBlendMode: 'overlay',
-                }}
-              />
+          <div className="absolute inset-0 z-30 flex flex-col justify-between items-center p-6 sm:p-10 md:p-14 text-center select-none">
+            {/* Top Arch Headline */}
+            <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-4 pt-6 sm:pt-10 md:pt-12 z-20">
+              <h2
+                className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.18em] sm:tracking-[0.24em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] whitespace-nowrap"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                Experience The{' '}
+                <span className="text-gold-shimmer font-normal uppercase tracking-[0.18em] sm:tracking-[0.24em] drop-shadow-[0_0_25px_rgba(184,154,98,0.55)]">
+                  sculptures
+                </span>
+              </h2>
             </div>
-          ))}
 
-          {/* Smooth Soft Impact Flash Shockwave */}
+            {/* Downward Positioned Transparent Liquid Glass "ENTER" Button */}
+            <div className="w-full flex justify-center mt-auto pb-4 sm:pb-7">
+              <button
+                onClick={handleEnterExperience}
+                className="group relative cursor-pointer inline-flex items-center justify-center gap-3.5 px-7 sm:px-9 py-3 sm:py-3.5 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/40 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_12px_32px_rgba(0,0,0,0.6),inset_0_1px_2px_rgba(255,255,255,0.4)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(184,154,98,0.45),inset_0_1.5px_3px_rgba(255,255,255,0.6)] transition-all duration-400 transform hover:scale-[1.04] active:scale-[0.98] backdrop-blur-md"
+              >
+                <span className="absolute inset-x-5 top-0 h-[1.2px] bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+                <span className="absolute inset-0 rounded-full border border-[#b89a62]/30 animate-ping opacity-20 pointer-events-none" />
+
+                <div className="w-6 sm:w-7 h-6 sm:h-7 rounded-full bg-white/[0.08] border border-white/30 group-hover:border-[#b89a62]/80 flex items-center justify-center text-[#b89a62] group-hover:rotate-45 transition-transform duration-500 shadow-[0_0_12px_rgba(184,154,98,0.3)]">
+                  <Sparkles className="w-3.5 h-3.5" />
+                </div>
+
+                <span className="text-xs sm:text-sm tracking-[0.32em] uppercase font-semibold text-[#f1eee7] group-hover:text-[#b89a62] transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+                  Enter
+                </span>
+
+                <ArrowRight className="w-3.5 h-3.5 text-[#b89a62] transition-transform duration-300 group-hover:translate-x-1" />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 3. INTERACTIVE PINCH & PORTRAIT MORPH 3D CYLINDRICAL CAROUSEL             */}
+      {/* ========================================================================= */}
+      {!isEntrance && (
+        <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-6 md:p-8 z-20 select-none overflow-hidden">
+          
+          {/* Top Bar Controls (Revealed when docked) */}
           <div
-            className="absolute left-1/2 top-[70%] -translate-x-1/2 -translate-y-1/2 pointer-events-none rounded-full"
             style={{
-              width: '140px',
-              height: '140px',
-              background: 'radial-gradient(circle, rgba(255,255,255,0.85) 0%, rgba(184,154,98,0.5) 45%, transparent 75%)',
-              animation: 'shockwave-expand 0.85s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              opacity: controlsOpacity,
+              transform: `translateY(${(1 - controlsOpacity) * -16}px)`,
+              pointerEvents: isFullyDocked ? 'auto' : 'none',
             }}
-          />
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 3. ENTRANCE UI OVERLAY ("EXPERIENCE THE SCULPTURES" & TRANSPARENT "ENTER") */}
-      {/* ========================================================================= */}
-      {experienceState === 'entrance' && (
-        <div className="absolute inset-0 z-30 flex flex-col justify-between items-center p-6 sm:p-10 md:p-14 text-center select-none bg-black/20 backdrop-blur-[0.5px]">
-          
-          {/* Top Arch Positioned Headline (One Single Line) */}
-          <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-4 pt-6 sm:pt-10 md:pt-12 z-20">
-            <h2
-              className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.18em] sm:tracking-[0.24em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] whitespace-nowrap"
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              Experience The{' '}
-              <span className="text-gold-shimmer font-normal uppercase tracking-[0.18em] sm:tracking-[0.24em] drop-shadow-[0_0_25px_rgba(184,154,98,0.55)]">
-                sculptures
-              </span>
-            </h2>
-          </div>
-
-          {/* Downward Positioned Transparent Liquid Glass "ENTER" Button */}
-          <div className="w-full flex justify-center mt-auto pb-4 sm:pb-7">
-            <button
-              onClick={handleEnterExperience}
-              className="group relative cursor-pointer inline-flex items-center justify-center gap-3.5 px-7 sm:px-9 py-3 sm:py-3.5 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/40 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_12px_32px_rgba(0,0,0,0.6),inset_0_1px_2px_rgba(255,255,255,0.4)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(184,154,98,0.45),inset_0_1.5px_3px_rgba(255,255,255,0.6)] transition-all duration-400 transform hover:scale-[1.04] active:scale-[0.98] backdrop-blur-md"
-            >
-              {/* Top Glass Specular Line */}
-              <span className="absolute inset-x-5 top-0 h-[1.2px] bg-gradient-to-r from-transparent via-white/80 to-transparent" />
-              
-              {/* Ambient Glow Aura */}
-              <span className="absolute inset-0 rounded-full border border-[#b89a62]/30 animate-ping opacity-20 pointer-events-none" />
-
-              {/* Icon Container */}
-              <div className="w-6 sm:w-7 h-6 sm:h-7 rounded-full bg-white/[0.08] border border-white/30 group-hover:border-[#b89a62]/80 flex items-center justify-center text-[#b89a62] group-hover:rotate-45 transition-transform duration-500 shadow-[0_0_12px_rgba(184,154,98,0.3)]">
-                <Sparkles className="w-3.5 h-3.5" />
-              </div>
-
-              {/* Bright Crisp High-Contrast Text */}
-              <span className="text-xs sm:text-sm tracking-[0.32em] uppercase font-semibold text-[#f1eee7] group-hover:text-[#b89a62] transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
-                Enter
-              </span>
-
-              <ArrowRight className="w-3.5 h-3.5 text-[#b89a62] transition-transform duration-300 group-hover:translate-x-1" />
-            </button>
-          </div>
-
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 4. 3D CAROUSEL POP-OUT ENTRANCE & FULL SCREEN INTERACTIVE EXPERIENCE       */}
-      {/* ========================================================================= */}
-      {experienceState === 'active' && (
-        <div
-          className="absolute inset-0 flex flex-col justify-between p-4 sm:p-6 md:p-8 z-30 select-none transition-all duration-700"
-          style={{
-            animation: 'carousel-pop-out 1.1s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-          }}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
-        >
-          
-          {/* Top Bar Controls & Status */}
-          <div className="flex items-center justify-between w-full relative z-40 max-w-7xl mx-auto">
-            {/* Left empty spacer for balanced centering */}
+            className="flex items-center justify-between w-full relative z-40 max-w-7xl mx-auto transition-all duration-300"
+          >
             <div className="w-24 sm:w-32" />
 
             {/* Sculpture Index Counter */}
@@ -467,102 +399,186 @@ export function SculpturesExperience() {
             <button
               onClick={handleResetExperience}
               className="cursor-pointer liquid-glass-pill hover:border-[#b89a62]/70 hover:text-[#b89a62] px-3.5 sm:px-4 py-1.5 rounded-full inline-flex items-center gap-2 text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.5)] group"
-              title="Replay shattered glass entrance"
-              aria-label="Replay entrance experience"
+              title="Reset to Fullscreen Gallery view"
+              aria-label="Reset experience"
             >
               <RotateCcw className="w-3.5 h-3.5 text-[#b89a62] group-hover:-rotate-90 transition-transform duration-400" />
               <span className="hidden sm:inline">Reset Experience</span>
             </button>
           </div>
 
-          {/* 3D OUTWARD CURVED LIQUID GLASS CAROUSEL (PANORAMIC CYLINDRICAL RIBBON) */}
+          {/* 3D CAROUSEL STAGE & MORPH CANVAS */}
           <div
-            ref={stageRef}
             data-lenis-prevent="true"
             className="relative w-full flex-1 flex items-center justify-center my-1 sm:my-2 overflow-visible [perspective:1400px]"
           >
             <div className="relative w-full h-full max-h-[480px] sm:max-h-[540px] md:max-h-[600px] flex items-center justify-center [transform-style:preserve-3d]">
+              
+              {/* PORTRAIT CAROUSEL CARDS */}
               {SCULPTURE_CAROUSEL_ITEMS.map((item, index) => {
+                const isHeroCard = index === 0;
                 const totalCount = SCULPTURE_CAROUSEL_ITEMS.length;
                 let diff = (index - (rotation % totalCount)) % totalCount;
                 if (diff > totalCount / 2) diff -= totalCount;
                 if (diff < -totalCount / 2) diff += totalCount;
 
                 const isCenter = Math.abs(diff) < 0.45;
-                const isVisible = Math.abs(diff) <= 3.2; // Smooth 7-card continuous stream
+                const isVisible = Math.abs(diff) <= 3.2;
 
-                // Outward (Convex) Curved Panoramic Geometry
+                // 3D Portrait Cylindrical Geometry
                 const radius = 820;
                 const angleDeg = diff * 23;
                 const angleRad = (angleDeg * Math.PI) / 180;
 
-                const translateX = radius * Math.sin(angleRad);
-                const translateZ = radius * (Math.cos(angleRad) - 1) + 45;
-                // Outward rotation: left cards angle left-forward, right cards angle right-forward
-                const rotateY = angleDeg * 0.95;
-                const scale = Math.max(0.78, 1 - Math.abs(diff) * 0.05);
-                const opacity = isVisible ? Math.max(0.15, 1 - Math.pow(Math.abs(diff) / 3.2, 1.8)) : 0;
+                const targetTranslateX = radius * Math.sin(angleRad);
+                const targetTranslateZ = radius * (Math.cos(angleRad) - 1) + 45;
+                const targetRotateY = angleDeg * 0.95;
+                const baseScale = Math.max(0.78, 1 - Math.abs(diff) * 0.05);
+                const targetOpacity = isVisible ? Math.max(0.15, 1 - Math.pow(Math.abs(diff) / 3.2, 1.8)) : 0;
                 const zIndex = Math.round(30 - Math.abs(diff) * 8);
+
+                // Continuous Scroll-Driven Interpolation:
+                if (isHeroCard) {
+                  // Center Hero Card:
+                  // Smooth continuous pinch & morph from Fullscreen -> Portrait Card Frame
+                  const heroTranslateX = targetTranslateX * p;
+                  const heroTranslateZ = targetTranslateZ * p;
+                  const heroRotateY = targetRotateY * p;
+
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        if (isFullyDocked && Math.abs(diff) > 0.3) {
+                          targetRotationRef.current = Math.round(targetRotationRef.current + diff);
+                        }
+                      }}
+                      style={{
+                        width: `${currentCardW}px`,
+                        height: `${currentCardH}px`,
+                        transform: `translateX(${heroTranslateX}px) translateZ(${heroTranslateZ}px) rotateY(${heroRotateY}deg)`,
+                        zIndex: 45,
+                        pointerEvents: isFullyDocked ? 'auto' : 'none',
+                        willChange: 'width, height, transform',
+                      }}
+                      className="absolute cursor-pointer select-none transition-shadow duration-300"
+                    >
+                      {/* LIQUID GLASS PANEL (Border, glass gradients & radius smoothly interpolate with scroll) */}
+                      <div
+                        style={{
+                          borderRadius: `${heroBorderRadius}px`,
+                          padding: `${heroPadding}px`,
+                          backgroundColor: `rgba(255, 255, 255, ${0.08 * heroGlassOpacity})`,
+                          borderColor: `rgba(255, 255, 255, ${0.5 * heroGlassOpacity})`,
+                          boxShadow: isCenter && isFullyDocked
+                            ? '0 30px 75px rgba(0,0,0,0.9), 0 0 40px rgba(184,154,98,0.25), inset 0 1.5px 2px rgba(255,255,255,0.6)'
+                            : `0 20px 50px rgba(0,0,0,${0.7 * heroGlassOpacity})`,
+                        }}
+                        className="relative w-full h-full overflow-hidden backdrop-blur-2xl border flex flex-col items-center justify-center"
+                      >
+                        {/* Top Specular White Edge Glow */}
+                        <div
+                          style={{ opacity: heroGlassOpacity }}
+                          className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent z-10"
+                        />
+
+                        {/* Inner Frame */}
+                        <div
+                          style={{
+                            borderRadius: `${Math.max(0, heroBorderRadius - 4)}px`,
+                          }}
+                          className="relative w-full h-full border border-white/25 bg-black/40 backdrop-blur-md flex items-center justify-center overflow-hidden"
+                        >
+                          <img
+                            src={item.image}
+                            alt={item.title}
+                            style={{
+                              filter: `brightness(${0.72 + 0.26 * p}) contrast(${1.08 - 0.03 * p})`,
+                            }}
+                            className="w-full h-full object-cover object-center pointer-events-none transition-[filter] duration-700"
+                          />
+
+                          {/* Ambient Dark Overlay on ENTER (Smoothly clears as p approaches 1) */}
+                          <div
+                            style={{ opacity: Math.max(0, (1 - p) * 0.55) }}
+                            className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/70 pointer-events-none transition-opacity duration-700"
+                          />
+
+                          {/* Gradient Vignettes */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-white/[0.08] pointer-events-none" />
+                          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15)_0%,transparent_60%)] pointer-events-none" />
+
+                          {/* Center Ambient Gold Hue for Active Card */}
+                          {isCenter && isFullyDocked && (
+                            <div className="absolute -bottom-8 inset-x-0 h-24 bg-gradient-to-t from-[#b89a62]/25 to-transparent pointer-events-none" />
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  );
+                }
+
+                // Sibling Portrait Cards: Fan out continuously in 3D as scroll progresses (fanP from 0 to 1)
+                const currentTranslateX = targetTranslateX * fanP;
+                const currentTranslateZ = targetTranslateZ * fanP + (1 - fanP) * -260;
+                const currentRotateY = targetRotateY * fanP;
+                const currentScale = baseScale * (0.65 + fanP * 0.35);
+                const currentOpacity = isVisible ? targetOpacity * fanP : 0;
 
                 return (
                   <div
                     key={item.id}
                     onClick={() => {
-                      if (Math.abs(diff) > 0.3) {
+                      if (isFullyDocked && Math.abs(diff) > 0.3) {
                         targetRotationRef.current = Math.round(targetRotationRef.current + diff);
                       }
                     }}
                     style={{
-                      transform: `translateX(${translateX}px) translateZ(${translateZ}px) rotateY(${rotateY}deg) scale(${scale})`,
-                      opacity,
+                      width: `${targetCardW}px`,
+                      height: `${targetCardH}px`,
+                      transform: `translateX(${currentTranslateX}px) translateZ(${currentTranslateZ}px) rotateY(${currentRotateY}deg) scale(${currentScale})`,
+                      opacity: currentOpacity,
                       zIndex,
-                      pointerEvents: isVisible ? 'auto' : 'none',
+                      pointerEvents: isFullyDocked && isVisible ? 'auto' : 'none',
                       willChange: 'transform, opacity',
                     }}
-                    className={`absolute w-[260px] sm:w-[300px] md:w-[340px] lg:w-[370px] h-[390px] sm:h-[450px] md:h-[500px] lg:h-[540px] rounded-2xl cursor-pointer select-none transition-shadow duration-300 ${
+                    className={`absolute rounded-2xl cursor-pointer select-none transition-shadow duration-300 ${
                       isCenter
                         ? 'shadow-[0_30px_75px_rgba(0,0,0,0.9),0_0_40px_rgba(184,154,98,0.25),inset_0_1.5px_2px_rgba(255,255,255,0.6)] border border-white/60'
                         : 'shadow-[0_20px_50px_rgba(0,0,0,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.35)] border border-white/30 hover:border-white/50'
                     }`}
                   >
-                    {/* PURE LIQUID GLASS PANEL WITH SCULPTURE IMAGE */}
                     <div className="relative w-full h-full rounded-2xl overflow-hidden backdrop-blur-2xl bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.03)_50%,rgba(255,255,255,0.08)_100%)] p-3 sm:p-4 flex flex-col items-center justify-center">
-                      
-                      {/* Top Specular White Edge Glow */}
                       <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent z-10" />
                       
-                      {/* Inner Glass Viewport Frame with Sculpture Image */}
                       <div className="relative w-full h-full rounded-xl border border-white/25 bg-black/40 backdrop-blur-md flex items-center justify-center overflow-hidden">
-                        {/* Sculpture Artwork Image */}
                         <img
                           src={item.image}
                           alt={item.title}
-                          className="w-full h-full object-cover object-center brightness-95 contrast-105 pointer-events-none transition-transform duration-700 hover:scale-105"
+                          className="w-full h-full object-cover object-center brightness-95 contrast-105 pointer-events-none"
                           loading="lazy"
                         />
-
-                        {/* Liquid Glass Overlay Gradients */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-white/[0.08] pointer-events-none" />
                         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15)_0%,transparent_60%)] pointer-events-none" />
-                        
-                        {/* Center Ambient Gold Hue for Active Card */}
-                        {isCenter && (
-                          <div className="absolute -bottom-8 inset-x-0 h-24 bg-gradient-to-t from-[#b89a62]/25 to-transparent pointer-events-none" />
-                        )}
                       </div>
-
                     </div>
                   </div>
                 );
               })}
+
             </div>
           </div>
 
-
-          {/* Bottom Navigation & Controls */}
-          <div className="flex items-center justify-between w-full relative z-40 pt-2 max-w-7xl mx-auto">
-            
-            {/* Left Prev Arrow Button */}
+          {/* Bottom Navigation & Controls (Revealed when docked) */}
+          <div
+            style={{
+              opacity: controlsOpacity,
+              transform: `translateY(${(1 - controlsOpacity) * 16}px)`,
+              pointerEvents: isFullyDocked ? 'auto' : 'none',
+            }}
+            className="flex items-center justify-between w-full relative z-40 pt-2 max-w-7xl mx-auto transition-all duration-300"
+          >
+            {/* Left Prev Arrow */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -597,7 +613,7 @@ export function SculpturesExperience() {
               ))}
             </div>
 
-            {/* Right Next Arrow Button */}
+            {/* Right Next Arrow */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -608,8 +624,51 @@ export function SculpturesExperience() {
             >
               <ChevronRight className="w-4 h-4" />
             </button>
-
           </div>
+
+          {/* ========================================================================= */}
+          {/* 4. SCULPTURE STATEMENT NARRATIVE TEXT (With Cinematic Text Animation)     */}
+          {/* ========================================================================= */}
+          {textOpacity > 0.01 && (
+            <div
+              style={{
+                opacity: textOpacity,
+                transform: `translateY(${textTranslateY}px) scale(${textScale})`,
+                pointerEvents: textOpacity > 0.6 ? 'auto' : 'none',
+              }}
+              onClick={() => {
+                targetPinchRef.current = Math.min(1, targetPinchRef.current + 0.45);
+              }}
+              className="absolute inset-0 z-30 flex flex-col justify-center items-center px-6 sm:px-12 md:px-20 text-center select-none cursor-pointer"
+            >
+              <div className="max-w-3xl mx-auto flex flex-col items-center">
+                {/* Heading (Staggered Mask Reveal Animation) */}
+                <h2
+                  className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#f1eee7] font-normal tracking-[0.08em] sm:tracking-[0.12em] leading-tight sm:leading-snug drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)] mb-6 sm:mb-8"
+                  style={{
+                    fontFamily: 'var(--font-serif)',
+                    animation: 'statement-text-reveal 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+                  }}
+                >
+                  Sculpture — Where Art Becomes a{' '}
+                  <span className="text-gold-shimmer font-medium tracking-[0.1em] drop-shadow-[0_0_25px_rgba(184,154,98,0.6)]">
+                    Statement
+                  </span>
+                </h2>
+
+                {/* Body Paragraph (Smooth Rise & Reveal Animation) */}
+                <p
+                  className="text-base sm:text-lg md:text-xl font-normal leading-relaxed tracking-wide text-center max-w-3xl drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)]"
+                  style={{
+                    color: '#f1eee7',
+                    animation: 'statement-para-reveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.22s forwards',
+                  }}
+                >
+                  A sculpture is more than an object, it is a reflection of art, craftsmanship, and individuality. From timeless classical and figurative forms to contemporary, abstract, and geometric creations, every sculpture has the power to transform a space. We see sculpture as a true expression of luxury. Where exceptional design, premium materials, meticulous craftsmanship, and originality come together to create a statement that is not only seen, but remembered.
+                </p>
+              </div>
+            </div>
+          )}
 
         </div>
       )}
