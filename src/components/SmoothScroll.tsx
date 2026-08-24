@@ -27,14 +27,15 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     if (prefersReducedMotion) return;
 
     const instance = new Lenis({
-      duration: 1.3,
+      duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      wheelMultiplier: 1.0,
-      touchMultiplier: 1.6,
+      wheelMultiplier: 0.95,
+      touchMultiplier: 1.5,
       infinite: false,
+      autoRaf: false,
     });
 
     lenisRef.current = instance;

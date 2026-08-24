@@ -32,11 +32,18 @@ export function Header() {
 
   // Track scroll position: hide on first section (hero), show once scrolled to second section
   useEffect(() => {
+    let ticking = false;
+
     const handleScroll = () => {
-      // On home page, show header once user scrolls past the hero into the next section
-      const threshold = isHome ? Math.min(300, window.innerHeight * 0.45) : 40;
-      const isScrolled = window.scrollY > threshold;
-      setScrolled(isScrolled);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const threshold = isHome ? Math.min(300, window.innerHeight * 0.45) : 40;
+          const isScrolled = window.scrollY > threshold;
+          setScrolled(isScrolled);
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     handleScroll();

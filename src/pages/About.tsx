@@ -93,21 +93,31 @@ export function About() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Scroll handler for scroll-driven index update
+  // Scroll handler for scroll-driven index update with RAF throttling
   useEffect(() => {
-    const handleScroll = () => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      const totalHeight = rect.height - window.innerHeight;
-      if (totalHeight <= 0) return;
+    let ticking = false;
 
-      const progress = Math.max(0, Math.min(0.999, -rect.top / totalHeight));
-      const step = 1 / directors.length;
-      const index = Math.floor(progress / step);
-      setActiveIndex(Math.max(0, Math.min(directors.length - 1, index)));
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          if (containerRef.current) {
+            const rect = containerRef.current.getBoundingClientRect();
+            const totalHeight = rect.height - window.innerHeight;
+            if (totalHeight > 0) {
+              const progress = Math.max(0, Math.min(0.999, -rect.top / totalHeight));
+              const step = 1 / directors.length;
+              const index = Math.floor(progress / step);
+              setActiveIndex(Math.max(0, Math.min(directors.length - 1, index)));
+            }
+          }
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
@@ -296,14 +306,17 @@ export function About() {
                               opacity: opacity,
                               transform: `translate3d(${x}px, ${isActive ? 15 : 0}px, 0)`,
                               zIndex: isActive ? 30 : 20 - Math.abs(idx - activeIndex),
+                              willChange: 'transform, opacity',
                             }}
-                            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden cursor-pointer transition-all ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-1000 ${
+                            className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden cursor-pointer transition-all ease-[cubic-bezier(0.16,1,0.3,1)] duration-700 ${
                               isActive ? 'p-1.5 border border-[#2b2a27]/10 bg-[#F2F0E6]' : ''
                             }`}
                           >
                             <img
                               src={member.image}
                               alt={member.name}
+                              loading="lazy"
+                              decoding="async"
                               className="w-full h-full object-cover rounded-full select-none"
                             />
                           </div>

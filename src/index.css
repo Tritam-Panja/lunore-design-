@@ -82,11 +82,14 @@
     color: #f1eee7;
     font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     letter-spacing: 0.015em;
   }
   p {
     font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
     letter-spacing: 0.02em;
+    text-rendering: optimizeLegibility;
   }
   .font-display {
     font-family: 'Playfair Display', 'Cormorant Garamond', serif;
@@ -95,6 +98,10 @@
     font-family: 'Syne', 'Outfit', sans-serif;
     color: #f1eee7;
     letter-spacing: -0.015em;
+    text-rendering: optimizeLegibility;
+  }
+  img {
+    content-visibility: auto;
   }
 }
 
