@@ -12,6 +12,7 @@ export const localImages = {
 export const publicImages = {
   hero: '/assets/images/hero.jpg',
   marble: '/assets/images/marble.jpg',
+  marbleHero: encodeURI('/assets/images/marble hero.jpeg'),
   sculptureHero: '/assets/images/sculpture hero .jpeg',
 };
 

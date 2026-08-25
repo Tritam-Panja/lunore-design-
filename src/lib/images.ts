@@ -17,7 +17,7 @@ export const images = {
   aboutHero: onlineImages.aboutHero,
   brandStoryHero: onlineImages.brandStoryHero,
   interiorHero: onlineImages.interiorHero,
-  marbleHero: onlineImages.marbleHero,
+  marbleHero: encodeURI('/assets/images/marble hero.jpeg'),
   sculptureHero: encodeURI('/assets/images/sculpture hero .jpeg'),
 
   // Process steps

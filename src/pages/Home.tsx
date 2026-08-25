@@ -560,6 +560,18 @@ export function Home() {
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
+      {/* MARBLE HERO VISUAL SECTION */}
+      <section className="relative w-full h-[60vh] sm:h-[80vh] md:h-screen overflow-hidden bg-[#0d0e0e]">
+        <img
+          src={images.marbleHero}
+          alt="Lunore Marble"
+          className="w-full h-full object-cover object-center"
+        />
+        <div className="absolute inset-0 bg-gradient-to-b from-[#0d0e0e]/70 via-transparent to-[#0d0e0e]/70 pointer-events-none" />
+      </section>
+
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
+
       {/* 6. DESIGN PHILOSOPHY & PROCESS SECTION */}
       <section id="process" className="py-24 md:py-36 relative bg-[#111211]">
         <div className="max-w-7xl mx-auto px-6 lg:px-10">
@@ -785,8 +797,8 @@ export function Home() {
                 <div className="flex items-start gap-4 mb-6">
                   <MapPin className="w-5 h-5 text-[#b89a62] flex-shrink-0 mt-1" strokeWidth={1} />
                   <p className="text-[#b9b5ae] leading-relaxed">
-                    57 Heera Panna M.R. No.2, MHADA Layout,<br />
-                    Oshiwara, Jogeshwari(W), Near Dhaba,<br />
+                    103 UPPER,ANDHERI INDUSTRAIL ESTATE,<br />
+                    OFF VEERA SEAS,<br />
                     Mumbai 400058
                   </p>
                 </div>
