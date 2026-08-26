@@ -13,6 +13,7 @@ import { LazySection } from '@/components/LazySection';
 // Lazily load heavy interactive 3D and media experiences
 const InteriorExperience = lazy(() => import('@/components/InteriorExperience').then(m => ({ default: m.InteriorExperience })));
 const SculpturesExperience = lazy(() => import('@/components/SculpturesExperience').then(m => ({ default: m.SculpturesExperience })));
+const MarbleExperience = lazy(() => import('@/components/MarbleExperience').then(m => ({ default: m.MarbleExperience })));
 
 
 const HERO_LETTERS = ['L', 'U', 'N', 'O', 'R', 'E'];
@@ -576,16 +577,12 @@ export function Home() {
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
-      {/* MARBLE HERO VISUAL SECTION */}
-      <section className="relative w-full h-[60vh] sm:h-[80vh] md:h-screen overflow-hidden bg-[#0d0e0e]">
-        <LazyImage
-          src={images.marbleHero}
-          alt="Lunore Marble"
-          className="w-full h-full"
-          imgClassName="w-full h-full object-cover object-center"
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-[#0d0e0e]/70 via-transparent to-[#0d0e0e]/70 pointer-events-none" />
-      </section>
+      {/* MARBLE EXPERIENCE INTERACTIVE SECTION (LAZY MOUNTED) */}
+      <LazySection minHeight="600px" rootMargin="350px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#08090a] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+          <MarbleExperience />
+        </Suspense>
+      </LazySection>
 
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />

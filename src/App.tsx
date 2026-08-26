@@ -4,7 +4,7 @@ import { Layout } from '@/components/Layout';
 import { PageLoader } from '@/components/PageLoader';
 import { ExperienceProvider } from '@/components/ExperienceContext';
 
-// Lazily load all page components for code splitting & initial bundle optimization
+// Lazily load all page components for code splitting & initial bundle optimization 
 const Home = lazy(() => import('@/pages/Home').then(m => ({ default: m.Home })));
 const About = lazy(() => import('@/pages/About').then(m => ({ default: m.About })));
 const BrandStory = lazy(() => import('@/pages/BrandStory').then(m => ({ default: m.BrandStory })));
