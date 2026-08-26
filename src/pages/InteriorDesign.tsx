@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Ruler, PenTool, Layers, Hammer, Check } from 'lucide-react';
 import { images } from '@/lib/images';
 import { Reveal } from '@/components/Reveal';
+import { LazyImage } from '@/components/LazyImage';
 
 const services = [
   {
@@ -65,7 +66,12 @@ export function InteriorDesign() {
     <div>
 <section className="relative px-6 pt-32 pb-20 md:pt-44 md:pb-28 text-center max-w-4xl mx-auto overflow-hidden">
         <div className="absolute inset-0 overflow-hidden -z-10">
-          <img src={images.interiorHero} alt="" className="w-full h-full object-cover opacity-20 kenburns" />
+          <LazyImage
+            src={images.interiorHero}
+            alt="Lunore Interior Design"
+            className="w-full h-full opacity-20 kenburns"
+            imgClassName="w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-[#1f2122]/80 to-[#1f2122]" />
         </div>
         <Reveal>

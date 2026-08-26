@@ -521,6 +521,8 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               <img
                 src="/assets/images/interior dark.png"
                 alt="LUNORE Luxury Penthouse Interior in the Dark"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover object-center scale-100 filter brightness-[0.52] contrast-[1.08]"
               />
               <div className="absolute inset-0 bg-black/25 mix-blend-multiply pointer-events-none" />
@@ -551,6 +553,8 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               <img
                 src="/assets/images/interior light .png"
                 alt="LUNORE Luxury Penthouse Interior Fully Illuminated"
+                loading="lazy"
+                decoding="async"
                 className="w-full h-full object-cover object-center scale-100 filter brightness-100"
               />
 

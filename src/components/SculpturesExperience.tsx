@@ -1,9 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, RotateCcw } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, RotateCcw, ChevronDown } from 'lucide-react';
 import { images } from '@/lib/images';
-import { useLenis } from './SmoothScroll';
 
-interface SculptureItem {
+export interface SculptureItem {
   id: string;
   title: string;
   category: string;
@@ -14,7 +13,7 @@ interface SculptureItem {
   image: string;
 }
 
-const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
+export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
   {
     id: '01',
     title: 'Classical Sanctuary',
@@ -88,27 +87,35 @@ const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
 ];
 
 export function SculpturesExperience() {
-  const { lenis } = useLenis();
-  const [experienceState, setExperienceState] = useState<'entrance' | 'interactive'>('entrance');
+  const [experienceState, setExperienceState] = useState<'entrance' | 'statement' | 'carousel'>('entrance');
   
-  // Continuous scroll progress for the pinch-in animation (0.0 = fullscreen, 1.0 = portrait docked carousel)
+  // Continuous pinch progress: 0.0 (fullscreen landscape) -> 1.0 (docked in 3D portrait carousel)
   const [pinchProgress, setPinchProgress] = useState<number>(0);
   const [rotation, setRotation] = useState<number>(0);
   const [viewport, setViewport] = useState({ w: 1440, h: 900 });
+  const [isDragging, setIsDragging] = useState<boolean>(false);
 
   const targetPinchRef = useRef<number>(0);
   const currentPinchRef = useRef<number>(0);
 
   const targetRotationRef = useRef<number>(0);
   const currentRotationRef = useRef<number>(0);
-  const snapTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLElement>(null);
+  
+  // Drag & Inertia Tracking
+  const isDraggingRef = useRef<boolean>(false);
+  const dragStartXRef = useRef<number>(0);
+  const dragStartRotationRef = useRef<number>(0);
+  const lastDragTimeRef = useRef<number>(0);
+  const velocityRef = useRef<number>(0);
+  const isHoveredRef = useRef<boolean>(false);
+  const lastInteractionTimeRef = useRef<number>(Date.now());
   const touchStartRef = useRef<{ x: number; y: number; pinch: number; rot: number } | null>(null);
 
   const total = SCULPTURE_CAROUSEL_ITEMS.length;
   const activeIndex = ((Math.round(rotation) % total) + total) % total;
 
-  // Track viewport dimensions for seamless morph interpolation
+  // Viewport resize tracking
   useEffect(() => {
     const updateSize = () => {
       setViewport({ w: window.innerWidth, h: window.innerHeight });
@@ -118,61 +125,37 @@ export function SculpturesExperience() {
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  // Lock page scrolling ONLY during the pinch-in transition, release as soon as image sets into the carousel
-  useEffect(() => {
-    if (experienceState === 'interactive' && pinchProgress < 0.96) {
-      lenis?.stop();
-    } else {
-      lenis?.start();
-    }
-    return () => {
-      lenis?.start();
-    };
-  }, [experienceState, pinchProgress, lenis]);
-
-  // Step 1: Click "ENTER" -> Lock scroll on this section and switch to interactive mode
-  const handleEnterExperience = useCallback(() => {
-    if (experienceState !== 'entrance') return;
-    
-    // Snap to section so it perfectly fills screen
-    if (containerRef.current) {
-      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    setExperienceState('interactive');
-    targetPinchRef.current = 0;
-    currentPinchRef.current = 0;
-    setPinchProgress(0);
-  }, [experienceState]);
-
-  // Reset back to initial entrance screen and restore page scroll
-  const handleResetExperience = useCallback(() => {
-    setExperienceState('entrance');
-    targetPinchRef.current = 0;
-    currentPinchRef.current = 0;
-    setPinchProgress(0);
-    targetRotationRef.current = 0;
-    currentRotationRef.current = 0;
-    setRotation(0);
-    lenis?.start();
-  }, [lenis]);
-
-  // Continuous 60fps physics interpolation with smooth inertia damping
+  // Continuous 60fps RAF physics interpolation:
+  // - Infinite smooth rotation lerp
+  // - Gentle ambient auto-drift when idle
+  // - Pinch-in morph lerp
   useEffect(() => {
     let animId: number;
 
     const updatePhysics = () => {
-      // 1. Smooth lerp pinch progress
+      // 1. Smooth lerp for pinch-in morph progress
       const pinchDiff = targetPinchRef.current - currentPinchRef.current;
       if (Math.abs(pinchDiff) > 0.0002) {
         currentPinchRef.current += pinchDiff * 0.10;
         setPinchProgress(currentPinchRef.current);
       }
 
-      // 2. Smooth lerp carousel rotation
+      // 2. Idle ambient auto-drift (Smooth endless infinite scroll)
+      const now = Date.now();
+      const isDockedNow = currentPinchRef.current >= 0.90;
+      if (
+        isDockedNow &&
+        !isDraggingRef.current &&
+        !isHoveredRef.current &&
+        now - lastInteractionTimeRef.current > 2400
+      ) {
+        targetRotationRef.current += 0.0028;
+      }
+
+      // 3. Smooth lerp for 3D carousel rotation with infinite momentum damping
       const rotDiff = targetRotationRef.current - currentRotationRef.current;
-      if (Math.abs(rotDiff) > 0.0003) {
-        currentRotationRef.current += rotDiff * 0.14;
+      if (Math.abs(rotDiff) > 0.0001) {
+        currentRotationRef.current += rotDiff * 0.12;
         setRotation(currentRotationRef.current);
       }
 
@@ -183,59 +166,71 @@ export function SculpturesExperience() {
     return () => cancelAnimationFrame(animId);
   }, []);
 
+  // Actions
+  const handleEnter = useCallback(() => {
+    setExperienceState('statement');
+    targetPinchRef.current = 0;
+    currentPinchRef.current = 0;
+    setPinchProgress(0);
+    lastInteractionTimeRef.current = Date.now();
+    if (containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, []);
+
+  // Direct trigger to smoothly morph into the docked carousel
+  const handleTriggerCarousel = useCallback(() => {
+    targetPinchRef.current = 1;
+    lastInteractionTimeRef.current = Date.now();
+  }, []);
+
+  const handleReset = useCallback(() => {
+    setExperienceState('entrance');
+    targetPinchRef.current = 0;
+    currentPinchRef.current = 0;
+    setPinchProgress(0);
+    targetRotationRef.current = 0;
+    currentRotationRef.current = 0;
+    setRotation(0);
+    lastInteractionTimeRef.current = Date.now();
+  }, []);
+
   const handlePrev = useCallback(() => {
     targetRotationRef.current = Math.round(targetRotationRef.current) - 1;
+    lastInteractionTimeRef.current = Date.now();
   }, []);
 
   const handleNext = useCallback(() => {
     targetRotationRef.current = Math.round(targetRotationRef.current) + 1;
+    lastInteractionTimeRef.current = Date.now();
   }, []);
 
-  // Keyboard navigation
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (experienceState !== 'interactive') return;
-
-      if (currentPinchRef.current < 0.95) {
-        if (e.key === 'ArrowDown' || e.key === ' ' || e.key === 'Enter') {
-          e.preventDefault();
-          targetPinchRef.current = Math.min(1, targetPinchRef.current + 0.35);
-        } else if (e.key === 'ArrowUp') {
-          e.preventDefault();
-          targetPinchRef.current = Math.max(0, targetPinchRef.current - 0.35);
-        }
-      } else {
-        if (e.key === 'ArrowLeft') {
-          handlePrev();
-        } else if (e.key === 'ArrowRight') {
-          handleNext();
-        } else if (e.key === 'Escape') {
-          handleResetExperience();
-        }
-      }
-    };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [experienceState, handlePrev, handleNext, handleResetExperience]);
-
-  // Scroll Wheel Handler:
-  // - When pinching (pinchProgress < 0.96): Intercepts wheel to smoothly pinch image into carousel
-  // - Once docked (pinchProgress >= 0.96): Releases lock so page can scroll naturally!
+  // Wheel scroll handler:
+  // - Statement view: vertical scroll pinches into carousel
+  // - Docked carousel: horizontal wheel/trackpad scrubbing rotates carousel infinitely!
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     const onWheel = (e: WheelEvent) => {
-      if (experienceState === 'interactive' && currentPinchRef.current < 0.96) {
-        e.preventDefault();
-        e.stopPropagation();
-
-        const rawDelta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
-        const delta = Math.sign(rawDelta) * Math.min(Math.abs(rawDelta), 100);
-
-        // Continuous scroll-driven pinch-in & morph into portrait
-        const step = delta * 0.0016;
-        targetPinchRef.current = Math.max(0, Math.min(1, targetPinchRef.current + step));
+      if (experienceState !== 'entrance' && currentPinchRef.current < 0.95) {
+        if (e.deltaY > 0) {
+          e.preventDefault();
+          e.stopPropagation();
+          targetPinchRef.current = Math.min(1, targetPinchRef.current + Math.min(e.deltaY * 0.0035, 0.45));
+          lastInteractionTimeRef.current = Date.now();
+        } else if (e.deltaY < 0 && targetPinchRef.current > 0.05) {
+          e.preventDefault();
+          e.stopPropagation();
+          targetPinchRef.current = Math.max(0, targetPinchRef.current + e.deltaY * 0.0035);
+          lastInteractionTimeRef.current = Date.now();
+        }
+      } else if (currentPinchRef.current >= 0.95) {
+        // When docked in carousel, horizontal wheel or Shift+Scroll infinitely rotates carousel
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 4) {
+          targetRotationRef.current += e.deltaX * 0.0028;
+          lastInteractionTimeRef.current = Date.now();
+        }
       }
     };
 
@@ -243,30 +238,77 @@ export function SculpturesExperience() {
     return () => el.removeEventListener('wheel', onWheel);
   }, [experienceState]);
 
-  // Touch Swipe & Drag Handling
+  // =========================================================================
+  // MOUSE DRAG & INERTIA FLICK (INFINITE CONTINUOUS SCRUBBING)
+  // =========================================================================
+  const handleMouseDown = (e: React.MouseEvent) => {
+    if (currentPinchRef.current < 0.90) return;
+    isDraggingRef.current = true;
+    setIsDragging(true);
+    dragStartXRef.current = e.clientX;
+    dragStartRotationRef.current = targetRotationRef.current;
+    lastDragTimeRef.current = performance.now();
+    velocityRef.current = 0;
+    lastInteractionTimeRef.current = Date.now();
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingRef.current) return;
+    const now = performance.now();
+    const dt = Math.max(1, now - lastDragTimeRef.current);
+    const diffX = dragStartXRef.current - e.clientX;
+    const newTarget = dragStartRotationRef.current + diffX * 0.0038;
+    
+    velocityRef.current = (newTarget - targetRotationRef.current) / dt;
+    targetRotationRef.current = newTarget;
+    lastDragTimeRef.current = now;
+    lastInteractionTimeRef.current = Date.now();
+  };
+
+  const handleMouseUp = () => {
+    if (!isDraggingRef.current) return;
+    isDraggingRef.current = false;
+    setIsDragging(false);
+    
+    // Apply inertia fling
+    const fling = Math.max(-1.8, Math.min(1.8, velocityRef.current * 75));
+    targetRotationRef.current = Math.round(targetRotationRef.current + fling);
+    lastInteractionTimeRef.current = Date.now();
+  };
+
+  // Touch Swipe & Drag Handling (Infinite continuous mobile rotation)
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (experienceState !== 'interactive') return;
+    if (experienceState === 'entrance') return;
     touchStartRef.current = {
       x: e.touches[0].clientX,
       y: e.touches[0].clientY,
       pinch: targetPinchRef.current,
       rot: targetRotationRef.current,
     };
+    lastDragTimeRef.current = performance.now();
+    velocityRef.current = 0;
+    lastInteractionTimeRef.current = Date.now();
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStartRef.current || experienceState !== 'interactive') return;
-    const clientY = e.touches[0].clientY;
-    const clientX = e.touches[0].clientX;
-    const diffY = touchStartRef.current.y - clientY;
-    const diffX = touchStartRef.current.x - clientX;
+    if (!touchStartRef.current || experienceState === 'entrance') return;
+    const diffY = touchStartRef.current.y - e.touches[0].clientY;
+    const diffX = touchStartRef.current.x - e.touches[0].clientX;
+    const now = performance.now();
+    const dt = Math.max(1, now - lastDragTimeRef.current);
 
-    if (currentPinchRef.current < 0.96) {
-      targetPinchRef.current = Math.max(0, Math.min(1, touchStartRef.current.pinch + diffY * 0.0028));
+    if (currentPinchRef.current < 0.95) {
+      if (diffY > 10) {
+        targetPinchRef.current = Math.min(1, touchStartRef.current.pinch + diffY * 0.004);
+      }
     } else {
-      // Horizontal swipe rotates carousel
-      if (Math.abs(diffX) > Math.abs(diffY) * 1.2) {
-        targetRotationRef.current = touchStartRef.current.rot + diffX * 0.0042;
+      // Infinite horizontal swipe rotation
+      if (Math.abs(diffX) > Math.abs(diffY) * 1.2 && Math.abs(diffX) > 6) {
+        const newTarget = touchStartRef.current.rot + diffX * 0.0045;
+        velocityRef.current = (newTarget - targetRotationRef.current) / dt;
+        targetRotationRef.current = newTarget;
+        lastDragTimeRef.current = now;
+        lastInteractionTimeRef.current = Date.now();
       }
     }
   };
@@ -274,72 +316,93 @@ export function SculpturesExperience() {
   const handleTouchEnd = () => {
     if (!touchStartRef.current) return;
     touchStartRef.current = null;
-    if (currentPinchRef.current >= 0.96) {
-      targetRotationRef.current = Math.round(targetRotationRef.current);
+    if (currentPinchRef.current >= 0.95) {
+      const fling = Math.max(-1.5, Math.min(1.5, velocityRef.current * 60));
+      targetRotationRef.current = Math.round(targetRotationRef.current + fling);
     }
+    lastInteractionTimeRef.current = Date.now();
   };
 
-  const isEntrance = experienceState === 'entrance';
-  const isFullyDocked = pinchProgress >= 0.96;
+  // Keyboard navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (experienceState === 'entrance') return;
+      if (currentPinchRef.current >= 0.85) {
+        if (e.key === 'ArrowLeft') {
+          handlePrev();
+        } else if (e.key === 'ArrowRight') {
+          handleNext();
+        } else if (e.key === 'Escape') {
+          handleReset();
+        }
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [experienceState, handlePrev, handleNext, handleReset]);
 
-  // Linear progress clamped 0.0 to 1.0
+  // =========================================================================
+  // CONTINUOUS PINCH-IN & PORTRAIT MORPH INTERPOLATION
+  // =========================================================================
   const p = Math.max(0, Math.min(1, pinchProgress));
+  const easedP = p * p * (3 - 2 * p); // S-Curve Hermite smoothstep
 
-  // S-Curve Hermite Smoothstep Easing for physical acceleration & soft deceleration
-  const easedP = p * p * (3 - 2 * p);
+  // 1. Text Overlay: Fades out smoothly as pinch proceeds
+  const textOpacity = Math.max(0, 1 - p * 3.0);
+  const textTranslateY = -easedP * 60;
+  const textScale = 1 - easedP * 0.04;
 
-  // 1. Text overlay opacity & translate: fades out early and smoothly
-  const textOpacity = Math.max(0, 1 - p * 2.8);
-  const textTranslateY = -easedP * 80;
-  const textScale = 1 - easedP * 0.03;
-
-  // 2. Portrait Card Dimensions (Target sizes for 3D Carousel)
+  // 2. Landscape -> Portrait Dimensions Morphing
   const isMobile = viewport.w < 640;
   const isTablet = viewport.w >= 640 && viewport.w < 1024;
   const targetCardW = isMobile ? 260 : isTablet ? 300 : 350;
   const targetCardH = isMobile ? 390 : isTablet ? 450 : 520;
 
-  // Smooth continuous dimension morphing with easing
   const currentCardW = viewport.w + (targetCardW - viewport.w) * easedP;
   const currentCardH = viewport.h + (targetCardH - viewport.h) * easedP;
-  const heroBorderRadius = easedP * 16;
+  const heroBorderRadius = easedP * 20;
   const heroPadding = easedP * 14;
-  const heroGlassOpacity = Math.max(0, (easedP - 0.12) / 0.88);
+  const heroGlassOpacity = Math.max(0, (easedP - 0.1) / 0.9);
 
-  // 3. Sibling 3D Portrait Fan-Out progress: smooth emergence
-  const rawFan = Math.max(0, (p - 0.18) / 0.82);
+  // 3. Sibling 3D Fan-Out
+  const rawFan = Math.max(0, (p - 0.2) / 0.8);
   const fanEased = rawFan * rawFan * (3 - 2 * rawFan);
 
-  // 4. UI Controls opacity: revealed when docked
-  const controlsOpacity = Math.max(0, (p - 0.82) / 0.18);
+  // 4. UI Controls & Docking
+  const isDocked = p >= 0.92;
+  const controlsOpacity = Math.max(0, (p - 0.78) / 0.22);
+  const dockSheenOpacity = Math.max(0, (p - 0.88) / 0.12);
 
-  // 5. Golden specular dock sheen on lock
-  const dockSheenOpacity = Math.max(0, (p - 0.90) / 0.10);
+  const isEntrance = experienceState === 'entrance';
 
   return (
     <section
       ref={containerRef}
       id="projects"
-      data-lenis-prevent={!isFullyDocked ? 'true' : undefined}
-      className={`relative w-full h-[100dvh] min-h-[100dvh] bg-[#050607] overflow-hidden select-none ${
-        !isFullyDocked ? 'touch-none' : 'touch-pan-y'
-      }`}
+      className="relative w-full h-[100dvh] min-h-[640px] bg-[#050607] overflow-hidden select-none touch-pan-y"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={() => {
+        handleMouseUp();
+        isHoveredRef.current = false;
+      }}
+      onMouseEnter={() => {
+        isHoveredRef.current = true;
+      }}
     >
-      
-      {/* ========================================================================= */}
-      {/* 1. ATMOSPHERIC VOID BACKGROUND                                            */}
-      {/* ========================================================================= */}
-      <div className="absolute inset-0 bg-[#070809] flex items-center justify-center pointer-events-none">
+      {/* 1. ATMOSPHERIC BACKGROUND RADIAL GLOW */}
+      <div className="absolute inset-0 bg-[#070809] flex items-center justify-center pointer-events-none z-0">
         <div className="absolute w-[900px] h-[900px] rounded-full bg-gradient-to-b from-[#b89a62]/10 via-transparent to-transparent blur-[160px]" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.04)_0%,transparent_70%)]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/60" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/60" />
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. STEP 1: INITIAL ENTRANCE SCREEN ("EXPERIENCE THE SCULPTURES" & "ENTER") */}
+      {/* 2. INITIAL ENTRANCE VIEW: "EXPERIENCE THE SCULPTURES" & "ENTER"           */}
       {/* ========================================================================= */}
       {isEntrance && (
         <>
@@ -348,6 +411,8 @@ export function SculpturesExperience() {
             <img
               src={images.sculptureHero}
               alt="LUNORE Signature Sculptures Gallery"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover object-center brightness-100 contrast-100"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/40 pointer-events-none" />
@@ -367,10 +432,10 @@ export function SculpturesExperience() {
               </h2>
             </div>
 
-            {/* Downward Positioned Transparent Liquid Glass "ENTER" Button */}
-            <div className="w-full flex justify-center mt-auto pb-4 sm:pb-7">
+            {/* "ENTER" Button */}
+            <div className="w-full flex justify-center mt-auto pb-4 sm:pb-7 z-20">
               <button
-                onClick={handleEnterExperience}
+                onClick={handleEnter}
                 className="group relative cursor-pointer inline-flex items-center justify-center gap-3.5 px-7 sm:px-9 py-3 sm:py-3.5 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/40 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_12px_32px_rgba(0,0,0,0.6),inset_0_1px_2px_rgba(255,255,255,0.4)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(184,154,98,0.45),inset_0_1.5px_3px_rgba(255,255,255,0.6)] transition-all duration-400 transform hover:scale-[1.04] active:scale-[0.98] backdrop-blur-md"
               >
                 <span className="absolute inset-x-5 top-0 h-[1.2px] bg-gradient-to-r from-transparent via-white/80 to-transparent" />
@@ -392,49 +457,50 @@ export function SculpturesExperience() {
       )}
 
       {/* ========================================================================= */}
-      {/* 3. INTERACTIVE PINCH & PORTRAIT MORPH 3D CYLINDRICAL CAROUSEL             */}
+      {/* 3. INTERACTIVE PINCH-IN 3D CAROUSEL GALLERY CANVAS (INFINITE 360° SCROLL) */}
       {/* ========================================================================= */}
       {!isEntrance && (
         <div className="absolute inset-0 flex flex-col justify-between p-4 sm:p-6 md:p-8 z-20 select-none overflow-hidden">
           
-          {/* Top Bar Controls (Revealed when docked) */}
+          {/* Top Bar Controls (Fades in when docking into carousel) */}
           <div
             style={{
               opacity: controlsOpacity,
               transform: `translate3d(0, ${(1 - controlsOpacity) * -16}px, 0)`,
-              pointerEvents: isFullyDocked ? 'auto' : 'none',
+              pointerEvents: isDocked ? 'auto' : 'none',
             }}
-            className="flex items-center justify-between w-full relative z-40 max-w-7xl mx-auto transition-all duration-300"
+            className="flex items-center justify-between w-full relative z-40 max-w-7xl mx-auto transition-all duration-300 pt-2"
           >
             <div className="w-24 sm:w-32" />
 
-            {/* Sculpture Index Counter */}
+            {/* Infinite Sculpture Counter */}
             <div className="liquid-glass-pill px-4 py-1.5 rounded-full text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#f1eee7]/90">
               <span className="text-[#b89a62] font-semibold">{SCULPTURE_CAROUSEL_ITEMS[activeIndex].id}</span>
               <span className="text-[#85817a] mx-1.5">/</span>
               <span>0{SCULPTURE_CAROUSEL_ITEMS.length}</span>
             </div>
 
-            {/* Reset / Replay Experience Button */}
+            {/* Reset to Entrance */}
             <button
-              onClick={handleResetExperience}
+              onClick={handleReset}
               className="cursor-pointer liquid-glass-pill hover:border-[#b89a62]/70 hover:text-[#b89a62] px-3.5 sm:px-4 py-1.5 rounded-full inline-flex items-center gap-2 text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.5)] group"
-              title="Reset to Fullscreen Gallery view"
+              title="Reset to Entrance view"
               aria-label="Reset experience"
             >
               <RotateCcw className="w-3.5 h-3.5 text-[#b89a62] group-hover:-rotate-90 transition-transform duration-400" />
-              <span className="hidden sm:inline">Reset Experience</span>
+              <span className="hidden sm:inline">Reset</span>
             </button>
           </div>
 
-          {/* 3D CAROUSEL STAGE & MORPH CANVAS */}
+          {/* 3D CYLINDRICAL STAGE & MORPH CANVAS (INFINITE ROTATION) */}
           <div
-            data-lenis-prevent="true"
-            className="relative w-full flex-1 flex items-center justify-center my-1 sm:my-2 overflow-visible [perspective:1400px]"
+            className={`relative w-full flex-1 flex items-center justify-center my-1 sm:my-2 overflow-visible [perspective:1400px] ${
+              isDocked ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : ''
+            }`}
           >
             <div className="relative w-full h-full max-h-[480px] sm:max-h-[540px] md:max-h-[600px] flex items-center justify-center [transform-style:preserve-3d]">
               
-              {/* PORTRAIT CAROUSEL CARDS */}
+              {/* 3D PORTRAIT CAROUSEL CARDS */}
               {SCULPTURE_CAROUSEL_ITEMS.map((item, index) => {
                 const isHeroCard = index === 0;
                 const totalCount = SCULPTURE_CAROUSEL_ITEMS.length;
@@ -445,8 +511,8 @@ export function SculpturesExperience() {
                 const isCenter = Math.abs(diff) < 0.45;
                 const isVisible = Math.abs(diff) <= 3.2;
 
-                // 3D Portrait Cylindrical Geometry
-                const radius = 820;
+                // 3D Geometry
+                const radius = isMobile ? 640 : 820;
                 const angleDeg = diff * 23;
                 const angleRad = (angleDeg * Math.PI) / 180;
 
@@ -457,10 +523,8 @@ export function SculpturesExperience() {
                 const targetOpacity = isVisible ? Math.max(0.15, 1 - Math.pow(Math.abs(diff) / 3.2, 1.8)) : 0;
                 const zIndex = Math.round(30 - Math.abs(diff) * 8);
 
-                // Continuous Scroll-Driven Interpolation:
+                // 1. CENTER HERO CARD (Landscape Fullscreen -> Portrait Card Morph)
                 if (isHeroCard) {
-                  // Center Hero Card:
-                  // Smooth continuous pinch & morph from Fullscreen -> Portrait Card Frame
                   const heroTranslateX = targetTranslateX * easedP;
                   const heroTranslateZ = targetTranslateZ * easedP;
                   const heroRotateY = targetRotateY * easedP;
@@ -469,8 +533,9 @@ export function SculpturesExperience() {
                     <div
                       key={item.id}
                       onClick={() => {
-                        if (isFullyDocked && Math.abs(diff) > 0.3) {
+                        if (isDocked && Math.abs(diff) > 0.3) {
                           targetRotationRef.current = Math.round(targetRotationRef.current + diff);
+                          lastInteractionTimeRef.current = Date.now();
                         }
                       }}
                       style={{
@@ -478,31 +543,31 @@ export function SculpturesExperience() {
                         height: `${currentCardH}px`,
                         transform: `translate3d(${heroTranslateX}px, 0, ${heroTranslateZ}px) rotateY(${heroRotateY}deg)`,
                         zIndex: 45,
-                        pointerEvents: isFullyDocked ? 'auto' : 'none',
+                        pointerEvents: isDocked ? 'auto' : 'none',
                         willChange: 'width, height, transform',
                       }}
-                      className="absolute cursor-pointer select-none transition-shadow duration-300"
+                      className="absolute select-none transition-shadow duration-300"
                     >
-                      {/* LIQUID GLASS PANEL (Border, glass gradients & radius smoothly interpolate with scroll) */}
+                      {/* LIQUID GLASS PANEL */}
                       <div
                         style={{
                           borderRadius: `${heroBorderRadius}px`,
                           padding: `${heroPadding}px`,
                           backgroundColor: `rgba(255, 255, 255, ${0.08 * heroGlassOpacity})`,
                           borderColor: `rgba(255, 255, 255, ${0.5 * heroGlassOpacity})`,
-                          boxShadow: isCenter && isFullyDocked
+                          boxShadow: isCenter && isDocked
                             ? '0 30px 75px rgba(0,0,0,0.9), 0 0 40px rgba(184,154,98,0.28), inset 0 1.5px 2px rgba(255,255,255,0.6)'
                             : `0 20px 50px rgba(0,0,0,${0.7 * heroGlassOpacity})`,
                         }}
                         className="relative w-full h-full overflow-hidden backdrop-blur-2xl border flex flex-col items-center justify-center"
                       >
-                        {/* Top Specular White Edge Glow */}
+                        {/* Top Specular Edge Glow */}
                         <div
                           style={{ opacity: heroGlassOpacity }}
                           className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent z-10"
                         />
 
-                        {/* Inner Frame */}
+                        {/* Inner Media Frame */}
                         <div
                           style={{
                             borderRadius: `${Math.max(0, heroBorderRadius - 4)}px`,
@@ -512,16 +577,18 @@ export function SculpturesExperience() {
                           <img
                             src={item.image}
                             alt={item.title}
+                            loading="lazy"
+                            decoding="async"
                             style={{
-                              filter: `brightness(${0.72 + 0.26 * easedP}) contrast(${1.08 - 0.03 * easedP})`,
+                              filter: `brightness(${0.72 + 0.28 * easedP}) contrast(${1.06 - 0.02 * easedP})`,
                             }}
                             className="w-full h-full object-cover object-center pointer-events-none transition-[filter] duration-500"
                           />
 
-                          {/* Ambient Dark Overlay on ENTER (Smoothly clears as easedP approaches 1) */}
+                          {/* Statement Dimmer (Clears as card pinches in) */}
                           <div
-                            style={{ opacity: Math.max(0, (1 - easedP) * 0.55) }}
-                            className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/70 pointer-events-none transition-opacity duration-500"
+                            style={{ opacity: Math.max(0, (1 - easedP) * 0.70) }}
+                            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/60 to-black/75 pointer-events-none transition-opacity duration-500"
                           />
 
                           {/* Gradient Vignettes */}
@@ -529,11 +596,11 @@ export function SculpturesExperience() {
                           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15)_0%,transparent_60%)] pointer-events-none" />
 
                           {/* Center Ambient Gold Hue for Active Card */}
-                          {isCenter && isFullyDocked && (
+                          {isCenter && isDocked && (
                             <div className="absolute -bottom-8 inset-x-0 h-24 bg-gradient-to-t from-[#b89a62]/25 to-transparent pointer-events-none" />
                           )}
 
-                          {/* Golden Dock Sheen on Lock */}
+                          {/* Golden Dock Sheen */}
                           {dockSheenOpacity > 0 && (
                             <div
                               style={{ opacity: dockSheenOpacity }}
@@ -546,9 +613,9 @@ export function SculpturesExperience() {
                   );
                 }
 
-                // Sibling Portrait Cards: Fan out continuously in 3D with Hermite easing
+                // 2. SIBLING 3D CAROUSEL CARDS (Continuous 360° Loop)
                 const currentTranslateX = targetTranslateX * fanEased;
-                const currentTranslateZ = targetTranslateZ * fanEased + (1 - fanEased) * -260;
+                const currentTranslateZ = targetTranslateZ * fanEased + (1 - fanEased) * -280;
                 const currentRotateY = targetRotateY * fanEased;
                 const currentScale = baseScale * (0.65 + fanEased * 0.35);
                 const currentOpacity = isVisible ? targetOpacity * fanEased : 0;
@@ -557,8 +624,9 @@ export function SculpturesExperience() {
                   <div
                     key={item.id}
                     onClick={() => {
-                      if (isFullyDocked && Math.abs(diff) > 0.3) {
+                      if (isDocked && Math.abs(diff) > 0.3) {
                         targetRotationRef.current = Math.round(targetRotationRef.current + diff);
+                        lastInteractionTimeRef.current = Date.now();
                       }
                     }}
                     style={{
@@ -567,10 +635,10 @@ export function SculpturesExperience() {
                       transform: `translate3d(${currentTranslateX}px, 0, ${currentTranslateZ}px) rotateY(${currentRotateY}deg) scale(${currentScale})`,
                       opacity: currentOpacity,
                       zIndex,
-                      pointerEvents: isFullyDocked && isVisible ? 'auto' : 'none',
+                      pointerEvents: isDocked && isVisible ? 'auto' : 'none',
                       willChange: 'transform, opacity',
                     }}
-                    className={`absolute rounded-2xl cursor-pointer select-none transition-shadow duration-300 ${
+                    className={`absolute rounded-2xl select-none transition-shadow duration-300 ${
                       isCenter
                         ? 'shadow-[0_30px_75px_rgba(0,0,0,0.9),0_0_40px_rgba(184,154,98,0.25),inset_0_1.5px_2px_rgba(255,255,255,0.6)] border border-white/60'
                         : 'shadow-[0_20px_50px_rgba(0,0,0,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.35)] border border-white/30 hover:border-white/50'
@@ -585,6 +653,7 @@ export function SculpturesExperience() {
                           alt={item.title}
                           className="w-full h-full object-cover object-center brightness-95 contrast-105 pointer-events-none"
                           loading="lazy"
+                          decoding="async"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-white/[0.08] pointer-events-none" />
                         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15)_0%,transparent_60%)] pointer-events-none" />
@@ -597,16 +666,16 @@ export function SculpturesExperience() {
             </div>
           </div>
 
-          {/* Bottom Navigation & Controls (Revealed when docked) */}
+          {/* Bottom Controls & Free Carousel Navigation (Revealed when docked) */}
           <div
             style={{
               opacity: controlsOpacity,
               transform: `translate3d(0, ${(1 - controlsOpacity) * 16}px, 0)`,
-              pointerEvents: isFullyDocked ? 'auto' : 'none',
+              pointerEvents: isDocked ? 'auto' : 'none',
             }}
             className="flex items-center justify-between w-full relative z-40 pt-2 max-w-7xl mx-auto transition-all duration-300"
           >
-            {/* Left Prev Arrow */}
+            {/* Prev Chevron */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -618,7 +687,7 @@ export function SculpturesExperience() {
               <ChevronLeft className="w-4 h-4" />
             </button>
 
-            {/* Centered Pagination Dots */}
+            {/* Infinite Pagination Dots */}
             <div className="flex items-center gap-2">
               {SCULPTURE_CAROUSEL_ITEMS.map((item, idx) => (
                 <button
@@ -630,6 +699,7 @@ export function SculpturesExperience() {
                     if (stepDiff > total / 2) stepDiff -= total;
                     if (stepDiff < -total / 2) stepDiff += total;
                     targetRotationRef.current = Math.round(targetRotationRef.current) + stepDiff;
+                    lastInteractionTimeRef.current = Date.now();
                   }}
                   className={`cursor-pointer transition-all duration-400 rounded-full ${
                     idx === activeIndex
@@ -641,7 +711,7 @@ export function SculpturesExperience() {
               ))}
             </div>
 
-            {/* Right Next Arrow */}
+            {/* Next Chevron */}
             <button
               onClick={(e) => {
                 e.stopPropagation();
@@ -655,7 +725,7 @@ export function SculpturesExperience() {
           </div>
 
           {/* ========================================================================= */}
-          {/* 4. SCULPTURE STATEMENT NARRATIVE TEXT (With Cinematic Text Animation)     */}
+          {/* 4. STATEMENT NARRATIVE TEXT (Visible on enter, pinches away on scroll)    */}
           {/* ========================================================================= */}
           {textOpacity > 0.01 && (
             <div
@@ -664,43 +734,61 @@ export function SculpturesExperience() {
                 transform: `translate3d(0, ${textTranslateY}px, 0) scale(${textScale})`,
                 pointerEvents: textOpacity > 0.6 ? 'auto' : 'none',
               }}
-              onClick={() => {
-                targetPinchRef.current = Math.min(1, targetPinchRef.current + 0.45);
-              }}
-              className="absolute inset-0 z-30 flex flex-col justify-center items-center px-6 sm:px-12 md:px-20 text-center select-none cursor-pointer"
+              onClick={handleTriggerCarousel}
+              className="absolute inset-0 z-30 flex flex-col justify-center items-center px-6 sm:px-12 md:px-20 text-center select-text cursor-pointer"
             >
-              <div className="max-w-3xl mx-auto flex flex-col items-center">
-                {/* Heading (Staggered Mask Reveal Animation) */}
+              <div className="max-w-4xl mx-auto flex flex-col items-center">
+                {/* Heading with Reveal Animation */}
                 <h2
-                  className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#f1eee7] font-normal tracking-[0.08em] sm:tracking-[0.12em] leading-tight sm:leading-snug drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)] mb-6 sm:mb-8"
+                  className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.06em] sm:tracking-[0.1em] leading-tight sm:leading-snug drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] mb-6 sm:mb-8"
                   style={{
                     fontFamily: 'var(--font-serif)',
                     animation: 'statement-text-reveal 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards',
                   }}
                 >
                   Sculpture — Where Art Becomes a{' '}
-                  <span className="text-gold-shimmer font-medium tracking-[0.1em] drop-shadow-[0_0_25px_rgba(184,154,98,0.6)]">
+                  <span className="text-gold-shimmer font-medium tracking-[0.08em] drop-shadow-[0_0_30px_rgba(184,154,98,0.65)]">
                     Statement
                   </span>
                 </h2>
 
-                {/* Body Paragraph (Smooth Rise & Reveal Animation) */}
-                <p
-                  className="text-base sm:text-lg md:text-xl font-normal leading-relaxed tracking-wide text-center max-w-3xl drop-shadow-[0_2px_14px_rgba(0,0,0,0.95)]"
+                {/* Accent Line */}
+                <div
+                  className="w-20 sm:w-28 h-[1px] bg-gradient-to-r from-transparent via-[#b89a62] to-transparent mb-6 sm:mb-8"
                   style={{
-                    color: '#f1eee7',
-                    animation: 'statement-para-reveal 1.1s cubic-bezier(0.16, 1, 0.3, 1) 0.22s forwards',
+                    animation: 'statement-text-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards',
+                  }}
+                />
+
+                {/* Body Paragraph in Ivory White */}
+                <p
+                  className="text-base sm:text-lg md:text-xl font-light leading-relaxed sm:leading-loose tracking-wide text-[#FFFFF0] max-w-3xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)] text-center"
+                  style={{
+                    color: '#FFFFF0',
+                    animation: 'statement-para-reveal 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards',
                   }}
                 >
-                  A sculpture is more than an object, it is a reflection of art, craftsmanship, and individuality. From timeless classical and figurative forms to contemporary, abstract, and geometric creations, every sculpture has the power to transform a space. We see sculpture as a true expression of luxury. Where exceptional design, premium materials, meticulous craftsmanship, and originality come together to create a statement that is not only seen, but remembered.
+                  A sculpture is more than an object, it is a reflection of art, craftsmanship, and
+                  individuality. From timeless classical and figurative forms to contemporary, abstract,
+                  and geometric creations, every sculpture has the power to transform a space. We see
+                  sculpture as a true expression of luxury. Where exceptional design, premium
+                  materials, meticulous craftsmanship, and originality come together to create a
+                  statement that is not only seen, but remembered.
                 </p>
+
+                {/* Scroll Down Cue */}
+                <div className="mt-8 sm:mt-10 flex flex-col items-center gap-1.5 opacity-75 hover:opacity-100 transition-opacity">
+                  <span className="text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#b89a62]">
+                    Scroll or Click to Enter Carousel
+                  </span>
+                  <ChevronDown className="w-4 h-4 text-[#b89a62] animate-bounce" />
+                </div>
               </div>
             </div>
           )}
 
         </div>
       )}
-
     </section>
   );
 }

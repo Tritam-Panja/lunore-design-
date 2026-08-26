@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, Check, Layers, Mountain, Gem, Sparkles } from 'lucide-react';
 import { images } from '@/lib/images';
 import { Reveal } from '@/components/Reveal';
+import { LazyImage } from '@/components/LazyImage';
 
 const supplies = [
   {
@@ -49,7 +50,12 @@ export function MarbleGranite() {
     <div>
 <section className="relative px-6 pt-32 pb-20 md:pt-44 md:pb-28 text-center max-w-4xl mx-auto overflow-hidden">
         <div className="absolute inset-0 overflow-hidden -z-10">
-          <img src={images.marbleHero} alt="" className="w-full h-full object-cover opacity-20 kenburns" />
+          <LazyImage
+            src={images.marbleHero}
+            alt="Lunore Marble & Granite"
+            className="w-full h-full opacity-20 kenburns"
+            imgClassName="w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-[#1f2122]/80 to-[#1f2122]" />
         </div>
         <Reveal>

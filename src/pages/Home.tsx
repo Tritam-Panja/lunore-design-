@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState, useRef, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight, Hammer, Mountain, Eye, Landmark, Ruler, PenTool, Layers, Check, Sparkles, MapPin, Phone, Mail, Send } from 'lucide-react';
 import { supabase, type Product } from '@/lib/supabase';
@@ -7,8 +7,13 @@ import { Placeholder } from '@/components/Placeholder';
 import { Reveal } from '@/components/Reveal';
 import { TextReveal } from '@/components/TextReveal';
 import { ScrollColorText } from '@/components/ScrollColorText';
-import { InteriorExperience } from '@/components/InteriorExperience';
-import { SculpturesExperience } from '@/components/SculpturesExperience';
+import { LazyImage } from '@/components/LazyImage';
+import { LazySection } from '@/components/LazySection';
+
+// Lazily load heavy interactive 3D and media experiences
+const InteriorExperience = lazy(() => import('@/components/InteriorExperience').then(m => ({ default: m.InteriorExperience })));
+const SculpturesExperience = lazy(() => import('@/components/SculpturesExperience').then(m => ({ default: m.SculpturesExperience })));
+
 
 const HERO_LETTERS = ['L', 'U', 'N', 'O', 'R', 'E'];
 
@@ -353,10 +358,11 @@ export function Home() {
 
                     {/* Main Avatar */}
                     <div className="w-[130px] h-[130px] sm:w-[160px] sm:h-[160px] rounded-full overflow-hidden border-2 border-[#b89a62]/50 p-1 bg-[#181917] shadow-[0_0_25px_rgba(0,0,0,0.8),0_0_15px_rgba(184,154,98,0.3)] shrink-0">
-                      <img
+                      <LazyImage
                         src={activeMember.image}
                         alt={activeMember.name}
-                        className="w-full h-full object-cover rounded-full"
+                        className="w-full h-full rounded-full"
+                        imgClassName="w-full h-full object-cover rounded-full"
                       />
                     </div>
 
@@ -398,10 +404,11 @@ export function Home() {
                               : 'w-8 h-8 sm:w-9 sm:h-9 opacity-40 hover:opacity-80 border border-white/10'
                           }`}
                         >
-                          <img
+                          <LazyImage
                             src={member.image}
                             alt={member.name}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full"
+                            imgClassName="w-full h-full object-cover"
                           />
                         </button>
                       ))}
@@ -481,10 +488,11 @@ export function Home() {
                                 : 'border border-white/15 hover:opacity-90 hover:scale-105'
                             }`}
                           >
-                            <img
+                            <LazyImage
                               src={member.image}
                               alt={member.name}
-                              className="w-full h-full object-cover rounded-full select-none"
+                              className="w-full h-full rounded-full"
+                              imgClassName="w-full h-full object-cover rounded-full select-none"
                             />
                           </div>
                         );
@@ -550,25 +558,35 @@ export function Home() {
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
-      {/* 4. INTERACTIVE INTERIOR EXPERIENCE SECTION */}
-      <InteriorExperience />
+      {/* 4. INTERACTIVE INTERIOR EXPERIENCE SECTION (LAZY MOUNTED) */}
+      <LazySection minHeight="600px" rootMargin="350px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+          <InteriorExperience />
+        </Suspense>
+      </LazySection>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
 
-      {/* 5. FEATURED PROJECTS & SIGNATURE COLLECTION SECTION */}
-      <SculpturesExperience />
+      {/* 5. FEATURED PROJECTS & SIGNATURE COLLECTION SECTION (LAZY MOUNTED) */}
+      <LazySection minHeight="600px" rootMargin="350px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+          <SculpturesExperience />
+        </Suspense>
+      </LazySection>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
       {/* MARBLE HERO VISUAL SECTION */}
       <section className="relative w-full h-[60vh] sm:h-[80vh] md:h-screen overflow-hidden bg-[#0d0e0e]">
-        <img
+        <LazyImage
           src={images.marbleHero}
           alt="Lunore Marble"
-          className="w-full h-full object-cover object-center"
+          className="w-full h-full"
+          imgClassName="w-full h-full object-cover object-center"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-[#0d0e0e]/70 via-transparent to-[#0d0e0e]/70 pointer-events-none" />
       </section>
+
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
 import { images } from '@/lib/images';
 import { Reveal } from '@/components/Reveal';
+import { LazyImage } from '@/components/LazyImage';
 
 const paragraphs = [
   'LUNORE started as a vision to bring a more refined, thoughtful approach to luxury decor. In a world where design often follows trends, LUNORE chose a different path — focusing on timeless aesthetics, attention to detail, and the emotional connection people have with their spaces.',
@@ -15,9 +16,15 @@ export function BrandStory() {
     <div>
       <section className="relative px-6 pt-32 pb-16 md:pt-44 md:pb-20 text-center max-w-4xl mx-auto overflow-hidden">
         <div className="absolute inset-0 overflow-hidden -z-10">
-          <img src={images.brandStoryHero} alt="" className="w-full h-full object-cover opacity-20 kenburns" />
+          <LazyImage
+            src={images.brandStoryHero}
+            alt="Lunore Brand Story"
+            className="w-full h-full opacity-20 kenburns"
+            imgClassName="w-full h-full object-cover"
+          />
           <div className="absolute inset-0 bg-gradient-to-b from-[#1f2122]/80 to-[#1f2122]" />
         </div>
+
         <Reveal>
           <p className="text-xs tracking-[0.3em] uppercase text-[#c2a67e] mb-5">
             Brand Story

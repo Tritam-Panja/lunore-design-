@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight } from 'lucide-react';
+import { LazyImage } from '@/components/LazyImage';
 
 interface TeamMember {
   name: string;
@@ -212,10 +213,11 @@ export function About() {
 
                 {/* Large Portrait */}
                 <div className="w-[180px] h-[180px] rounded-full overflow-hidden border border-[#2b2a27]/10 p-1 bg-[#F2F0E6]">
-                  <img
+                  <LazyImage
                     src={activeMember.image}
                     alt={activeMember.name}
-                    className="w-full h-full object-cover rounded-full"
+                    className="w-full h-full rounded-full"
+                    imgClassName="w-full h-full object-cover rounded-full"
                   />
                 </div>
 
@@ -252,10 +254,11 @@ export function About() {
                             : 'w-8 h-8 opacity-40 hover:opacity-80'
                         }`}
                       >
-                        <img
+                        <LazyImage
                           src={member.image}
                           alt={member.name}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full"
+                          imgClassName="w-full h-full object-cover"
                         />
                       </button>
                     ))}
@@ -312,12 +315,11 @@ export function About() {
                               isActive ? 'p-1.5 border border-[#2b2a27]/10 bg-[#F2F0E6]' : ''
                             }`}
                           >
-                            <img
+                            <LazyImage
                               src={member.image}
                               alt={member.name}
-                              loading="lazy"
-                              decoding="async"
-                              className="w-full h-full object-cover rounded-full select-none"
+                              className="w-full h-full rounded-full"
+                              imgClassName="w-full h-full object-cover rounded-full select-none"
                             />
                           </div>
                         );
