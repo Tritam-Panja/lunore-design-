@@ -1,9 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { Sparkles, ArrowRight, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
 import { images } from '@/lib/images';
+import ParticleText from './ParticleText';
 
 export function MarbleExperience() {
   const [isEntered, setIsEntered] = useState<boolean>(false);
+  const [isZoomUnlocked, setIsZoomUnlocked] = useState<boolean>(false);
+  const isZoomUnlockedRef = useRef<boolean>(false);
+
   const [windowSize, setWindowSize] = useState<{ width: number; height: number }>({
     width: typeof window !== 'undefined' ? window.innerWidth : 1200,
     height: typeof window !== 'undefined' ? window.innerHeight : 800,
@@ -57,14 +61,19 @@ export function MarbleExperience() {
       currentTiltRef.current.z += (targetTiltRef.current.z - currentTiltRef.current.z) * 0.12;
 
       // 2. Pos
-      currentPosRef.current.x += (targetPosRef.current.x - currentPosRef.current.x) * 0.085;
-      currentPosRef.current.y += (targetPosRef.current.y - currentPosRef.current.y) * 0.085;
+      currentPosRef.current.x += (targetPosRef.current.x - currentPosRef.current.x) * 0.10;
+      currentPosRef.current.y += (targetPosRef.current.y - currentPosRef.current.y) * 0.10;
 
       // 3. Flip
       currentFlipRef.current += (targetFlipRef.current - currentFlipRef.current) * 0.14;
 
       // 4. Progress (weighted cinematic momentum interpolation)
-      currentProgressRef.current += (targetProgressRef.current - currentProgressRef.current) * 0.075;
+      const pDiff = targetProgressRef.current - currentProgressRef.current;
+      if (Math.abs(pDiff) < 0.0001) {
+        currentProgressRef.current = targetProgressRef.current;
+      } else {
+        currentProgressRef.current += pDiff * 0.095;
+      }
 
       // Batch all values into one atomic frame state update
       setAnimState({
@@ -148,9 +157,10 @@ export function MarbleExperience() {
       const deltaY = touchStartYRef.current - touch.clientY;
       touchStartYRef.current = touch.clientY;
       if (deltaY > 0) {
-        if (targetProgressRef.current < 1) {
-          targetProgressRef.current = Math.min(1, targetProgressRef.current + deltaY * 0.0028);
-        } else {
+        const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
+        if (targetProgressRef.current < maxAllowed) {
+          targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + deltaY * 0.0032);
+        } else if (isZoomUnlockedRef.current) {
           overscrollDeltaRef.current += Math.abs(deltaY);
           if (overscrollDeltaRef.current > 300) {
             handleNextSection();
@@ -158,7 +168,11 @@ export function MarbleExperience() {
         }
       } else if (deltaY < 0 && targetProgressRef.current > 0) {
         overscrollDeltaRef.current = 0;
-        targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.0028);
+        targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.0032);
+        if (targetProgressRef.current < 0.38) {
+          setIsZoomUnlocked(false);
+          isZoomUnlockedRef.current = false;
+        }
       }
     }
   };
@@ -177,9 +191,10 @@ export function MarbleExperience() {
 
       // Scrolling down (forward zoom-out)
       if (e.deltaY > 0) {
-        if (targetProgressRef.current < 1) {
-          targetProgressRef.current = Math.min(1, targetProgressRef.current + Math.min(e.deltaY * 0.0015, 0.09));
-        } else {
+        const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
+        if (targetProgressRef.current < maxAllowed) {
+          targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + Math.min(e.deltaY * 0.0015, 0.09));
+        } else if (isZoomUnlockedRef.current) {
           // Intentional overscroll buffer before moving to next page
           overscrollDeltaRef.current += Math.abs(e.deltaY);
           if (overscrollDeltaRef.current > 750) {
@@ -192,6 +207,10 @@ export function MarbleExperience() {
         overscrollDeltaRef.current = 0;
         if (targetProgressRef.current > 0) {
           targetProgressRef.current = Math.max(0, targetProgressRef.current + Math.max(e.deltaY * 0.0015, -0.09));
+          if (targetProgressRef.current < 0.38) {
+            setIsZoomUnlocked(false);
+            isZoomUnlockedRef.current = false;
+          }
         }
       }
     };
@@ -209,6 +228,8 @@ export function MarbleExperience() {
 
   const handleEnterClick = () => {
     setIsEntered(true);
+    setIsZoomUnlocked(false);
+    isZoomUnlockedRef.current = false;
     targetProgressRef.current = 0;
     currentProgressRef.current = 0;
     overscrollDeltaRef.current = 0;
@@ -217,8 +238,16 @@ export function MarbleExperience() {
     }
   };
 
+  const handleUnlockZoom = () => {
+    setIsZoomUnlocked(true);
+    isZoomUnlockedRef.current = true;
+    targetProgressRef.current = 0.68; // Zooms out to full crystal-clear hero image and stops
+  };
+
   const handleResetClick = () => {
     setIsEntered(false);
+    setIsZoomUnlocked(false);
+    isZoomUnlockedRef.current = false;
     targetTiltRef.current = { x: 0, y: 0, z: 0 };
     targetPosRef.current = { x: 0, y: 0 };
     targetFlipRef.current = 0;
@@ -232,17 +261,26 @@ export function MarbleExperience() {
   // =========================================================================
   const p = Math.max(0, Math.min(1, animState.progress));
 
-  // Split progress: Stage 1 (0 -> 0.44: Card to Wall) | Stage 2 (0.44 -> 1.0: Majestic Pinch-Out)
+  // Split progress:
+  // Stage 1 (0.00 -> 0.44): Card to Wall Docking
+  // Stage 2 (0.44 -> 0.68): Majestic Pinch-Out to Full Crystal-Clear Architecture (Zero text, Zero blur)
+  // Stage 3 (0.68 -> 1.00): User scrolls further -> Image blurs & ParticleText reveals
   const pStage1 = Math.min(1, p / 0.44);
   const easedP1 = pStage1 * pStage1 * (3 - 2 * pStage1); // Smoothstep curve
 
-  const pStage2 = Math.max(0, (p - 0.44) / 0.56);
+  const pStage2 = Math.min(1, Math.max(0, (p - 0.44) / 0.24));
   // Quintic Smoothstep (Zero 1st & 2nd derivative jerk: 6t^5 - 15t^4 + 10t^3)
   const easedP2 = pStage2 * pStage2 * pStage2 * (pStage2 * (pStage2 * 6 - 15) + 10);
 
   // Constant-energy trigonometric crossfading for seamless camera exposure
   const zoomCrossfadeWeight = Math.cos(easedP2 * Math.PI * 0.5);
   const heroCrossfadeWeight = Math.sin(easedP2 * Math.PI * 0.5);
+
+  // Narrative Stage (p >= 0.70): ONLY starts when user scrolls further past the clear hero image
+  const narrativeProgress = Math.max(0, Math.min(1, (p - 0.70) / 0.30));
+  const narrativeEased = narrativeProgress * narrativeProgress * (3 - 2 * narrativeProgress);
+  const narrativeBlur = narrativeEased * 6.5;
+  const narrativeDarken = narrativeEased * 0.52;
 
   // 1. Zoomed Balcony Layer: Smoothly pinches down from 1.00x to 0.42x
   const zoomedBgOpacity = isEntered ? Math.min(1, easedP1 * 1.5) * (zoomCrossfadeWeight * zoomCrossfadeWeight) : 0;
@@ -385,38 +423,34 @@ export function MarbleExperience() {
           opacity: heroBgOpacity,
           transform: `scale(${heroBgScale})`,
           transformOrigin: '50% 38%', // Anchors zoom right onto the center balcony for seamless pullback
-          filter: `blur(${heroBgBlur}px)`,
         }}
         className="absolute inset-0 z-15 overflow-hidden pointer-events-none will-change-transform"
       >
         <img
           src={images.marbleHero}
           alt="Lunore Monumental Marble Building Architecture"
-          loading="lazy"
+          loading="eager"
           decoding="async"
           className="w-full h-full object-cover object-center brightness-[1.02] contrast-[1.03]"
         />
+
+        {/* Hardware-accelerated smooth blur transition layer */}
+        {narrativeProgress > 0.01 && (
+          <div
+            style={{
+              opacity: narrativeProgress,
+              backdropFilter: 'blur(7px)',
+              WebkitBackdropFilter: 'blur(7px)',
+            }}
+            className="absolute inset-0 pointer-events-none"
+          />
+        )}
+
         <div
-          style={{ opacity: Math.max(0.3, 1 - easedP2 * 0.4) }}
+          style={{ opacity: Math.max(0.3, (1 - easedP2 * 0.4) + narrativeDarken) }}
           className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/50"
         />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.05)_0%,rgba(0,0,0,0.65)_100%)]" />
-
-        {/* Revealing Architecture Milestone Text with Cinematic Entrance */}
-        {isFullyRevealed && (
-          <div className="absolute bottom-6 sm:bottom-10 inset-x-0 z-30 flex flex-col items-center text-center pointer-events-none animate-fade-in px-4">
-            <span className="text-[10px] sm:text-xs tracking-[0.35em] uppercase text-[#b89a62] font-semibold mb-2 drop-shadow-md">
-              Architectural Façade
-            </span>
-            <h3
-              className="text-lg sm:text-2xl md:text-3xl text-[#f1eee7] font-light tracking-wider drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)] max-w-2xl px-2"
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              Monumental Travertine & Marble Living
-            </h3>
-            <div className="mt-3 w-12 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent" />
-          </div>
-        )}
       </div>
 
       {/* ========================================================================= */}
@@ -522,7 +556,142 @@ export function MarbleExperience() {
       )}
 
       {/* ========================================================================= */}
-      {/* 5. "ENTER" BUTTON & INTERACTIVE SCROLL PROMPTS                            */}
+      {/* 5. INTERMEDIATE DOCKED REVEAL: "All Stop Solution is Here" (NO CARD)     */}
+      {/* Positioned right where the slab submerged/docked into the balcony facade */}
+      {/* ========================================================================= */}
+      {isEntered && p >= 0.38 && !isZoomUnlocked && (
+        <div
+          style={{
+            transform: `translate3d(0, ${dockedTargetY}px, 0)`,
+          }}
+          className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center justify-center text-center px-4 pointer-events-auto select-none"
+        >
+          {/* Pulsing Ambient Golden Light Bloom */}
+          <div className="absolute w-[500px] h-[180px] bg-[#b89a62]/20 rounded-full blur-[90px] pointer-events-none -z-10 animate-pulse" />
+
+          {/* Subtitle Badge with Reveal */}
+          <span
+            style={{
+              animation: 'lunore-letter-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both',
+              animationDelay: '0.05s',
+            }}
+            className="text-[10px] sm:text-xs tracking-[0.38em] uppercase text-[#b89a62] font-semibold drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] mb-2 inline-block"
+          >
+            Integrated Living &amp; Craft
+          </span>
+
+          {/* Staggered Word Mask Headline */}
+          <h3
+            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-wide drop-shadow-[0_4px_30px_rgba(0,0,0,0.98)] max-w-2xl px-2"
+            style={{ fontFamily: 'var(--font-serif)' }}
+          >
+            {['All', 'Stop', 'Solution', 'is', 'Here'].map((word, wIdx) => (
+              <span key={wIdx} className="inline-block overflow-hidden mr-[0.28em] last:mr-0 align-bottom">
+                <span
+                  className="inline-block text-[#f1eee7]"
+                  style={{
+                    animation: 'lunore-letter-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both',
+                    animationDelay: `${0.12 + wIdx * 0.08}s`,
+                    textShadow: '0 4px 30px rgba(0,0,0,0.98), 0 0 25px rgba(184,154,98,0.35)',
+                  }}
+                >
+                  {word}
+                </span>
+              </span>
+            ))}
+          </h3>
+
+          {/* Animated Gold Divider Line */}
+          <div
+            style={{
+              animation: 'cinematic-line-mask 0.8s cubic-bezier(0.16, 1, 0.3, 1) both',
+              animationDelay: '0.55s',
+            }}
+            className="mt-3 w-16 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent"
+          />
+
+          {/* Animated Tiny Floating Enter Button */}
+          <div
+            style={{
+              animation: 'lunore-letter-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) both',
+              animationDelay: '0.65s',
+            }}
+            className="mt-4"
+          >
+            <button
+              onClick={handleUnlockZoom}
+              className="group relative cursor-pointer inline-flex items-center gap-2.5 px-6 sm:px-8 py-2.5 rounded-full bg-black/65 hover:bg-black/90 border border-[#b89a62]/80 hover:border-[#f3e5ab] text-[#f1eee7] hover:text-[#f3e5ab] shadow-[0_12px_32px_rgba(0,0,0,0.85),0_0_25px_rgba(184,154,98,0.4),inset_0_1px_1.5px_rgba(255,255,255,0.3)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.95),0_0_35px_rgba(184,154,98,0.7)] transition-all duration-400 transform hover:scale-105 active:scale-95 backdrop-blur-md"
+            >
+              <span className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent" />
+              <span className="absolute inset-0 rounded-full border border-[#b89a62]/40 animate-ping opacity-25 pointer-events-none" />
+
+              <Sparkles className="w-3.5 h-3.5 text-[#b89a62] group-hover:rotate-45 transition-transform duration-400" />
+              <span className="text-[10px] sm:text-xs tracking-[0.28em] uppercase font-semibold">
+                Enter
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#b89a62] group-hover:translate-x-1 transition-transform duration-300" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 6. FINAL NARRATIVE REVEAL: "Marble and Granite Solution" (PARTICLE TEXT)  */}
+      {/* Appears as user scrolls into the full zoom-out with soft background blur  */}
+      {/* ========================================================================= */}
+      {narrativeProgress > 0.05 && (
+        <div
+          style={{
+            opacity: narrativeProgress,
+            transform: `translate3d(0, ${(1 - narrativeEased) * 30}px, 0)`,
+          }}
+          className="absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-4 sm:px-8 md:px-12 pointer-events-auto select-none overflow-hidden"
+        >
+          {/* Contrast Dark Backdrop & Ambient Glow */}
+          <div className="absolute w-[950px] h-[550px] bg-black/60 rounded-full blur-[90px] pointer-events-none -z-10" />
+          <div className="absolute w-[800px] h-[400px] bg-[#b89a62]/15 rounded-full blur-[150px] pointer-events-none -z-10" />
+
+          {/* Interactive React Bits ParticleText Headline - Perfectly Aligned Dot Matrix */}
+          <div className="w-full max-w-4xl h-[120px] sm:h-[150px] md:h-[180px] flex items-center justify-center">
+            <ParticleText
+              text="Marble and Granite Solution"
+              particleSize={isMobile ? 1.9 : 2.2}
+              density={4}
+              color="#f8fafc"
+              highlightColor="#b89a62"
+              scatter={190}
+              gatherDuration={1600}
+              stagger={420}
+              pointerRepel={42}
+              repelRadius={120}
+              idleDrift={0.8}
+              trigger="mount"
+              fontSize={isMobile ? "clamp(1.9rem, 6.8vw, 2.8rem)" : "clamp(2.7rem, 5.2vw, 4.2rem)"}
+              fontWeight={800}
+              fontFamily="Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+              glow={true}
+              className="w-full h-full"
+            />
+          </div>
+
+          <div className="my-2.5 sm:my-3.5 w-20 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent" />
+
+          {/* Editorial Paragraph in Luminous Ivory White */}
+          <p
+            className="text-sm sm:text-base md:text-lg lg:text-[1.12rem] text-[#f8f6f0] font-normal leading-relaxed tracking-wide max-w-3xl px-4 text-center select-text"
+            style={{
+              color: '#f8f6f0',
+              fontFamily: 'var(--font-serif)',
+              textShadow: '0 2px 16px rgba(0,0,0,0.95), 0 4px 30px rgba(0,0,0,0.9)',
+            }}
+          >
+            At Lunore, we deal in a wide range of premium marble and granite, offering carefully selected materials for every design requirement. What truly sets us apart, however, is not just the stone we supply, but the service and assurance behind every order. Every piece is thoroughly inspected by our marble experts before delivery to ensure the right quality, finish, size, and consistency—so you receive your marble exactly as it should be, with no compromises, surprises, or mistakes. With Lunore, every stone is checked, trusted, and delivered with confidence.
+          </p>
+        </div>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 7. INITIAL "ENTER" BUTTON & INTERACTIVE SCROLL PROMPTS                    */}
       {/* ========================================================================= */}
       <div className="absolute inset-x-0 bottom-8 z-35 flex flex-col items-center pointer-events-none">
         {!isEntered && (
@@ -547,12 +716,19 @@ export function MarbleExperience() {
           </div>
         )}
 
-        {isEntered && p < 0.88 && (
+        {isEntered && p < 0.38 && (
           <div className="flex flex-col items-center gap-1.5 opacity-85 transition-opacity duration-300">
             <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#b89a62] font-medium drop-shadow-md">
-              {p < 0.44
-                ? 'Scroll down to dock monolith into facade'
-                : 'Scroll to reveal full architecture • Scroll up to reverse'}
+              Scroll down to dock monolith into facade
+            </span>
+            <ChevronDown className="w-4 h-4 text-[#b89a62] animate-bounce" />
+          </div>
+        )}
+
+        {isEntered && isZoomUnlocked && p >= 0.55 && p < 0.72 && (
+          <div className="flex flex-col items-center gap-1.5 opacity-85 transition-opacity duration-300">
+            <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#b89a62] font-medium drop-shadow-md">
+              Scroll down to explore Lunore Stone Collection • Scroll up to reverse
             </span>
             <ChevronDown className="w-4 h-4 text-[#b89a62] animate-bounce" />
           </div>
