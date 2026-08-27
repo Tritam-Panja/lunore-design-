@@ -14,6 +14,7 @@ import { LazySection } from '@/components/LazySection';
 const InteriorExperience = lazy(() => import('@/components/InteriorExperience').then(m => ({ default: m.InteriorExperience })));
 const SculpturesExperience = lazy(() => import('@/components/SculpturesExperience').then(m => ({ default: m.SculpturesExperience })));
 const MarbleExperience = lazy(() => import('@/components/MarbleExperience').then(m => ({ default: m.MarbleExperience })));
+const AurexaSection = lazy(() => import('@/components/AurexaSection').then(m => ({ default: m.AurexaSection })));
 
 
 const HERO_LETTERS = ['L', 'U', 'N', 'O', 'R', 'E'];
@@ -584,6 +585,14 @@ export function Home() {
         </Suspense>
       </LazySection>
 
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
+
+      {/* AUREXA HAUTE STONE SECTION (LAZY MOUNTED WITH GRADUAL BLUR) */}
+      <LazySection minHeight="600px" rootMargin="350px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0a0b0c] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+          <AurexaSection />
+        </Suspense>
+      </LazySection>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 

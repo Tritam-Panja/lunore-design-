@@ -137,10 +137,7 @@ export function MarbleExperience() {
   const overscrollDeltaRef = useRef<number>(0);
 
   const handleNextSection = useCallback(() => {
-    const el = containerRef.current;
-    if (!el) return;
-    // Find next section in DOM
-    const nextSec = el.nextElementSibling || el.parentElement?.nextElementSibling;
+    const nextSec = document.getElementById('aurexa') || document.getElementById('process');
     if (nextSec) {
       nextSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
     } else {
@@ -195,9 +192,9 @@ export function MarbleExperience() {
         if (targetProgressRef.current < maxAllowed) {
           targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + Math.min(e.deltaY * 0.0015, 0.09));
         } else if (isZoomUnlockedRef.current) {
-          // Intentional overscroll buffer before moving to next page
+          // Responsive overscroll transition into Aurexa
           overscrollDeltaRef.current += Math.abs(e.deltaY);
-          if (overscrollDeltaRef.current > 750) {
+          if (overscrollDeltaRef.current > 180) {
             handleNextSection();
           }
         }
