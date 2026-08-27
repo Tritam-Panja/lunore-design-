@@ -747,7 +747,7 @@ export function Home() {
                       required
                       value={form.name}
                       onChange={(e) => setForm({ ...form, name: e.target.value })}
-                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-sm focus:outline-none"
+                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-base sm:text-sm focus:outline-none"
                     />
                   </div>
                   <div>
@@ -759,7 +759,7 @@ export function Home() {
                       required
                       value={form.email}
                       onChange={(e) => setForm({ ...form, email: e.target.value })}
-                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-sm focus:outline-none"
+                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-base sm:text-sm focus:outline-none"
                     />
                   </div>
                   <div>
@@ -771,7 +771,7 @@ export function Home() {
                       required
                       value={form.subject}
                       onChange={(e) => setForm({ ...form, subject: e.target.value })}
-                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-sm focus:outline-none"
+                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-base sm:text-sm focus:outline-none"
                     />
                   </div>
                   <div>
@@ -783,7 +783,7 @@ export function Home() {
                       rows={4}
                       value={form.message}
                       onChange={(e) => setForm({ ...form, message: e.target.value })}
-                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-sm focus:outline-none resize-none"
+                      className="w-full liquid-glass-input rounded-xl px-4 py-3 text-base sm:text-sm focus:outline-none resize-none"
                     />
                   </div>
                   {status === 'error' && (

@@ -254,12 +254,12 @@ export function MarbleExperience() {
   const heroBgScale = 2.45 - easedP2 * 1.45;
   const heroBgBlur = Math.max(0, (1 - easedP2 * 2.0) * 2.5);
 
-  // Responsive Base Card Dimensions (Optimized for all mobile aspect ratios)
+  // Responsive Base Card Dimensions
   const isMobile = windowSize.width < 640;
   const isTablet = windowSize.width >= 640 && windowSize.width < 1024;
 
-  const baseCardWidth = isMobile ? Math.min(265, windowSize.width * 0.72) : isTablet ? 340 : 390;
-  const baseCardHeight = isMobile ? Math.min(345, windowSize.height * 0.46) : isTablet ? 440 : 490;
+  const baseCardWidth = isMobile ? 290 : isTablet ? 340 : 390;
+  const baseCardHeight = isMobile ? 370 : isTablet ? 440 : 490;
 
   // =========================================================================
   // CAMERA & BACKGROUND IMAGE OPTICS (1600x755 Source Image Aspect 2.1192)
@@ -338,8 +338,7 @@ export function MarbleExperience() {
       id="marble-experience"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      style={{ touchAction: isEntered ? 'none' : 'pan-y' }}
-      className="relative w-full h-[100dvh] min-h-[600px] bg-[#08090a] overflow-hidden select-none flex items-center justify-center"
+      className="relative w-full h-[100dvh] min-h-[680px] bg-[#08090a] overflow-hidden select-none flex items-center justify-center"
     >
       {/* 1. INITIAL BLANK VOID CANVAS */}
       <div className="absolute inset-0 bg-[#08090a] pointer-events-none z-0">
@@ -404,12 +403,12 @@ export function MarbleExperience() {
 
         {/* Revealing Architecture Milestone Text with Cinematic Entrance */}
         {isFullyRevealed && (
-          <div className="absolute bottom-6 sm:bottom-10 inset-x-0 z-30 flex flex-col items-center text-center pointer-events-none animate-fade-in px-4">
+          <div className="absolute bottom-10 inset-x-0 z-30 flex flex-col items-center text-center pointer-events-none animate-fade-in px-4">
             <span className="text-[10px] sm:text-xs tracking-[0.35em] uppercase text-[#b89a62] font-semibold mb-2 drop-shadow-md">
               Architectural Façade
             </span>
             <h3
-              className="text-lg sm:text-2xl md:text-3xl text-[#f1eee7] font-light tracking-wider drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)] max-w-2xl px-2"
+              className="text-xl sm:text-2xl md:text-3xl text-[#f1eee7] font-light tracking-wider drop-shadow-[0_4px_20px_rgba(0,0,0,0.9)] max-w-2xl"
               style={{ fontFamily: 'var(--font-serif)' }}
             >
               Monumental Travertine & Marble Living
@@ -456,70 +455,70 @@ export function MarbleExperience() {
                 boxShadow: bezelGlassOpacity > 0.05
                   ? `0 30px 90px rgba(0,0,0,${0.9 * bezelGlassOpacity}), 0 0 45px rgba(184,154,98,${0.25 * bezelGlassOpacity}), inset 0 1.5px 2px rgba(255,255,255,${0.6 * bezelGlassOpacity})`
                   : 'none',
+            }}
+            className={`absolute inset-0 overflow-hidden flex flex-col items-center justify-center ${bezelGlassOpacity > 0.05 ? 'backdrop-blur-2xl' : ''}`}
+          >
+            {/* Specular White Top Edge Glow */}
+            {bezelGlassOpacity > 0.05 && (
+              <div
+                style={{ opacity: bezelGlassOpacity }}
+                className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent z-10 pointer-events-none"
+              />
+            )}
+
+            {/* Inner Frame with 100% Solid Edge-to-Edge Image */}
+            <div
+              style={{
+                borderRadius: `${innerRadius}px`,
+                border: bezelGlassOpacity > 0.05 ? `1px solid rgba(255, 255, 255, ${0.25 * bezelGlassOpacity})` : 'none',
               }}
-              className={`absolute inset-0 overflow-hidden flex flex-col items-center justify-center ${bezelGlassOpacity > 0.05 ? 'backdrop-blur-2xl' : ''}`}
+              className="relative w-full h-full overflow-hidden flex items-center justify-center"
             >
-              {/* Specular White Top Edge Glow */}
+              {/* Marble Texture */}
+              <img
+                src={images.marbleCutout}
+                alt="Lunore Architectural Marble Cutout"
+                style={{
+                  filter: `brightness(${stoneBrightness}) contrast(${stoneContrast}) saturate(${stoneSaturate})`,
+                }}
+                className="w-full h-full object-cover object-center group-hover:scale-105 pointer-events-none"
+              />
+
+              {/* Glass Specular Lighting Layer */}
               {bezelGlassOpacity > 0.05 && (
                 <div
                   style={{ opacity: bezelGlassOpacity }}
-                  className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent z-10 pointer-events-none"
+                  className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-white/[0.08] pointer-events-none"
                 />
               )}
 
-              {/* Inner Frame with 100% Solid Edge-to-Edge Image */}
-              <div
-                style={{
-                  borderRadius: `${innerRadius}px`,
-                  border: bezelGlassOpacity > 0.05 ? `1px solid rgba(255, 255, 255, ${0.25 * bezelGlassOpacity})` : 'none',
-                }}
-                className="relative w-full h-full overflow-hidden flex items-center justify-center"
-              >
-                {/* Marble Texture */}
-                <img
-                  src={images.marbleCutout}
-                  alt="Lunore Architectural Marble Cutout"
+              {/* GOLDEN SPECULAR LIGHT SWEEP (Flashes across face during docking lock) */}
+              {lockFlash > 0.01 && (
+                <div
                   style={{
-                    filter: `brightness(${stoneBrightness}) contrast(${stoneContrast}) saturate(${stoneSaturate})`,
+                    transform: `translateX(${lightSweepPos}%)`,
+                    opacity: lockFlash * 0.9,
                   }}
-                  className="w-full h-full object-cover object-center group-hover:scale-105 pointer-events-none"
+                  className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/80 via-[#f3e5ab]/90 to-transparent skew-x-[-20deg] pointer-events-none"
                 />
+              )}
 
-                {/* Glass Specular Lighting Layer */}
-                {bezelGlassOpacity > 0.05 && (
-                  <div
-                    style={{ opacity: bezelGlassOpacity }}
-                    className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-white/[0.08] pointer-events-none"
-                  />
-                )}
-
-                {/* GOLDEN SPECULAR LIGHT SWEEP (Flashes across face during docking lock) */}
-                {lockFlash > 0.01 && (
-                  <div
-                    style={{
-                      transform: `translateX(${lightSweepPos}%)`,
-                      opacity: lockFlash * 0.9,
-                    }}
-                    className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/80 via-[#f3e5ab]/90 to-transparent skew-x-[-20deg] pointer-events-none"
-                  />
-                )}
-
-                {/* GOLDEN ARCHITECTURAL DOCKING LASER PERIMETER */}
-                {lockFlash > 0.02 && (
-                  <div
-                    style={{
-                      opacity: lockFlash,
-                      borderColor: '#b89a62',
-                      boxShadow: `inset 0 0 30px rgba(184,154,98,${0.95 * lockFlash}), 0 0 35px rgba(243,229,171,${0.85 * lockFlash})`,
-                    }}
-                    className="absolute inset-0 border-2 pointer-events-none"
-                  />
-                )}
-              </div>
+              {/* GOLDEN ARCHITECTURAL DOCKING LASER PERIMETER */}
+              {lockFlash > 0.02 && (
+                <div
+                  style={{
+                    opacity: lockFlash,
+                    borderColor: '#b89a62',
+                    boxShadow: `inset 0 0 30px rgba(184,154,98,${0.95 * lockFlash}), 0 0 35px rgba(243,229,171,${0.85 * lockFlash})`,
+                  }}
+                  className="absolute inset-0 border-2 pointer-events-none"
+                />
+              )}
             </div>
           </div>
         </div>
-      )}
+      </div>
+    )}
 
       {/* ========================================================================= */}
       {/* 5. "ENTER" BUTTON & INTERACTIVE SCROLL PROMPTS                            */}
@@ -547,14 +546,20 @@ export function MarbleExperience() {
           </div>
         )}
 
-        {isEntered && p < 0.88 && (
+        {isEntered && (
           <div className="flex flex-col items-center gap-1.5 opacity-85 transition-opacity duration-300">
             <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#b89a62] font-medium drop-shadow-md">
               {p < 0.44
                 ? 'Scroll down to dock monolith into facade'
-                : 'Scroll to reveal full architecture • Scroll up to reverse'}
+                : p < 0.88
+                ? 'Scroll to reveal full architecture • Scroll up to reverse'
+                : 'Scroll up to replay animation • Scroll down to continue'}
             </span>
-            <ChevronDown className="w-4 h-4 text-[#b89a62] animate-bounce" />
+            {p < 0.88 ? (
+              <ChevronDown className="w-4 h-4 text-[#b89a62] animate-bounce" />
+            ) : (
+              <div className="w-8 h-px bg-gradient-to-r from-transparent via-[#b89a62]/60 to-transparent" />
+            )}
           </div>
         )}
       </div>

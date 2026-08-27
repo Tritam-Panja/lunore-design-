@@ -103,6 +103,13 @@
   img {
     content-visibility: auto;
   }
+  button, a {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  input, textarea, select {
+    touch-action: manipulation;
+  }
 }
 
 /* Hide scrollbar for horizontal carousel */

@@ -355,8 +355,8 @@ export function SculpturesExperience() {
   // 2. Landscape -> Portrait Dimensions Morphing
   const isMobile = viewport.w < 640;
   const isTablet = viewport.w >= 640 && viewport.w < 1024;
-  const targetCardW = isMobile ? 260 : isTablet ? 300 : 350;
-  const targetCardH = isMobile ? 390 : isTablet ? 450 : 520;
+  const targetCardW = isMobile ? Math.min(250, viewport.w * 0.74) : isTablet ? 300 : 350;
+  const targetCardH = isMobile ? Math.min(365, viewport.h * 0.48) : isTablet ? 450 : 520;
 
   const currentCardW = viewport.w + (targetCardW - viewport.w) * easedP;
   const currentCardH = viewport.h + (targetCardH - viewport.h) * easedP;
@@ -379,7 +379,8 @@ export function SculpturesExperience() {
     <section
       ref={containerRef}
       id="projects"
-      className="relative w-full h-[100dvh] min-h-[640px] bg-[#050607] overflow-hidden select-none touch-pan-y"
+      style={{ touchAction: isEntrance ? 'pan-y' : 'none' }}
+      className="relative w-full h-[100dvh] min-h-[600px] bg-[#050607] overflow-hidden select-none"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -512,8 +513,8 @@ export function SculpturesExperience() {
                 const isVisible = Math.abs(diff) <= 3.2;
 
                 // 3D Geometry
-                const radius = isMobile ? 640 : 820;
-                const angleDeg = diff * 23;
+                const radius = isMobile ? Math.min(480, viewport.w * 1.15) : isTablet ? 660 : 820;
+                const angleDeg = diff * (isMobile ? 26 : 23);
                 const angleRad = (angleDeg * Math.PI) / 180;
 
                 const targetTranslateX = radius * Math.sin(angleRad);
