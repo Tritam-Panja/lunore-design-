@@ -59,44 +59,45 @@ const clamp = (value: number, min: number, max: number): number => Math.min(Math
 const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
 
 const resolveFontSize = (
-  value: number | string,
-  container: HTMLDivElement,
+  value: number | string | undefined,
+  container: HTMLElement,
   fontWeight: number | string,
   fontFamily: string
 ): number => {
   if (typeof value === 'number') return value;
+  if (!value) return 72;
 
-  const probe = document.createElement('span');
-  probe.textContent = 'M';
+  const probe = document.createElement('div');
   probe.style.position = 'absolute';
   probe.style.visibility = 'hidden';
   probe.style.pointerEvents = 'none';
   probe.style.fontSize = value;
   probe.style.fontWeight = String(fontWeight);
   probe.style.fontFamily = fontFamily;
+  probe.textContent = 'M';
+
   container.appendChild(probe);
-  const size = parseFloat(window.getComputedStyle(probe).fontSize) || 96;
+  const size = parseFloat(window.getComputedStyle(probe).fontSize) || 72;
   probe.remove();
   return size;
 };
 
-const waitForFonts = async (font: string): Promise<void> => {
-  if (!('fonts' in document)) return;
-
+const waitForFonts = async (fontSpec: string): Promise<void> => {
+  if (typeof document === 'undefined' || !document.fonts?.load) return;
   try {
-    await document.fonts.load(font);
-  } catch {}
-
-  await document.fonts.ready;
+    await document.fonts.load(fontSpec);
+  } catch {
+    // Gracefully continue if font loading fails
+  }
 };
 
 export const ParticleText = ({
-  text = 'React Bits',
-  particleSize = 2,
+  text = 'LUNORE',
+  particleSize = 2.4,
   density = 4,
-  color = '#ffffff',
-  highlightColor = '#8b5cf6',
-  scatter = 180,
+  color = '#f1eee7',
+  highlightColor = '#b89a62',
+  scatter = 90,
   gatherDuration = 1600,
   stagger = 420,
   pointerRepel = 40,
@@ -129,10 +130,12 @@ export const ParticleText = ({
     let buildId = 0;
     let gathering = false;
     let gatherStart = 0;
+    let isVisible = true;
     let reducedMotion = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
     let width = 0;
     let height = 0;
     let dpr = 1;
+    const isMobile = window.innerWidth < 768;
 
     const pointer = {
       active: false,
@@ -166,6 +169,11 @@ export const ParticleText = ({
     };
 
     const render = (now: number): void => {
+      if (!isVisible) {
+        animationFrame = null;
+        return;
+      }
+
       ctx.clearRect(0, 0, width, height);
 
       pointer.smoothX += (pointer.x - pointer.smoothX) * 0.2;
@@ -210,8 +218,8 @@ export const ParticleText = ({
         particle.y += (baseY - particle.y) * follow;
       }
 
-      // 2. High-performance batched draw call (100x faster, zero CPU/GPU jank)
-      if (glow && !reducedMotion) {
+      // 2. High-performance batched draw call
+      if (glow && !reducedMotion && !isMobile) {
         ctx.shadowBlur = particleSize * 2.2;
         ctx.shadowColor = highlightColor;
       } else {
@@ -238,7 +246,7 @@ export const ParticleText = ({
     };
 
     const ensureRenderLoop = (): void => {
-      if (animationFrame === null) {
+      if (animationFrame === null && isVisible) {
         animationFrame = window.requestAnimationFrame(render);
       }
     };
@@ -251,7 +259,7 @@ export const ParticleText = ({
 
       if (width <= 0 || height <= 0) return;
 
-      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+      dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.5);
       canvas.width = Math.max(1, Math.floor(width * dpr));
       canvas.height = Math.max(1, Math.floor(height * dpr));
       canvas.style.width = '100%';
@@ -303,7 +311,7 @@ export const ParticleText = ({
 
       const imageData = offCtx.getImageData(0, 0, offscreen.width, offscreen.height);
       const targets: Target[] = [];
-      const step = Math.max(2, Math.floor(density));
+      const step = isMobile ? Math.max(3, Math.floor(density * 1.25)) : Math.max(2, Math.floor(density));
 
       for (let y = 0; y < offscreen.height; y += step) {
         for (let x = 0; x < offscreen.width; x += step) {
@@ -318,7 +326,10 @@ export const ParticleText = ({
         }
       }
 
-      const maxParticles = Math.max(800, Math.min(2200, Math.floor((width * height) / 120)));
+      const maxParticles = isMobile
+        ? Math.max(300, Math.min(850, Math.floor((width * height) / 180)))
+        : Math.max(800, Math.min(2200, Math.floor((width * height) / 120)));
+
       const stride = Math.max(1, Math.ceil(targets.length / maxParticles));
       const baseRgb = hexToRgb(color);
       const highlightRgb = hexToRgb(highlightColor);
@@ -341,7 +352,7 @@ export const ParticleText = ({
           startY,
           targetX: target.x,
           targetY: target.y,
-          size: Math.max(1.8, particleSize * (0.85 + target.alpha * 0.35)),
+          size: Math.max(1.6, particleSize * (0.85 + target.alpha * 0.35)),
           color: particleColor,
           seed,
           depth,
@@ -409,11 +420,30 @@ export const ParticleText = ({
 
     const resizeObserver = new ResizeObserver(queueSample);
     resizeObserver.observe(container);
+
+    // Performance Optimization: IntersectionObserver to sleep RAF loop when offscreen
+    const intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible) {
+            ensureRenderLoop();
+          } else if (animationFrame !== null) {
+            window.cancelAnimationFrame(animationFrame);
+            animationFrame = null;
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+    intersectionObserver.observe(container);
+
     void sampleText();
 
     return () => {
       buildId += 1;
       resizeObserver.disconnect();
+      intersectionObserver.disconnect();
       reduceMotionQuery?.removeEventListener('change', handleReduceMotionChange);
       canvas.removeEventListener('pointerenter', handlePointerEnter);
       canvas.removeEventListener('pointermove', handlePointerMove);

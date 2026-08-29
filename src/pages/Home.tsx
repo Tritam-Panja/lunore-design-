@@ -782,24 +782,24 @@ export function Home() {
                     href="https://instagram.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] hover:bg-[#b89a62]/15 border border-white/10 hover:border-[#b89a62]/60 text-xs text-[#cfcac0] hover:text-[#f3e5ab] transition-all duration-300 group cursor-pointer"
+                    className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#E1306C]/20 via-[#FD1D1D]/10 to-[#C13584]/20 hover:from-[#E1306C]/30 hover:to-[#C13584]/30 border border-[#E1306C]/40 hover:border-[#E1306C] text-xs text-[#f1eee7] hover:text-white shadow-[0_2px_14px_rgba(225,48,108,0.18)] hover:shadow-[0_4px_20px_rgba(225,48,108,0.35)] transition-all duration-300 group cursor-pointer"
                     title="Follow Lunore on Instagram"
                   >
-                    <InstagramIcon className="w-4 h-4 text-[#b89a62] group-hover:scale-110 transition-transform" />
-                    <span>Instagram</span>
-                    <ArrowUpRight className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    <InstagramIcon className="w-4 h-4 text-[#E1306C] group-hover:scale-110 transition-transform" />
+                    <span className="font-medium">Instagram</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-[#E1306C] opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </a>
 
                   <a
                     href="https://linkedin.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] hover:bg-[#b89a62]/15 border border-white/10 hover:border-[#b89a62]/60 text-xs text-[#cfcac0] hover:text-[#f3e5ab] transition-all duration-300 group cursor-pointer"
+                    className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#0A66C2]/20 via-[#0077B5]/10 to-[#0A66C2]/20 hover:from-[#0A66C2]/30 hover:to-[#0077B5]/30 border border-[#0A66C2]/40 hover:border-[#0A66C2] text-xs text-[#f1eee7] hover:text-white shadow-[0_2px_14px_rgba(10,102,194,0.18)] hover:shadow-[0_4px_20px_rgba(10,102,194,0.35)] transition-all duration-300 group cursor-pointer"
                     title="Connect with Lunore on LinkedIn"
                   >
-                    <LinkedinIcon className="w-4 h-4 text-[#b89a62] group-hover:scale-110 transition-transform" />
-                    <span>LinkedIn</span>
-                    <ArrowUpRight className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    <LinkedinIcon className="w-4 h-4 text-[#0A66C2] group-hover:scale-110 transition-transform" />
+                    <span className="font-medium">LinkedIn</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 text-[#0A66C2] opacity-75 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
                   </a>
                 </div>
 

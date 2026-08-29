@@ -50,11 +50,17 @@ export function MarbleExperience() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Single 60fps RAF physics loop
+  // Single 60fps RAF physics loop with viewport visibility throttling
   useEffect(() => {
-    let animId: number;
+    let animId: number | null = null;
+    let isVisible = true;
 
     const updatePhysics = () => {
+      if (!isVisible) {
+        animId = null;
+        return;
+      }
+
       // 1. Tilt
       currentTiltRef.current.x += (targetTiltRef.current.x - currentTiltRef.current.x) * 0.12;
       currentTiltRef.current.y += (targetTiltRef.current.y - currentTiltRef.current.y) * 0.12;
@@ -90,7 +96,27 @@ export function MarbleExperience() {
     };
 
     animId = requestAnimationFrame(updatePhysics);
-    return () => cancelAnimationFrame(animId);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible && animId === null) {
+            animId = requestAnimationFrame(updatePhysics);
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+      if (animId !== null) cancelAnimationFrame(animId);
+    };
   }, []);
 
   // Screen-wide hover reaction

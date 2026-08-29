@@ -125,14 +125,17 @@ export function SculpturesExperience() {
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  // Continuous 60fps RAF physics interpolation:
-  // - Infinite smooth rotation lerp
-  // - Gentle ambient auto-drift when idle
-  // - Pinch-in morph lerp
+  // Continuous 60fps RAF physics interpolation with viewport visibility throttling
   useEffect(() => {
-    let animId: number;
+    let animId: number | null = null;
+    let isVisible = true;
 
     const updatePhysics = () => {
+      if (!isVisible) {
+        animId = null;
+        return;
+      }
+
       // 1. Smooth lerp for pinch-in morph progress
       const pinchDiff = targetPinchRef.current - currentPinchRef.current;
       if (Math.abs(pinchDiff) > 0.0002) {
@@ -163,7 +166,27 @@ export function SculpturesExperience() {
     };
 
     animId = requestAnimationFrame(updatePhysics);
-    return () => cancelAnimationFrame(animId);
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          isVisible = entry.isIntersecting;
+          if (isVisible && animId === null) {
+            animId = requestAnimationFrame(updatePhysics);
+          }
+        });
+      },
+      { threshold: 0.05 }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => {
+      observer.disconnect();
+      if (animId !== null) cancelAnimationFrame(animId);
+    };
   }, []);
 
   // Actions

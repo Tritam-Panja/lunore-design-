@@ -26,14 +26,16 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
+    const isMobile = window.innerWidth < 768;
+
     const instance = new Lenis({
-      duration: 1.2,
+      duration: isMobile ? 1.0 : 1.15,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 0.95,
-      touchMultiplier: 1.5,
+      touchMultiplier: isMobile ? 1.1 : 1.3,
       infinite: false,
       autoRaf: false,
     });
@@ -45,15 +47,26 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     document.documentElement.classList.add('lenis', 'lenis-smooth');
 
     let rafId: number;
+    let isPaused = false;
+
     function raf(time: number) {
-      instance.raf(time);
+      if (!isPaused) {
+        instance.raf(time);
+      }
       rafId = requestAnimationFrame(raf);
     }
 
     rafId = requestAnimationFrame(raf);
 
+    // Battery / CPU Saver: Pause RAF loop when browser tab is inactive
+    const handleVisibilityChange = () => {
+      isPaused = document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+
     return () => {
       cancelAnimationFrame(rafId);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
       document.documentElement.classList.remove('lenis', 'lenis-smooth');
       instance.destroy();
       lenisRef.current = null;

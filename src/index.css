@@ -964,4 +964,23 @@ html.lunore-experience-active h3 {
   }
 }
 
+/* ===== GPU & Mobile Performance Optimizations ===== */
+.gpu-layer {
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
+}
 
+@media (max-width: 768px) {
+  /* Prevent excessive blur filter overhead on mobile GPUs */
+  .reveal {
+    transition-duration: 0.6s !important;
+  }
+  
+  /* Smooth touch scrolling */
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+}
