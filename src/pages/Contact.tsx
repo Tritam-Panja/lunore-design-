@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { MapPin, Phone, Mail, Send, Check } from 'lucide-react';
+import { MapPin, Phone, Mail, Send, Check, MessageCircle, ArrowUpRight } from 'lucide-react';
+import { InstagramIcon, LinkedinIcon } from '@/components/SocialIcons';
 import { supabase } from '@/lib/supabase';
 import { Reveal } from '@/components/Reveal';
 
@@ -126,43 +127,96 @@ export function Contact() {
           </Reveal>
 
           {/* Studio info */}
-          <Reveal direction="right" className="liquid-glass-card p-8 md:p-10 rounded-3xl flex flex-col justify-between">
-            <div className="space-y-8">
+          <Reveal direction="right" className="liquid-glass-card p-8 md:p-10 rounded-3xl flex flex-col justify-between space-y-8">
+            <div className="space-y-6">
               <div>
                 <h3 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-5">
                   Studio Location
                 </h3>
                 <div className="flex items-start gap-4">
                   <MapPin className="w-5 h-5 text-[#b89a62] flex-shrink-0 mt-1" strokeWidth={1} />
-                  <p className="text-[#b9b5ae] leading-relaxed">
-                    57 Heera Panna M.R. No.2, MHADA Layout,<br />
-                    Oshiwara, Jogeshwari(W), Near Dhaba,<br />
+                  <p className="text-[#b9b5ae] leading-relaxed text-sm">
+                    103 UPPER, ANDHERI INDUSTRIAL ESTATE,<br />
+                    OFF VEERA DESAI ROAD,<br />
                     Mumbai 400058
                   </p>
                 </div>
               </div>
+
               <div>
                 <h3 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-5">
                   Direct Inquiries
                 </h3>
                 <div className="flex items-center gap-4 mb-4">
                   <Phone className="w-5 h-5 text-[#b89a62] flex-shrink-0" strokeWidth={1} />
-                  <a href="tel:+919769708628" className="text-[#b9b5ae] hover:text-[#f1eee7] transition-colors">
-                    +91 97697 08628
+                  <a
+                    href="tel:+919769708628"
+                    className="text-[#cfcac0] hover:text-[#f3e5ab] transition-colors inline-flex items-center gap-2 group cursor-pointer text-sm"
+                  >
+                    <span>+91 97697 08628</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-[#b89a62]" />
                   </a>
                 </div>
-                <div className="flex items-center gap-4">
+                <div className="flex items-center gap-4 mb-6">
                   <Mail className="w-5 h-5 text-[#b89a62] flex-shrink-0" strokeWidth={1} />
                   <a
                     href="mailto:support@lunoreluxedecorstudio.com"
-                    className="text-[#b9b5ae] hover:text-[#f1eee7] transition-colors break-all"
+                    className="text-[#cfcac0] hover:text-[#f3e5ab] transition-colors break-all inline-flex items-center gap-2 group cursor-pointer text-sm"
                   >
-                    support@lunoreluxedecorstudio.com
+                    <span>support@lunoreluxedecorstudio.com</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-[#b89a62]" />
+                  </a>
+                </div>
+
+                {/* Social Channels: Instagram & LinkedIn */}
+                <div className="pt-2 pb-4 border-t border-white/[0.08] flex flex-wrap items-center gap-3">
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] hover:bg-[#b89a62]/15 border border-white/10 hover:border-[#b89a62]/60 text-xs text-[#cfcac0] hover:text-[#f3e5ab] transition-all duration-300 group cursor-pointer"
+                    title="Follow Lunore on Instagram"
+                  >
+                    <InstagramIcon className="w-4 h-4 text-[#b89a62] group-hover:scale-110 transition-transform" />
+                    <span>Instagram</span>
+                    <ArrowUpRight className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </a>
+
+                  <a
+                    href="https://linkedin.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] hover:bg-[#b89a62]/15 border border-white/10 hover:border-[#b89a62]/60 text-xs text-[#cfcac0] hover:text-[#f3e5ab] transition-all duration-300 group cursor-pointer"
+                    title="Connect with Lunore on LinkedIn"
+                  >
+                    <LinkedinIcon className="w-4 h-4 text-[#b89a62] group-hover:scale-110 transition-transform" />
+                    <span>LinkedIn</span>
+                    <ArrowUpRight className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </a>
+                </div>
+
+                {/* Direct WhatsApp Concierge Button */}
+                <div className="pt-2">
+                  <a
+                    href="https://wa.me/919769708628?text=Hello%20Lunore%20Studio%2C%20I%20would%20like%20to%20inquire%20about%20your%20bespoke%20stone%20and%20interior%20services."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group/wa cursor-pointer relative overflow-hidden inline-flex items-center justify-center gap-3 w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#25D366]/20 via-[#25D366]/10 to-[#128C7E]/20 hover:from-[#25D366]/30 hover:to-[#128C7E]/30 border border-[#25D366]/40 hover:border-[#25D366] text-[#f1eee7] hover:text-white shadow-[0_4px_20px_rgba(37,211,102,0.15)] hover:shadow-[0_6px_28px_rgba(37,211,102,0.3)] transition-all duration-300"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-[#25D366]/25 flex items-center justify-center text-[#25D366] group-hover/wa:scale-110 transition-transform">
+                      <MessageCircle className="w-4 h-4 fill-current" />
+                    </div>
+                    <div className="flex flex-col text-left">
+                      <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#f1eee7]">Contact via WhatsApp</span>
+                      <span className="text-[10px] text-[#25D366] font-normal">Direct Concierge • Instant Response</span>
+                    </div>
+                    <ArrowUpRight className="w-4 h-4 text-[#25D366] ml-auto group-hover/wa:translate-x-0.5 group-hover/wa:-translate-y-0.5 transition-transform" />
                   </a>
                 </div>
               </div>
             </div>
-            <div className="pt-8 border-t border-white/10 mt-8">
+
+            <div className="pt-6 border-t border-white/10 mt-6">
               <p className="text-xs text-[#85817a]">
                 Private consultations available by appointment in Mumbai and globally.
               </p>

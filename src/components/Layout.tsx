@@ -4,6 +4,7 @@ import { Footer } from './Footer';
 import { ScrollToTop } from './ScrollToTop';
 import { SmoothScroll } from './SmoothScroll';
 import { ScrollProgress } from './ScrollProgress';
+import { WhatsAppBubble } from './WhatsAppBubble';
 
 export function Layout() {
   return (
@@ -11,6 +12,7 @@ export function Layout() {
       <div className="min-h-screen flex flex-col bg-[#0d0e0e] text-[#f1eee7] transition-colors duration-500">
         <ScrollToTop />
         <ScrollProgress />
+        <WhatsAppBubble />
         <Header />
         <main className="flex-1 relative z-10">
           <Outlet />

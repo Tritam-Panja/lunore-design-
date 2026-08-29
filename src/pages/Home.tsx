@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight, Hammer, Mountain, Eye, Landmark, Ruler, PenTool, Layers, Check, Sparkles, MapPin, Phone, Mail, Send } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Hammer, Mountain, Eye, Landmark, Ruler, PenTool, Layers, Check, Sparkles, MapPin, Phone, Mail, Send, MessageCircle, ArrowUpRight } from 'lucide-react';
+import { InstagramIcon, LinkedinIcon } from '@/components/SocialIcons';
 import { supabase, type Product } from '@/lib/supabase';
 import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
@@ -42,11 +43,6 @@ const dreamConcepts = [
   { title: 'Illuminated Onyx', desc: 'Visionary Concept' },
 ];
 
-const processSteps = [
-  { num: '01', title: 'Material Selection', desc: 'We hand-select monoliths possessing raw density, vein patterns, and spiritual resonance.' },
-  { num: '02', title: 'Artistic Revelation', desc: 'Master sculptors study raw blocks for weeks, using hand tools to reveal elegance within weight.' },
-  { num: '03', title: 'Refined Finishing', desc: 'From raw chisel marks to silk-like polish, an obsessive journey of texture.' },
-];
 
 interface TeamMember {
   name: string;
@@ -594,78 +590,7 @@ export function Home() {
         </Suspense>
       </LazySection>
 
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
-      {/* 6. DESIGN PHILOSOPHY & PROCESS SECTION */}
-      <section id="process" className="py-24 md:py-36 relative bg-[#111211]">
-        <div className="max-w-7xl mx-auto px-6 lg:px-10">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <Reveal direction="down">
-              <p className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4">
-                Design Philosophy
-              </p>
-            </Reveal>
-            <TextReveal
-              text="Hand-Carved Excellence"
-              as="h2"
-              className="text-3xl md:text-5xl font-light text-[#f1eee7]"
-              wordClassName="text-[#f1eee7]"
-              delay={0.1}
-              stagger={0.06}
-            />
-            <Reveal direction="blur" delay={0.25}>
-              <p className="mt-6 text-lg text-[#b9b5ae] leading-relaxed font-light">
-                Every masterpiece follows a journey of intense dedication and reverence for natural stone.
-              </p>
-            </Reveal>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 [perspective:1400px]">
-            {processSteps.map((s) => (
-              <Reveal
-                key={s.num}
-                direction="flip-right"
-                delay={1.0}
-                threshold={0.35}
-                rootMargin="-40px"
-                className="group relative p-8 sm:p-10 rounded-3xl liquid-glass-card z-10 [transform-style:preserve-3d] transition-all duration-500 hover:-translate-y-2.5 hover:shadow-[0_30px_70px_rgba(0,0,0,0.85),0_0_40px_rgba(184,154,98,0.18)] border border-white/10 hover:border-[#b89a62]/50 overflow-hidden"
-              >
-                {/* Top Specular Edge Glow on Card */}
-                <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:via-[#b89a62]/80 transition-all duration-500" />
-
-                <span
-                  className="text-4xl md:text-5xl font-light text-[#b89a62] block mb-4 transition-transform duration-500 group-hover:scale-105"
-                  style={{ fontFamily: 'var(--font-serif)' }}
-                >
-                  {s.num}
-                </span>
-                <h3
-                  className="text-xl md:text-2xl font-light mb-3 text-[#f1eee7] group-hover:text-white transition-colors"
-                  style={{ fontFamily: 'var(--font-serif)' }}
-                >
-                  {s.title}
-                </h3>
-                <div className="w-10 h-px bg-[#b89a62]/60 mb-4 group-hover:w-16 group-hover:bg-[#b89a62] transition-all duration-500" />
-                <p className="text-sm text-[#b9b5ae] leading-relaxed font-light">{s.desc}</p>
-              </Reveal>
-            ))}
-          </div>
-
-          <div className="mt-16 text-center">
-            <Reveal direction="zoom" delay={0.2}>
-              <Link
-                to="/process"
-                className="liquid-glass-btn-secondary inline-flex items-center gap-3 px-8 py-4 text-xs tracking-[0.25em] uppercase text-[#f1eee7] group shadow-lg"
-              >
-                Discover Full Process <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Reveal>
-          </div>
-        </div>
-
-      </section>
-
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
 
       {/* 7. CALL TO ACTION (CTA) SECTION */}
       <section id="cta" className="py-20 md:py-32 relative text-center bg-gradient-to-b from-[#0d0e0e] via-[#151615] to-[#0d0e0e] overflow-hidden">
@@ -820,32 +745,85 @@ export function Home() {
                 </h3>
                 <div className="flex items-start gap-4 mb-6">
                   <MapPin className="w-5 h-5 text-[#b89a62] flex-shrink-0 mt-1" strokeWidth={1} />
-                  <p className="text-[#b9b5ae] leading-relaxed">
-                    103 UPPER,ANDHERI INDUSTRAIL ESTATE,<br />
-                    OFF VEERA SEAS,<br />
+                  <p className="text-[#b9b5ae] leading-relaxed text-sm">
+                    103 UPPER, ANDHERI INDUSTRIAL ESTATE,<br />
+                    OFF VEERA DESAI ROAD,<br />
                     Mumbai 400058
                   </p>
                 </div>
 
+                {/* Clickable Direct Phone */}
                 <div className="flex items-center gap-4 mb-4">
                   <Phone className="w-5 h-5 text-[#b89a62] flex-shrink-0" strokeWidth={1} />
-                  <a href="tel:+919769708628" className="text-[#b9b5ae] hover:text-[#f1eee7] transition-colors">
-                    +91 97697 08628
+                  <a
+                    href="tel:+919769708628"
+                    className="text-[#cfcac0] hover:text-[#f3e5ab] transition-colors inline-flex items-center gap-2 group cursor-pointer text-sm"
+                  >
+                    <span>+91 97697 08628</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-[#b89a62]" />
                   </a>
                 </div>
 
-                <div className="flex items-center gap-4">
+                {/* Clickable Direct Email */}
+                <div className="flex items-center gap-4 mb-6">
                   <Mail className="w-5 h-5 text-[#b89a62] flex-shrink-0" strokeWidth={1} />
                   <a
                     href="mailto:support@lunoreluxedecorstudio.com"
-                    className="text-[#b9b5ae] hover:text-[#f1eee7] transition-colors break-all"
+                    className="text-[#cfcac0] hover:text-[#f3e5ab] transition-colors break-all inline-flex items-center gap-2 group cursor-pointer text-sm"
                   >
-                    support@lunoreluxedecorstudio.com
+                    <span>support@lunoreluxedecorstudio.com</span>
+                    <ArrowUpRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-[#b89a62]" />
+                  </a>
+                </div>
+
+                {/* Social Channels: Instagram & LinkedIn */}
+                <div className="pt-2 pb-4 border-t border-white/[0.08] flex flex-wrap items-center gap-3">
+                  <a
+                    href="https://instagram.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] hover:bg-[#b89a62]/15 border border-white/10 hover:border-[#b89a62]/60 text-xs text-[#cfcac0] hover:text-[#f3e5ab] transition-all duration-300 group cursor-pointer"
+                    title="Follow Lunore on Instagram"
+                  >
+                    <InstagramIcon className="w-4 h-4 text-[#b89a62] group-hover:scale-110 transition-transform" />
+                    <span>Instagram</span>
+                    <ArrowUpRight className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </a>
+
+                  <a
+                    href="https://linkedin.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/[0.03] hover:bg-[#b89a62]/15 border border-white/10 hover:border-[#b89a62]/60 text-xs text-[#cfcac0] hover:text-[#f3e5ab] transition-all duration-300 group cursor-pointer"
+                    title="Connect with Lunore on LinkedIn"
+                  >
+                    <LinkedinIcon className="w-4 h-4 text-[#b89a62] group-hover:scale-110 transition-transform" />
+                    <span>LinkedIn</span>
+                    <ArrowUpRight className="w-3 h-3 opacity-60 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                  </a>
+                </div>
+
+                {/* Direct WhatsApp Concierge Button */}
+                <div className="pt-2">
+                  <a
+                    href="https://wa.me/919769708628?text=Hello%20Lunore%20Studio%2C%20I%20would%20like%20to%20inquire%20about%20your%20bespoke%20stone%20and%20interior%20services."
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group/wa cursor-pointer relative overflow-hidden inline-flex items-center justify-center gap-3 w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-[#25D366]/20 via-[#25D366]/10 to-[#128C7E]/20 hover:from-[#25D366]/30 hover:to-[#128C7E]/30 border border-[#25D366]/40 hover:border-[#25D366] text-[#f1eee7] hover:text-white shadow-[0_4px_20px_rgba(37,211,102,0.15)] hover:shadow-[0_6px_28px_rgba(37,211,102,0.3)] transition-all duration-300"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-[#25D366]/25 flex items-center justify-center text-[#25D366] group-hover/wa:scale-110 transition-transform">
+                      <MessageCircle className="w-4 h-4 fill-current" />
+                    </div>
+                    <div className="flex flex-col text-left">
+                      <span className="text-[11px] uppercase tracking-[0.2em] font-semibold text-[#f1eee7]">Contact via WhatsApp</span>
+                      <span className="text-[10px] text-[#25D366] font-normal">Direct Concierge • Instant Response</span>
+                    </div>
+                    <ArrowUpRight className="w-4 h-4 text-[#25D366] ml-auto group-hover/wa:translate-x-0.5 group-hover/wa:-translate-y-0.5 transition-transform" />
                   </a>
                 </div>
               </div>
 
-              <div className="pt-8 border-t border-white/10">
+              <div className="pt-6 border-t border-white/10">
                 <Link
                   to="/contact"
                   className="inline-flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#b89a62] hover:text-white group"
