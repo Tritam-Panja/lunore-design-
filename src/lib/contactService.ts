@@ -21,7 +21,7 @@ export async function sendContactInquiry(formData: ContactFormData): Promise<Sen
   let emailSent = false;
   let errorMsg = '';
 
-  // 1. Try sending directly to Email Inbox via Web3Forms if key is provided
+  // 1. Try sending directly to Email Inbox via Web3Forms
   if (web3FormsKey && web3FormsKey !== 'YOUR_WEB3FORMS_ACCESS_KEY') {
     try {
       const response = await fetch('https://api.web3forms.com/submit', {
