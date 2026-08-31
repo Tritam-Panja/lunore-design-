@@ -254,9 +254,9 @@ export function Home() {
               <span className="lunore-brand-letter inline-block" style={{ animationDelay: '0.8s' }}>E</span>
             </h1>
 
-            {/* Tagline (Positioned below the letter N, larger font, clean look without line) */}
-            <div className="mt-4 sm:mt-6 ml-[28%] sm:ml-[31%] md:ml-[33%] lunore-brand-letter" style={{ animationDelay: '1s' }}>
-              <p className="text-xs sm:text-sm md:text-[15px] tracking-[0.28em] sm:tracking-[0.34em] uppercase text-[#e2ddd3] font-light whitespace-nowrap">
+            {/* Tagline (Positioned below the letter U, clean look without line) */}
+            <div className="mt-4 sm:mt-6 ml-[14%] sm:ml-[16%] md:ml-[17%] lunore-brand-letter" style={{ animationDelay: '1s' }}>
+              <p className="text-xs sm:text-sm md:text-[23px] tracking-[0.24em] sm:tracking-[0.30em] uppercase text-[#e2ddd3] font-light whitespace-nowrap">
                 Luxe Decor Studio
               </p>
             </div>
@@ -299,9 +299,45 @@ export function Home() {
 
       </section>
 
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
+
+      {/* 3. INTERACTIVE INTERIOR EXPERIENCE SECTION (LAZY MOUNTED) */}
+      <LazySection minHeight="600px" rootMargin="350px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+          <InteriorExperience />
+        </Suspense>
+      </LazySection>
+
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
 
-      {/* 3. ABOUT PREVIEW SECTION (TEAM PARADE) */}
+      {/* 4. FEATURED PROJECTS & SIGNATURE COLLECTION SECTION (LAZY MOUNTED) */}
+      <LazySection minHeight="600px" rootMargin="350px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+          <SculpturesExperience />
+        </Suspense>
+      </LazySection>
+
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
+
+      {/* 5. MARBLE EXPERIENCE INTERACTIVE SECTION (LAZY MOUNTED) */}
+      <LazySection minHeight="600px" rootMargin="350px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#08090a] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+          <MarbleExperience />
+        </Suspense>
+      </LazySection>
+
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
+
+      {/* 6. AUREXA HAUTE STONE SECTION (LAZY MOUNTED WITH GRADUAL BLUR) */}
+      <LazySection minHeight="600px" rootMargin="350px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0a0b0c] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+          <AurexaSection />
+        </Suspense>
+      </LazySection>
+
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
+
+      {/* 7. DIRECTORS OF LUNORE SECTION (TEAM PARADE) */}
       <section id="about" className="bg-[#0d0e0e] text-[#f1eee7] font-sans selection:bg-white/10 relative overflow-hidden">
         {/* Ambient Radial Glows */}
         <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] bg-[#b89a62]/5 rounded-full blur-[160px] pointer-events-none" />
@@ -558,42 +594,6 @@ export function Home() {
           </Link>
         </div>
       </section>
-
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
-
-      {/* 4. INTERACTIVE INTERIOR EXPERIENCE SECTION (LAZY MOUNTED) */}
-      <LazySection minHeight="600px" rootMargin="350px">
-        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
-          <InteriorExperience />
-        </Suspense>
-      </LazySection>
-
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
-
-      {/* 5. FEATURED PROJECTS & SIGNATURE COLLECTION SECTION (LAZY MOUNTED) */}
-      <LazySection minHeight="600px" rootMargin="350px">
-        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
-          <SculpturesExperience />
-        </Suspense>
-      </LazySection>
-
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
-
-      {/* MARBLE EXPERIENCE INTERACTIVE SECTION (LAZY MOUNTED) */}
-      <LazySection minHeight="600px" rootMargin="350px">
-        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#08090a] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
-          <MarbleExperience />
-        </Suspense>
-      </LazySection>
-
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
-
-      {/* AUREXA HAUTE STONE SECTION (LAZY MOUNTED WITH GRADUAL BLUR) */}
-      <LazySection minHeight="600px" rootMargin="350px">
-        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0a0b0c] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
-          <AurexaSection />
-        </Suspense>
-      </LazySection>
 
 
 
