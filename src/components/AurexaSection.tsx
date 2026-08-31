@@ -161,10 +161,10 @@ export function AurexaSection() {
     >
       {/* 1. INTERACTIVE CURSOR IMAGE TRAIL (Rendered behind AUREXA text) */}
       <div
-        className="absolute inset-0 z-[5] pointer-events-none transition-opacity duration-500"
+        className="absolute inset-0 z-[5] pointer-events-auto transition-opacity duration-500"
         style={{ opacity: isUnlocked ? 1 : 0 }}
       >
-        <ImageTrail items={AUREXA_TRAIL_IMAGES} variant={2} />
+        <ImageTrail items={AUREXA_TRAIL_IMAGES} variant={7} />
       </div>
 
       {/* 2. AMBIENT GLOWS */}
