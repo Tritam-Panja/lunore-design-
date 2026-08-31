@@ -235,6 +235,16 @@
   outline: none !important;
 }
 
+/* GPU Acceleration for silky 60fps / 120fps motion */
+.liquid-glass-card,
+.liquid-glass-btn-primary,
+.liquid-glass-btn-secondary,
+.lunore-brand-letter {
+  transform: translateZ(0);
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
 /* ===== Header Animations ===== */
 
 /* Nav links fade in + slide down on page load */
