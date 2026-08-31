@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, ChevronLeft, ChevronRight, Hammer, Mountain, Eye, Landmark, Ruler, PenTool, Layers, Check, Sparkles, MapPin, Phone, Mail, Send, MessageCircle, ArrowUpRight, AlertCircle } from 'lucide-react';
+import { ArrowRight, ChevronLeft, ChevronRight, Hammer, Mountain, Eye, Landmark, Ruler, PenTool, Layers, Check, MapPin, Phone, Mail, Send, MessageCircle, ArrowUpRight, AlertCircle } from 'lucide-react';
 import { InstagramIcon, LinkedinIcon } from '@/components/SocialIcons';
 import { supabase, type Product } from '@/lib/supabase';
 import { sendContactInquiry } from '@/lib/contactService';
@@ -595,44 +595,6 @@ export function Home() {
         </div>
       </section>
 
-
-
-      {/* 7. CALL TO ACTION (CTA) SECTION */}
-      <section id="cta" className="py-20 md:py-32 relative text-center bg-gradient-to-b from-[#0d0e0e] via-[#151615] to-[#0d0e0e] overflow-hidden">
-        <div className="max-w-4xl mx-auto px-6 relative z-10">
-          <Reveal direction="zoom" delay={0.15} className="liquid-glass-card rounded-3xl p-10 md:p-16 text-center">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass-pill mb-6">
-              <Sparkles className="w-3.5 h-3.5 text-[#b89a62]" />
-              <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62]">
-                Bespoke Spaces
-              </span>
-            </div>
-            <h2 className="text-3xl md:text-5xl font-light leading-tight text-[#f1eee7]">
-              Let's Build Your Dream Space
-            </h2>
-            <p className="mt-6 text-lg text-[#b9b5ae] leading-relaxed font-light max-w-2xl mx-auto">
-              Whether it's a private residence, luxury villa, commercial office, or curated hospitality environment — we shape stone into enduring experiences.
-            </p>
-            <div className="mt-10 flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="#contact"
-                className="liquid-glass-btn-primary px-8 py-4 text-xs tracking-[0.25em] uppercase text-[#0d0e0e] font-semibold inline-flex items-center justify-center gap-2 shadow-xl"
-              >
-                Book a Consultation <ArrowRight className="w-4 h-4" />
-              </a>
-              <Link
-                to="/contact"
-                className="liquid-glass-btn-secondary px-8 py-4 text-xs tracking-[0.25em] uppercase text-[#f1eee7] inline-flex items-center justify-center"
-              >
-                Contact Page
-              </Link>
-            </div>
-          </Reveal>
-        </div>
-
-      </section>
-
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
       {/* 8. CONTACT PREVIEW SECTION */}
       <section id="contact" className="py-24 md:py-36 relative bg-[#0d0e0e]">
