@@ -208,10 +208,6 @@ export function MarbleExperience() {
     const onWheel = (e: WheelEvent) => {
       if (!isEntered) return;
 
-      // Always prevent native page jump while inside the interactive experience
-      e.preventDefault();
-      e.stopPropagation();
-
       // Scrolling down (forward zoom-out)
       if (e.deltaY > 0) {
         const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
@@ -238,7 +234,7 @@ export function MarbleExperience() {
       }
     };
 
-    el.addEventListener('wheel', onWheel, { passive: false });
+    el.addEventListener('wheel', onWheel, { passive: true });
     return () => el.removeEventListener('wheel', onWheel);
   }, [isEntered, handleNextSection]);
 
@@ -399,7 +395,7 @@ export function MarbleExperience() {
       id="marble-experience"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      style={{ touchAction: isEntered ? 'none' : 'pan-y' }}
+      style={{ touchAction: 'pan-y' }}
       className="relative w-full h-[100dvh] min-h-[600px] bg-[#08090a] overflow-hidden select-none flex items-center justify-center"
     >
       {/* 1. INITIAL BLANK VOID CANVAS */}

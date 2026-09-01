@@ -192,13 +192,9 @@ export function SculpturesExperience() {
   // Actions
   const handleEnter = useCallback(() => {
     setExperienceState('statement');
-    targetPinchRef.current = 0;
-    currentPinchRef.current = 0;
-    setPinchProgress(0);
+    // On mobile and desktop, smoothly morph into the docked 3D carousel
+    targetPinchRef.current = 1;
     lastInteractionTimeRef.current = Date.now();
-    if (containerRef.current) {
-      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   }, []);
 
   // Direct trigger to smoothly morph into the docked carousel
@@ -238,13 +234,9 @@ export function SculpturesExperience() {
     const onWheel = (e: WheelEvent) => {
       if (experienceState !== 'entrance' && currentPinchRef.current < 0.95) {
         if (e.deltaY > 0) {
-          e.preventDefault();
-          e.stopPropagation();
           targetPinchRef.current = Math.min(1, targetPinchRef.current + Math.min(e.deltaY * 0.0035, 0.45));
           lastInteractionTimeRef.current = Date.now();
         } else if (e.deltaY < 0 && targetPinchRef.current > 0.05) {
-          e.preventDefault();
-          e.stopPropagation();
           targetPinchRef.current = Math.max(0, targetPinchRef.current + e.deltaY * 0.0035);
           lastInteractionTimeRef.current = Date.now();
         }
@@ -257,7 +249,7 @@ export function SculpturesExperience() {
       }
     };
 
-    el.addEventListener('wheel', onWheel, { passive: false });
+    el.addEventListener('wheel', onWheel, { passive: true });
     return () => el.removeEventListener('wheel', onWheel);
   }, [experienceState]);
 
@@ -325,8 +317,8 @@ export function SculpturesExperience() {
         targetPinchRef.current = Math.min(1, touchStartRef.current.pinch + diffY * 0.004);
       }
     } else {
-      // Infinite horizontal swipe rotation
-      if (Math.abs(diffX) > Math.abs(diffY) * 1.2 && Math.abs(diffX) > 6) {
+      // Infinite horizontal swipe rotation (only captures when dragging horizontally)
+      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 6) {
         const newTarget = touchStartRef.current.rot + diffX * 0.0045;
         velocityRef.current = (newTarget - targetRotationRef.current) / dt;
         targetRotationRef.current = newTarget;
@@ -402,7 +394,7 @@ export function SculpturesExperience() {
     <section
       ref={containerRef}
       id="projects"
-      style={{ touchAction: isEntrance ? 'pan-y' : 'none' }}
+      style={{ touchAction: 'pan-y' }}
       className="relative w-full h-[100dvh] min-h-[600px] bg-[#050607] overflow-hidden select-none"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
