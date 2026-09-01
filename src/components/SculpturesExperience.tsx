@@ -238,9 +238,13 @@ export function SculpturesExperience() {
     const onWheel = (e: WheelEvent) => {
       if (experienceState !== 'entrance' && currentPinchRef.current < 0.95) {
         if (e.deltaY > 0) {
+          e.preventDefault();
+          e.stopPropagation();
           targetPinchRef.current = Math.min(1, targetPinchRef.current + Math.min(e.deltaY * 0.0035, 0.45));
           lastInteractionTimeRef.current = Date.now();
         } else if (e.deltaY < 0 && targetPinchRef.current > 0.05) {
+          e.preventDefault();
+          e.stopPropagation();
           targetPinchRef.current = Math.max(0, targetPinchRef.current + e.deltaY * 0.0035);
           lastInteractionTimeRef.current = Date.now();
         }
@@ -253,7 +257,7 @@ export function SculpturesExperience() {
       }
     };
 
-    el.addEventListener('wheel', onWheel, { passive: true });
+    el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, [experienceState]);
 
@@ -321,8 +325,8 @@ export function SculpturesExperience() {
         targetPinchRef.current = Math.min(1, touchStartRef.current.pinch + diffY * 0.004);
       }
     } else {
-      // Infinite horizontal swipe rotation (only captures when dragging horizontally)
-      if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 6) {
+      // Infinite horizontal swipe rotation
+      if (Math.abs(diffX) > Math.abs(diffY) * 1.2 && Math.abs(diffX) > 6) {
         const newTarget = touchStartRef.current.rot + diffX * 0.0045;
         velocityRef.current = (newTarget - targetRotationRef.current) / dt;
         targetRotationRef.current = newTarget;
@@ -398,7 +402,7 @@ export function SculpturesExperience() {
     <section
       ref={containerRef}
       id="projects"
-      style={{ touchAction: 'pan-y' }}
+      style={{ touchAction: isEntrance ? 'pan-y' : 'none' }}
       className="relative w-full h-[100dvh] min-h-[600px] bg-[#050607] overflow-hidden select-none"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
@@ -440,13 +444,13 @@ export function SculpturesExperience() {
 
           <div className="absolute inset-0 z-30 flex flex-col justify-between items-center p-6 sm:p-10 md:p-14 text-center select-none">
             {/* Top Arch Headline */}
-            <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-2 pt-6 sm:pt-10 md:pt-12 z-20">
+            <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-4 pt-6 sm:pt-10 md:pt-12 z-20">
               <h2
-                className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.12em] sm:tracking-[0.24em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] text-center"
+                className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.18em] sm:tracking-[0.24em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] whitespace-nowrap"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
                 Experience The{' '}
-                <span className="text-gold-shimmer font-normal uppercase tracking-[0.12em] sm:tracking-[0.24em] drop-shadow-[0_0_25px_rgba(184,154,98,0.55)]">
+                <span className="text-gold-shimmer font-normal uppercase tracking-[0.18em] sm:tracking-[0.24em] drop-shadow-[0_0_25px_rgba(184,154,98,0.55)]">
                   sculptures
                 </span>
               </h2>

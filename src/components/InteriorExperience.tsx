@@ -230,13 +230,169 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     }, 380);
   };
 
-  // Stage progression without window hijacking
+  // Window-level capture listener: strictly locks outside window scroll until narrative is explored
   useEffect(() => {
-    if (isSwitchToggled) {
-      setOverlayReady(true);
-      overlayReadyRef.current = true;
-    }
-  }, [isSwitchToggled]);
+    const onWindowWheel = (e: WheelEvent) => {
+      if (isFlashlightModeRef.current) return;
+
+      const el = containerRef.current;
+      if (!el) return;
+
+      const rect = el.getBoundingClientRect();
+      const isInView = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
+      if (!isInView) return;
+
+      const isReady = overlayReadyRef.current;
+      const currentStage = storyStageRef.current;
+      const now = Date.now();
+
+      if (e.deltaY > 5) {
+        // Scrolling DOWN
+        if (!isReady) {
+          // First scroll while in pure illuminated image -> reveal overlay & stage 0
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 180) {
+            setOverlayReady(true);
+            overlayReadyRef.current = true;
+            setStoryStage(0);
+            storyStageRef.current = 0;
+            lastScrollTime.current = now;
+          }
+        } else if (currentStage < 3) {
+          // Scrolling through stages 0 -> 1 -> 2 -> 3
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 220) {
+            setStoryStage((prev) => {
+              const next = Math.min(3, prev + 1);
+              storyStageRef.current = next;
+              return next;
+            });
+            lastScrollTime.current = now;
+          }
+        }
+      } else if (e.deltaY < -5) {
+        // Scrolling UP
+        if (isReady && currentStage > 0 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 220) {
+            setStoryStage((prev) => {
+              const next = Math.max(0, prev - 1);
+              storyStageRef.current = next;
+              return next;
+            });
+            lastScrollTime.current = now;
+          }
+        } else if (isReady && currentStage === 0 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
+          // Scroll up from stage 0 returns to pure image view
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 220) {
+            setOverlayReady(false);
+            overlayReadyRef.current = false;
+            lastScrollTime.current = now;
+          }
+        }
+      }
+    };
+
+    const onWindowTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        touchStartY.current = e.touches[0].clientY;
+      }
+    };
+
+    const onWindowTouchMove = (e: TouchEvent) => {
+      if (isFlashlightModeRef.current) return;
+      const el = containerRef.current;
+      if (!el || e.touches.length === 0) return;
+
+      const rect = el.getBoundingClientRect();
+      const isInView = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
+      if (!isInView) return;
+
+      const currentY = e.touches[0].clientY;
+      const deltaY = touchStartY.current - currentY;
+      const isReady = overlayReadyRef.current;
+      const currentStage = storyStageRef.current;
+      const now = Date.now();
+
+      // Swiping UP to scroll down
+      if (deltaY > 15) {
+        if (!isReady) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 180) {
+            setOverlayReady(true);
+            overlayReadyRef.current = true;
+            setStoryStage(0);
+            storyStageRef.current = 0;
+            lastScrollTime.current = now;
+          }
+        } else if (currentStage < 3) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 220) {
+            setStoryStage((prev) => {
+              const next = Math.min(3, prev + 1);
+              storyStageRef.current = next;
+              return next;
+            });
+            lastScrollTime.current = now;
+          }
+        }
+      } else if (deltaY < -15) {
+        if (isReady && currentStage > 0 && rect.top >= -80) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 220) {
+            setStoryStage((prev) => {
+              const next = Math.max(0, prev - 1);
+              storyStageRef.current = next;
+              return next;
+            });
+            lastScrollTime.current = now;
+          }
+        } else if (isReady && currentStage === 0 && rect.top >= -80) {
+          e.preventDefault();
+          e.stopPropagation();
+          e.stopImmediatePropagation();
+
+          if (now - lastScrollTime.current > 220) {
+            setOverlayReady(false);
+            overlayReadyRef.current = false;
+            lastScrollTime.current = now;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('wheel', onWindowWheel, { passive: false, capture: true });
+    window.addEventListener('touchstart', onWindowTouchStart, { passive: true, capture: true });
+    window.addEventListener('touchmove', onWindowTouchMove, { passive: false, capture: true });
+
+    return () => {
+      window.removeEventListener('wheel', onWindowWheel, { capture: true } as any);
+      window.removeEventListener('touchstart', onWindowTouchStart, { capture: true } as any);
+      window.removeEventListener('touchmove', onWindowTouchMove, { capture: true } as any);
+    };
+  }, []);
 
   // High-performance direct GPU render loop
   useEffect(() => {
@@ -322,6 +478,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
         {/* Main Stage Container */}
         <div
           ref={containerRef}
+          data-lenis-prevent={!isFlashlightMode && storyStage < 3 ? 'true' : undefined}
           onMouseMove={handleMouseMove}
           onMouseEnter={() => {
             if (isFlashlightMode) {
@@ -509,16 +666,16 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
             {/* 3. EDITORIAL MAGAZINE LAYOUT (APPEARS UPON SCROLLING)       */}
             {/* ============================================================ */}
             {!isFlashlightMode && overlayReady && (
-              <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-start p-4 sm:p-10 md:p-14 lg:p-16 animate-in fade-in duration-1000">
+              <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-start p-6 sm:p-10 md:p-14 lg:p-16 animate-in fade-in duration-1000">
                 
                 {/* MIDDLE CONTENT: HEADING + DYNAMIC SCROLL CONTENT */}
-                <div className="w-full max-w-2xl text-left py-2 sm:py-6 flex flex-col justify-center transition-all duration-700">
+                <div className="w-full max-w-2xl text-left py-4 sm:py-6 flex flex-col justify-center transition-all duration-700">
                   
                   {/* STAGE 0: INITIAL LARGE STACKED HEADING - CLEAN WHITE TEXT */}
                   {storyStage === 0 ? (
-                    <div className="py-2 sm:py-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-out">
+                    <div className="py-4 sm:py-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-out">
                       <h3
-                        className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-light tracking-[0.04em] uppercase leading-[0.92] text-white select-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]"
+                        className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-[0.04em] uppercase leading-[0.92] text-white select-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]"
                         style={{ fontFamily: 'var(--font-serif)' }}
                       >
                         {['INTERIOR', 'DESIGN', 'EXPERTS'].map((line, lineIdx) => (
@@ -537,22 +694,22 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                       </h3>
 
                       {/* Subtle Scroll Cue */}
-                      <div className="mt-6 sm:mt-8 flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#b89a62] animate-pulse">
-                        <span>Scroll or tap to explore</span>
+                      <div className="mt-8 flex items-center gap-2.5 text-xs tracking-[0.25em] uppercase text-[#b89a62] animate-pulse">
+                        <span>Scroll to explore</span>
                         <ChevronDown className="w-3.5 h-3.5 text-[#b89a62]" />
                       </div>
                     </div>
                   ) : (
                     /* STAGE 1, 2, 3: HEADING MOVED UP AND ALIGNED IN ONE SINGLE LINE - CLEAN WHITE TEXT */
-                    <div className="mb-3 sm:mb-6 animate-in fade-in slide-in-from-top-4 duration-700">
-                      <div className="flex items-center gap-2.5 mb-1">
-                        <div className="w-5 sm:w-6 h-px bg-[#b89a62]" />
-                        <span className="text-[9px] sm:text-[10px] tracking-[0.3em] uppercase text-[#b89a62] font-mono">
+                    <div className="mb-4 sm:mb-6 animate-in fade-in slide-in-from-top-4 duration-700">
+                      <div className="flex items-center gap-3 mb-1.5">
+                        <div className="w-6 h-px bg-[#b89a62]" />
+                        <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62] font-mono">
                           LUNORE LUXE STUDIO
                         </span>
                       </div>
                       <h3
-                        className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-light tracking-[0.06em] uppercase leading-tight text-white select-none drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)]"
+                        className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light tracking-[0.06em] uppercase leading-tight text-white select-none drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)]"
                         style={{ fontFamily: 'var(--font-serif)' }}
                       >
                         <span className="inline-block text-white">

@@ -26,22 +26,17 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
-    const isMobile = window.innerWidth < 768 || ('ontouchstart' in window && window.innerWidth < 1024);
-    if (isMobile) {
-      // Use native smooth scrolling on mobile for flawless touch performance
-      document.documentElement.style.scrollBehavior = 'smooth';
-      return () => {
-        document.documentElement.style.scrollBehavior = '';
-      };
-    }
+    const isMobile = window.innerWidth < 768;
 
     const instance = new Lenis({
-      duration: 1.1,
+      duration: isMobile ? 0.85 : 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 1.0,
+      touchMultiplier: 1.5,
+      syncTouch: false,
       infinite: false,
       autoRaf: false,
     });

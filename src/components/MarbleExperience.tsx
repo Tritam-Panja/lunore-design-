@@ -208,6 +208,10 @@ export function MarbleExperience() {
     const onWheel = (e: WheelEvent) => {
       if (!isEntered) return;
 
+      // Always prevent native page jump while inside the interactive experience
+      e.preventDefault();
+      e.stopPropagation();
+
       // Scrolling down (forward zoom-out)
       if (e.deltaY > 0) {
         const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
@@ -234,7 +238,7 @@ export function MarbleExperience() {
       }
     };
 
-    el.addEventListener('wheel', onWheel, { passive: true });
+    el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
   }, [isEntered, handleNextSection]);
 
@@ -395,7 +399,7 @@ export function MarbleExperience() {
       id="marble-experience"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      style={{ touchAction: 'pan-y' }}
+      style={{ touchAction: isEntered ? 'none' : 'pan-y' }}
       className="relative w-full h-[100dvh] min-h-[600px] bg-[#08090a] overflow-hidden select-none flex items-center justify-center"
     >
       {/* 1. INITIAL BLANK VOID CANVAS */}
@@ -671,21 +675,21 @@ export function MarbleExperience() {
           <div className="absolute w-[800px] h-[400px] bg-[#b89a62]/15 rounded-full blur-[150px] pointer-events-none -z-10" />
 
           {/* Interactive React Bits ParticleText Headline - Perfectly Aligned Dot Matrix */}
-          <div className="w-full max-w-4xl h-[100px] sm:h-[150px] md:h-[180px] flex items-center justify-center">
+          <div className="w-full max-w-4xl h-[120px] sm:h-[150px] md:h-[180px] flex items-center justify-center">
             <ParticleText
               text="Marble and Granite Solution"
-              particleSize={isMobile ? 1.5 : 2.2}
-              density={isMobile ? 3 : 4}
+              particleSize={isMobile ? 1.9 : 2.2}
+              density={4}
               color="#f8fafc"
               highlightColor="#b89a62"
-              scatter={isMobile ? 90 : 190}
-              gatherDuration={1400}
-              stagger={380}
-              pointerRepel={36}
-              repelRadius={90}
-              idleDrift={0.6}
+              scatter={190}
+              gatherDuration={1600}
+              stagger={420}
+              pointerRepel={42}
+              repelRadius={120}
+              idleDrift={0.8}
               trigger="mount"
-              fontSize={isMobile ? "clamp(1.25rem, 5.2vw, 2.1rem)" : "clamp(2.7rem, 5.2vw, 4.2rem)"}
+              fontSize={isMobile ? "clamp(1.9rem, 6.8vw, 2.8rem)" : "clamp(2.7rem, 5.2vw, 4.2rem)"}
               fontWeight={800}
               fontFamily="Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
               glow={true}
@@ -693,11 +697,11 @@ export function MarbleExperience() {
             />
           </div>
 
-          <div className="my-2 sm:my-3.5 w-16 sm:w-20 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent" />
+          <div className="my-2.5 sm:my-3.5 w-20 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent" />
 
           {/* Editorial Paragraph in Luminous Ivory White */}
           <p
-            className="text-xs sm:text-base md:text-lg lg:text-[1.12rem] text-[#f8f6f0] font-normal leading-relaxed tracking-wide max-w-3xl px-3 sm:px-4 text-center select-text"
+            className="text-sm sm:text-base md:text-lg lg:text-[1.12rem] text-[#f8f6f0] font-normal leading-relaxed tracking-wide max-w-3xl px-4 text-center select-text"
             style={{
               color: '#f8f6f0',
               fontFamily: 'var(--font-serif)',

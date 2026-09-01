@@ -4,15 +4,15 @@ import { useLenis } from './SmoothScroll';
 import ImageTrail from './ImageTrail';
 
 const AUREXA_TRAIL_IMAGES = [
-  '/assets/images/imagetrail1.JPG',
-  '/assets/images/imagetrail2.JPG',
-  '/assets/images/imagetrail3.JPG',
-  '/assets/images/imagetrail4.JPG',
-  '/assets/images/imagetrail5.JPG',
-  '/assets/images/imagetrail6.JPG',
-  '/assets/images/imagetrail7.JPG',
-  '/assets/images/imagetrail8.JPG',
-  '/assets/images/imagetrail9.JPG',
+  '/assets/images/imagetrail1.jpg',
+  '/assets/images/imagetrail2.jpg',
+  '/assets/images/imagetrail3.jpg',
+  '/assets/images/imagetrail4.jpg',
+  '/assets/images/imagetrail5.jpg',
+  '/assets/images/imagetrail6.jpg',
+  '/assets/images/imagetrail7.jpg',
+  '/assets/images/imagetrail8.jpg',
+  '/assets/images/imagetrail9.jpg',
 ];
 
 export function AurexaSection() {
