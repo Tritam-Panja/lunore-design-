@@ -230,169 +230,13 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     }, 380);
   };
 
-  // Window-level capture listener: strictly locks outside window scroll until narrative is explored
+  // Stage progression without window hijacking
   useEffect(() => {
-    const onWindowWheel = (e: WheelEvent) => {
-      if (isFlashlightModeRef.current) return;
-
-      const el = containerRef.current;
-      if (!el) return;
-
-      const rect = el.getBoundingClientRect();
-      const isInView = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
-      if (!isInView) return;
-
-      const isReady = overlayReadyRef.current;
-      const currentStage = storyStageRef.current;
-      const now = Date.now();
-
-      if (e.deltaY > 5) {
-        // Scrolling DOWN
-        if (!isReady) {
-          // First scroll while in pure illuminated image -> reveal overlay & stage 0
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 180) {
-            setOverlayReady(true);
-            overlayReadyRef.current = true;
-            setStoryStage(0);
-            storyStageRef.current = 0;
-            lastScrollTime.current = now;
-          }
-        } else if (currentStage < 3) {
-          // Scrolling through stages 0 -> 1 -> 2 -> 3
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setStoryStage((prev) => {
-              const next = Math.min(3, prev + 1);
-              storyStageRef.current = next;
-              return next;
-            });
-            lastScrollTime.current = now;
-          }
-        }
-      } else if (e.deltaY < -5) {
-        // Scrolling UP
-        if (isReady && currentStage > 0 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setStoryStage((prev) => {
-              const next = Math.max(0, prev - 1);
-              storyStageRef.current = next;
-              return next;
-            });
-            lastScrollTime.current = now;
-          }
-        } else if (isReady && currentStage === 0 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
-          // Scroll up from stage 0 returns to pure image view
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setOverlayReady(false);
-            overlayReadyRef.current = false;
-            lastScrollTime.current = now;
-          }
-        }
-      }
-    };
-
-    const onWindowTouchStart = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        touchStartY.current = e.touches[0].clientY;
-      }
-    };
-
-    const onWindowTouchMove = (e: TouchEvent) => {
-      if (isFlashlightModeRef.current) return;
-      const el = containerRef.current;
-      if (!el || e.touches.length === 0) return;
-
-      const rect = el.getBoundingClientRect();
-      const isInView = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
-      if (!isInView) return;
-
-      const currentY = e.touches[0].clientY;
-      const deltaY = touchStartY.current - currentY;
-      const isReady = overlayReadyRef.current;
-      const currentStage = storyStageRef.current;
-      const now = Date.now();
-
-      // Swiping UP to scroll down
-      if (deltaY > 15) {
-        if (!isReady) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 180) {
-            setOverlayReady(true);
-            overlayReadyRef.current = true;
-            setStoryStage(0);
-            storyStageRef.current = 0;
-            lastScrollTime.current = now;
-          }
-        } else if (currentStage < 3) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setStoryStage((prev) => {
-              const next = Math.min(3, prev + 1);
-              storyStageRef.current = next;
-              return next;
-            });
-            lastScrollTime.current = now;
-          }
-        }
-      } else if (deltaY < -15) {
-        if (isReady && currentStage > 0 && rect.top >= -80) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setStoryStage((prev) => {
-              const next = Math.max(0, prev - 1);
-              storyStageRef.current = next;
-              return next;
-            });
-            lastScrollTime.current = now;
-          }
-        } else if (isReady && currentStage === 0 && rect.top >= -80) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setOverlayReady(false);
-            overlayReadyRef.current = false;
-            lastScrollTime.current = now;
-          }
-        }
-      }
-    };
-
-    window.addEventListener('wheel', onWindowWheel, { passive: false, capture: true });
-    window.addEventListener('touchstart', onWindowTouchStart, { passive: true, capture: true });
-    window.addEventListener('touchmove', onWindowTouchMove, { passive: false, capture: true });
-
-    return () => {
-      window.removeEventListener('wheel', onWindowWheel, { capture: true } as any);
-      window.removeEventListener('touchstart', onWindowTouchStart, { capture: true } as any);
-      window.removeEventListener('touchmove', onWindowTouchMove, { capture: true } as any);
-    };
-  }, []);
+    if (isSwitchToggled) {
+      setOverlayReady(true);
+      overlayReadyRef.current = true;
+    }
+  }, [isSwitchToggled]);
 
   // High-performance direct GPU render loop
   useEffect(() => {
@@ -478,7 +322,6 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
         {/* Main Stage Container */}
         <div
           ref={containerRef}
-          data-lenis-prevent={!isFlashlightMode && storyStage < 3 ? 'true' : undefined}
           onMouseMove={handleMouseMove}
           onMouseEnter={() => {
             if (isFlashlightMode) {

@@ -182,12 +182,12 @@ export function AurexaSection() {
       id="aurexa"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      data-lenis-prevent={!isUnlocked ? 'true' : undefined}
+      style={{ touchAction: 'pan-y' }}
       className="relative w-full h-[100dvh] min-h-[580px] sm:min-h-[650px] bg-[#070809] overflow-hidden select-none flex flex-col justify-between items-center border-t border-b border-white/[0.06] py-8 sm:py-14 px-4 sm:px-8"
     >
       {/* 1. INTERACTIVE CURSOR IMAGE TRAIL (Rendered behind AUREXA text) */}
       <div
-        className="absolute inset-0 z-[5] pointer-events-auto transition-opacity duration-500"
+        className="absolute inset-0 z-[5] pointer-events-none sm:pointer-events-auto transition-opacity duration-500"
         style={{ opacity: isUnlocked ? 1 : 0 }}
       >
         <ImageTrail items={AUREXA_TRAIL_IMAGES} variant={7} />
