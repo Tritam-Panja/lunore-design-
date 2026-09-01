@@ -48,6 +48,11 @@ export type Product = {
   name: string;
   category: string;
   description: string;
+  material?: string;
+  dimensions?: string;
+  edition?: string;
+  year?: string;
+  images?: string[];
 };
 
 export type Exhibition = {

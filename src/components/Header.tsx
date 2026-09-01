@@ -100,7 +100,7 @@ export function Header() {
     <>
       {/* MINIMAL TOP BAR: APPEARS WHEN SCROLLED PAST HERO */}
       <header
-        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-14 py-4 sm:py-6 md:py-8 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-14 py-3 sm:py-5 md:py-8 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isHeaderVisible
             ? 'opacity-100 translate-y-0'
             : 'opacity-0 -translate-y-8'
@@ -114,10 +114,10 @@ export function Header() {
             className="flex flex-col group cursor-pointer select-none"
             aria-label="LUNORE Luxe Decor Studio"
           >
-            <span className="font-[var(--font-heading)] text-lg sm:text-2xl md:text-3xl tracking-[0.22em] sm:tracking-[0.28em] uppercase text-[#f1eee7] font-semibold group-hover:text-white transition-all duration-300 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] leading-none">
+            <span className="font-[var(--font-heading)] text-lg sm:text-2xl md:text-3xl tracking-[0.2em] sm:tracking-[0.28em] uppercase text-[#f1eee7] font-semibold group-hover:text-white transition-all duration-300 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] leading-none">
               LU<span className="text-[#b89a62]">N</span>ORE
             </span>
-            <span className="text-[7.5px] sm:text-[9px] md:text-[10px] tracking-[0.28em] sm:tracking-[0.34em] uppercase text-[#b89a62] font-light mt-1 group-hover:text-[#c4a86f] transition-colors leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+            <span className="text-[7px] sm:text-[9px] md:text-[10px] tracking-[0.24em] sm:tracking-[0.34em] uppercase text-[#b89a62] font-light mt-1 group-hover:text-[#c4a86f] transition-colors leading-none drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
               Luxe Decor Studio
             </span>
           </NavLink>
@@ -130,7 +130,7 @@ export function Header() {
             onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
-            className="relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50 shadow-2xl backdrop-blur-xl bg-black/40 border border-white/15 hover:border-[#b89a62]/60 hover:bg-white/10 transition-all duration-300"
+            className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50 shadow-2xl backdrop-blur-xl bg-black/50 border border-white/15 hover:border-[#b89a62]/60 hover:bg-white/10 transition-all duration-300 active:scale-95"
           >
             <div className="relative w-5 h-4 flex flex-col justify-between items-center overflow-hidden">
               <span
@@ -155,19 +155,20 @@ export function Header() {
 
       {/* FULL-SCREEN LIQUID GLASS OVERLAY DRAWER */}
       <div
-        className={`fixed inset-0 z-40 bg-black/80 backdrop-blur-3xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-y-auto ${
+        className={`fixed inset-0 z-40 bg-black/85 backdrop-blur-3xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-y-auto overscroll-contain ${
           menuOpen
             ? 'opacity-100 pointer-events-auto scale-100'
             : 'opacity-0 pointer-events-none scale-105'
         }`}
+        style={{ WebkitOverflowScrolling: 'touch' }}
         aria-hidden={!menuOpen}
       >
         {/* Subtle Ambient Radial Glow */}
-        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-[#b89a62]/10 rounded-full blur-[160px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] bg-[#b89a62]/10 rounded-full blur-[120px] sm:blur-[160px] pointer-events-none" />
 
-        <div className="min-h-screen max-w-7xl mx-auto px-6 lg:px-12 pt-32 pb-16 flex flex-col justify-between relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-12 items-start my-auto">
-            {/* Left Brand Identity Card */}
+        <div className="min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-20 sm:pt-28 md:pt-32 pb-8 sm:pb-16 flex flex-col justify-between relative z-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start my-auto">
+            {/* Left Brand Identity Card (hidden on mobile, visible on desktop) */}
             <div className="lg:col-span-5 hidden lg:flex flex-col justify-between h-full liquid-glass-card p-8 md:p-10 rounded-3xl">
               <div>
                 <div className="flex items-center gap-2 mb-4">
@@ -203,7 +204,7 @@ export function Header() {
             </div>
 
             {/* Right Large Liquid Glass Navigation Items */}
-            <div className="lg:col-span-7 flex flex-col space-y-3">
+            <div className="lg:col-span-7 flex flex-col space-y-2 sm:space-y-3 w-full">
               {navLinks.map((link, index) => (
                 <div
                   key={link.label}
@@ -212,30 +213,30 @@ export function Header() {
                       ? 'translate-y-0 opacity-100'
                       : 'translate-y-6 opacity-0'
                   }`}
-                  style={{ transitionDelay: `${menuOpen ? 120 + index * 45 : 0}ms` }}
+                  style={{ transitionDelay: `${menuOpen ? 100 + index * 40 : 0}ms` }}
                 >
                   <a
                     href={link.hash || link.to}
                     onClick={(e) => handleLinkClick(e, link)}
-                    className="flex items-center justify-between p-4 md:py-3.5 md:px-6 rounded-2xl liquid-glass-pill border border-white/10 group-hover:border-[#b89a62]/50 group-hover:bg-white/[0.07] transition-all duration-300 cursor-pointer"
+                    className="flex items-center justify-between py-2.5 px-3.5 sm:py-3.5 sm:px-6 rounded-xl sm:rounded-2xl liquid-glass-pill border border-white/10 group-hover:border-[#b89a62]/50 group-hover:bg-white/[0.07] active:scale-[0.99] transition-all duration-300 cursor-pointer"
                   >
-                    <div className="flex items-baseline gap-4">
-                      <span className="text-xs tracking-[0.2em] text-[#b89a62] font-mono opacity-70 group-hover:opacity-100 transition-opacity">
+                    <div className="flex items-baseline gap-3 sm:gap-4">
+                      <span className="text-[10px] sm:text-xs tracking-[0.2em] text-[#b89a62] font-mono opacity-70 group-hover:opacity-100 transition-opacity">
                         0{index + 1}
                       </span>
                       <span
-                        className="text-xl sm:text-2xl xl:text-3xl font-light tracking-[0.08em] text-[#f1eee7] group-hover:text-white group-hover:translate-x-2 transition-all duration-300 ease-out"
+                        className="text-lg sm:text-2xl xl:text-3xl font-light tracking-[0.06em] sm:tracking-[0.08em] text-[#f1eee7] group-hover:text-white group-hover:translate-x-1.5 transition-all duration-300 ease-out"
                         style={{ fontFamily: 'var(--font-display)' }}
                       >
                         {link.label}
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-3">
-                      <span className="text-[11px] tracking-[0.2em] uppercase text-[#85817a] group-hover:text-[#b89a62] transition-colors hidden sm:inline-block">
+                    <div className="flex items-center gap-2 sm:gap-3">
+                      <span className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#85817a] group-hover:text-[#b89a62] transition-colors hidden sm:inline-block">
                         {link.sublabel}
                       </span>
-                      <ArrowRight className="w-4 h-4 text-[#b89a62] opacity-40 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
+                      <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b89a62] opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
                     </div>
                   </a>
                 </div>
@@ -244,11 +245,11 @@ export function Header() {
           </div>
 
           {/* Footer inside menu for mobile/tablet */}
-          <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-            <p className="text-xs text-[#85817a]">
+          <div className="pt-6 sm:pt-8 mt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-[#85817a]">
+            <p className="text-[11px] sm:text-xs">
               © {new Date().getFullYear()} LUNORE Luxe Decor Studio
             </p>
-            <div className="flex items-center gap-4 text-xs text-[#85817a]">
+            <div className="flex items-center gap-2 sm:gap-4 text-[11px] sm:text-xs text-[#85817a]">
               <span>Residential</span>
               <span>•</span>
               <span>Commercial</span>

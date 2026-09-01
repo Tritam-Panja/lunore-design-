@@ -31,22 +31,25 @@ export function Contact() {
   };
 
   return (
-    <div>
-      <section className="px-6 pt-36 pb-16 md:pt-48 md:pb-20 text-center max-w-4xl mx-auto">
-        <Reveal>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass-pill mb-5">
+    <div className="bg-[#0d0e0e] text-[#f1eee7] relative overflow-hidden">
+      {/* Ambient Glow */}
+      <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#b89a62]/8 rounded-full blur-[160px] pointer-events-none" />
+
+      <section className="px-4 sm:px-6 pt-28 sm:pt-36 md:pt-48 pb-10 sm:pb-16 text-center max-w-4xl mx-auto relative z-10">
+        <Reveal direction="down">
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass-pill mb-4 sm:mb-5">
             <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62]">Contact Studio</span>
           </div>
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-light text-[#f1eee7]" style={{ fontFamily: 'var(--font-display)' }}>Connect With Lunore</h1>
-          <p className="mt-6 text-sm tracking-[0.25em] uppercase text-[#b9b5ae]">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl font-light text-[#f1eee7]" style={{ fontFamily: 'var(--font-display)' }}>Connect With Lunore</h1>
+          <p className="mt-4 sm:mt-6 text-xs sm:text-sm tracking-[0.25em] uppercase text-[#b9b5ae]">
             Inquiries &amp; Bespoke Consultations
           </p>
-          <div className="mt-8 w-16 h-px bg-[#b89a62] mx-auto" />
+          <div className="mt-6 sm:mt-8 w-16 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent mx-auto" />
         </Reveal>
       </section>
 
-      <section className="py-12 md:py-16">
-        <div className="max-w-6xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
+      <section className="py-8 sm:py-12 md:py-16 relative z-10">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
           {/* Form */}
           <Reveal direction="left" className="liquid-glass-card p-8 md:p-10 rounded-3xl">
             {status === 'success' ? (

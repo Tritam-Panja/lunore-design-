@@ -230,11 +230,11 @@ export function Home() {
         <div className="absolute -top-24 left-1/6 w-[600px] h-[600px] bg-[#b89a62]/15 rounded-full blur-[150px] pointer-events-none" />
 
         {/* Left Side LUNORE Branding with Glowing Golden 'N' */}
-        <div className="relative z-10 w-full max-w-7xl mx-auto px-6 sm:px-12 lg:px-16 flex items-center">
+        <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-12 lg:px-16 flex items-center">
           <div className="max-w-xl text-left">
             {/* Main L U N O R E Wordmark with Golden Glowing N */}
             <h1
-              className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.12em] sm:tracking-[0.16em] uppercase text-[#f1eee7] leading-none select-none whitespace-nowrap"
+              className="text-[2.3rem] xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.08em] sm:tracking-[0.16em] uppercase text-[#f1eee7] leading-none select-none whitespace-nowrap"
               style={{ fontFamily: 'var(--font-display)', perspective: '1000px' }}
             >
               <span className="lunore-brand-letter inline-block" style={{ animationDelay: '0.2s' }}>L</span>
@@ -255,8 +255,8 @@ export function Home() {
             </h1>
 
             {/* Tagline (Positioned below the letter U, clean look without line) */}
-            <div className="mt-4 sm:mt-6 ml-[14%] sm:ml-[16%] md:ml-[17%] lunore-brand-letter" style={{ animationDelay: '1s' }}>
-              <p className="text-xs sm:text-sm md:text-[23px] tracking-[0.24em] sm:tracking-[0.30em] uppercase text-[#e2ddd3] font-light whitespace-nowrap">
+            <div className="mt-3 sm:mt-6 ml-[10%] sm:ml-[16%] md:ml-[17%] lunore-brand-letter" style={{ animationDelay: '1s' }}>
+              <p className="text-[10px] sm:text-sm md:text-[23px] tracking-[0.20em] sm:tracking-[0.30em] uppercase text-[#e2ddd3] font-light whitespace-nowrap">
                 Luxe Decor Studio
               </p>
             </div>

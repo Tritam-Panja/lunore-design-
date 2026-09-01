@@ -666,16 +666,16 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
             {/* 3. EDITORIAL MAGAZINE LAYOUT (APPEARS UPON SCROLLING)       */}
             {/* ============================================================ */}
             {!isFlashlightMode && overlayReady && (
-              <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-start p-6 sm:p-10 md:p-14 lg:p-16 animate-in fade-in duration-1000">
+              <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-start p-4 sm:p-10 md:p-14 lg:p-16 animate-in fade-in duration-1000">
                 
                 {/* MIDDLE CONTENT: HEADING + DYNAMIC SCROLL CONTENT */}
-                <div className="w-full max-w-2xl text-left py-4 sm:py-6 flex flex-col justify-center transition-all duration-700">
+                <div className="w-full max-w-2xl text-left py-2 sm:py-6 flex flex-col justify-center transition-all duration-700">
                   
                   {/* STAGE 0: INITIAL LARGE STACKED HEADING - CLEAN WHITE TEXT */}
                   {storyStage === 0 ? (
-                    <div className="py-4 sm:py-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-out">
+                    <div className="py-2 sm:py-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-out">
                       <h3
-                        className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-[0.04em] uppercase leading-[0.92] text-white select-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]"
+                        className="text-3xl sm:text-5xl md:text-7xl lg:text-8xl font-light tracking-[0.04em] uppercase leading-[0.92] text-white select-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]"
                         style={{ fontFamily: 'var(--font-serif)' }}
                       >
                         {['INTERIOR', 'DESIGN', 'EXPERTS'].map((line, lineIdx) => (
@@ -694,22 +694,22 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                       </h3>
 
                       {/* Subtle Scroll Cue */}
-                      <div className="mt-8 flex items-center gap-2.5 text-xs tracking-[0.25em] uppercase text-[#b89a62] animate-pulse">
-                        <span>Scroll to explore</span>
+                      <div className="mt-6 sm:mt-8 flex items-center gap-2 text-xs tracking-[0.25em] uppercase text-[#b89a62] animate-pulse">
+                        <span>Scroll or tap to explore</span>
                         <ChevronDown className="w-3.5 h-3.5 text-[#b89a62]" />
                       </div>
                     </div>
                   ) : (
                     /* STAGE 1, 2, 3: HEADING MOVED UP AND ALIGNED IN ONE SINGLE LINE - CLEAN WHITE TEXT */
-                    <div className="mb-4 sm:mb-6 animate-in fade-in slide-in-from-top-4 duration-700">
-                      <div className="flex items-center gap-3 mb-1.5">
-                        <div className="w-6 h-px bg-[#b89a62]" />
-                        <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62] font-mono">
+                    <div className="mb-3 sm:mb-6 animate-in fade-in slide-in-from-top-4 duration-700">
+                      <div className="flex items-center gap-2.5 mb-1">
+                        <div className="w-5 sm:w-6 h-px bg-[#b89a62]" />
+                        <span className="text-[9px] sm:text-[10px] tracking-[0.3em] uppercase text-[#b89a62] font-mono">
                           LUNORE LUXE STUDIO
                         </span>
                       </div>
                       <h3
-                        className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light tracking-[0.06em] uppercase leading-tight text-white select-none drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)]"
+                        className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-light tracking-[0.06em] uppercase leading-tight text-white select-none drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)]"
                         style={{ fontFamily: 'var(--font-serif)' }}
                       >
                         <span className="inline-block text-white">

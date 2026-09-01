@@ -444,13 +444,13 @@ export function SculpturesExperience() {
 
           <div className="absolute inset-0 z-30 flex flex-col justify-between items-center p-6 sm:p-10 md:p-14 text-center select-none">
             {/* Top Arch Headline */}
-            <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-4 pt-6 sm:pt-10 md:pt-12 z-20">
+            <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-2 pt-6 sm:pt-10 md:pt-12 z-20">
               <h2
-                className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.18em] sm:tracking-[0.24em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] whitespace-nowrap"
+                className="text-lg xs:text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.12em] sm:tracking-[0.24em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] text-center"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
                 Experience The{' '}
-                <span className="text-gold-shimmer font-normal uppercase tracking-[0.18em] sm:tracking-[0.24em] drop-shadow-[0_0_25px_rgba(184,154,98,0.55)]">
+                <span className="text-gold-shimmer font-normal uppercase tracking-[0.12em] sm:tracking-[0.24em] drop-shadow-[0_0_25px_rgba(184,154,98,0.55)]">
                   sculptures
                 </span>
               </h2>

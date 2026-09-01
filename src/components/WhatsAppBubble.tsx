@@ -52,7 +52,7 @@ export function WhatsAppBubble({
 
   return (
     <div
-      className={`fixed bottom-6 right-6 z-50 flex items-center gap-3 transition-all duration-500 ease-out ${
+      className={`fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4 sm:bottom-6 sm:right-6 z-50 flex items-center gap-3 transition-all duration-500 ease-out ${
         isVisible
           ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
           : 'opacity-0 translate-y-6 pointer-events-none scale-90'
@@ -77,7 +77,7 @@ export function WhatsAppBubble({
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         aria-label="Chat with Lunore Studio on WhatsApp"
-        className="group relative cursor-pointer w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-[#0d0e0e]/90 border border-[#25D366]/50 hover:border-[#25D366] text-[#25D366] hover:text-white flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(37,211,102,0.25)] hover:shadow-[0_14px_40px_rgba(0,0,0,0.9),0_0_35px_rgba(37,211,102,0.5)] transition-all duration-400 transform hover:scale-110 active:scale-95 backdrop-blur-md"
+        className="group relative cursor-pointer w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-[#0d0e0e]/90 border border-[#25D366]/50 hover:border-[#25D366] text-[#25D366] hover:text-white flex items-center justify-center shadow-[0_10px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(37,211,102,0.25)] hover:shadow-[0_14px_40px_rgba(0,0,0,0.9),0_0_35px_rgba(37,211,102,0.5)] transition-all duration-400 transform hover:scale-110 active:scale-95 backdrop-blur-md"
       >
         {/* Ambient Pulse Ring */}
         <span className="absolute inset-0 rounded-full border border-[#25D366]/40 animate-ping opacity-30 pointer-events-none" />
@@ -86,7 +86,7 @@ export function WhatsAppBubble({
         <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-[#25D366]/20 via-transparent to-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
 
         {/* WhatsApp Icon */}
-        <MessageCircle className="w-6 h-6 fill-current transition-transform duration-300 group-hover:rotate-6" />
+        <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 fill-current transition-transform duration-300 group-hover:rotate-6" />
       </a>
     </div>
   );

@@ -40,22 +40,22 @@ export function Footer() {
   };
 
   return (
-    <footer className="border-t border-white/10 bg-[#0d0e0e]/95 backdrop-blur-2xl mt-24 relative overflow-hidden">
+    <footer className="border-t border-white/10 bg-[#0d0e0e]/95 backdrop-blur-2xl mt-16 sm:mt-24 relative overflow-hidden">
       {/* Subtle radial glow in footer */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#b89a62]/5 rounded-full blur-[140px] pointer-events-none" />
 
-      <div className="max-w-7xl mx-auto px-6 lg:px-10 py-16 relative z-10">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12 sm:py-16 relative z-10">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12">
           <div>
             <Logo />
-            <p className="mt-5 text-sm text-[#b9b5ae] leading-relaxed max-w-xs font-light">
+            <p className="mt-4 sm:mt-5 text-xs sm:text-sm text-[#b9b5ae] leading-relaxed max-w-xs font-light">
               Luxury stone sculpture, interior design, and marble &amp; granite supply —
               based in Mumbai, India.
             </p>
           </div>
 
           <div>
-            <h4 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-5 font-medium">
+            <h4 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4 sm:mb-5 font-medium">
               Navigation
             </h4>
             <ul className="grid grid-cols-2 gap-y-2.5 gap-x-4">
@@ -64,7 +64,7 @@ export function Footer() {
                   <Link
                     to={link.to}
                     onClick={(e) => handleFooterLinkClick(e, link)}
-                    className="group relative inline-flex items-center gap-1.5 text-xs tracking-[0.1em] uppercase text-[#b9b5ae] hover:text-white transition-colors"
+                    className="group relative inline-flex items-center gap-1.5 text-xs tracking-[0.1em] uppercase text-[#b9b5ae] hover:text-white transition-colors py-0.5"
                   >
                     <span className="w-0 h-px bg-[#b89a62] transition-all duration-300 group-hover:w-3" />
                     {link.label}
@@ -75,24 +75,28 @@ export function Footer() {
           </div>
 
           <div>
-            <h4 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-5 font-medium">
+            <h4 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4 sm:mb-5 font-medium">
               Studio
             </h4>
-            <p className="text-sm text-[#b9b5ae] leading-relaxed font-light">
+            <p className="text-xs sm:text-sm text-[#b9b5ae] leading-relaxed font-light">
               57 Heera Panna M.R. No.2, MHADA Layout,<br />
               Oshiwara, Jogeshwari(W), Near Dhaba,<br />
               Mumbai 400058
             </p>
-            <p className="mt-3 text-sm text-[#b9b5ae] font-light">+91 97697 08628</p>
-            <p className="text-sm text-[#b9b5ae] font-light">support@lunoreluxedecorstudio.com</p>
+            <p className="mt-3 text-xs sm:text-sm text-[#b9b5ae] font-light">
+              <a href="tel:+919769708628" className="hover:text-[#f3e5ab] transition-colors">+91 97697 08628</a>
+            </p>
+            <p className="text-xs sm:text-sm text-[#b9b5ae] font-light truncate">
+              <a href="mailto:support@lunoreluxedecorstudio.com" className="hover:text-[#f3e5ab] transition-colors">support@lunoreluxedecorstudio.com</a>
+            </p>
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between gap-2">
-          <p className="text-xs text-[#85817a]">
+        <div className="mt-10 sm:mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+          <p className="text-[11px] sm:text-xs text-[#85817a]">
             © {new Date().getFullYear()} LUNORE Luxe Decor Studio. All rights reserved.
           </p>
-          <p className="text-xs text-[#85817a]">Mumbai, India</p>
+          <p className="text-[11px] sm:text-xs text-[#85817a]">Mumbai, India</p>
         </div>
       </div>
     </footer>

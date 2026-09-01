@@ -147,6 +147,30 @@ export function AurexaSection() {
     }
   };
 
+  // Touch swipe support for mobile devices
+  const touchStartY = useRef<number>(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!isUnlockedRef.current && hasStarted) {
+      const currentY = e.touches[0].clientY;
+      const diffY = touchStartY.current - currentY;
+      if (diffY > 5) {
+        progressRef.current = Math.min(1, progressRef.current + diffY * 0.004);
+        setProgress(progressRef.current);
+        touchStartY.current = currentY;
+        if (progressRef.current >= 0.999) {
+          progressRef.current = 1;
+          setProgress(1);
+          unlockPage();
+        }
+      }
+    }
+  };
+
   // Visual calculation
   const percent = Math.round(progress * 100);
   const clipWidth = progress * 1200; // SVG viewBox 1200 x 240
@@ -156,8 +180,10 @@ export function AurexaSection() {
     <section
       ref={containerRef}
       id="aurexa"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
       data-lenis-prevent={!isUnlocked ? 'true' : undefined}
-      className="relative w-full h-[100dvh] min-h-[650px] bg-[#070809] overflow-hidden select-none flex flex-col justify-between items-center border-t border-b border-white/[0.06] py-10 sm:py-14 px-4 sm:px-8"
+      className="relative w-full h-[100dvh] min-h-[580px] sm:min-h-[650px] bg-[#070809] overflow-hidden select-none flex flex-col justify-between items-center border-t border-b border-white/[0.06] py-8 sm:py-14 px-4 sm:px-8"
     >
       {/* 1. INTERACTIVE CURSOR IMAGE TRAIL (Rendered behind AUREXA text) */}
       <div
