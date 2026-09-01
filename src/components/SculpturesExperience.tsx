@@ -192,9 +192,13 @@ export function SculpturesExperience() {
   // Actions
   const handleEnter = useCallback(() => {
     setExperienceState('statement');
-    // On mobile and desktop, smoothly morph into the docked 3D carousel
-    targetPinchRef.current = 1;
+    targetPinchRef.current = 0;
+    currentPinchRef.current = 0;
+    setPinchProgress(0);
     lastInteractionTimeRef.current = Date.now();
+    if (containerRef.current) {
+      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }, []);
 
   // Direct trigger to smoothly morph into the docked carousel

@@ -4,15 +4,15 @@ import { useLenis } from './SmoothScroll';
 import ImageTrail from './ImageTrail';
 
 const AUREXA_TRAIL_IMAGES = [
-  'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1600565193348-f74bd3c7ccdf?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1600585155330-97eb33887b41?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=format&fit=crop&w=800&q=80',
-  'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=format&fit=crop&w=800&q=80',
+  '/assets/images/imagetrail1.JPG',
+  '/assets/images/imagetrail2.JPG',
+  '/assets/images/imagetrail3.JPG',
+  '/assets/images/imagetrail4.JPG',
+  '/assets/images/imagetrail5.JPG',
+  '/assets/images/imagetrail6.JPG',
+  '/assets/images/imagetrail7.JPG',
+  '/assets/images/imagetrail8.JPG',
+  '/assets/images/imagetrail9.JPG',
 ];
 
 export function AurexaSection() {
