@@ -10,9 +10,18 @@ const AUREXA_TRAIL_IMAGES = [
   '/assets/images/imagetrail4.jpg',
   '/assets/images/imagetrail5.jpg',
   '/assets/images/imagetrail6.jpg',
-
   '/assets/images/imagetrail9.jpg',
 ];
+
+interface FloatingCard {
+  id: number;
+  src: string;
+  x: number;
+  y: number;
+  rotation: number;
+  scale: number;
+  opacity: number;
+}
 
 export function AurexaSection() {
   const containerRef = useRef<HTMLElement>(null);
@@ -22,10 +31,25 @@ export function AurexaSection() {
   const [progress, setProgress] = useState<number>(0);
   const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
   const [hasStarted, setHasStarted] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(typeof window !== 'undefined' ? window.innerWidth < 640 : false);
+
+  // Mobile spawned touch cards
+  const [spawnedCards, setSpawnedCards] = useState<FloatingCard[]>([]);
+  const nextSpawnIdRef = useRef<number>(1);
+  const lastSpawnIndexRef = useRef<number>(0);
+  const lastSpawnTimeRef = useRef<number>(0);
 
   const progressRef = useRef<number>(0);
   const isUnlockedRef = useRef<boolean>(false);
   const isLockedRef = useRef<boolean>(false);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Helper to safely lock/unlock Lenis outer scroll
   const lockPage = useCallback(() => {
@@ -108,7 +132,7 @@ export function AurexaSection() {
     return () => cancelAnimationFrame(animId);
   }, [hasStarted, unlockPage]);
 
-  // 3. User wheel / swipe interaction accelerates the animation while holding the page in place
+  // 3. User wheel interaction accelerates the animation while holding the page in place
   useEffect(() => {
     if (isUnlocked || !hasStarted) return;
 
@@ -133,29 +157,55 @@ export function AurexaSection() {
     return () => window.removeEventListener('wheel', onWheel);
   }, [hasStarted, isUnlocked, unlockPage]);
 
-  const handleProceed = () => {
-    progressRef.current = 1;
-    setProgress(1);
-    unlockPage();
+  // Mobile Touch Spawning Function
+  const spawnCardAt = useCallback((clientX: number, clientY: number) => {
+    const el = containerRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const x = clientX - rect.left;
+    const y = clientY - rect.top;
 
-    const nextSec = document.getElementById('cta') || document.getElementById('contact');
-    if (nextSec) {
-      if (lenis) {
-        lenis.scrollTo(nextSec, { offset: -30 });
-      } else {
-        nextSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-  };
+    const imgIndex = lastSpawnIndexRef.current % AUREXA_TRAIL_IMAGES.length;
+    lastSpawnIndexRef.current += 1;
+
+    const newCard: FloatingCard = {
+      id: nextSpawnIdRef.current++,
+      src: AUREXA_TRAIL_IMAGES[imgIndex],
+      x,
+      y,
+      rotation: (Math.random() - 0.5) * 16,
+      scale: 0.9 + Math.random() * 0.25,
+      opacity: 1,
+    };
+
+    setSpawnedCards((prev) => [...prev.slice(-6), newCard]);
+
+    // Fade out and remove spawned card after 1.8s
+    setTimeout(() => {
+      setSpawnedCards((prev) => prev.filter((c) => c.id !== newCard.id));
+    }, 1800);
+  }, []);
 
   // Touch swipe support for mobile devices
   const touchStartY = useRef<number>(0);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartY.current = e.touches[0].clientY;
+    if (e.touches.length > 0) {
+      spawnCardAt(e.touches[0].clientX, e.touches[0].clientY);
+    }
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
+    if (e.touches.length > 0) {
+      const touch = e.touches[0];
+      const now = performance.now();
+      if (now - lastSpawnTimeRef.current > 140) {
+        lastSpawnTimeRef.current = now;
+        spawnCardAt(touch.clientX, touch.clientY);
+      }
+    }
+
     if (!isUnlockedRef.current && hasStarted) {
       const currentY = e.touches[0].clientY;
       const diffY = touchStartY.current - currentY;
@@ -173,9 +223,16 @@ export function AurexaSection() {
   };
 
   // Visual calculation
-  const percent = Math.round(progress * 100);
   const clipWidth = progress * 1200; // SVG viewBox 1200 x 240
   const scale = 0.96 + progress * 0.06;
+
+  // Mobile Ambient Background Floating Cards
+  const ambientCards = [
+    { src: AUREXA_TRAIL_IMAGES[0], top: '15%', left: '8%', rot: '-8deg', delay: '0s', size: 'w-24 h-32' },
+    { src: AUREXA_TRAIL_IMAGES[1], top: '22%', right: '6%', rot: '10deg', delay: '1.2s', size: 'w-28 h-36' },
+    { src: AUREXA_TRAIL_IMAGES[2], bottom: '18%', left: '10%', rot: '6deg', delay: '2.4s', size: 'w-28 h-36' },
+    { src: AUREXA_TRAIL_IMAGES[3], bottom: '24%', right: '8%', rot: '-6deg', delay: '3.6s', size: 'w-24 h-32' },
+  ];
 
   return (
     <section
@@ -183,16 +240,78 @@ export function AurexaSection() {
       id="aurexa"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
+      onClick={(e) => {
+        if (isMobile) {
+          spawnCardAt(e.clientX, e.clientY);
+        }
+      }}
       style={{ touchAction: 'pan-y' }}
       className="relative w-full h-[100dvh] min-h-[580px] sm:min-h-[650px] bg-[#070809] overflow-hidden select-none flex flex-col justify-between items-center border-t border-b border-white/[0.06] py-8 sm:py-14 px-4 sm:px-8"
     >
-      {/* 1. INTERACTIVE CURSOR IMAGE TRAIL (Rendered behind AUREXA text) */}
-      <div
-        className="absolute inset-0 z-[5] pointer-events-none sm:pointer-events-auto transition-opacity duration-500"
-        style={{ opacity: isUnlocked ? 1 : 0 }}
-      >
-        <ImageTrail items={AUREXA_TRAIL_IMAGES} variant={7} />
-      </div>
+      {/* 1. DESKTOP INTERACTIVE CURSOR IMAGE TRAIL */}
+      {!isMobile && (
+        <div
+          className="absolute inset-0 z-[5] pointer-events-none sm:pointer-events-auto transition-opacity duration-500"
+          style={{ opacity: isUnlocked ? 1 : 0 }}
+        >
+          <ImageTrail items={AUREXA_TRAIL_IMAGES} variant={7} />
+        </div>
+      )}
+
+      {/* 1B. MOBILE AUTONOMOUS AMBIENT KINETIC FLOATING STREAM */}
+      {isMobile && isUnlocked && (
+        <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden">
+          {ambientCards.map((card, idx) => (
+            <div
+              key={idx}
+              style={{
+                top: card.top,
+                left: card.left,
+                right: card.right,
+                bottom: card.bottom,
+                animation: `float-slow 6s ease-in-out infinite alternate ${card.delay}`,
+                transform: `rotate(${card.rot})`,
+              }}
+              className={`absolute ${card.size} rounded-xl p-1 bg-white/[0.08] border border-[#b89a62]/40 shadow-[0_12px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(184,154,98,0.25)] backdrop-blur-md opacity-70 transition-opacity duration-700`}
+            >
+              <div className="w-full h-full rounded-lg overflow-hidden border border-white/20">
+                <img
+                  src={card.src}
+                  alt="Aurexa Haute Slab Cut"
+                  loading="lazy"
+                  className="w-full h-full object-cover object-center brightness-105"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* 1C. MOBILE INTERACTIVE TOUCH-SPAWNED FLOATING CARDS */}
+      {isMobile && (
+        <div className="absolute inset-0 z-[6] pointer-events-none overflow-hidden">
+          {spawnedCards.map((card) => (
+            <div
+              key={card.id}
+              style={{
+                left: `${card.x}px`,
+                top: `${card.y}px`,
+                transform: `translate(-50%, -50%) rotate(${card.rotation}deg) scale(${card.scale})`,
+                animation: 'lunore-card-pop 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
+              }}
+              className="absolute w-28 h-36 rounded-xl p-1 bg-white/[0.12] border border-[#b89a62]/80 shadow-[0_20px_45px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.45)] backdrop-blur-lg"
+            >
+              <div className="w-full h-full rounded-lg overflow-hidden border border-white/30">
+                <img
+                  src={card.src}
+                  alt="Aurexa Haute Slab Cutout"
+                  className="w-full h-full object-cover object-center brightness-110"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* 2. AMBIENT GLOWS */}
       <div

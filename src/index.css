@@ -1008,3 +1008,34 @@ html.lunore-experience-active h3 {
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+@keyframes float-slow {
+  0% {
+    transform: translateY(0px) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-14px) rotate(4deg);
+  }
+  100% {
+    transform: translateY(-24px) rotate(-4deg);
+  }
+}
+
+@keyframes lunore-card-pop {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.05) rotate(4deg);
+  }
+  70% {
+    opacity: 0.9;
+    transform: translate(-50%, -75%) scale(1) rotate(-3deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -110%) scale(0.85) rotate(-6deg);
+  }
+}
