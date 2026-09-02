@@ -102,15 +102,17 @@ export function SculpturesExperience() {
   const currentRotationRef = useRef<number>(0);
   const containerRef = useRef<HTMLElement>(null);
   
-  // Drag & Inertia Tracking
+  // Drag, Velocity & Momentum Tracking
   const isDraggingRef = useRef<boolean>(false);
   const dragStartXRef = useRef<number>(0);
+  const lastDragXRef = useRef<number>(0);
   const dragStartRotationRef = useRef<number>(0);
   const lastDragTimeRef = useRef<number>(0);
   const velocityRef = useRef<number>(0);
+  const momentumVelocityRef = useRef<number>(0);
   const isHoveredRef = useRef<boolean>(false);
   const lastInteractionTimeRef = useRef<number>(Date.now());
-  const touchStartRef = useRef<{ x: number; y: number; pinch: number; rot: number } | null>(null);
+  const touchStartRef = useRef<{ x: number; y: number; rot: number; time: number } | null>(null);
 
   const total = SCULPTURE_CAROUSEL_ITEMS.length;
   const activeIndex = ((Math.round(rotation) % total) + total) % total;
@@ -125,27 +127,34 @@ export function SculpturesExperience() {
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  // Wakeable 60fps RAF physics interpolation with viewport visibility throttling
+  // High-performance 120fps RAF physics engine with dynamic momentum decay
   const isLoopRunningRef = useRef<boolean>(false);
   const triggerPhysicsLoopRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     let animId: number | null = null;
     let isVisible = true;
+    let lastFrameTime = performance.now();
 
-    const updatePhysics = () => {
+    const updatePhysics = (frameTime: number) => {
       if (!isVisible) {
         animId = null;
         isLoopRunningRef.current = false;
         return;
       }
 
+      // Delta time normalized to 16.67ms (perfect scaling across 60Hz, 90Hz, 120Hz, 144Hz displays)
+      const rawDt = frameTime - lastFrameTime;
+      lastFrameTime = frameTime;
+      const dt = Math.min(32, Math.max(4, rawDt || 16.67));
+      const timeScale = dt / 16.667;
+
       let isChanging = false;
 
       // 1. Smooth lerp for pinch-in morph progress
       const pinchDiff = targetPinchRef.current - currentPinchRef.current;
       if (Math.abs(pinchDiff) > 0.0002) {
-        currentPinchRef.current += pinchDiff * 0.10;
+        currentPinchRef.current += pinchDiff * Math.min(1, 0.12 * timeScale);
         setPinchProgress(currentPinchRef.current);
         isChanging = true;
       } else if (currentPinchRef.current !== targetPinchRef.current) {
@@ -153,23 +162,50 @@ export function SculpturesExperience() {
         setPinchProgress(currentPinchRef.current);
       }
 
-      // 2. Idle ambient auto-drift (Smooth endless infinite scroll)
       const now = Date.now();
       const isDockedNow = currentPinchRef.current >= 0.90;
+
+      // 2. Active Physics Momentum Fling (high speed flick vs slow precise drag)
+      if (Math.abs(momentumVelocityRef.current) > 0.00008) {
+        targetRotationRef.current += momentumVelocityRef.current * timeScale;
+        // Luxury exponential momentum decay
+        momentumVelocityRef.current *= Math.pow(0.938, timeScale);
+        isChanging = true;
+      } else if (momentumVelocityRef.current !== 0) {
+        momentumVelocityRef.current = 0;
+      }
+
+      // 3. Magnetic snap when coasting finishes (gentle alignment to nearest card center)
+      if (
+        isDockedNow &&
+        !isDraggingRef.current &&
+        Math.abs(momentumVelocityRef.current) === 0 &&
+        now - lastInteractionTimeRef.current < 2000
+      ) {
+        const snapTarget = Math.round(targetRotationRef.current);
+        const snapDiff = snapTarget - targetRotationRef.current;
+        if (Math.abs(snapDiff) > 0.001) {
+          targetRotationRef.current += snapDiff * Math.min(1, 0.09 * timeScale);
+          isChanging = true;
+        }
+      }
+
+      // 4. Idle ambient auto-drift (Smooth endless infinite luxury rotation)
       if (
         isDockedNow &&
         !isDraggingRef.current &&
         !isHoveredRef.current &&
+        Math.abs(momentumVelocityRef.current) === 0 &&
         now - lastInteractionTimeRef.current > 2400
       ) {
-        targetRotationRef.current += 0.0028;
+        targetRotationRef.current += 0.003 * timeScale;
         isChanging = true;
       }
 
-      // 3. Smooth lerp for 3D carousel rotation with infinite momentum damping
+      // 5. Smooth 120fps lerp for 3D carousel rotation
       const rotDiff = targetRotationRef.current - currentRotationRef.current;
       if (Math.abs(rotDiff) > 0.0001) {
-        currentRotationRef.current += rotDiff * 0.12;
+        currentRotationRef.current += rotDiff * Math.min(1, 0.14 * timeScale);
         setRotation(currentRotationRef.current);
         isChanging = true;
       } else if (currentRotationRef.current !== targetRotationRef.current) {
@@ -192,6 +228,7 @@ export function SculpturesExperience() {
     const triggerPhysicsLoop = () => {
       if (!isLoopRunningRef.current && isVisible) {
         isLoopRunningRef.current = true;
+        lastFrameTime = performance.now();
         animId = requestAnimationFrame(updatePhysics);
       }
     };
@@ -254,25 +291,26 @@ export function SculpturesExperience() {
     targetRotationRef.current = 0;
     currentRotationRef.current = 0;
     setRotation(0);
+    momentumVelocityRef.current = 0;
     lastInteractionTimeRef.current = Date.now();
     triggerPhysicsLoopRef.current();
   }, []);
 
   const handlePrev = useCallback(() => {
+    momentumVelocityRef.current = 0;
     targetRotationRef.current = Math.round(targetRotationRef.current) - 1;
     lastInteractionTimeRef.current = Date.now();
     triggerPhysicsLoopRef.current();
   }, []);
 
   const handleNext = useCallback(() => {
+    momentumVelocityRef.current = 0;
     targetRotationRef.current = Math.round(targetRotationRef.current) + 1;
     lastInteractionTimeRef.current = Date.now();
     triggerPhysicsLoopRef.current();
   }, []);
 
   // Wheel scroll handler:
-  // - Statement view: vertical scroll pinches into carousel
-  // - Docked carousel: horizontal wheel/trackpad scrubbing rotates carousel infinitely!
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -294,7 +332,8 @@ export function SculpturesExperience() {
         }
       } else if (currentPinchRef.current >= 0.95) {
         // When docked in carousel, horizontal wheel or Shift+Scroll infinitely rotates carousel
-        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 4) {
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 3) {
+          momentumVelocityRef.current = 0;
           targetRotationRef.current += e.deltaX * 0.0028;
           lastInteractionTimeRef.current = Date.now();
           triggerPhysicsLoopRef.current();
@@ -313,7 +352,9 @@ export function SculpturesExperience() {
     if (currentPinchRef.current < 0.90) return;
     isDraggingRef.current = true;
     setIsDragging(true);
+    momentumVelocityRef.current = 0;
     dragStartXRef.current = e.clientX;
+    lastDragXRef.current = e.clientX;
     dragStartRotationRef.current = targetRotationRef.current;
     lastDragTimeRef.current = performance.now();
     velocityRef.current = 0;
@@ -325,11 +366,17 @@ export function SculpturesExperience() {
     if (!isDraggingRef.current) return;
     const now = performance.now();
     const dt = Math.max(1, now - lastDragTimeRef.current);
-    const diffX = dragStartXRef.current - e.clientX;
-    const newTarget = dragStartRotationRef.current + diffX * 0.0038;
+    const diffFromLast = lastDragXRef.current - e.clientX;
     
-    velocityRef.current = (newTarget - targetRotationRef.current) / dt;
-    targetRotationRef.current = newTarget;
+    // Proportional rotation delta based on drag speed
+    const stepDelta = diffFromLast * 0.0035;
+    targetRotationRef.current += stepDelta;
+    
+    // Instantaneous velocity with smoothing
+    const instantVelocity = stepDelta / dt;
+    velocityRef.current = velocityRef.current * 0.35 + instantVelocity * 0.65;
+    
+    lastDragXRef.current = e.clientX;
     lastDragTimeRef.current = now;
     lastInteractionTimeRef.current = Date.now();
     triggerPhysicsLoopRef.current();
@@ -340,22 +387,33 @@ export function SculpturesExperience() {
     isDraggingRef.current = false;
     setIsDragging(false);
     
-    // Apply inertia fling
-    const fling = Math.max(-1.8, Math.min(1.8, velocityRef.current * 75));
-    targetRotationRef.current = Math.round(targetRotationRef.current + fling);
+    const now = performance.now();
+    const timeSinceLastDrag = now - lastDragTimeRef.current;
+    
+    // If released shortly after dragging, apply momentum proportional to fling speed
+    if (timeSinceLastDrag < 100) {
+      const clampedMomentum = Math.max(-0.18, Math.min(0.18, velocityRef.current * 16));
+      momentumVelocityRef.current = clampedMomentum;
+    } else {
+      momentumVelocityRef.current = 0;
+    }
+    
     lastInteractionTimeRef.current = Date.now();
     triggerPhysicsLoopRef.current();
   };
 
-  // Touch Swipe & Drag Handling (Infinite continuous mobile rotation)
+  // Touch Swipe & Drag Handling (Infinite continuous mobile rotation with speed scaling)
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (experienceState === 'entrance') return;
+    if (experienceState === 'entrance' || e.touches.length === 0) return;
+    isDraggingRef.current = true;
+    momentumVelocityRef.current = 0;
     touchStartRef.current = {
       x: e.touches[0].clientX,
       y: e.touches[0].clientY,
-      pinch: targetPinchRef.current,
       rot: targetRotationRef.current,
+      time: performance.now(),
     };
+    lastDragXRef.current = e.touches[0].clientX;
     lastDragTimeRef.current = performance.now();
     velocityRef.current = 0;
     lastInteractionTimeRef.current = Date.now();
@@ -363,21 +421,25 @@ export function SculpturesExperience() {
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
-    if (!touchStartRef.current || experienceState === 'entrance') return;
-    const diffY = touchStartRef.current.y - e.touches[0].clientY;
-    const diffX = touchStartRef.current.x - e.touches[0].clientX;
+    if (!touchStartRef.current || experienceState === 'entrance' || e.touches.length === 0) return;
+    const currentX = e.touches[0].clientX;
+    const currentY = e.touches[0].clientY;
+    const totalDiffX = touchStartRef.current.x - currentX;
+    const totalDiffY = touchStartRef.current.y - currentY;
     const now = performance.now();
     const dt = Math.max(1, now - lastDragTimeRef.current);
 
-    if (currentPinchRef.current < 0.95) {
-      // Swipe-to-morph disabled on phones to prevent mis-touches and preserve smooth natural page scrolling.
-      // Tapping anywhere on the image triggers the smooth 3D carousel morph.
-    } else {
+    if (currentPinchRef.current >= 0.90) {
       // Infinite horizontal swipe rotation when docked in carousel
-      if (Math.abs(diffX) > Math.abs(diffY) * 1.2 && Math.abs(diffX) > 6) {
-        const newTarget = touchStartRef.current.rot + diffX * 0.0045;
-        velocityRef.current = (newTarget - targetRotationRef.current) / dt;
-        targetRotationRef.current = newTarget;
+      if (Math.abs(totalDiffX) > Math.abs(totalDiffY) * 1.1 && Math.abs(totalDiffX) > 4) {
+        const diffFromLast = lastDragXRef.current - currentX;
+        const stepDelta = diffFromLast * 0.0042;
+        targetRotationRef.current += stepDelta;
+        
+        const instantVelocity = stepDelta / dt;
+        velocityRef.current = velocityRef.current * 0.35 + instantVelocity * 0.65;
+        
+        lastDragXRef.current = currentX;
         lastDragTimeRef.current = now;
         lastInteractionTimeRef.current = Date.now();
         triggerPhysicsLoopRef.current();
@@ -386,12 +448,24 @@ export function SculpturesExperience() {
   };
 
   const handleTouchEnd = () => {
+    isDraggingRef.current = false;
     if (!touchStartRef.current) return;
-    touchStartRef.current = null;
-    if (currentPinchRef.current >= 0.95) {
-      const fling = Math.max(-1.5, Math.min(1.5, velocityRef.current * 60));
-      targetRotationRef.current = Math.round(targetRotationRef.current + fling);
+    
+    const now = performance.now();
+    const timeSinceLastMove = now - lastDragTimeRef.current;
+    
+    if (currentPinchRef.current >= 0.90) {
+      if (timeSinceLastMove < 120) {
+        // High speed swipe -> dynamic momentum fling!
+        // Slow swipe -> gentle coast & settle
+        const clampedMomentum = Math.max(-0.20, Math.min(0.20, velocityRef.current * 18));
+        momentumVelocityRef.current = clampedMomentum;
+      } else {
+        momentumVelocityRef.current = 0;
+      }
     }
+    
+    touchStartRef.current = null;
     lastInteractionTimeRef.current = Date.now();
     triggerPhysicsLoopRef.current();
   };
@@ -425,18 +499,17 @@ export function SculpturesExperience() {
   const textTranslateY = -easedP * 60;
   const textScale = 1 - easedP * 0.04;
 
-  // 2. Landscape -> Portrait GPU Scale Transform Morphing
+  // 2. Landscape -> Portrait Dimensions Morphing
   const isMobile = viewport.w < 640;
   const isTablet = viewport.w >= 640 && viewport.w < 1024;
   const targetCardW = isMobile ? Math.min(250, viewport.w * 0.74) : isTablet ? 300 : 350;
   const targetCardH = isMobile ? Math.min(365, viewport.h * 0.48) : isTablet ? 450 : 520;
 
-  // Pure GPU hardware-accelerated scaling (eliminates 60fps layout reflow & mobile flickering)
-  const fullScaleX = Math.max(1, viewport.w / targetCardW);
-  const fullScaleY = Math.max(1, viewport.h / targetCardH);
-  const heroScaleX = fullScaleX + (1 - fullScaleX) * easedP;
-  const heroScaleY = fullScaleY + (1 - fullScaleY) * easedP;
-  const heroGlassOpacity = Math.max(0, (easedP - 0.05) / 0.95);
+  const currentCardW = viewport.w + (targetCardW - viewport.w) * easedP;
+  const currentCardH = viewport.h + (targetCardH - viewport.h) * easedP;
+  const heroBorderRadius = easedP * 20;
+  const heroPadding = easedP * 14;
+  const heroGlassOpacity = Math.max(0, (easedP - 0.1) / 0.9);
 
   // 3. Sibling 3D Fan-Out
   const rawFan = Math.max(0, (p - 0.2) / 0.8);
@@ -598,7 +671,7 @@ export function SculpturesExperience() {
                 const targetOpacity = isVisible ? Math.max(0.15, 1 - Math.pow(Math.abs(diff) / 3.2, 1.8)) : 0;
                 const zIndex = Math.round(30 - Math.abs(diff) * 8);
 
-                // 1. CENTER HERO CARD (Landscape Fullscreen -> Portrait Card Morph with GPU Scale)
+                // 1. CENTER HERO CARD (Landscape Fullscreen -> Portrait Card Morph)
                 if (isHeroCard) {
                   const heroTranslateX = targetTranslateX * easedP;
                   const heroTranslateZ = targetTranslateZ * easedP;
@@ -614,26 +687,27 @@ export function SculpturesExperience() {
                         }
                       }}
                       style={{
-                        width: `${targetCardW}px`,
-                        height: `${targetCardH}px`,
-                        transform: `translate3d(${heroTranslateX}px, 0, ${heroTranslateZ}px) rotateY(${heroRotateY}deg) scale(${heroScaleX}, ${heroScaleY})`,
-                        transformOrigin: 'center center',
+                        width: `${currentCardW}px`,
+                        height: `${currentCardH}px`,
+                        transform: `translate3d(${heroTranslateX}px, 0, ${heroTranslateZ}px) rotateY(${heroRotateY}deg)`,
                         zIndex: 45,
                         pointerEvents: isDocked ? 'auto' : 'none',
-                        willChange: 'transform',
+                        willChange: 'width, height, transform',
                       }}
-                      className="absolute select-none transition-shadow duration-300 rounded-2xl"
+                      className="absolute select-none transition-shadow duration-300"
                     >
                       {/* LIQUID GLASS PANEL */}
                       <div
                         style={{
+                          borderRadius: `${heroBorderRadius}px`,
+                          padding: `${heroPadding}px`,
                           backgroundColor: `rgba(255, 255, 255, ${0.08 * heroGlassOpacity})`,
-                          borderColor: `rgba(255, 255, 255, ${0.4 * heroGlassOpacity})`,
+                          borderColor: `rgba(255, 255, 255, ${0.5 * heroGlassOpacity})`,
                           boxShadow: isCenter && isDocked
                             ? '0 30px 75px rgba(0,0,0,0.9), 0 0 40px rgba(184,154,98,0.28), inset 0 1.5px 2px rgba(255,255,255,0.6)'
                             : `0 20px 50px rgba(0,0,0,${0.7 * heroGlassOpacity})`,
                         }}
-                        className="relative w-full h-full rounded-2xl overflow-hidden backdrop-blur-2xl border p-3 sm:p-4 flex flex-col items-center justify-center"
+                        className="relative w-full h-full overflow-hidden backdrop-blur-2xl border flex flex-col items-center justify-center"
                       >
                         {/* Top Specular Edge Glow */}
                         <div
@@ -642,19 +716,27 @@ export function SculpturesExperience() {
                         />
 
                         {/* Inner Media Frame */}
-                        <div className="relative w-full h-full rounded-xl border border-white/25 bg-black/40 backdrop-blur-md flex items-center justify-center overflow-hidden">
+                        <div
+                          style={{
+                            borderRadius: `${Math.max(0, heroBorderRadius - 4)}px`,
+                          }}
+                          className="relative w-full h-full border border-white/25 bg-black/40 backdrop-blur-md flex items-center justify-center overflow-hidden"
+                        >
                           <img
                             src={item.image}
                             alt={item.title}
-                            loading="eager"
+                            loading="lazy"
                             decoding="async"
-                            className="w-full h-full object-cover object-center pointer-events-none brightness-100 contrast-100"
+                            style={{
+                              filter: `brightness(${0.72 + 0.28 * easedP}) contrast(${1.06 - 0.02 * easedP})`,
+                            }}
+                            className="w-full h-full object-cover object-center pointer-events-none transition-[filter] duration-500"
                           />
 
                           {/* Statement Dimmer (Clears as card pinches in) */}
                           <div
                             style={{ opacity: Math.max(0, (1 - easedP) * 0.70) }}
-                            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/60 to-black/75 pointer-events-none transition-opacity duration-300"
+                            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/60 to-black/75 pointer-events-none transition-opacity duration-500"
                           />
 
                           {/* Gradient Vignettes */}
@@ -801,12 +883,12 @@ export function SculpturesExperience() {
                 pointerEvents: textOpacity > 0.6 ? 'auto' : 'none',
               }}
               onClick={handleTriggerCarousel}
-              className="absolute inset-0 z-30 flex flex-col justify-center items-center px-4 sm:px-12 md:px-20 text-center select-text cursor-pointer"
+              className="absolute inset-0 z-30 flex flex-col justify-center items-center px-6 sm:px-12 md:px-20 text-center select-text cursor-pointer"
             >
               <div className="max-w-4xl mx-auto flex flex-col items-center">
                 {/* Heading with Reveal Animation */}
                 <h2
-                  className="text-xl sm:text-3xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.06em] sm:tracking-[0.1em] leading-tight sm:leading-snug drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] mb-3 sm:mb-8"
+                  className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.06em] sm:tracking-[0.1em] leading-tight sm:leading-snug drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] mb-6 sm:mb-8"
                   style={{
                     fontFamily: 'var(--font-serif)',
                     animation: 'statement-text-reveal 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards',
@@ -820,7 +902,7 @@ export function SculpturesExperience() {
 
                 {/* Accent Line */}
                 <div
-                  className="w-16 sm:w-28 h-[1px] bg-gradient-to-r from-transparent via-[#b89a62] to-transparent mb-3 sm:mb-8"
+                  className="w-20 sm:w-28 h-[1px] bg-gradient-to-r from-transparent via-[#b89a62] to-transparent mb-6 sm:mb-8"
                   style={{
                     animation: 'statement-text-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards',
                   }}
@@ -828,7 +910,7 @@ export function SculpturesExperience() {
 
                 {/* Body Paragraph in Ivory White */}
                 <p
-                  className="text-sm sm:text-lg md:text-xl font-light leading-relaxed sm:leading-loose tracking-wide text-[#FFFFF0] max-w-3xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)] text-center"
+                  className="text-base sm:text-lg md:text-xl font-light leading-relaxed sm:leading-loose tracking-wide text-[#FFFFF0] max-w-3xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)] text-center"
                   style={{
                     color: '#FFFFF0',
                     animation: 'statement-para-reveal 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards',
@@ -842,11 +924,12 @@ export function SculpturesExperience() {
                   statement that is not only seen, but remembered.
                 </p>
 
-                {/* Subtle Floating Hover/Tap Hint (No button, pure delicate ambient text) */}
-                <div className="mt-5 sm:mt-8 flex items-center justify-center pointer-events-none">
-                  <span className="text-[10px] sm:text-xs tracking-[0.28em] uppercase text-[#b89a62] font-light animate-pulse drop-shadow-[0_0_12px_rgba(184,154,98,0.5)]">
-                    Tap to enter
+                {/* Scroll Down Cue */}
+                <div className="mt-8 sm:mt-10 flex flex-col items-center gap-1.5 opacity-75 hover:opacity-100 transition-opacity">
+                  <span className="text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#b89a62]">
+                    Scroll or Click to Enter Carousel
                   </span>
+                  <ChevronDown className="w-4 h-4 text-[#b89a62] animate-bounce" />
                 </div>
               </div>
             </div>
