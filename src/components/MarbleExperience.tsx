@@ -58,12 +58,19 @@ export function MarbleExperience() {
     let animId: number | null = null;
     let isVisible = true;
 
+    let lastTime = performance.now();
+
     const updatePhysics = () => {
       if (!isVisible) {
         animId = null;
         isLoopRunningRef.current = false;
         return;
       }
+
+      const now = performance.now();
+      const dt = Math.min(32, Math.max(1, now - lastTime));
+      lastTime = now;
+      const timeScale = dt / 16.67;
 
       const diffTiltX = targetTiltRef.current.x - currentTiltRef.current.x;
       const diffTiltY = targetTiltRef.current.y - currentTiltRef.current.y;
@@ -83,22 +90,22 @@ export function MarbleExperience() {
         Math.abs(pDiff) > 0.0002;
 
       // 1. Tilt
-      currentTiltRef.current.x += diffTiltX * 0.12;
-      currentTiltRef.current.y += diffTiltY * 0.12;
-      currentTiltRef.current.z += diffTiltZ * 0.12;
+      currentTiltRef.current.x += diffTiltX * Math.min(1, 0.14 * timeScale);
+      currentTiltRef.current.y += diffTiltY * Math.min(1, 0.14 * timeScale);
+      currentTiltRef.current.z += diffTiltZ * Math.min(1, 0.14 * timeScale);
 
       // 2. Pos
-      currentPosRef.current.x += diffPosX * 0.10;
-      currentPosRef.current.y += diffPosY * 0.10;
+      currentPosRef.current.x += diffPosX * Math.min(1, 0.12 * timeScale);
+      currentPosRef.current.y += diffPosY * Math.min(1, 0.12 * timeScale);
 
       // 3. Flip
-      currentFlipRef.current += diffFlip * 0.14;
+      currentFlipRef.current += diffFlip * Math.min(1, 0.16 * timeScale);
 
-      // 4. Progress (weighted cinematic momentum interpolation)
+      // 4. Progress (snappy 120fps time-normalized interpolation)
       if (Math.abs(pDiff) < 0.0001) {
         currentProgressRef.current = targetProgressRef.current;
       } else {
-        currentProgressRef.current += pDiff * 0.095;
+        currentProgressRef.current += pDiff * Math.min(1, 0.14 * timeScale);
       }
 
       if (!isChanging) {
@@ -362,8 +369,8 @@ export function MarbleExperience() {
   const zoomCrossfadeWeight = Math.cos(easedP2 * Math.PI * 0.5);
   const heroCrossfadeWeight = Math.sin(easedP2 * Math.PI * 0.5);
 
-  // Narrative Stage (p >= 0.70): ONLY starts when user scrolls further past the clear hero image
-  const narrativeProgress = Math.max(0, Math.min(1, (p - 0.70) / 0.30));
+  // Narrative Stage (p >= 0.65): Swift, responsive reveal
+  const narrativeProgress = Math.max(0, Math.min(1, (p - 0.65) / 0.35));
   const narrativeEased = narrativeProgress * narrativeProgress * (3 - 2 * narrativeProgress);
   const narrativeBlur = narrativeEased * 6.5;
   const narrativeDarken = narrativeEased * 0.52;
@@ -520,15 +527,16 @@ export function MarbleExperience() {
           className="w-full h-full object-cover object-center brightness-[1.02] contrast-[1.03]"
         />
 
-        {/* Hardware-accelerated smooth blur transition layer */}
+        {/* Hardware-accelerated smooth transition layer (clean on mobile, blur on desktop) */}
         {narrativeProgress > 0.01 && (
           <div
             style={{
               opacity: narrativeProgress,
-              backdropFilter: 'blur(7px)',
-              WebkitBackdropFilter: 'blur(7px)',
+              backdropFilter: isMobile ? undefined : 'blur(7px)',
+              WebkitBackdropFilter: isMobile ? undefined : 'blur(7px)',
+              backgroundColor: isMobile ? 'rgba(0,0,0,0.55)' : undefined,
             }}
-            className="absolute inset-0 pointer-events-none"
+            className="absolute inset-0 pointer-events-none will-change-opacity"
           />
         )}
 
