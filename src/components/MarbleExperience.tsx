@@ -497,36 +497,38 @@ export function MarbleExperience() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. STAGE 1: ARRIVING ZOOMED BALCONY IMAGE (Close-up Facade)               */}
+      {/* 2. STAGE 1: ARRIVING ZOOMED BALCONY IMAGE (Desktop Match-Zoom Anchor)     */}
       {/* ========================================================================= */}
-      <div
-        style={{
-          opacity: zoomedBgOpacity,
-          transform: `scale(${zoomedBgScale})`,
-          transformOrigin: '50% 50%',
-          filter: `blur(${zoomedBgBlur}px)`,
-        }}
-        className="absolute inset-0 z-10 overflow-hidden pointer-events-none will-change-transform"
-      >
-        <img
-          src={images.marbleZoomed}
-          alt="Lunore Balcony Marble Facade Zoomed"
-          loading="lazy"
-          decoding="async"
-          className="w-full h-full object-cover object-center brightness-100 contrast-105"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/40" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.65)_100%)]" />
-      </div>
+      {!isMobile && (
+        <div
+          style={{
+            opacity: zoomedBgOpacity,
+            transform: `scale(${zoomedBgScale})`,
+            transformOrigin: '50% 50%',
+            filter: `blur(${zoomedBgBlur}px)`,
+          }}
+          className="absolute inset-0 z-10 overflow-hidden pointer-events-none will-change-transform"
+        >
+          <img
+            src={images.marbleZoomed}
+            alt="Lunore Balcony Marble Facade Zoomed"
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover object-center brightness-100 contrast-105"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/40" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.65)_100%)]" />
+        </div>
+      )}
 
       {/* ========================================================================= */}
-      {/* 3. STAGE 2: FULL MONUMENTAL BUILDING (Cinematic Match-Zoom Pinch-Out)    */}
+      {/* 3. STAGE 2: FULL MONUMENTAL BUILDING (Zero-Flicker Hardware Composited)  */}
       {/* ========================================================================= */}
       <div
         style={{
-          opacity: heroBgOpacity,
-          transform: `scale(${heroBgScale})`,
-          transformOrigin: '50% 38%', // Anchors zoom right onto the center balcony for seamless pullback
+          opacity: isMobile ? 1 : heroBgOpacity,
+          transform: isMobile ? 'none' : `scale(${heroBgScale})`,
+          transformOrigin: '50% 38%',
         }}
         className="absolute inset-0 z-15 overflow-hidden pointer-events-none will-change-transform"
       >
@@ -539,20 +541,19 @@ export function MarbleExperience() {
         />
 
         {/* Hardware-accelerated smooth transition layer (clean on mobile, blur on desktop) */}
-        {narrativeProgress > 0.01 && (
+        {!isMobile && narrativeProgress > 0.01 && (
           <div
             style={{
               opacity: narrativeProgress,
-              backdropFilter: isMobile ? undefined : 'blur(7px)',
-              WebkitBackdropFilter: isMobile ? undefined : 'blur(7px)',
-              backgroundColor: isMobile ? 'rgba(0,0,0,0.55)' : undefined,
+              backdropFilter: 'blur(7px)',
+              WebkitBackdropFilter: 'blur(7px)',
             }}
             className="absolute inset-0 pointer-events-none will-change-opacity"
           />
         )}
 
         <div
-          style={{ opacity: Math.max(0.3, (1 - easedP2 * 0.4) + narrativeDarken) }}
+          style={{ opacity: isMobile ? 0.45 : Math.max(0.3, (1 - easedP2 * 0.4) + narrativeDarken) }}
           className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/50"
         />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.05)_0%,rgba(0,0,0,0.65)_100%)]" />
@@ -561,120 +562,130 @@ export function MarbleExperience() {
       {/* ========================================================================= */}
       {/* 4. MARBLE CUTOUT: 60FPS GPU TRANSFORMED DOCKING PANEL                     */}
       {/* ========================================================================= */}
-      {cardDissolveOpacity > 0.005 && (
-        <div
-          className="relative z-30 flex flex-col items-center justify-center pointer-events-none"
-        >
-          {/* GPU-accelerated 3D Transform Wrapper */}
+      {isMobile ? (
+        // MOBILE SMOOTH CARD
+        !isEntered && (
           <div
-            ref={cardRef}
-            onClick={handleCardClick}
+            onClick={handleEnterClick}
             style={{
               width: `${baseCardWidth}px`,
               height: `${baseCardHeight}px`,
-              perspective: '1400px',
-              transform: `perspective(1400px) translate3d(${transX}px, ${transY}px, 0px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) scale(${finalScaleX}, ${finalScaleY})`,
-              transformStyle: 'preserve-3d',
-              opacity: cardDissolveOpacity,
-              pointerEvents: isFullyRevealed ? 'none' : 'auto',
-              willChange: 'transform, opacity',
             }}
-            className="relative cursor-pointer group select-none flex items-center justify-center"
+            className="relative z-30 cursor-pointer select-none flex items-center justify-center transition-transform duration-500 active:scale-95"
           >
-            {/* ========================================================================= */}
-            {/* CARD FRONT: Glass Bezel & Stone Texture with Golden Shimmer Light-Sweep   */}
-            {/* ========================================================================= */}
-            <div
-              style={{
-                backfaceVisibility: 'hidden',
-                WebkitBackfaceVisibility: 'hidden',
-                borderRadius: `${outerRadius}px`,
-                padding: `${bezelPadding}px`,
-                backgroundColor: `rgba(255, 255, 255, ${0.08 * bezelGlassOpacity})`,
-                border: bezelGlassOpacity > 0.05 ? `1px solid rgba(255, 255, 255, ${0.35 * bezelGlassOpacity})` : 'none',
-                boxShadow: bezelGlassOpacity > 0.05
-                  ? `0 30px 90px rgba(0,0,0,${0.9 * bezelGlassOpacity}), 0 0 45px rgba(184,154,98,${0.25 * bezelGlassOpacity}), inset 0 1.5px 2px rgba(255,255,255,${0.6 * bezelGlassOpacity})`
-                  : 'none',
-              }}
-              className={`absolute inset-0 overflow-hidden flex flex-col items-center justify-center ${bezelGlassOpacity > 0.05 ? 'backdrop-blur-2xl' : ''}`}
-            >
-              {/* Specular White Top Edge Glow */}
-              {bezelGlassOpacity > 0.05 && (
-                <div
-                  style={{ opacity: bezelGlassOpacity }}
-                  className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent z-10 pointer-events-none"
-                />
-              )}
-
-              {/* Inner Frame with 100% Solid Edge-to-Edge Image */}
-              <div
-                style={{
-                  borderRadius: `${innerRadius}px`,
-                  border: bezelGlassOpacity > 0.05 ? `1px solid rgba(255, 255, 255, ${0.25 * bezelGlassOpacity})` : 'none',
-                }}
-                className="relative w-full h-full overflow-hidden flex items-center justify-center"
-              >
-                {/* Marble Texture */}
+            <div className="relative w-full h-full rounded-2xl p-3 bg-white/[0.08] border border-white/40 shadow-[0_24px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(184,154,98,0.25)] backdrop-blur-xl overflow-hidden flex items-center justify-center">
+              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent z-10 pointer-events-none" />
+              <div className="relative w-full h-full rounded-xl overflow-hidden border border-white/25">
                 <img
                   src={images.marbleCutout}
-                  alt="Lunore Architectural Marble Cutout"
-                  style={{
-                    filter: `brightness(${stoneBrightness}) contrast(${stoneContrast}) saturate(${stoneSaturate})`,
-                  }}
-                  className="w-full h-full object-cover object-center group-hover:scale-105 pointer-events-none"
+                  alt="Lunore Architectural Marble Monolith"
+                  loading="eager"
+                  decoding="async"
+                  className="w-full h-full object-cover object-center brightness-105 contrast-105 pointer-events-none"
                 />
-
-                {/* Glass Specular Lighting Layer */}
-                {bezelGlassOpacity > 0.05 && (
-                  <div
-                    style={{ opacity: bezelGlassOpacity }}
-                    className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-white/[0.08] pointer-events-none"
-                  />
-                )}
-
-                {/* GOLDEN SPECULAR LIGHT SWEEP (Flashes across face during docking lock) */}
-                {lockFlash > 0.01 && (
-                  <div
-                    style={{
-                      transform: `translateX(${lightSweepPos}%)`,
-                      opacity: lockFlash * 0.9,
-                    }}
-                    className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/80 via-[#f3e5ab]/90 to-transparent skew-x-[-20deg] pointer-events-none"
-                  />
-                )}
-
-                {/* GOLDEN ARCHITECTURAL DOCKING LASER PERIMETER */}
-                {lockFlash > 0.02 && (
-                  <div
-                    style={{
-                      opacity: lockFlash,
-                      borderColor: '#b89a62',
-                      boxShadow: `inset 0 0 30px rgba(184,154,98,${0.95 * lockFlash}), 0 0 35px rgba(243,229,171,${0.85 * lockFlash})`,
-                    }}
-                    className="absolute inset-0 border-2 pointer-events-none"
-                  />
-                )}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-white/[0.08] pointer-events-none" />
               </div>
             </div>
           </div>
-        </div>
+        )
+      ) : (
+        // DESKTOP 3D TRANSFORMED DOCKING PANEL
+        cardDissolveOpacity > 0.005 && (
+          <div className="relative z-30 flex flex-col items-center justify-center pointer-events-none">
+            <div
+              ref={cardRef}
+              onClick={handleCardClick}
+              style={{
+                width: `${baseCardWidth}px`,
+                height: `${baseCardHeight}px`,
+                perspective: '1400px',
+                transform: `perspective(1400px) translate3d(${transX}px, ${transY}px, 0px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) scale(${finalScaleX}, ${finalScaleY})`,
+                transformStyle: 'preserve-3d',
+                opacity: cardDissolveOpacity,
+                pointerEvents: isFullyRevealed ? 'none' : 'auto',
+                willChange: 'transform, opacity',
+              }}
+              className="relative cursor-pointer group select-none flex items-center justify-center"
+            >
+              <div
+                style={{
+                  backfaceVisibility: 'hidden',
+                  WebkitBackfaceVisibility: 'hidden',
+                  borderRadius: `${outerRadius}px`,
+                  padding: `${bezelPadding}px`,
+                  backgroundColor: `rgba(255, 255, 255, ${0.08 * bezelGlassOpacity})`,
+                  border: bezelGlassOpacity > 0.05 ? `1px solid rgba(255, 255, 255, ${0.35 * bezelGlassOpacity})` : 'none',
+                  boxShadow: bezelGlassOpacity > 0.05
+                    ? `0 30px 90px rgba(0,0,0,${0.9 * bezelGlassOpacity}), 0 0 45px rgba(184,154,98,${0.25 * bezelGlassOpacity}), inset 0 1.5px 2px rgba(255,255,255,${0.6 * bezelGlassOpacity})`
+                    : 'none',
+                }}
+                className={`absolute inset-0 overflow-hidden flex flex-col items-center justify-center ${bezelGlassOpacity > 0.05 ? 'backdrop-blur-2xl' : ''}`}
+              >
+                {bezelGlassOpacity > 0.05 && (
+                  <div
+                    style={{ opacity: bezelGlassOpacity }}
+                    className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent z-10 pointer-events-none"
+                  />
+                )}
+                <div
+                  style={{
+                    borderRadius: `${innerRadius}px`,
+                    border: bezelGlassOpacity > 0.05 ? `1px solid rgba(255, 255, 255, ${0.25 * bezelGlassOpacity})` : 'none',
+                  }}
+                  className="relative w-full h-full overflow-hidden flex items-center justify-center"
+                >
+                  <img
+                    src={images.marbleCutout}
+                    alt="Lunore Architectural Marble Cutout"
+                    style={{
+                      filter: `brightness(${stoneBrightness}) contrast(${stoneContrast}) saturate(${stoneSaturate})`,
+                    }}
+                    className="w-full h-full object-cover object-center group-hover:scale-105 pointer-events-none"
+                  />
+                  {bezelGlassOpacity > 0.05 && (
+                    <div
+                      style={{ opacity: bezelGlassOpacity }}
+                      className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-white/[0.08] pointer-events-none"
+                    />
+                  )}
+                  {lockFlash > 0.01 && (
+                    <div
+                      style={{
+                        transform: `translateX(${lightSweepPos}%)`,
+                        opacity: lockFlash * 0.9,
+                      }}
+                      className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/80 via-[#f3e5ab]/90 to-transparent skew-x-[-20deg] pointer-events-none"
+                    />
+                  )}
+                  {lockFlash > 0.02 && (
+                    <div
+                      style={{
+                        opacity: lockFlash,
+                        borderColor: '#b89a62',
+                        boxShadow: `inset 0 0 30px rgba(184,154,98,${0.95 * lockFlash}), 0 0 35px rgba(243,229,171,${0.85 * lockFlash})`,
+                      }}
+                      className="absolute inset-0 border-2 pointer-events-none"
+                    />
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )
       )}
 
       {/* ========================================================================= */}
-      {/* 5. INTERMEDIATE DOCKED REVEAL: "All Stop Solution is Here" (NO CARD)     */}
-      {/* Positioned right where the slab submerged/docked into the balcony facade */}
+      {/* 5. INTERMEDIATE DOCKED REVEAL (Desktop only): "All Stop Solution is Here" */}
       {/* ========================================================================= */}
-      {isEntered && p >= 0.38 && !isZoomUnlocked && (
+      {!isMobile && isEntered && p >= 0.38 && !isZoomUnlocked && (
         <div
           style={{
             transform: `translate3d(0, ${dockedTargetY}px, 0)`,
           }}
           className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center justify-center text-center px-4 pointer-events-auto select-none"
         >
-          {/* Pulsing Ambient Golden Light Bloom */}
           <div className="absolute w-[500px] h-[180px] bg-[#b89a62]/20 rounded-full blur-[90px] pointer-events-none -z-10 animate-pulse" />
 
-          {/* Subtitle Badge with Reveal */}
           <span
             style={{
               animation: 'lunore-letter-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both',
@@ -685,7 +696,6 @@ export function MarbleExperience() {
             Integrated Living &amp; Craft
           </span>
 
-          {/* Staggered Word Mask Headline */}
           <h3
             className="text-[clamp(1.45rem,6.5vw,2.25rem)] sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-wide drop-shadow-[0_4px_30px_rgba(0,0,0,0.98)] max-w-2xl px-2"
             style={{ fontFamily: 'var(--font-serif)' }}
@@ -706,7 +716,6 @@ export function MarbleExperience() {
             ))}
           </h3>
 
-          {/* Animated Gold Divider Line */}
           <div
             style={{
               animation: 'cinematic-line-mask 0.8s cubic-bezier(0.16, 1, 0.3, 1) both',
@@ -715,7 +724,6 @@ export function MarbleExperience() {
             className="mt-3 w-16 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent"
           />
 
-          {/* Animated Tiny Floating Enter Button */}
           <div
             style={{
               animation: 'lunore-letter-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) both',
@@ -742,23 +750,19 @@ export function MarbleExperience() {
 
       {/* ========================================================================= */}
       {/* 6. FINAL NARRATIVE REVEAL: "Marble and Granite Solutions"                 */}
-      {/* Appears as user scrolls into the full zoom-out with soft background blur  */}
       {/* ========================================================================= */}
-      {narrativeProgress > 0.05 && (
+      {(isMobile ? isEntered : narrativeProgress > 0.05) && (
         <div
           style={{
-            opacity: narrativeProgress,
-            transform: `translate3d(0, ${(1 - narrativeEased) * 30}px, 0)`,
+            opacity: isMobile ? 1 : narrativeProgress,
+            transform: isMobile ? 'none' : `translate3d(0, ${(1 - narrativeEased) * 30}px, 0)`,
           }}
-          className="absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-4 sm:px-8 md:px-12 pointer-events-auto select-none overflow-hidden"
+          className={`absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-4 sm:px-8 md:px-12 pointer-events-auto select-none overflow-hidden ${
+            isMobile ? 'transition-all duration-500' : ''
+          }`}
         >
           {/* Contrast Dark Backdrop & Ambient Glow */}
-          <div
-            style={{
-              opacity: isMobile ? Math.min(1, narrativeProgress * 1.6) : undefined,
-            }}
-            className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/80 to-black/90 pointer-events-none -z-10 transition-opacity duration-300"
-          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/85 to-black/90 pointer-events-none -z-10" />
           <div className="absolute w-[950px] h-[550px] bg-black/60 rounded-full blur-[90px] pointer-events-none -z-10 hidden sm:block" />
           <div className="absolute w-[800px] h-[400px] bg-[#b89a62]/15 rounded-full blur-[150px] pointer-events-none -z-10 hidden sm:block" />
 
@@ -841,7 +845,7 @@ export function MarbleExperience() {
           </div>
         )}
 
-        {isEntered && p < 0.38 && (
+        {!isMobile && isEntered && p < 0.38 && (
           <div className="flex flex-col items-center gap-1.5 opacity-85 transition-opacity duration-300">
             <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#b89a62] font-medium drop-shadow-md">
               Scroll down to dock monolith into facade
@@ -850,7 +854,7 @@ export function MarbleExperience() {
           </div>
         )}
 
-        {isEntered && isZoomUnlocked && p >= 0.55 && p < 0.72 && (
+        {!isMobile && isEntered && isZoomUnlocked && p >= 0.55 && p < 0.72 && (
           <div className="flex flex-col items-center gap-1.5 opacity-85 transition-opacity duration-300">
             <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#b89a62] font-medium drop-shadow-md">
               Scroll down to explore Lunore Stone Collection • Scroll up to reverse
@@ -861,7 +865,7 @@ export function MarbleExperience() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 6. TOP RESET CONTROLS (Active after Enter)                                */}
+      {/* 8. TOP RESET CONTROLS (Active after Enter)                                */}
       {/* ========================================================================= */}
       {isEntered && (
         <div className="absolute top-6 right-6 z-40">
