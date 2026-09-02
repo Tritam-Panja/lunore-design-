@@ -220,11 +220,16 @@ export function MarbleExperience() {
     return () => window.removeEventListener('mousemove', handleWindowMouseMove);
   }, [updatePointerPosition]);
 
-  // Touch handlers for mobile
+  // Touch handlers for mobile with velocity tracking & gesture momentum
+  const lastTouchTimeRef = useRef<number>(0);
+  const touchVelocityRef = useRef<number>(0);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 0) return;
     touchStartYRef.current = e.touches[0].clientY;
     lastTouchYRef.current = e.touches[0].clientY;
+    lastTouchTimeRef.current = performance.now();
+    touchVelocityRef.current = 0;
   };
 
   const overscrollDeltaRef = useRef<number>(0);
@@ -241,32 +246,68 @@ export function MarbleExperience() {
   const handleTouchMove = (e: React.TouchEvent) => {
     if (e.touches.length === 0) return;
     const touch = e.touches[0];
+    const now = performance.now();
+    const dt = Math.max(1, now - lastTouchTimeRef.current);
     const deltaY = lastTouchYRef.current - touch.clientY;
+    touchVelocityRef.current = deltaY / dt;
     lastTouchYRef.current = touch.clientY;
+    lastTouchTimeRef.current = now;
 
     if (isEntered) {
       if (deltaY > 0) {
         // Swiping Up (Progressing forward through the animation stages)
         const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
         if (targetProgressRef.current < maxAllowed) {
-          // Responsive mobile swipe sensitivity
-          targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + deltaY * 0.005);
+          targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + deltaY * 0.0055);
           triggerPhysicsLoopRef.current();
         } else if (isZoomUnlockedRef.current) {
           overscrollDeltaRef.current += Math.abs(deltaY);
-          if (overscrollDeltaRef.current > 160) {
+          if (overscrollDeltaRef.current > 140) {
             handleNextSection();
           }
         }
       } else if (deltaY < 0 && targetProgressRef.current > 0) {
         // Swiping Down (Reversing animation)
         overscrollDeltaRef.current = 0;
-        targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.005);
+        targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.0055);
         triggerPhysicsLoopRef.current();
         if (targetProgressRef.current < 0.38) {
           setIsZoomUnlocked(false);
           isZoomUnlockedRef.current = false;
         }
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (!isEntered) return;
+    const vel = touchVelocityRef.current;
+
+    // Gesture velocity snapping
+    if (vel > 0.45) {
+      // Quick upward flick
+      if (targetProgressRef.current < 0.44 && !isZoomUnlockedRef.current) {
+        targetProgressRef.current = 0.44;
+      } else if (isZoomUnlockedRef.current || targetProgressRef.current >= 0.44) {
+        targetProgressRef.current = 1.0;
+      }
+      triggerPhysicsLoopRef.current();
+    } else if (vel < -0.45) {
+      // Quick downward flick
+      if (targetProgressRef.current > 0.44) {
+        targetProgressRef.current = 0.44;
+      } else if (targetProgressRef.current <= 0.44) {
+        targetProgressRef.current = 0;
+      }
+      triggerPhysicsLoopRef.current();
+    } else {
+      // Milestone auto-snap
+      if (targetProgressRef.current > 0.28 && targetProgressRef.current < 0.44 && !isZoomUnlockedRef.current) {
+        targetProgressRef.current = 0.44;
+        triggerPhysicsLoopRef.current();
+      } else if (targetProgressRef.current > 0.70 && isZoomUnlockedRef.current) {
+        targetProgressRef.current = 1.0;
+        triggerPhysicsLoopRef.current();
       }
     }
   };
@@ -459,6 +500,7 @@ export function MarbleExperience() {
       id="marble-experience"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
       style={{ touchAction: isEntered ? (isMobile ? 'pan-y' : 'none') : 'pan-y' }}
       className="relative w-full h-[100dvh] min-h-[600px] bg-[#08090a] overflow-hidden select-none flex items-center justify-center"
     >
