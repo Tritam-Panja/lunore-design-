@@ -559,7 +559,7 @@ export function SculpturesExperience() {
             <img
               src={images.sculptureHero}
               alt="LUNORE Signature Sculptures Gallery"
-              loading="lazy"
+              loading="eager"
               decoding="async"
               className="w-full h-full object-cover object-center brightness-100 contrast-100"
             />
@@ -760,13 +760,13 @@ export function SculpturesExperience() {
                             style={{
                               filter: isMobile ? undefined : `brightness(${0.72 + 0.28 * easedP}) contrast(${1.06 - 0.02 * easedP})`,
                             }}
-                            className="w-full h-full object-cover object-center pointer-events-none transition-[filter] duration-500"
+                            className="w-full h-full object-cover object-center pointer-events-none"
                           />
 
-                          {/* Statement Dimmer (Clears as card pinches in) */}
+                          {/* Statement Dimmer (Clears as card pinches in - no CSS transition conflict) */}
                           <div
                             style={{ opacity: Math.max(0, (1 - easedP) * 0.70) }}
-                            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/60 to-black/75 pointer-events-none transition-opacity duration-500"
+                            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/60 to-black/75 pointer-events-none"
                           />
 
                           {/* Gradient Vignettes */}
@@ -778,13 +778,11 @@ export function SculpturesExperience() {
                             <div className="absolute -bottom-8 inset-x-0 h-24 bg-gradient-to-t from-[#b89a62]/25 to-transparent pointer-events-none" />
                           )}
 
-                          {/* Golden Dock Sheen */}
-                          {dockSheenOpacity > 0 && (
-                            <div
-                              style={{ opacity: dockSheenOpacity }}
-                              className="absolute inset-0 border-2 border-[#b89a62]/50 shadow-[inset_0_0_20px_rgba(184,154,98,0.3)] pointer-events-none rounded-[inherit]"
-                            />
-                          )}
+                          {/* Golden Dock Sheen (Always in DOM with opacity lerp to avoid layout mutation) */}
+                          <div
+                            style={{ opacity: dockSheenOpacity }}
+                            className="absolute inset-0 border-2 border-[#b89a62]/50 shadow-[inset_0_0_20px_rgba(184,154,98,0.3)] pointer-events-none rounded-[inherit] transition-opacity duration-200"
+                          />
                         </div>
                       </div>
                     </div>
