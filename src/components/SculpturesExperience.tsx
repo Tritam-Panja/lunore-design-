@@ -370,12 +370,10 @@ export function SculpturesExperience() {
     const dt = Math.max(1, now - lastDragTimeRef.current);
 
     if (currentPinchRef.current < 0.95) {
-      if (diffY > 10) {
-        targetPinchRef.current = Math.min(1, touchStartRef.current.pinch + diffY * 0.004);
-        triggerPhysicsLoopRef.current();
-      }
+      // Swipe-to-morph disabled on phones to prevent mis-touches and preserve smooth natural page scrolling.
+      // Tapping anywhere on the image triggers the smooth 3D carousel morph.
     } else {
-      // Infinite horizontal swipe rotation
+      // Infinite horizontal swipe rotation when docked in carousel
       if (Math.abs(diffX) > Math.abs(diffY) * 1.2 && Math.abs(diffX) > 6) {
         const newTarget = touchStartRef.current.rot + diffX * 0.0045;
         velocityRef.current = (newTarget - targetRotationRef.current) / dt;
@@ -843,6 +841,13 @@ export function SculpturesExperience() {
                   materials, meticulous craftsmanship, and originality come together to create a
                   statement that is not only seen, but remembered.
                 </p>
+
+                {/* Subtle Floating Hover/Tap Hint (No button, pure delicate ambient text) */}
+                <div className="mt-5 sm:mt-8 flex items-center justify-center pointer-events-none">
+                  <span className="text-[10px] sm:text-xs tracking-[0.28em] uppercase text-[#b89a62] font-light animate-pulse drop-shadow-[0_0_12px_rgba(184,154,98,0.5)]">
+                    Tap to enter
+                  </span>
+                </div>
               </div>
             </div>
           )}
