@@ -677,6 +677,51 @@ export function SculpturesExperience() {
                   const heroTranslateZ = targetTranslateZ * easedP;
                   const heroRotateY = targetRotateY * easedP;
 
+                  // Mobile: Pure GPU scale matrix (zero layout reflow & zero texture flickering)
+                  // Desktop: Original exact pixel dimensions & dynamic padding
+                  const mobileScaleX = (viewport.w / targetCardW) * (1 - easedP) + 1 * easedP;
+                  const mobileScaleY = (viewport.h / targetCardH) * (1 - easedP) + 1 * easedP;
+
+                  const cardStyle: React.CSSProperties = isMobile
+                    ? {
+                        width: `${targetCardW}px`,
+                        height: `${targetCardH}px`,
+                        transform: `translate3d(${heroTranslateX}px, 0, ${heroTranslateZ}px) rotateY(${heroRotateY}deg) scale(${mobileScaleX}, ${mobileScaleY}) translateZ(0)`,
+                        transformOrigin: 'center center',
+                        zIndex: 45,
+                        pointerEvents: isDocked ? 'auto' : 'none',
+                        willChange: 'transform',
+                        backfaceVisibility: 'hidden',
+                      }
+                    : {
+                        width: `${currentCardW}px`,
+                        height: `${currentCardH}px`,
+                        transform: `translate3d(${heroTranslateX}px, 0, ${heroTranslateZ}px) rotateY(${heroRotateY}deg)`,
+                        zIndex: 45,
+                        pointerEvents: isDocked ? 'auto' : 'none',
+                        willChange: 'width, height, transform',
+                      };
+
+                  const panelStyle: React.CSSProperties = isMobile
+                    ? {
+                        borderRadius: `${heroBorderRadius}px`,
+                        padding: `${Math.max(8, heroPadding)}px`,
+                        backgroundColor: `rgba(255, 255, 255, ${0.08 * heroGlassOpacity})`,
+                        borderColor: `rgba(255, 255, 255, ${0.45 * heroGlassOpacity})`,
+                        boxShadow: isCenter && isDocked
+                          ? '0 30px 75px rgba(0,0,0,0.9), 0 0 40px rgba(184,154,98,0.28), inset 0 1.5px 2px rgba(255,255,255,0.6)'
+                          : `0 20px 50px rgba(0,0,0,${0.7 * heroGlassOpacity})`,
+                      }
+                    : {
+                        borderRadius: `${heroBorderRadius}px`,
+                        padding: `${heroPadding}px`,
+                        backgroundColor: `rgba(255, 255, 255, ${0.08 * heroGlassOpacity})`,
+                        borderColor: `rgba(255, 255, 255, ${0.5 * heroGlassOpacity})`,
+                        boxShadow: isCenter && isDocked
+                          ? '0 30px 75px rgba(0,0,0,0.9), 0 0 40px rgba(184,154,98,0.28), inset 0 1.5px 2px rgba(255,255,255,0.6)'
+                          : `0 20px 50px rgba(0,0,0,${0.7 * heroGlassOpacity})`,
+                      };
+
                   return (
                     <div
                       key={item.id}
@@ -686,27 +731,12 @@ export function SculpturesExperience() {
                           lastInteractionTimeRef.current = Date.now();
                         }
                       }}
-                      style={{
-                        width: `${currentCardW}px`,
-                        height: `${currentCardH}px`,
-                        transform: `translate3d(${heroTranslateX}px, 0, ${heroTranslateZ}px) rotateY(${heroRotateY}deg)`,
-                        zIndex: 45,
-                        pointerEvents: isDocked ? 'auto' : 'none',
-                        willChange: 'width, height, transform',
-                      }}
+                      style={cardStyle}
                       className="absolute select-none transition-shadow duration-300"
                     >
                       {/* LIQUID GLASS PANEL */}
                       <div
-                        style={{
-                          borderRadius: `${heroBorderRadius}px`,
-                          padding: `${heroPadding}px`,
-                          backgroundColor: `rgba(255, 255, 255, ${0.08 * heroGlassOpacity})`,
-                          borderColor: `rgba(255, 255, 255, ${0.5 * heroGlassOpacity})`,
-                          boxShadow: isCenter && isDocked
-                            ? '0 30px 75px rgba(0,0,0,0.9), 0 0 40px rgba(184,154,98,0.28), inset 0 1.5px 2px rgba(255,255,255,0.6)'
-                            : `0 20px 50px rgba(0,0,0,${0.7 * heroGlassOpacity})`,
-                        }}
+                        style={panelStyle}
                         className="relative w-full h-full overflow-hidden backdrop-blur-2xl border flex flex-col items-center justify-center"
                       >
                         {/* Top Specular Edge Glow */}
@@ -725,10 +755,10 @@ export function SculpturesExperience() {
                           <img
                             src={item.image}
                             alt={item.title}
-                            loading="lazy"
+                            loading="eager"
                             decoding="async"
                             style={{
-                              filter: `brightness(${0.72 + 0.28 * easedP}) contrast(${1.06 - 0.02 * easedP})`,
+                              filter: isMobile ? undefined : `brightness(${0.72 + 0.28 * easedP}) contrast(${1.06 - 0.02 * easedP})`,
                             }}
                             className="w-full h-full object-cover object-center pointer-events-none transition-[filter] duration-500"
                           />
