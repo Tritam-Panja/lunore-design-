@@ -427,17 +427,18 @@ export function SculpturesExperience() {
   const textTranslateY = -easedP * 60;
   const textScale = 1 - easedP * 0.04;
 
-  // 2. Landscape -> Portrait Dimensions Morphing
+  // 2. Landscape -> Portrait GPU Scale Transform Morphing
   const isMobile = viewport.w < 640;
   const isTablet = viewport.w >= 640 && viewport.w < 1024;
   const targetCardW = isMobile ? Math.min(250, viewport.w * 0.74) : isTablet ? 300 : 350;
   const targetCardH = isMobile ? Math.min(365, viewport.h * 0.48) : isTablet ? 450 : 520;
 
-  const currentCardW = viewport.w + (targetCardW - viewport.w) * easedP;
-  const currentCardH = viewport.h + (targetCardH - viewport.h) * easedP;
-  const heroBorderRadius = easedP * 20;
-  const heroPadding = easedP * 14;
-  const heroGlassOpacity = Math.max(0, (easedP - 0.1) / 0.9);
+  // Pure GPU hardware-accelerated scaling (eliminates 60fps layout reflow & mobile flickering)
+  const fullScaleX = Math.max(1, viewport.w / targetCardW);
+  const fullScaleY = Math.max(1, viewport.h / targetCardH);
+  const heroScaleX = fullScaleX + (1 - fullScaleX) * easedP;
+  const heroScaleY = fullScaleY + (1 - fullScaleY) * easedP;
+  const heroGlassOpacity = Math.max(0, (easedP - 0.05) / 0.95);
 
   // 3. Sibling 3D Fan-Out
   const rawFan = Math.max(0, (p - 0.2) / 0.8);
@@ -599,7 +600,7 @@ export function SculpturesExperience() {
                 const targetOpacity = isVisible ? Math.max(0.15, 1 - Math.pow(Math.abs(diff) / 3.2, 1.8)) : 0;
                 const zIndex = Math.round(30 - Math.abs(diff) * 8);
 
-                // 1. CENTER HERO CARD (Landscape Fullscreen -> Portrait Card Morph)
+                // 1. CENTER HERO CARD (Landscape Fullscreen -> Portrait Card Morph with GPU Scale)
                 if (isHeroCard) {
                   const heroTranslateX = targetTranslateX * easedP;
                   const heroTranslateZ = targetTranslateZ * easedP;
@@ -615,27 +616,26 @@ export function SculpturesExperience() {
                         }
                       }}
                       style={{
-                        width: `${currentCardW}px`,
-                        height: `${currentCardH}px`,
-                        transform: `translate3d(${heroTranslateX}px, 0, ${heroTranslateZ}px) rotateY(${heroRotateY}deg)`,
+                        width: `${targetCardW}px`,
+                        height: `${targetCardH}px`,
+                        transform: `translate3d(${heroTranslateX}px, 0, ${heroTranslateZ}px) rotateY(${heroRotateY}deg) scale(${heroScaleX}, ${heroScaleY})`,
+                        transformOrigin: 'center center',
                         zIndex: 45,
                         pointerEvents: isDocked ? 'auto' : 'none',
-                        willChange: 'width, height, transform',
+                        willChange: 'transform',
                       }}
-                      className="absolute select-none transition-shadow duration-300"
+                      className="absolute select-none transition-shadow duration-300 rounded-2xl"
                     >
                       {/* LIQUID GLASS PANEL */}
                       <div
                         style={{
-                          borderRadius: `${heroBorderRadius}px`,
-                          padding: `${heroPadding}px`,
                           backgroundColor: `rgba(255, 255, 255, ${0.08 * heroGlassOpacity})`,
-                          borderColor: `rgba(255, 255, 255, ${0.5 * heroGlassOpacity})`,
+                          borderColor: `rgba(255, 255, 255, ${0.4 * heroGlassOpacity})`,
                           boxShadow: isCenter && isDocked
                             ? '0 30px 75px rgba(0,0,0,0.9), 0 0 40px rgba(184,154,98,0.28), inset 0 1.5px 2px rgba(255,255,255,0.6)'
                             : `0 20px 50px rgba(0,0,0,${0.7 * heroGlassOpacity})`,
                         }}
-                        className="relative w-full h-full overflow-hidden backdrop-blur-2xl border flex flex-col items-center justify-center"
+                        className="relative w-full h-full rounded-2xl overflow-hidden backdrop-blur-2xl border p-3 sm:p-4 flex flex-col items-center justify-center"
                       >
                         {/* Top Specular Edge Glow */}
                         <div
@@ -644,27 +644,19 @@ export function SculpturesExperience() {
                         />
 
                         {/* Inner Media Frame */}
-                        <div
-                          style={{
-                            borderRadius: `${Math.max(0, heroBorderRadius - 4)}px`,
-                          }}
-                          className="relative w-full h-full border border-white/25 bg-black/40 backdrop-blur-md flex items-center justify-center overflow-hidden"
-                        >
+                        <div className="relative w-full h-full rounded-xl border border-white/25 bg-black/40 backdrop-blur-md flex items-center justify-center overflow-hidden">
                           <img
                             src={item.image}
                             alt={item.title}
-                            loading="lazy"
+                            loading="eager"
                             decoding="async"
-                            style={{
-                              filter: `brightness(${0.72 + 0.28 * easedP}) contrast(${1.06 - 0.02 * easedP})`,
-                            }}
-                            className="w-full h-full object-cover object-center pointer-events-none transition-[filter] duration-500"
+                            className="w-full h-full object-cover object-center pointer-events-none brightness-100 contrast-100"
                           />
 
                           {/* Statement Dimmer (Clears as card pinches in) */}
                           <div
                             style={{ opacity: Math.max(0, (1 - easedP) * 0.70) }}
-                            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/60 to-black/75 pointer-events-none transition-opacity duration-500"
+                            className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/60 to-black/75 pointer-events-none transition-opacity duration-300"
                           />
 
                           {/* Gradient Vignettes */}
@@ -742,6 +734,21 @@ export function SculpturesExperience() {
             </div>
           </div>
 
+          {/* Active Sculpture Details Display */}
+          {isDocked && (
+            <div
+              style={{ opacity: controlsOpacity }}
+              className="text-center px-4 pt-1 pointer-events-none transition-opacity duration-300 relative z-30"
+            >
+              <p className="text-sm sm:text-base font-normal uppercase tracking-[0.2em] text-[#f1eee7]" style={{ fontFamily: 'var(--font-serif)' }}>
+                {SCULPTURE_CAROUSEL_ITEMS[activeIndex].title}
+              </p>
+              <p className="text-[10px] sm:text-xs text-[#b89a62] font-light tracking-[0.14em] mt-0.5">
+                {SCULPTURE_CAROUSEL_ITEMS[activeIndex].material}
+              </p>
+            </div>
+          )}
+
           {/* Bottom Controls & Free Carousel Navigation (Revealed when docked) */}
           <div
             style={{
@@ -811,12 +818,12 @@ export function SculpturesExperience() {
                 pointerEvents: textOpacity > 0.6 ? 'auto' : 'none',
               }}
               onClick={handleTriggerCarousel}
-              className="absolute inset-0 z-30 flex flex-col justify-center items-center px-6 sm:px-12 md:px-20 text-center select-text cursor-pointer"
+              className="absolute inset-0 z-30 flex flex-col justify-center items-center px-4 sm:px-12 md:px-20 text-center select-text cursor-pointer"
             >
               <div className="max-w-4xl mx-auto flex flex-col items-center">
                 {/* Heading with Reveal Animation */}
                 <h2
-                  className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.06em] sm:tracking-[0.1em] leading-tight sm:leading-snug drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] mb-6 sm:mb-8"
+                  className="text-xl sm:text-3xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.06em] sm:tracking-[0.1em] leading-tight sm:leading-snug drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] mb-3 sm:mb-8"
                   style={{
                     fontFamily: 'var(--font-serif)',
                     animation: 'statement-text-reveal 0.95s cubic-bezier(0.16, 1, 0.3, 1) forwards',
@@ -830,7 +837,7 @@ export function SculpturesExperience() {
 
                 {/* Accent Line */}
                 <div
-                  className="w-20 sm:w-28 h-[1px] bg-gradient-to-r from-transparent via-[#b89a62] to-transparent mb-6 sm:mb-8"
+                  className="w-16 sm:w-28 h-[1px] bg-gradient-to-r from-transparent via-[#b89a62] to-transparent mb-3 sm:mb-8"
                   style={{
                     animation: 'statement-text-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards',
                   }}
@@ -838,7 +845,7 @@ export function SculpturesExperience() {
 
                 {/* Body Paragraph in Ivory White */}
                 <p
-                  className="text-base sm:text-lg md:text-xl font-light leading-relaxed sm:leading-loose tracking-wide text-[#FFFFF0] max-w-3xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)] text-center"
+                  className="text-xs sm:text-base md:text-xl font-light leading-relaxed sm:leading-loose tracking-wide text-[#FFFFF0] max-w-3xl drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)] text-center"
                   style={{
                     color: '#FFFFF0',
                     animation: 'statement-para-reveal 1.15s cubic-bezier(0.16, 1, 0.3, 1) 0.25s forwards',
@@ -846,18 +853,22 @@ export function SculpturesExperience() {
                 >
                   A sculpture is more than an object, it is a reflection of art, craftsmanship, and
                   individuality. From timeless classical and figurative forms to contemporary, abstract,
-                  and geometric creations, every sculpture has the power to transform a space. We see
-                  sculpture as a true expression of luxury. Where exceptional design, premium
-                  materials, meticulous craftsmanship, and originality come together to create a
-                  statement that is not only seen, but remembered.
+                  and geometric creations, every sculpture has the power to transform a space.
                 </p>
 
-                {/* Scroll Down Cue */}
-                <div className="mt-8 sm:mt-10 flex flex-col items-center gap-1.5 opacity-75 hover:opacity-100 transition-opacity">
-                  <span className="text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#b89a62]">
-                    Scroll or Click to Enter Carousel
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-[#b89a62] animate-bounce" />
+                {/* Enter 3D Carousel Button Cue */}
+                <div className="mt-6 sm:mt-10 flex flex-col items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleTriggerCarousel();
+                    }}
+                    className="cursor-pointer inline-flex items-center gap-2 px-5 sm:px-7 py-2.5 sm:py-3 rounded-full bg-[#b89a62]/20 hover:bg-[#b89a62]/35 border border-[#b89a62]/70 text-[#f1eee7] text-[11px] sm:text-xs tracking-[0.22em] uppercase font-medium shadow-[0_0_20px_rgba(184,154,98,0.3)] active:scale-95 transition-all"
+                  >
+                    <span>Enter 3D Gallery</span>
+                    <ArrowRight className="w-3.5 h-3.5 text-[#b89a62]" />
+                  </button>
                 </div>
               </div>
             </div>
