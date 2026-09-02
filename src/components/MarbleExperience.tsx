@@ -242,19 +242,30 @@ export function MarbleExperience() {
       const deltaY = touchStartYRef.current - touch.clientY;
       touchStartYRef.current = touch.clientY;
       if (deltaY > 0) {
-        const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
-        if (targetProgressRef.current < maxAllowed) {
-          targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + deltaY * 0.0032);
+        if (!isZoomUnlockedRef.current && targetProgressRef.current < 0.44) {
+          targetProgressRef.current = Math.min(0.44, targetProgressRef.current + deltaY * 0.005);
+          if (targetProgressRef.current >= 0.38) targetProgressRef.current = 0.44;
           triggerPhysicsLoopRef.current();
-        } else if (isZoomUnlockedRef.current) {
-          overscrollDeltaRef.current += Math.abs(deltaY);
-          if (overscrollDeltaRef.current > 300) {
-            handleNextSection();
+        } else {
+          // Swiftly progresses and snaps to 1.0 (100% full text reveal)
+          targetProgressRef.current = Math.min(1.0, targetProgressRef.current + deltaY * 0.007);
+          if (targetProgressRef.current >= 0.72) {
+            targetProgressRef.current = 1.0;
+            setIsZoomUnlocked(true);
+            isZoomUnlockedRef.current = true;
+          }
+          triggerPhysicsLoopRef.current();
+
+          if (targetProgressRef.current >= 0.95) {
+            overscrollDeltaRef.current += Math.abs(deltaY);
+            if (overscrollDeltaRef.current > 180) {
+              handleNextSection();
+            }
           }
         }
       } else if (deltaY < 0 && targetProgressRef.current > 0) {
         overscrollDeltaRef.current = 0;
-        targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.0032);
+        targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.006);
         triggerPhysicsLoopRef.current();
         if (targetProgressRef.current < 0.38) {
           setIsZoomUnlocked(false);
@@ -332,7 +343,7 @@ export function MarbleExperience() {
   const handleUnlockZoom = () => {
     setIsZoomUnlocked(true);
     isZoomUnlockedRef.current = true;
-    targetProgressRef.current = 0.68; // Zooms out to full crystal-clear hero image and stops
+    targetProgressRef.current = 1.0; // Zooms out fully to reveal complete crystal-clear narrative
     triggerPhysicsLoopRef.current();
   };
 
@@ -742,7 +753,12 @@ export function MarbleExperience() {
           className="absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-4 sm:px-8 md:px-12 pointer-events-auto select-none overflow-hidden"
         >
           {/* Contrast Dark Backdrop & Ambient Glow */}
-          <div className="absolute inset-0 bg-black/50 pointer-events-none -z-10" />
+          <div
+            style={{
+              opacity: isMobile ? Math.min(1, narrativeProgress * 1.6) : undefined,
+            }}
+            className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/80 to-black/90 pointer-events-none -z-10 transition-opacity duration-300"
+          />
           <div className="absolute w-[950px] h-[550px] bg-black/60 rounded-full blur-[90px] pointer-events-none -z-10 hidden sm:block" />
           <div className="absolute w-[800px] h-[400px] bg-[#b89a62]/15 rounded-full blur-[150px] pointer-events-none -z-10 hidden sm:block" />
 
@@ -787,11 +803,11 @@ export function MarbleExperience() {
 
           {/* Editorial Paragraph in Luminous Ivory White */}
           <p
-            className="text-xs sm:text-base md:text-lg lg:text-[1.12rem] text-[#f8f6f0] font-normal leading-relaxed tracking-wide max-w-3xl px-4 text-center select-text"
+            className="text-xs sm:text-base md:text-lg lg:text-[1.12rem] text-[#FFFFF0] font-light leading-relaxed sm:leading-loose tracking-wide max-w-3xl px-4 text-center select-text"
             style={{
-              color: '#f8f6f0',
+              color: '#FFFFF0',
               fontFamily: 'var(--font-serif)',
-              textShadow: '0 2px 16px rgba(0,0,0,0.95), 0 4px 30px rgba(0,0,0,0.9)',
+              textShadow: '0 2px 18px rgba(0,0,0,1), 0 4px 30px rgba(0,0,0,0.95)',
             }}
           >
             At Lunore, we deal in a wide range of premium marble and granite, offering carefully selected materials for every design requirement. What truly sets us apart, however, is not just the stone we supply, but the service and assurance behind every order. Every piece is thoroughly inspected by our marble experts before delivery to ensure the right quality, finish, size, and consistency—so you receive your marble exactly as it should be, with no compromises, surprises, or mistakes. With Lunore, every stone is checked, trusted, and delivered with confidence.
