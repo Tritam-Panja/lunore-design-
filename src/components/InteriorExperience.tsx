@@ -394,7 +394,12 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     };
   }, []);
 
-  // High-performance direct GPU render loop
+  // High-performance direct GPU render loop (wakes on interaction, sleeps when settled)
+  const isLoopRunningRef = useRef<boolean>(false);
+  const triggerRenderLoopRef = useRef<() => void>(() => {});
+  const lastRectRef = useRef<DOMRect | null>(null);
+  const lastRectTimeRef = useRef<number>(0);
+
   useEffect(() => {
     let animationFrameId: number;
 
@@ -403,40 +408,80 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       const isHovered = isHoveredRef.current;
       const isFlash = isFlashlightModeRef.current;
 
-      if (isHovered && isFlash) {
-        p.currentX += (p.targetX - p.currentX) * 0.25;
-        p.currentY += (p.targetY - p.currentY) * 0.25;
-
-        if (containerRef.current) {
-          containerRef.current.style.setProperty('--spotlight-x', `${p.currentX.toFixed(2)}%`);
-          containerRef.current.style.setProperty('--spotlight-y', `${p.currentY.toFixed(2)}%`);
-        }
+      if (!isHovered || !isFlash) {
+        isLoopRunningRef.current = false;
+        return;
       }
 
-      animationFrameId = requestAnimationFrame(renderLoop);
+      const diffX = p.targetX - p.currentX;
+      const diffY = p.targetY - p.currentY;
+      const isMoving = Math.abs(diffX) > 0.05 || Math.abs(diffY) > 0.05;
+
+      p.currentX += diffX * 0.25;
+      p.currentY += diffY * 0.25;
+
+      if (!isMoving) {
+        p.currentX = p.targetX;
+        p.currentY = p.targetY;
+      }
+
+      if (containerRef.current) {
+        containerRef.current.style.setProperty('--spotlight-x', `${p.currentX.toFixed(2)}%`);
+        containerRef.current.style.setProperty('--spotlight-y', `${p.currentY.toFixed(2)}%`);
+      }
+
+      if (isMoving) {
+        animationFrameId = requestAnimationFrame(renderLoop);
+      } else {
+        isLoopRunningRef.current = false;
+      }
     };
 
-    animationFrameId = requestAnimationFrame(renderLoop);
+    const triggerRenderLoop = () => {
+      if (!isLoopRunningRef.current && isHoveredRef.current && isFlashlightModeRef.current) {
+        isLoopRunningRef.current = true;
+        animationFrameId = requestAnimationFrame(renderLoop);
+      }
+    };
 
-    return () => cancelAnimationFrame(animationFrameId);
+    triggerRenderLoopRef.current = triggerRenderLoop;
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+      isLoopRunningRef.current = false;
+    };
+  }, []);
+
+  const getContainerRect = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return null;
+    const now = performance.now();
+    if (!lastRectRef.current || now - lastRectTimeRef.current > 300) {
+      lastRectRef.current = el.getBoundingClientRect();
+      lastRectTimeRef.current = now;
+    }
+    return lastRectRef.current;
   }, []);
 
   const handleMouseMove = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
-    if (!containerRef.current) return;
-    const rect = containerRef.current.getBoundingClientRect();
+    const rect = getContainerRect();
+    if (!rect) return;
     posRef.current.targetX = ((e.clientX - rect.left) / rect.width) * 100;
     posRef.current.targetY = ((e.clientY - rect.top) / rect.height) * 100;
-  }, []);
+    triggerRenderLoopRef.current();
+  }, [getContainerRect]);
 
   const handleTouchMoveFlashlight = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
-    if (!containerRef.current || e.touches.length === 0) return;
+    if (e.touches.length === 0) return;
     if (isFlashlightMode) {
-      const rect = containerRef.current.getBoundingClientRect();
+      const rect = getContainerRect();
+      if (!rect) return;
       const touch = e.touches[0];
       posRef.current.targetX = Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100));
       posRef.current.targetY = Math.max(0, Math.min(100, ((touch.clientY - rect.top) / rect.height) * 100));
+      triggerRenderLoopRef.current();
     }
-  }, [isFlashlightMode]);
+  }, [isFlashlightMode, getContainerRect]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -762,11 +807,11 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                             The Lunore Design Journey
                           </p>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 text-left max-h-[46vh] sm:max-h-none overflow-y-auto sm:overflow-visible pr-1 sm:pr-0 overscroll-contain no-scrollbar">
                             {JOURNEY_STEPS.map((item, idx) => (
                               <div
                                 key={item.step}
-                                className="p-2.5 sm:p-3 rounded-xl bg-black/40 backdrop-blur-md border border-white/15 hover:border-[#b89a62]/50 transition-all duration-300 shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+                                className="p-2.5 sm:p-3 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 hover:border-[#b89a62]/50 transition-all duration-300 shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
                                 style={{
                                   animation: 'lunore-letter-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both',
                                   animationDelay: `${0.06 + idx * 0.06}s`,

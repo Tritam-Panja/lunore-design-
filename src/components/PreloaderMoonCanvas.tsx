@@ -41,10 +41,12 @@ export function PreloaderMoonCanvas({ active }: PreloaderMoonCanvasProps) {
     renderer.toneMappingExposure = 1.2;
     container.appendChild(renderer.domElement);
 
-    // 4. Procedural High-Detail Lunar Surface Texture
+    // 4. Procedural High-Detail Lunar Surface Texture (Adaptive Resolution for fast GPU load)
     const createLunarTextures = () => {
-      const width = 2048;
-      const height = 1024;
+      const isMobile = window.innerWidth < 768;
+      const width = isMobile ? 512 : 1024;
+      const height = isMobile ? 256 : 512;
+      const scale = width / 2048;
 
       // Create a heightmap array
       const heights = new Float32Array(width * height);
@@ -119,16 +121,17 @@ export function PreloaderMoonCanvas({ active }: PreloaderMoonCanvasProps) {
       };
 
       // Carve the main transition crater right in the middle (U=0.5, V=0.5)
-      carveCrater(width * 0.5, height * 0.5, 95, 0.15, 0.06, true);
+      carveCrater(width * 0.5, height * 0.5, 95 * scale, 0.15, 0.06, true);
 
       // Carve random background craters of various sizes
-      for (let c = 0; c < 180; c++) {
+      const craterCount = isMobile ? 80 : 130;
+      for (let c = 0; c < craterCount; c++) {
         const cx = Math.random() * width;
         const cy = 0.15 * height + Math.random() * height * 0.7; // avoid poles
-        const r = 6 + Math.random() * 30;
+        const r = (6 + Math.random() * 30) * scale;
         const depth = 0.015 + Math.random() * 0.045;
         const rim = depth * 0.35;
-        const peak = r > 18 && Math.random() > 0.5;
+        const peak = r > 18 * scale && Math.random() > 0.5;
         
         let dx = cx - width * 0.5;
         if (dx > width / 2) dx -= width;
@@ -138,7 +141,7 @@ export function PreloaderMoonCanvas({ active }: PreloaderMoonCanvasProps) {
 
         // Prevent large background craters from obliterating the Hero Crater,
         // but allow small micro-impacts (r <= 12) to cross it for physical realism.
-        if (distToHero < 180 && r > 12) continue;
+        if (distToHero < 180 * scale && r > 12 * scale) continue;
 
         carveCrater(cx, cy, r, depth, rim, peak);
       }
@@ -238,13 +241,13 @@ export function PreloaderMoonCanvas({ active }: PreloaderMoonCanvasProps) {
       cCtx.putImageData(cImg, 0, 0);
       cCtx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
       for (let angle = 0; angle < Math.PI * 2; angle += 0.15) {
-        const length = 120 + Math.random() * 220;
+        const length = (120 + Math.random() * 220) * scale;
         const targetX = width * 0.5 + Math.cos(angle) * length;
         const targetY = height * 0.5 + Math.sin(angle) * length;
         cCtx.beginPath();
         cCtx.moveTo(width * 0.5, height * 0.5);
         cCtx.lineTo(targetX, targetY);
-        cCtx.lineWidth = 2 + Math.random() * 6;
+        cCtx.lineWidth = (2 + Math.random() * 6) * scale;
         cCtx.stroke();
       }
 
@@ -262,8 +265,9 @@ export function PreloaderMoonCanvas({ active }: PreloaderMoonCanvasProps) {
 
     const textures = createLunarTextures();
 
-    // 5. Realistic Moon Geometry (high detail for displacement mapping) & Material
-    const geometry = new THREE.SphereGeometry(1.6, 256, 256);
+    // 5. Realistic Moon Geometry & Material
+    const isMobile = window.innerWidth < 768;
+    const geometry = new THREE.SphereGeometry(1.6, isMobile ? 64 : 96, isMobile ? 64 : 96);
     const material = new THREE.MeshStandardMaterial({
       map: textures.map,
       normalMap: textures.normalMap,

@@ -1077,23 +1077,36 @@ class ImageTrailVariant7 {
     this.visibleImagesTotal = 8;
     this.visibleImagesTotal = Math.min(this.visibleImagesTotal, this.imagesTotal - 1);
 
+    let lastRect: DOMRect | null = null;
+    let lastRectTime = 0;
+
     const handlePointerMove = (ev: MouseEvent | TouchEvent) => {
-      const rect = container.getBoundingClientRect();
-      this.mousePos = getLocalPointerPos(ev, rect);
+      const now = performance.now();
+      if (!lastRect || now - lastRectTime > 300) {
+        lastRect = container.getBoundingClientRect();
+        lastRectTime = now;
+      }
+      this.mousePos = getLocalPointerPos(ev, lastRect);
+      if (this.rafId === null && !this.destroyed) {
+        this.rafId = requestAnimationFrame(() => this.render());
+      }
     };
-    container.addEventListener('mousemove', handlePointerMove);
-    container.addEventListener('touchmove', handlePointerMove);
+    container.addEventListener('mousemove', handlePointerMove, { passive: true } as any);
+    container.addEventListener('touchmove', handlePointerMove, { passive: true } as any);
 
     const initRender = (ev: MouseEvent | TouchEvent) => {
-      const rect = container.getBoundingClientRect();
-      this.mousePos = getLocalPointerPos(ev, rect);
+      lastRect = container.getBoundingClientRect();
+      lastRectTime = performance.now();
+      this.mousePos = getLocalPointerPos(ev, lastRect);
       this.cacheMousePos = { ...this.mousePos };
-      this.rafId = requestAnimationFrame(() => this.render());
+      if (this.rafId === null && !this.destroyed) {
+        this.rafId = requestAnimationFrame(() => this.render());
+      }
       container.removeEventListener('mousemove', initRender as EventListener);
       container.removeEventListener('touchmove', initRender as EventListener);
     };
-    container.addEventListener('mousemove', initRender as EventListener);
-    container.addEventListener('touchmove', initRender as EventListener);
+    container.addEventListener('mousemove', initRender as EventListener, { passive: true } as any);
+    container.addEventListener('touchmove', initRender as EventListener, { passive: true } as any);
     this.handlePointerMove = handlePointerMove;
     this.initRender = initRender;
   }
@@ -1112,7 +1125,16 @@ class ImageTrailVariant7 {
     }
     if (this.isIdle && this.zIndexVal !== 1) this.zIndexVal = 1;
 
-    this.rafId = requestAnimationFrame(() => this.render());
+    const isMoving =
+      Math.abs(this.mousePos.x - this.cacheMousePos.x) > 0.2 ||
+      Math.abs(this.mousePos.y - this.cacheMousePos.y) > 0.2 ||
+      !this.isIdle;
+
+    if (isMoving) {
+      this.rafId = requestAnimationFrame(() => this.render());
+    } else {
+      this.rafId = null;
+    }
   }
 
   private showNextImage() {

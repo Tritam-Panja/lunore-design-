@@ -87,9 +87,46 @@ export function Home() {
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const aboutRef = useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
+
+  // Battery & CPU Optimization: Pause hero video when out of viewport or tab hidden
+  useEffect(() => {
+    const video = videoRef.current;
+    const hero = heroRef.current;
+    if (!video || !hero) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {});
+        } else {
+          video.pause();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(hero);
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        video.pause();
+      } else if (hero.getBoundingClientRect().bottom > 0) {
+        video.play().catch(() => {});
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibility);
+
+    return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibility);
+    };
+  }, []);
 
   // Handle responsive detection
   useEffect(() => {
@@ -102,18 +139,27 @@ export function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Scroll handler for scroll-driven index update
+  // Scroll handler for scroll-driven index update (RAF throttled to avoid layout thrashing)
   useEffect(() => {
-    const handleScroll = () => {
-      if (!aboutRef.current) return;
-      const rect = aboutRef.current.getBoundingClientRect();
-      const totalHeight = rect.height - window.innerHeight;
-      if (totalHeight <= 0) return;
+    let ticking = false;
 
-      const progress = Math.max(0, Math.min(0.999, -rect.top / totalHeight));
-      const step = 1 / directors.length;
-      const index = Math.floor(progress / step);
-      setActiveIndex(Math.max(0, Math.min(directors.length - 1, index)));
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(() => {
+          if (aboutRef.current) {
+            const rect = aboutRef.current.getBoundingClientRect();
+            const totalHeight = rect.height - window.innerHeight;
+            if (totalHeight > 0) {
+              const progress = Math.max(0, Math.min(0.999, -rect.top / totalHeight));
+              const step = 1 / directors.length;
+              const index = Math.floor(progress / step);
+              setActiveIndex(Math.max(0, Math.min(directors.length - 1, index)));
+            }
+          }
+          ticking = false;
+        });
+      }
     };
 
     window.addEventListener('scroll', handleScroll, { passive: true });
@@ -207,14 +253,21 @@ export function Home() {
   return (
     <div className="relative bg-[#0d0e0e] text-[#f1eee7]">
       {/* 1. HERO SECTION */}
-      <section id="hero" className="relative w-full min-h-[85vh] sm:min-h-[90vh] md:h-screen md:min-h-[600px] overflow-hidden bg-[#0d0e0e] flex items-center pt-24 sm:pt-28 md:pt-0">
+      <section
+        ref={heroRef}
+        id="hero"
+        className="relative w-full min-h-[85vh] sm:min-h-[90vh] md:h-screen md:min-h-[600px] overflow-hidden bg-[#0d0e0e] flex items-center pt-24 sm:pt-28 md:pt-0"
+      >
         {/* Background Hero Video */}
         <div className="absolute inset-0 flex justify-end items-center overflow-hidden pointer-events-none">
           <video
+            ref={videoRef}
             autoPlay
             loop
             muted
             playsInline
+            preload="metadata"
+            poster="/assets/images/hero.jpg"
             className="h-full w-full object-cover object-[70%_center] sm:object-right md:w-auto md:max-w-none md:object-contain"
           >
             <source src="/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4" type="video/mp4" />
@@ -234,7 +287,7 @@ export function Home() {
           <div className="max-w-xl text-left">
             {/* Main L U N O R E Wordmark with Golden Glowing N */}
             <h1
-              className="text-[2.3rem] xs:text-4xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.08em] sm:tracking-[0.16em] uppercase text-[#f1eee7] leading-none select-none whitespace-nowrap"
+              className="text-[clamp(2.1rem,9.5vw,3.2rem)] sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.08em] sm:tracking-[0.16em] uppercase text-[#f1eee7] leading-none select-none whitespace-nowrap"
               style={{ fontFamily: 'var(--font-display)', perspective: '1000px' }}
             >
               <span className="lunore-brand-letter inline-block" style={{ animationDelay: '0.2s' }}>L</span>

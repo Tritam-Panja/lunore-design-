@@ -10,8 +10,7 @@ const AUREXA_TRAIL_IMAGES = [
   '/assets/images/imagetrail4.jpg',
   '/assets/images/imagetrail5.jpg',
   '/assets/images/imagetrail6.jpg',
-  '/assets/images/imagetrail7.jpg',
-  '/assets/images/imagetrail8.jpg',
+
   '/assets/images/imagetrail9.jpg',
 ];
 
@@ -111,6 +110,8 @@ export function AurexaSection() {
 
   // 3. User wheel / swipe interaction accelerates the animation while holding the page in place
   useEffect(() => {
+    if (isUnlocked || !hasStarted) return;
+
     const onWheel = (e: WheelEvent) => {
       if (!isUnlockedRef.current && hasStarted) {
         e.preventDefault();
@@ -130,7 +131,7 @@ export function AurexaSection() {
 
     window.addEventListener('wheel', onWheel, { passive: false });
     return () => window.removeEventListener('wheel', onWheel);
-  }, [hasStarted, unlockPage]);
+  }, [hasStarted, isUnlocked, unlockPage]);
 
   const handleProceed = () => {
     progressRef.current = 1;

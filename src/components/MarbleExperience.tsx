@@ -50,7 +50,10 @@ export function MarbleExperience() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Single 60fps RAF physics loop with viewport visibility throttling
+  // Wakeable 60fps RAF physics loop with viewport visibility throttling
+  const isLoopRunningRef = useRef<boolean>(false);
+  const triggerPhysicsLoopRef = useRef<() => void>(() => {});
+
   useEffect(() => {
     let animId: number | null = null;
     let isVisible = true;
@@ -58,27 +61,51 @@ export function MarbleExperience() {
     const updatePhysics = () => {
       if (!isVisible) {
         animId = null;
+        isLoopRunningRef.current = false;
         return;
       }
 
+      const diffTiltX = targetTiltRef.current.x - currentTiltRef.current.x;
+      const diffTiltY = targetTiltRef.current.y - currentTiltRef.current.y;
+      const diffTiltZ = targetTiltRef.current.z - currentTiltRef.current.z;
+      const diffPosX = targetPosRef.current.x - currentPosRef.current.x;
+      const diffPosY = targetPosRef.current.y - currentPosRef.current.y;
+      const diffFlip = targetFlipRef.current - currentFlipRef.current;
+      const pDiff = targetProgressRef.current - currentProgressRef.current;
+
+      const isChanging =
+        Math.abs(diffTiltX) > 0.01 ||
+        Math.abs(diffTiltY) > 0.01 ||
+        Math.abs(diffTiltZ) > 0.01 ||
+        Math.abs(diffPosX) > 0.08 ||
+        Math.abs(diffPosY) > 0.08 ||
+        Math.abs(diffFlip) > 0.005 ||
+        Math.abs(pDiff) > 0.0002;
+
       // 1. Tilt
-      currentTiltRef.current.x += (targetTiltRef.current.x - currentTiltRef.current.x) * 0.12;
-      currentTiltRef.current.y += (targetTiltRef.current.y - currentTiltRef.current.y) * 0.12;
-      currentTiltRef.current.z += (targetTiltRef.current.z - currentTiltRef.current.z) * 0.12;
+      currentTiltRef.current.x += diffTiltX * 0.12;
+      currentTiltRef.current.y += diffTiltY * 0.12;
+      currentTiltRef.current.z += diffTiltZ * 0.12;
 
       // 2. Pos
-      currentPosRef.current.x += (targetPosRef.current.x - currentPosRef.current.x) * 0.10;
-      currentPosRef.current.y += (targetPosRef.current.y - currentPosRef.current.y) * 0.10;
+      currentPosRef.current.x += diffPosX * 0.10;
+      currentPosRef.current.y += diffPosY * 0.10;
 
       // 3. Flip
-      currentFlipRef.current += (targetFlipRef.current - currentFlipRef.current) * 0.14;
+      currentFlipRef.current += diffFlip * 0.14;
 
       // 4. Progress (weighted cinematic momentum interpolation)
-      const pDiff = targetProgressRef.current - currentProgressRef.current;
       if (Math.abs(pDiff) < 0.0001) {
         currentProgressRef.current = targetProgressRef.current;
       } else {
         currentProgressRef.current += pDiff * 0.095;
+      }
+
+      if (!isChanging) {
+        currentTiltRef.current = { ...targetTiltRef.current };
+        currentPosRef.current = { ...targetPosRef.current };
+        currentFlipRef.current = targetFlipRef.current;
+        currentProgressRef.current = targetProgressRef.current;
       }
 
       // Batch all values into one atomic frame state update
@@ -92,17 +119,34 @@ export function MarbleExperience() {
         flip: currentFlipRef.current,
       });
 
-      animId = requestAnimationFrame(updatePhysics);
+      if (isChanging) {
+        animId = requestAnimationFrame(updatePhysics);
+      } else {
+        animId = null;
+        isLoopRunningRef.current = false;
+      }
     };
 
-    animId = requestAnimationFrame(updatePhysics);
+    const triggerPhysicsLoop = () => {
+      if (!isLoopRunningRef.current && isVisible) {
+        isLoopRunningRef.current = true;
+        animId = requestAnimationFrame(updatePhysics);
+      }
+    };
+
+    triggerPhysicsLoopRef.current = triggerPhysicsLoop;
+    triggerPhysicsLoop();
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           isVisible = entry.isIntersecting;
-          if (isVisible && animId === null) {
-            animId = requestAnimationFrame(updatePhysics);
+          if (isVisible) {
+            triggerPhysicsLoop();
+          } else if (animId !== null) {
+            cancelAnimationFrame(animId);
+            animId = null;
+            isLoopRunningRef.current = false;
           }
         });
       },
@@ -116,15 +160,24 @@ export function MarbleExperience() {
     return () => {
       observer.disconnect();
       if (animId !== null) cancelAnimationFrame(animId);
+      isLoopRunningRef.current = false;
     };
   }, []);
 
-  // Screen-wide hover reaction
+  // Screen-wide hover reaction with cached rect
+  const lastRectRef = useRef<DOMRect | null>(null);
+  const lastRectTimeRef = useRef<number>(0);
+
   const updatePointerPosition = useCallback((clientX: number, clientY: number) => {
     const el = containerRef.current;
     if (!el) return;
 
-    const rect = el.getBoundingClientRect();
+    const now = performance.now();
+    if (!lastRectRef.current || now - lastRectTimeRef.current > 400) {
+      lastRectRef.current = el.getBoundingClientRect();
+      lastRectTimeRef.current = now;
+    }
+    const rect = lastRectRef.current;
     if (clientY < rect.top - 200 || clientY > rect.bottom + 200) return;
 
     const normX = (clientX - rect.left) / rect.width - 0.5;
@@ -143,6 +196,8 @@ export function MarbleExperience() {
       y: normX * 34,
       z: normX * 6,
     };
+
+    triggerPhysicsLoopRef.current();
   }, []);
 
   useEffect(() => {
@@ -183,6 +238,7 @@ export function MarbleExperience() {
         const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
         if (targetProgressRef.current < maxAllowed) {
           targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + deltaY * 0.0032);
+          triggerPhysicsLoopRef.current();
         } else if (isZoomUnlockedRef.current) {
           overscrollDeltaRef.current += Math.abs(deltaY);
           if (overscrollDeltaRef.current > 300) {
@@ -192,6 +248,7 @@ export function MarbleExperience() {
       } else if (deltaY < 0 && targetProgressRef.current > 0) {
         overscrollDeltaRef.current = 0;
         targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.0032);
+        triggerPhysicsLoopRef.current();
         if (targetProgressRef.current < 0.38) {
           setIsZoomUnlocked(false);
           isZoomUnlockedRef.current = false;
@@ -217,6 +274,7 @@ export function MarbleExperience() {
         const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
         if (targetProgressRef.current < maxAllowed) {
           targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + Math.min(e.deltaY * 0.0015, 0.09));
+          triggerPhysicsLoopRef.current();
         } else if (isZoomUnlockedRef.current) {
           // Responsive overscroll transition into Aurexa
           overscrollDeltaRef.current += Math.abs(e.deltaY);
@@ -230,6 +288,7 @@ export function MarbleExperience() {
         overscrollDeltaRef.current = 0;
         if (targetProgressRef.current > 0) {
           targetProgressRef.current = Math.max(0, targetProgressRef.current + Math.max(e.deltaY * 0.0015, -0.09));
+          triggerPhysicsLoopRef.current();
           if (targetProgressRef.current < 0.38) {
             setIsZoomUnlocked(false);
             isZoomUnlockedRef.current = false;
@@ -246,6 +305,7 @@ export function MarbleExperience() {
   const handleCardClick = () => {
     if (animState.progress < 0.15) {
       targetFlipRef.current = Math.round(targetFlipRef.current / 180) * 180 + 180;
+      triggerPhysicsLoopRef.current();
     }
   };
 
@@ -256,6 +316,7 @@ export function MarbleExperience() {
     targetProgressRef.current = 0;
     currentProgressRef.current = 0;
     overscrollDeltaRef.current = 0;
+    triggerPhysicsLoopRef.current();
     if (containerRef.current) {
       containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -265,6 +326,7 @@ export function MarbleExperience() {
     setIsZoomUnlocked(true);
     isZoomUnlockedRef.current = true;
     targetProgressRef.current = 0.68; // Zooms out to full crystal-clear hero image and stops
+    triggerPhysicsLoopRef.current();
   };
 
   const handleResetClick = () => {
@@ -277,6 +339,7 @@ export function MarbleExperience() {
     currentFlipRef.current = 0;
     targetProgressRef.current = 0;
     currentProgressRef.current = 0;
+    triggerPhysicsLoopRef.current();
   };
 
   // =========================================================================
@@ -605,7 +668,7 @@ export function MarbleExperience() {
 
           {/* Staggered Word Mask Headline */}
           <h3
-            className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-wide drop-shadow-[0_4px_30px_rgba(0,0,0,0.98)] max-w-2xl px-2"
+            className="text-[clamp(1.45rem,6.5vw,2.25rem)] sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-wide drop-shadow-[0_4px_30px_rgba(0,0,0,0.98)] max-w-2xl px-2"
             style={{ fontFamily: 'var(--font-serif)' }}
           >
             {['All', 'Stop', 'Solution', 'is', 'Here'].map((word, wIdx) => (

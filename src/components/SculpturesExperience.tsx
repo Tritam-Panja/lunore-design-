@@ -125,7 +125,10 @@ export function SculpturesExperience() {
     return () => window.removeEventListener('resize', updateSize);
   }, []);
 
-  // Continuous 60fps RAF physics interpolation with viewport visibility throttling
+  // Wakeable 60fps RAF physics interpolation with viewport visibility throttling
+  const isLoopRunningRef = useRef<boolean>(false);
+  const triggerPhysicsLoopRef = useRef<() => void>(() => {});
+
   useEffect(() => {
     let animId: number | null = null;
     let isVisible = true;
@@ -133,13 +136,20 @@ export function SculpturesExperience() {
     const updatePhysics = () => {
       if (!isVisible) {
         animId = null;
+        isLoopRunningRef.current = false;
         return;
       }
+
+      let isChanging = false;
 
       // 1. Smooth lerp for pinch-in morph progress
       const pinchDiff = targetPinchRef.current - currentPinchRef.current;
       if (Math.abs(pinchDiff) > 0.0002) {
         currentPinchRef.current += pinchDiff * 0.10;
+        setPinchProgress(currentPinchRef.current);
+        isChanging = true;
+      } else if (currentPinchRef.current !== targetPinchRef.current) {
+        currentPinchRef.current = targetPinchRef.current;
         setPinchProgress(currentPinchRef.current);
       }
 
@@ -153,6 +163,7 @@ export function SculpturesExperience() {
         now - lastInteractionTimeRef.current > 2400
       ) {
         targetRotationRef.current += 0.0028;
+        isChanging = true;
       }
 
       // 3. Smooth lerp for 3D carousel rotation with infinite momentum damping
@@ -160,19 +171,44 @@ export function SculpturesExperience() {
       if (Math.abs(rotDiff) > 0.0001) {
         currentRotationRef.current += rotDiff * 0.12;
         setRotation(currentRotationRef.current);
+        isChanging = true;
+      } else if (currentRotationRef.current !== targetRotationRef.current) {
+        currentRotationRef.current = targetRotationRef.current;
+        setRotation(currentRotationRef.current);
       }
 
-      animId = requestAnimationFrame(updatePhysics);
+      if (isDraggingRef.current) {
+        isChanging = true;
+      }
+
+      if (isChanging || (isDockedNow && !isHoveredRef.current)) {
+        animId = requestAnimationFrame(updatePhysics);
+      } else {
+        animId = null;
+        isLoopRunningRef.current = false;
+      }
     };
 
-    animId = requestAnimationFrame(updatePhysics);
+    const triggerPhysicsLoop = () => {
+      if (!isLoopRunningRef.current && isVisible) {
+        isLoopRunningRef.current = true;
+        animId = requestAnimationFrame(updatePhysics);
+      }
+    };
+
+    triggerPhysicsLoopRef.current = triggerPhysicsLoop;
+    triggerPhysicsLoop();
 
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
           isVisible = entry.isIntersecting;
-          if (isVisible && animId === null) {
-            animId = requestAnimationFrame(updatePhysics);
+          if (isVisible) {
+            triggerPhysicsLoop();
+          } else if (animId !== null) {
+            cancelAnimationFrame(animId);
+            animId = null;
+            isLoopRunningRef.current = false;
           }
         });
       },
@@ -186,6 +222,7 @@ export function SculpturesExperience() {
     return () => {
       observer.disconnect();
       if (animId !== null) cancelAnimationFrame(animId);
+      isLoopRunningRef.current = false;
     };
   }, []);
 
@@ -196,6 +233,7 @@ export function SculpturesExperience() {
     currentPinchRef.current = 0;
     setPinchProgress(0);
     lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
     if (containerRef.current) {
       containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
@@ -205,6 +243,7 @@ export function SculpturesExperience() {
   const handleTriggerCarousel = useCallback(() => {
     targetPinchRef.current = 1;
     lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
   }, []);
 
   const handleReset = useCallback(() => {
@@ -216,16 +255,19 @@ export function SculpturesExperience() {
     currentRotationRef.current = 0;
     setRotation(0);
     lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
   }, []);
 
   const handlePrev = useCallback(() => {
     targetRotationRef.current = Math.round(targetRotationRef.current) - 1;
     lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
   }, []);
 
   const handleNext = useCallback(() => {
     targetRotationRef.current = Math.round(targetRotationRef.current) + 1;
     lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
   }, []);
 
   // Wheel scroll handler:
@@ -242,17 +284,20 @@ export function SculpturesExperience() {
           e.stopPropagation();
           targetPinchRef.current = Math.min(1, targetPinchRef.current + Math.min(e.deltaY * 0.0035, 0.45));
           lastInteractionTimeRef.current = Date.now();
+          triggerPhysicsLoopRef.current();
         } else if (e.deltaY < 0 && targetPinchRef.current > 0.05) {
           e.preventDefault();
           e.stopPropagation();
           targetPinchRef.current = Math.max(0, targetPinchRef.current + e.deltaY * 0.0035);
           lastInteractionTimeRef.current = Date.now();
+          triggerPhysicsLoopRef.current();
         }
       } else if (currentPinchRef.current >= 0.95) {
         // When docked in carousel, horizontal wheel or Shift+Scroll infinitely rotates carousel
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 4) {
           targetRotationRef.current += e.deltaX * 0.0028;
           lastInteractionTimeRef.current = Date.now();
+          triggerPhysicsLoopRef.current();
         }
       }
     };
@@ -273,6 +318,7 @@ export function SculpturesExperience() {
     lastDragTimeRef.current = performance.now();
     velocityRef.current = 0;
     lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
   };
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -286,6 +332,7 @@ export function SculpturesExperience() {
     targetRotationRef.current = newTarget;
     lastDragTimeRef.current = now;
     lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
   };
 
   const handleMouseUp = () => {
@@ -297,6 +344,7 @@ export function SculpturesExperience() {
     const fling = Math.max(-1.8, Math.min(1.8, velocityRef.current * 75));
     targetRotationRef.current = Math.round(targetRotationRef.current + fling);
     lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
   };
 
   // Touch Swipe & Drag Handling (Infinite continuous mobile rotation)
@@ -311,6 +359,7 @@ export function SculpturesExperience() {
     lastDragTimeRef.current = performance.now();
     velocityRef.current = 0;
     lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
@@ -323,6 +372,7 @@ export function SculpturesExperience() {
     if (currentPinchRef.current < 0.95) {
       if (diffY > 10) {
         targetPinchRef.current = Math.min(1, touchStartRef.current.pinch + diffY * 0.004);
+        triggerPhysicsLoopRef.current();
       }
     } else {
       // Infinite horizontal swipe rotation
@@ -332,6 +382,7 @@ export function SculpturesExperience() {
         targetRotationRef.current = newTarget;
         lastDragTimeRef.current = now;
         lastInteractionTimeRef.current = Date.now();
+        triggerPhysicsLoopRef.current();
       }
     }
   };
@@ -344,6 +395,7 @@ export function SculpturesExperience() {
       targetRotationRef.current = Math.round(targetRotationRef.current + fling);
     }
     lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
   };
 
   // Keyboard navigation
@@ -446,11 +498,11 @@ export function SculpturesExperience() {
             {/* Top Arch Headline */}
             <div className="flex flex-col items-center w-full max-w-5xl mx-auto px-4 pt-6 sm:pt-10 md:pt-12 z-20">
               <h2
-                className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.18em] sm:tracking-[0.24em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] whitespace-nowrap"
+                className="text-[clamp(1.2rem,5vw,1.75rem)] sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-[0.16em] sm:tracking-[0.24em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)] whitespace-nowrap"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
                 Experience The{' '}
-                <span className="text-gold-shimmer font-normal uppercase tracking-[0.18em] sm:tracking-[0.24em] drop-shadow-[0_0_25px_rgba(184,154,98,0.55)]">
+                <span className="text-gold-shimmer font-normal uppercase tracking-[0.16em] sm:tracking-[0.24em] drop-shadow-[0_0_25px_rgba(184,154,98,0.55)]">
                   sculptures
                 </span>
               </h2>

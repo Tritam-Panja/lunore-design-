@@ -36,29 +36,16 @@ export function ScrollProgress() {
   }, []);
 
   useEffect(() => {
-    let animationFrameId: number;
+    let animationFrameId: number | null = null;
+    let isRunning = false;
 
-    const onScroll = () => {
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollY = window.scrollY;
-      if (total > 0) {
-        targetProgressRef.current = Math.min(1, Math.max(0, scrollY / total));
-      }
-      setVisible(scrollY > 20);
-    };
-
-    if (lenis) {
-      lenis.on('scroll', onScroll);
-    } else {
-      window.addEventListener('scroll', onScroll, { passive: true });
-    }
-
-    onScroll();
-
-    // Lerp animation loop for liquid 120fps smoothness
     const animate = () => {
       const diff = targetProgressRef.current - currentProgressRef.current;
-      currentProgressRef.current += diff * 0.14;
+      if (Math.abs(diff) > 0.0001) {
+        currentProgressRef.current += diff * 0.14;
+      } else {
+        currentProgressRef.current = targetProgressRef.current;
+      }
 
       const p = Math.min(1, Math.max(0, currentProgressRef.current));
       const totalLen = pathLengthRef.current;
@@ -73,13 +60,40 @@ export function ScrollProgress() {
         }
       }
 
-      animationFrameId = requestAnimationFrame(animate);
+      if (Math.abs(diff) > 0.0001) {
+        animationFrameId = requestAnimationFrame(animate);
+      } else {
+        isRunning = false;
+      }
     };
 
-    animationFrameId = requestAnimationFrame(animate);
+    const requestTick = () => {
+      if (!isRunning) {
+        isRunning = true;
+        animationFrameId = requestAnimationFrame(animate);
+      }
+    };
+
+    const onScroll = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      const scrollY = window.scrollY;
+      if (total > 0) {
+        targetProgressRef.current = Math.min(1, Math.max(0, scrollY / total));
+      }
+      setVisible(scrollY > 20);
+      requestTick();
+    };
+
+    if (lenis) {
+      lenis.on('scroll', onScroll);
+    } else {
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+
+    onScroll();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
       if (lenis) {
         lenis.off('scroll', onScroll);
       } else {
