@@ -695,12 +695,6 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                   ) : (
                     /* STAGE 1, 2, 3: HEADING MOVED UP AND ALIGNED IN ONE SINGLE LINE - CLEAN WHITE TEXT */
                     <div className="mb-4 sm:mb-6 animate-in fade-in slide-in-from-top-4 duration-700">
-                      <div className="flex items-center gap-3 mb-1.5">
-                        <div className="w-6 h-px bg-[#b89a62]" />
-                        <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62] font-mono">
-                          LUNORE LUXE STUDIO
-                        </span>
-                      </div>
                       <h3
                         className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light tracking-[0.06em] uppercase leading-tight text-white select-none drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)]"
                         style={{ fontFamily: 'var(--font-serif)' }}
@@ -750,30 +744,30 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
 
                       {/* STAGE 2: 2ND SCROLL -> THE LUNORE DESIGN JOURNEY (6 STEPS) */}
                       {storyStage === 2 && (
-                        <div key="stage-2" className="space-y-3 max-w-3xl animate-in fade-in zoom-in-98 duration-700">
-                          <p className="text-xs sm:text-sm font-medium text-[#b89a62] tracking-wider uppercase">
+                        <div key="stage-2" className="space-y-2.5 sm:space-y-3 max-w-3xl animate-in fade-in zoom-in-98 duration-700">
+                          <p className="text-[11px] sm:text-sm font-medium text-[#b89a62] tracking-wider uppercase">
                             The Lunore Design Journey
                           </p>
 
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-2.5 text-left max-h-[46vh] sm:max-h-none overflow-y-auto sm:overflow-visible pr-1 sm:pr-0 overscroll-contain no-scrollbar">
+                          <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5 text-left w-full">
                             {JOURNEY_STEPS.map((item, idx) => (
                               <div
                                 key={item.step}
-                                className="p-2.5 sm:p-3 rounded-xl bg-black/50 backdrop-blur-md border border-white/15 hover:border-[#b89a62]/50 transition-all duration-300 shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+                                className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-black/60 backdrop-blur-md border border-white/15 hover:border-[#b89a62]/50 transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.5)] flex flex-col justify-between"
                                 style={{
                                   animation: 'lunore-letter-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both',
-                                  animationDelay: `${0.06 + idx * 0.06}s`,
+                                  animationDelay: `${0.06 + idx * 0.05}s`,
                                 }}
                               >
-                                <div className="flex items-center gap-2 mb-0.5">
-                                  <span className="text-[10px] font-mono text-[#b89a62] font-semibold">
+                                <div className="flex items-center gap-1.5 mb-0.5">
+                                  <span className="text-[9px] sm:text-[10px] font-mono text-[#b89a62] font-semibold">
                                     {item.step}
                                   </span>
-                                  <span className="text-xs sm:text-sm font-medium text-white">
+                                  <span className="text-[11px] sm:text-sm font-medium text-white tracking-wide truncate">
                                     {item.title}
                                   </span>
                                 </div>
-                                <p className="text-[11px] text-[#f1eee7]/80 font-light leading-relaxed">
+                                <p className="text-[9px] sm:text-[11px] text-[#f1eee7]/80 font-light leading-snug">
                                   {item.desc}
                                 </p>
                               </div>
@@ -821,33 +815,27 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                       )}
 
                       {/* COMPACT TAP STEPPER BUTTONS (Especially Mobile/Touch friendly) */}
-                      <div className="pt-4 flex items-center justify-between gap-3 pointer-events-auto w-full max-w-sm">
+                      <div className="pt-4 flex items-center justify-between gap-4 pointer-events-auto w-full max-w-sm">
                         <button
                           type="button"
                           onClick={handlePrevStage}
                           aria-label="Previous step"
-                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full liquid-glass-pill text-[10px] sm:text-[11px] tracking-[0.16em] uppercase text-[#b9b5ae] hover:text-white border border-white/20 bg-black/65 active:scale-95 transition-all cursor-pointer select-none"
+                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full liquid-glass-pill text-[10px] sm:text-[11px] tracking-[0.16em] uppercase text-[#b9b5ae] hover:text-white border border-white/20 bg-black/65 active:scale-95 transition-all cursor-pointer select-none"
                         >
                           <ChevronLeft className="w-3.5 h-3.5 text-[#b89a62]" />
                           <span>Back</span>
                         </button>
 
-                        <div className="text-[10px] sm:text-xs font-mono tracking-[0.2em] text-[#b89a62] font-medium bg-black/50 px-3 py-1 rounded-full border border-white/10">
-                          0{storyStage} / 03
-                        </div>
-
-                        {storyStage < 3 ? (
+                        {storyStage < 3 && (
                           <button
                             type="button"
                             onClick={handleNextStage}
                             aria-label="Next step"
-                            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#b89a62]/25 hover:bg-[#b89a62]/40 border border-[#b89a62]/80 text-[#f1eee7] text-[10px] sm:text-[11px] tracking-[0.18em] uppercase font-medium shadow-[0_0_15px_rgba(184,154,98,0.3)] active:scale-95 transition-all cursor-pointer select-none"
+                            className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#b89a62]/25 hover:bg-[#b89a62]/40 border border-[#b89a62]/80 text-[#f1eee7] text-[10px] sm:text-[11px] tracking-[0.18em] uppercase font-medium shadow-[0_0_15px_rgba(184,154,98,0.3)] active:scale-95 transition-all cursor-pointer select-none ml-auto"
                           >
                             <span>Next</span>
                             <ChevronRight className="w-3.5 h-3.5 text-[#b89a62]" />
                           </button>
-                        ) : (
-                          <div className="w-16" />
                         )}
                       </div>
                     </div>
