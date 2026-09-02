@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Sparkles, ArrowRight, RotateCcw, ChevronDown, ChevronUp } from 'lucide-react';
+import { Sparkles, ArrowRight, RotateCcw, ChevronDown } from 'lucide-react';
 import { images } from '@/lib/images';
 import ParticleText from './ParticleText';
 
@@ -27,8 +27,9 @@ export function MarbleExperience() {
   const containerRef = useRef<HTMLElement>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const touchStartYRef = useRef<number>(0);
+  const lastTouchYRef = useRef<number>(0);
 
-  // Physics refs for smooth 60fps spring lerping
+  // Physics refs for smooth 120fps spring lerping
   const targetTiltRef = useRef<{ x: number; y: number; z: number }>({ x: 0, y: 0, z: 0 });
   const currentTiltRef = useRef<{ x: number; y: number; z: number }>({ x: 0, y: 0, z: 0 });
 
@@ -50,14 +51,16 @@ export function MarbleExperience() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Wakeable 60fps RAF physics loop with viewport visibility throttling
+  const isMobile = windowSize.width < 640;
+  const isTablet = windowSize.width >= 640 && windowSize.width < 1024;
+
+  // Wakeable 120fps RAF physics loop with viewport visibility throttling
   const isLoopRunningRef = useRef<boolean>(false);
   const triggerPhysicsLoopRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     let animId: number | null = null;
     let isVisible = true;
-
     let lastTime = performance.now();
 
     const updatePhysics = () => {
@@ -105,7 +108,7 @@ export function MarbleExperience() {
       if (Math.abs(pDiff) < 0.0001) {
         currentProgressRef.current = targetProgressRef.current;
       } else {
-        currentProgressRef.current += pDiff * Math.min(1, 0.14 * timeScale);
+        currentProgressRef.current += pDiff * Math.min(1, 0.12 * timeScale);
       }
 
       if (!isChanging) {
@@ -137,6 +140,7 @@ export function MarbleExperience() {
     const triggerPhysicsLoop = () => {
       if (!isLoopRunningRef.current && isVisible) {
         isLoopRunningRef.current = true;
+        lastTime = performance.now();
         animId = requestAnimationFrame(updatePhysics);
       }
     };
@@ -220,6 +224,7 @@ export function MarbleExperience() {
   const handleTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 0) return;
     touchStartYRef.current = e.touches[0].clientY;
+    lastTouchYRef.current = e.touches[0].clientY;
   };
 
   const overscrollDeltaRef = useRef<number>(0);
@@ -236,36 +241,27 @@ export function MarbleExperience() {
   const handleTouchMove = (e: React.TouchEvent) => {
     if (e.touches.length === 0) return;
     const touch = e.touches[0];
-    updatePointerPosition(touch.clientX, touch.clientY);
+    const deltaY = lastTouchYRef.current - touch.clientY;
+    lastTouchYRef.current = touch.clientY;
 
     if (isEntered) {
-      const deltaY = touchStartYRef.current - touch.clientY;
-      touchStartYRef.current = touch.clientY;
       if (deltaY > 0) {
-        if (!isZoomUnlockedRef.current && targetProgressRef.current < 0.44) {
-          targetProgressRef.current = Math.min(0.44, targetProgressRef.current + deltaY * 0.005);
-          if (targetProgressRef.current >= 0.38) targetProgressRef.current = 0.44;
+        // Swiping Up (Progressing forward through the animation stages)
+        const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
+        if (targetProgressRef.current < maxAllowed) {
+          // Responsive mobile swipe sensitivity
+          targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + deltaY * 0.005);
           triggerPhysicsLoopRef.current();
-        } else {
-          // Swiftly progresses and snaps to 1.0 (100% full text reveal)
-          targetProgressRef.current = Math.min(1.0, targetProgressRef.current + deltaY * 0.007);
-          if (targetProgressRef.current >= 0.72) {
-            targetProgressRef.current = 1.0;
-            setIsZoomUnlocked(true);
-            isZoomUnlockedRef.current = true;
-          }
-          triggerPhysicsLoopRef.current();
-
-          if (targetProgressRef.current >= 0.95) {
-            overscrollDeltaRef.current += Math.abs(deltaY);
-            if (overscrollDeltaRef.current > 180) {
-              handleNextSection();
-            }
+        } else if (isZoomUnlockedRef.current) {
+          overscrollDeltaRef.current += Math.abs(deltaY);
+          if (overscrollDeltaRef.current > 160) {
+            handleNextSection();
           }
         }
       } else if (deltaY < 0 && targetProgressRef.current > 0) {
+        // Swiping Down (Reversing animation)
         overscrollDeltaRef.current = 0;
-        targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.006);
+        targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.005);
         triggerPhysicsLoopRef.current();
         if (targetProgressRef.current < 0.38) {
           setIsZoomUnlocked(false);
@@ -275,7 +271,7 @@ export function MarbleExperience() {
     }
   };
 
-  // Wheel scroll handler (Locks page scroll so user stays in the experience)
+  // Wheel scroll handler (Locks page scroll so user stays in the experience on desktop)
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
@@ -283,7 +279,6 @@ export function MarbleExperience() {
     const onWheel = (e: WheelEvent) => {
       if (!isEntered) return;
 
-      // Always prevent native page jump while inside the interactive experience
       e.preventDefault();
       e.stopPropagation();
 
@@ -294,7 +289,6 @@ export function MarbleExperience() {
           targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + Math.min(e.deltaY * 0.0015, 0.09));
           triggerPhysicsLoopRef.current();
         } else if (isZoomUnlockedRef.current) {
-          // Responsive overscroll transition into Aurexa
           overscrollDeltaRef.current += Math.abs(e.deltaY);
           if (overscrollDeltaRef.current > 180) {
             handleNextSection();
@@ -331,7 +325,7 @@ export function MarbleExperience() {
     setIsEntered(true);
     setIsZoomUnlocked(false);
     isZoomUnlockedRef.current = false;
-    targetProgressRef.current = 0;
+    targetProgressRef.current = 0.44; // Docks smoothly into the facade wall
     currentProgressRef.current = 0;
     overscrollDeltaRef.current = 0;
     triggerPhysicsLoopRef.current();
@@ -343,7 +337,7 @@ export function MarbleExperience() {
   const handleUnlockZoom = () => {
     setIsZoomUnlocked(true);
     isZoomUnlockedRef.current = true;
-    targetProgressRef.current = 1.0; // Zooms out fully to reveal complete crystal-clear narrative
+    targetProgressRef.current = 1.0; // Pulls back to full architecture and smoothly reveals the narrative
     triggerPhysicsLoopRef.current();
   };
 
@@ -367,38 +361,31 @@ export function MarbleExperience() {
 
   // Split progress:
   // Stage 1 (0.00 -> 0.44): Card to Wall Docking
-  // Stage 2 (0.44 -> 0.68): Majestic Pinch-Out to Full Crystal-Clear Architecture (Zero text, Zero blur)
-  // Stage 3 (0.68 -> 1.00): User scrolls further -> Image blurs & ParticleText reveals
+  // Stage 2 (0.44 -> 0.68): Majestic Pinch-Out to Full Crystal-Clear Architecture
+  // Stage 3 (0.68 -> 1.00): User scrolls further -> Image blurs & Narrative reveals
   const pStage1 = Math.min(1, p / 0.44);
   const easedP1 = pStage1 * pStage1 * (3 - 2 * pStage1); // Smoothstep curve
 
   const pStage2 = Math.min(1, Math.max(0, (p - 0.44) / 0.24));
-  // Quintic Smoothstep (Zero 1st & 2nd derivative jerk: 6t^5 - 15t^4 + 10t^3)
+  // Quintic Smoothstep (Zero jerk)
   const easedP2 = pStage2 * pStage2 * pStage2 * (pStage2 * (pStage2 * 6 - 15) + 10);
 
   // Constant-energy trigonometric crossfading for seamless camera exposure
   const zoomCrossfadeWeight = Math.cos(easedP2 * Math.PI * 0.5);
   const heroCrossfadeWeight = Math.sin(easedP2 * Math.PI * 0.5);
 
-  // Narrative Stage (p >= 0.65): Swift, responsive reveal
-  const narrativeProgress = Math.max(0, Math.min(1, (p - 0.65) / 0.35));
+  // Narrative Stage (p >= 0.62)
+  const narrativeProgress = Math.max(0, Math.min(1, (p - 0.62) / 0.38));
   const narrativeEased = narrativeProgress * narrativeProgress * (3 - 2 * narrativeProgress);
-  const narrativeBlur = narrativeEased * 6.5;
   const narrativeDarken = narrativeEased * 0.52;
 
   // 1. Zoomed Balcony Layer: Smoothly pinches down from 1.00x to 0.42x
   const zoomedBgOpacity = isEntered ? Math.min(1, easedP1 * 1.5) * (zoomCrossfadeWeight * zoomCrossfadeWeight) : 0;
   const zoomedBgScale = 1.0 - easedP1 * 0.02 - easedP2 * 0.56;
-  const zoomedBgBlur = Math.max(0, (1 - easedP1 * 1.4) * 3);
 
-  // 2. Wide Hero Architecture Layer: Matched pullback from 2.45x down to 1.00x (Optical Match-Zoom from Balcony Anchor)
+  // 2. Wide Hero Architecture Layer: Matched pullback from 2.45x down to 1.00x
   const heroBgOpacity = heroCrossfadeWeight * heroCrossfadeWeight;
   const heroBgScale = 2.45 - easedP2 * 1.45;
-  const heroBgBlur = Math.max(0, (1 - easedP2 * 2.0) * 2.5);
-
-  // Responsive Base Card Dimensions (Optimized for all mobile aspect ratios)
-  const isMobile = windowSize.width < 640;
-  const isTablet = windowSize.width >= 640 && windowSize.width < 1024;
 
   const baseCardWidth = isMobile ? Math.min(265, windowSize.width * 0.72) : isTablet ? 340 : 390;
   const baseCardHeight = isMobile ? Math.min(345, windowSize.height * 0.46) : isTablet ? 440 : 490;
@@ -451,27 +438,19 @@ export function MarbleExperience() {
   const innerRadius = Math.max(0, 16 * (1 - easedP1 * 1.6));
   const bezelGlassOpacity = Math.max(0, 1 - easedP1 * 1.6);
 
-  // =========================================================================
-  // ARCHITECTURAL ENERGY-LOCK & GOLDEN LIGHT-SWEEP PULSE
-  // =========================================================================
-  // Glint & laser pulse when the stone locks into position (peaks at pStage1 = 0.85 -> 1.0)
+  // Architectural lock glint
   const lockProgress = Math.min(1, Math.max(0, (easedP1 - 0.70) / 0.30));
-  const lockFlash = Math.sin(lockProgress * Math.PI); // Smooth bell-curve flash
+  const lockFlash = Math.sin(lockProgress * Math.PI);
 
-  // Card opacity: cleanly dissolves with the golden light sweep before Stage 2
-  // Eliminates muddy sticker overlaps completely
   const cardDissolveOpacity = easedP1 > 0.88
     ? Math.max(0, 1 - (easedP1 - 0.88) / 0.12)
     : 1;
 
-  // Specular light-sweep position across the stone face (-100% -> 200%)
   const lightSweepPos = -100 + lockProgress * 300;
-
   const stoneBrightness = 1.0 + lockFlash * 0.15;
   const stoneContrast = 1.04;
   const stoneSaturate = 1.0 + lockFlash * 0.2;
 
-  // Milestone flag
   const isFullyRevealed = p >= 0.88;
 
   return (
@@ -480,7 +459,7 @@ export function MarbleExperience() {
       id="marble-experience"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
-      style={{ touchAction: isEntered ? 'none' : 'pan-y' }}
+      style={{ touchAction: isEntered ? (isMobile ? 'pan-y' : 'none') : 'pan-y' }}
       className="relative w-full h-[100dvh] min-h-[600px] bg-[#08090a] overflow-hidden select-none flex items-center justify-center"
     >
       {/* 1. INITIAL BLANK VOID CANVAS */}
@@ -497,37 +476,34 @@ export function MarbleExperience() {
       </div>
 
       {/* ========================================================================= */}
-      {/* 2. STAGE 1: ARRIVING ZOOMED BALCONY IMAGE (Desktop Match-Zoom Anchor)     */}
-      {/* ========================================================================= */}
-      {!isMobile && (
-        <div
-          style={{
-            opacity: zoomedBgOpacity,
-            transform: `scale(${zoomedBgScale})`,
-            transformOrigin: '50% 50%',
-            filter: `blur(${zoomedBgBlur}px)`,
-          }}
-          className="absolute inset-0 z-10 overflow-hidden pointer-events-none will-change-transform"
-        >
-          <img
-            src={images.marbleZoomed}
-            alt="Lunore Balcony Marble Facade Zoomed"
-            loading="lazy"
-            decoding="async"
-            className="w-full h-full object-cover object-center brightness-100 contrast-105"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/40" />
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.65)_100%)]" />
-        </div>
-      )}
-
-      {/* ========================================================================= */}
-      {/* 3. STAGE 2: FULL MONUMENTAL BUILDING (Zero-Flicker Hardware Composited)  */}
+      {/* 2. STAGE 1: ARRIVING ZOOMED BALCONY IMAGE (Close-up Facade)               */}
       {/* ========================================================================= */}
       <div
         style={{
-          opacity: isMobile ? 1 : heroBgOpacity,
-          transform: isMobile ? 'none' : `scale(${heroBgScale})`,
+          opacity: zoomedBgOpacity,
+          transform: `scale(${zoomedBgScale})`,
+          transformOrigin: '50% 50%',
+        }}
+        className="absolute inset-0 z-10 overflow-hidden pointer-events-none will-change-transform"
+      >
+        <img
+          src={images.marbleZoomed}
+          alt="Lunore Balcony Marble Facade Zoomed"
+          loading="eager"
+          decoding="async"
+          className="w-full h-full object-cover object-center brightness-100 contrast-105"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/40" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.65)_100%)]" />
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 3. STAGE 2: FULL MONUMENTAL BUILDING (Cinematic Match-Zoom Pinch-Out)    */}
+      {/* ========================================================================= */}
+      <div
+        style={{
+          opacity: heroBgOpacity,
+          transform: `scale(${heroBgScale})`,
           transformOrigin: '50% 38%',
         }}
         className="absolute inset-0 z-15 overflow-hidden pointer-events-none will-change-transform"
@@ -540,20 +516,21 @@ export function MarbleExperience() {
           className="w-full h-full object-cover object-center brightness-[1.02] contrast-[1.03]"
         />
 
-        {/* Hardware-accelerated smooth transition layer (clean on mobile, blur on desktop) */}
-        {!isMobile && narrativeProgress > 0.01 && (
+        {/* Smooth Hardware-Accelerated Overlay during narrative */}
+        {narrativeProgress > 0.01 && (
           <div
             style={{
               opacity: narrativeProgress,
-              backdropFilter: 'blur(7px)',
-              WebkitBackdropFilter: 'blur(7px)',
+              backdropFilter: isMobile ? undefined : 'blur(7px)',
+              WebkitBackdropFilter: isMobile ? undefined : 'blur(7px)',
+              backgroundColor: isMobile ? 'rgba(0,0,0,0.65)' : undefined,
             }}
             className="absolute inset-0 pointer-events-none will-change-opacity"
           />
         )}
 
         <div
-          style={{ opacity: isMobile ? 0.45 : Math.max(0.3, (1 - easedP2 * 0.4) + narrativeDarken) }}
+          style={{ opacity: Math.max(0.3, (1 - easedP2 * 0.4) + narrativeDarken) }}
           className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-black/50"
         />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.05)_0%,rgba(0,0,0,0.65)_100%)]" />
@@ -562,130 +539,117 @@ export function MarbleExperience() {
       {/* ========================================================================= */}
       {/* 4. MARBLE CUTOUT: 60FPS GPU TRANSFORMED DOCKING PANEL                     */}
       {/* ========================================================================= */}
-      {isMobile ? (
-        // MOBILE SMOOTH CARD
-        !isEntered && (
+      {cardDissolveOpacity > 0.005 && (
+        <div
+          className="relative z-30 flex flex-col items-center justify-center pointer-events-none"
+        >
+          {/* GPU-accelerated 3D Transform Wrapper */}
           <div
-            onClick={handleEnterClick}
+            ref={cardRef}
+            onClick={handleCardClick}
             style={{
               width: `${baseCardWidth}px`,
               height: `${baseCardHeight}px`,
+              perspective: '1400px',
+              transform: `perspective(1400px) translate3d(${transX}px, ${transY}px, 0px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) scale(${finalScaleX}, ${finalScaleY})`,
+              transformStyle: 'preserve-3d',
+              opacity: cardDissolveOpacity,
+              pointerEvents: isFullyRevealed ? 'none' : 'auto',
+              willChange: 'transform, opacity',
             }}
-            className="relative z-30 cursor-pointer select-none flex items-center justify-center transition-transform duration-500 active:scale-95"
+            className="relative cursor-pointer group select-none flex items-center justify-center"
           >
-            <div className="relative w-full h-full rounded-2xl p-3 bg-white/[0.08] border border-white/40 shadow-[0_24px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(184,154,98,0.25)] backdrop-blur-xl overflow-hidden flex items-center justify-center">
-              <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/90 to-transparent z-10 pointer-events-none" />
-              <div className="relative w-full h-full rounded-xl overflow-hidden border border-white/25">
-                <img
-                  src={images.marbleCutout}
-                  alt="Lunore Architectural Marble Monolith"
-                  loading="eager"
-                  decoding="async"
-                  className="w-full h-full object-cover object-center brightness-105 contrast-105 pointer-events-none"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-white/[0.08] pointer-events-none" />
-              </div>
-            </div>
-          </div>
-        )
-      ) : (
-        // DESKTOP 3D TRANSFORMED DOCKING PANEL
-        cardDissolveOpacity > 0.005 && (
-          <div className="relative z-30 flex flex-col items-center justify-center pointer-events-none">
+            {/* CARD FRONT: Glass Bezel & Stone Texture with Golden Shimmer Light-Sweep */}
             <div
-              ref={cardRef}
-              onClick={handleCardClick}
               style={{
-                width: `${baseCardWidth}px`,
-                height: `${baseCardHeight}px`,
-                perspective: '1400px',
-                transform: `perspective(1400px) translate3d(${transX}px, ${transY}px, 0px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) scale(${finalScaleX}, ${finalScaleY})`,
-                transformStyle: 'preserve-3d',
-                opacity: cardDissolveOpacity,
-                pointerEvents: isFullyRevealed ? 'none' : 'auto',
-                willChange: 'transform, opacity',
+                backfaceVisibility: 'hidden',
+                WebkitBackfaceVisibility: 'hidden',
+                borderRadius: `${outerRadius}px`,
+                padding: `${bezelPadding}px`,
+                backgroundColor: `rgba(255, 255, 255, ${0.08 * bezelGlassOpacity})`,
+                border: bezelGlassOpacity > 0.05 ? `1px solid rgba(255, 255, 255, ${0.35 * bezelGlassOpacity})` : 'none',
+                boxShadow: bezelGlassOpacity > 0.05
+                  ? `0 30px 90px rgba(0,0,0,${0.9 * bezelGlassOpacity}), 0 0 45px rgba(184,154,98,${0.25 * bezelGlassOpacity}), inset 0 1.5px 2px rgba(255,255,255,${0.6 * bezelGlassOpacity})`
+                  : 'none',
               }}
-              className="relative cursor-pointer group select-none flex items-center justify-center"
+              className={`absolute inset-0 overflow-hidden flex flex-col items-center justify-center ${bezelGlassOpacity > 0.05 ? 'backdrop-blur-2xl' : ''}`}
             >
+              {bezelGlassOpacity > 0.05 && (
+                <div
+                  style={{ opacity: bezelGlassOpacity }}
+                  className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent z-10 pointer-events-none"
+                />
+              )}
+
+              {/* Inner Frame with 100% Solid Edge-to-Edge Image */}
               <div
                 style={{
-                  backfaceVisibility: 'hidden',
-                  WebkitBackfaceVisibility: 'hidden',
-                  borderRadius: `${outerRadius}px`,
-                  padding: `${bezelPadding}px`,
-                  backgroundColor: `rgba(255, 255, 255, ${0.08 * bezelGlassOpacity})`,
-                  border: bezelGlassOpacity > 0.05 ? `1px solid rgba(255, 255, 255, ${0.35 * bezelGlassOpacity})` : 'none',
-                  boxShadow: bezelGlassOpacity > 0.05
-                    ? `0 30px 90px rgba(0,0,0,${0.9 * bezelGlassOpacity}), 0 0 45px rgba(184,154,98,${0.25 * bezelGlassOpacity}), inset 0 1.5px 2px rgba(255,255,255,${0.6 * bezelGlassOpacity})`
-                    : 'none',
+                  borderRadius: `${innerRadius}px`,
+                  border: bezelGlassOpacity > 0.05 ? `1px solid rgba(255, 255, 255, ${0.25 * bezelGlassOpacity})` : 'none',
                 }}
-                className={`absolute inset-0 overflow-hidden flex flex-col items-center justify-center ${bezelGlassOpacity > 0.05 ? 'backdrop-blur-2xl' : ''}`}
+                className="relative w-full h-full overflow-hidden flex items-center justify-center"
               >
+                {/* Marble Texture */}
+                <img
+                  src={images.marbleCutout}
+                  alt="Lunore Architectural Marble Cutout"
+                  style={{
+                    filter: `brightness(${stoneBrightness}) contrast(${stoneContrast}) saturate(${stoneSaturate})`,
+                  }}
+                  className="w-full h-full object-cover object-center group-hover:scale-105 pointer-events-none"
+                />
+
+                {/* Glass Specular Lighting Layer */}
                 {bezelGlassOpacity > 0.05 && (
                   <div
                     style={{ opacity: bezelGlassOpacity }}
-                    className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent z-10 pointer-events-none"
+                    className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-white/[0.08] pointer-events-none"
                   />
                 )}
-                <div
-                  style={{
-                    borderRadius: `${innerRadius}px`,
-                    border: bezelGlassOpacity > 0.05 ? `1px solid rgba(255, 255, 255, ${0.25 * bezelGlassOpacity})` : 'none',
-                  }}
-                  className="relative w-full h-full overflow-hidden flex items-center justify-center"
-                >
-                  <img
-                    src={images.marbleCutout}
-                    alt="Lunore Architectural Marble Cutout"
+
+                {/* GOLDEN SPECULAR LIGHT SWEEP (Flashes across face during docking lock) */}
+                {lockFlash > 0.01 && (
+                  <div
                     style={{
-                      filter: `brightness(${stoneBrightness}) contrast(${stoneContrast}) saturate(${stoneSaturate})`,
+                      transform: `translateX(${lightSweepPos}%)`,
+                      opacity: lockFlash * 0.9,
                     }}
-                    className="w-full h-full object-cover object-center group-hover:scale-105 pointer-events-none"
+                    className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/80 via-[#f3e5ab]/90 to-transparent skew-x-[-20deg] pointer-events-none"
                   />
-                  {bezelGlassOpacity > 0.05 && (
-                    <div
-                      style={{ opacity: bezelGlassOpacity }}
-                      className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-white/[0.08] pointer-events-none"
-                    />
-                  )}
-                  {lockFlash > 0.01 && (
-                    <div
-                      style={{
-                        transform: `translateX(${lightSweepPos}%)`,
-                        opacity: lockFlash * 0.9,
-                      }}
-                      className="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/80 via-[#f3e5ab]/90 to-transparent skew-x-[-20deg] pointer-events-none"
-                    />
-                  )}
-                  {lockFlash > 0.02 && (
-                    <div
-                      style={{
-                        opacity: lockFlash,
-                        borderColor: '#b89a62',
-                        boxShadow: `inset 0 0 30px rgba(184,154,98,${0.95 * lockFlash}), 0 0 35px rgba(243,229,171,${0.85 * lockFlash})`,
-                      }}
-                      className="absolute inset-0 border-2 pointer-events-none"
-                    />
-                  )}
-                </div>
+                )}
+
+                {/* GOLDEN ARCHITECTURAL DOCKING LASER PERIMETER */}
+                {lockFlash > 0.02 && (
+                  <div
+                    style={{
+                      opacity: lockFlash,
+                      borderColor: '#b89a62',
+                      boxShadow: `inset 0 0 30px rgba(184,154,98,${0.95 * lockFlash}), 0 0 35px rgba(243,229,171,${0.85 * lockFlash})`,
+                    }}
+                    className="absolute inset-0 border-2 pointer-events-none"
+                  />
+                )}
               </div>
             </div>
           </div>
-        )
+        </div>
       )}
 
       {/* ========================================================================= */}
-      {/* 5. INTERMEDIATE DOCKED REVEAL (Desktop only): "All Stop Solution is Here" */}
+      {/* 5. INTERMEDIATE DOCKED REVEAL: "All Stop Solution is Here" (NO CARD)     */}
+      {/* Positioned right where the slab submerged/docked into the balcony facade */}
       {/* ========================================================================= */}
-      {!isMobile && isEntered && p >= 0.38 && !isZoomUnlocked && (
+      {isEntered && p >= 0.38 && !isZoomUnlocked && (
         <div
           style={{
             transform: `translate3d(0, ${dockedTargetY}px, 0)`,
           }}
           className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center justify-center text-center px-4 pointer-events-auto select-none"
         >
+          {/* Pulsing Ambient Golden Light Bloom */}
           <div className="absolute w-[500px] h-[180px] bg-[#b89a62]/20 rounded-full blur-[90px] pointer-events-none -z-10 animate-pulse" />
 
+          {/* Subtitle Badge with Reveal */}
           <span
             style={{
               animation: 'lunore-letter-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both',
@@ -696,6 +660,7 @@ export function MarbleExperience() {
             Integrated Living &amp; Craft
           </span>
 
+          {/* Staggered Word Mask Headline */}
           <h3
             className="text-[clamp(1.45rem,6.5vw,2.25rem)] sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-wide drop-shadow-[0_4px_30px_rgba(0,0,0,0.98)] max-w-2xl px-2"
             style={{ fontFamily: 'var(--font-serif)' }}
@@ -716,6 +681,7 @@ export function MarbleExperience() {
             ))}
           </h3>
 
+          {/* Animated Gold Divider Line */}
           <div
             style={{
               animation: 'cinematic-line-mask 0.8s cubic-bezier(0.16, 1, 0.3, 1) both',
@@ -724,6 +690,7 @@ export function MarbleExperience() {
             className="mt-3 w-16 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent"
           />
 
+          {/* Animated Floating Enter Button */}
           <div
             style={{
               animation: 'lunore-letter-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) both',
@@ -750,16 +717,15 @@ export function MarbleExperience() {
 
       {/* ========================================================================= */}
       {/* 6. FINAL NARRATIVE REVEAL: "Marble and Granite Solutions"                 */}
+      {/* Appears as user scrolls into the full zoom-out with soft background blur  */}
       {/* ========================================================================= */}
-      {(isMobile ? isEntered : narrativeProgress > 0.05) && (
+      {narrativeProgress > 0.05 && (
         <div
           style={{
-            opacity: isMobile ? 1 : narrativeProgress,
-            transform: isMobile ? 'none' : `translate3d(0, ${(1 - narrativeEased) * 30}px, 0)`,
+            opacity: narrativeProgress,
+            transform: `translate3d(0, ${(1 - narrativeEased) * 30}px, 0)`,
           }}
-          className={`absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-4 sm:px-8 md:px-12 pointer-events-auto select-none overflow-hidden ${
-            isMobile ? 'transition-all duration-500' : ''
-          }`}
+          className="absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-4 sm:px-8 md:px-12 pointer-events-auto select-none overflow-hidden"
         >
           {/* Contrast Dark Backdrop & Ambient Glow */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/85 to-black/90 pointer-events-none -z-10" />
@@ -845,7 +811,7 @@ export function MarbleExperience() {
           </div>
         )}
 
-        {!isMobile && isEntered && p < 0.38 && (
+        {isEntered && p < 0.38 && (
           <div className="flex flex-col items-center gap-1.5 opacity-85 transition-opacity duration-300">
             <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#b89a62] font-medium drop-shadow-md">
               Scroll down to dock monolith into facade
@@ -854,7 +820,7 @@ export function MarbleExperience() {
           </div>
         )}
 
-        {!isMobile && isEntered && isZoomUnlocked && p >= 0.55 && p < 0.72 && (
+        {isEntered && isZoomUnlocked && p >= 0.55 && p < 0.72 && (
           <div className="flex flex-col items-center gap-1.5 opacity-85 transition-opacity duration-300">
             <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#b89a62] font-medium drop-shadow-md">
               Scroll down to explore Lunore Stone Collection • Scroll up to reverse
