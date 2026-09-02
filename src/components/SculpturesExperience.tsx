@@ -323,14 +323,8 @@ export function SculpturesExperience() {
           targetPinchRef.current = Math.min(1, targetPinchRef.current + Math.min(e.deltaY * 0.0035, 0.45));
           lastInteractionTimeRef.current = Date.now();
           triggerPhysicsLoopRef.current();
-        } else if (e.deltaY < 0 && targetPinchRef.current > 0.05) {
-          e.preventDefault();
-          e.stopPropagation();
-          targetPinchRef.current = Math.max(0, targetPinchRef.current + e.deltaY * 0.0035);
-          lastInteractionTimeRef.current = Date.now();
-          triggerPhysicsLoopRef.current();
         }
-      } else if (currentPinchRef.current >= 0.95) {
+      } else if (currentPinchRef.current >= 0.90) {
         // When docked in carousel, horizontal wheel or Shift+Scroll infinitely rotates carousel
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 3) {
           momentumVelocityRef.current = 0;

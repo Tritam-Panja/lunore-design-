@@ -267,13 +267,11 @@ export function MarbleExperience() {
           }
         }
       } else if (deltaY < 0 && targetProgressRef.current > 0) {
-        // Swiping Down (Reversing animation)
-        overscrollDeltaRef.current = 0;
-        targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.0055);
-        triggerPhysicsLoopRef.current();
-        if (targetProgressRef.current < 0.38) {
-          setIsZoomUnlocked(false);
-          isZoomUnlockedRef.current = false;
+        // Only reverse if still in preliminary docking, NEVER once completed/unlocked
+        if (!isZoomUnlockedRef.current && targetProgressRef.current < 0.44) {
+          overscrollDeltaRef.current = 0;
+          targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.0055);
+          triggerPhysicsLoopRef.current();
         }
       }
     }
@@ -293,13 +291,11 @@ export function MarbleExperience() {
       }
       triggerPhysicsLoopRef.current();
     } else if (vel < -0.45) {
-      // Quick downward flick
-      if (targetProgressRef.current > 0.44) {
-        targetProgressRef.current = 0.44;
-      } else if (targetProgressRef.current <= 0.44) {
+      // Quick downward flick (only before completion)
+      if (!isZoomUnlockedRef.current && targetProgressRef.current <= 0.44) {
         targetProgressRef.current = 0;
+        triggerPhysicsLoopRef.current();
       }
-      triggerPhysicsLoopRef.current();
     } else {
       // Milestone auto-snap
       if (targetProgressRef.current > 0.28 && targetProgressRef.current < 0.44 && !isZoomUnlockedRef.current) {
@@ -320,13 +316,12 @@ export function MarbleExperience() {
     const onWheel = (e: WheelEvent) => {
       if (!isEntered) return;
 
-      e.preventDefault();
-      e.stopPropagation();
-
       // Scrolling down (forward zoom-out)
       if (e.deltaY > 0) {
         const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
         if (targetProgressRef.current < maxAllowed) {
+          e.preventDefault();
+          e.stopPropagation();
           targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + Math.min(e.deltaY * 0.0015, 0.09));
           triggerPhysicsLoopRef.current();
         } else if (isZoomUnlockedRef.current) {
@@ -336,16 +331,14 @@ export function MarbleExperience() {
           }
         }
       }
-      // Scrolling up (backward zoom-in / replay animation)
+      // Scrolling up (backward zoom-in ONLY if still in initial uncompleted docking)
       else if (e.deltaY < 0) {
-        overscrollDeltaRef.current = 0;
-        if (targetProgressRef.current > 0) {
+        if (!isZoomUnlockedRef.current && targetProgressRef.current < 0.44 && targetProgressRef.current > 0) {
+          e.preventDefault();
+          e.stopPropagation();
+          overscrollDeltaRef.current = 0;
           targetProgressRef.current = Math.max(0, targetProgressRef.current + Math.max(e.deltaY * 0.0015, -0.09));
           triggerPhysicsLoopRef.current();
-          if (targetProgressRef.current < 0.38) {
-            setIsZoomUnlocked(false);
-            isZoomUnlockedRef.current = false;
-          }
         }
       }
     };

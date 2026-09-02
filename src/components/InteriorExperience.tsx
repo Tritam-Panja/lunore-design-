@@ -277,29 +277,15 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
           }
         }
       } else if (e.deltaY < -5) {
-        // Scrolling UP
-        if (isReady && currentStage > 0 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
+        // Scrolling UP: Only allow light stage adjustment if still on the very first text stages (0 or 1), never once the journey is reached
+        if (isReady && currentStage === 1 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
           e.preventDefault();
           e.stopPropagation();
           e.stopImmediatePropagation();
 
           if (now - lastScrollTime.current > 220) {
-            setStoryStage((prev) => {
-              const next = Math.max(0, prev - 1);
-              storyStageRef.current = next;
-              return next;
-            });
-            lastScrollTime.current = now;
-          }
-        } else if (isReady && currentStage === 0 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
-          // Scroll up from stage 0 returns to pure image view
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setOverlayReady(false);
-            overlayReadyRef.current = false;
+            setStoryStage(0);
+            storyStageRef.current = 0;
             lastScrollTime.current = now;
           }
         }
