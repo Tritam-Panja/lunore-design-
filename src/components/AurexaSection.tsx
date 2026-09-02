@@ -157,8 +157,12 @@ export function AurexaSection() {
     return () => window.removeEventListener('wheel', onWheel);
   }, [hasStarted, isUnlocked, unlockPage]);
 
+  // Mobile interaction state: once user taps to see image trails, vanish ambient background cards
+  const [hasTappedTrail, setHasTappedTrail] = useState<boolean>(false);
+
   // Mobile Touch Spawning Function
   const spawnCardAt = useCallback((clientX: number, clientY: number) => {
+    setHasTappedTrail(true);
     const el = containerRef.current;
     if (!el) return;
     const rect = el.getBoundingClientRect();
@@ -258,9 +262,9 @@ export function AurexaSection() {
         </div>
       )}
 
-      {/* 1B. MOBILE AUTONOMOUS AMBIENT KINETIC FLOATING STREAM */}
-      {isMobile && isUnlocked && (
-        <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden">
+      {/* 1B. MOBILE AUTONOMOUS AMBIENT KINETIC FLOATING STREAM (Vanishes completely upon tap/interaction) */}
+      {isMobile && isUnlocked && !hasTappedTrail && (
+        <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden transition-opacity duration-700">
           {ambientCards.map((card, idx) => (
             <div
               key={idx}
@@ -272,7 +276,7 @@ export function AurexaSection() {
                 animation: `float-slow 6s ease-in-out infinite alternate ${card.delay}`,
                 transform: `rotate(${card.rot})`,
               }}
-              className={`absolute ${card.size} rounded-xl p-1 bg-white/[0.08] border border-[#b89a62]/40 shadow-[0_12px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(184,154,98,0.25)] backdrop-blur-md opacity-70 transition-opacity duration-700`}
+              className={`absolute ${card.size} rounded-xl p-1 bg-white/[0.08] border border-[#b89a62]/40 shadow-[0_12px_30px_rgba(0,0,0,0.8),0_0_20px_rgba(184,154,98,0.25)] backdrop-blur-md opacity-70 transition-all duration-700`}
             >
               <div className="w-full h-full rounded-lg overflow-hidden border border-white/20">
                 <img
