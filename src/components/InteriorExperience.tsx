@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronDown, ArrowRight } from 'lucide-react';
+import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { useLenis } from '@/components/SmoothScroll';
 
 interface InteriorExperienceProps {
@@ -306,92 +306,39 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       }
     };
 
-    const onWindowTouchStart = (e: TouchEvent) => {
-      if (e.touches.length > 0) {
-        touchStartY.current = e.touches[0].clientY;
-      }
-    };
-
-    const onWindowTouchMove = (e: TouchEvent) => {
-      if (isFlashlightModeRef.current) return;
-      const el = containerRef.current;
-      if (!el || e.touches.length === 0) return;
-
-      const rect = el.getBoundingClientRect();
-      const isInView = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
-      if (!isInView) return;
-
-      const currentY = e.touches[0].clientY;
-      const deltaY = touchStartY.current - currentY;
-      const isReady = overlayReadyRef.current;
-      const currentStage = storyStageRef.current;
-      const now = Date.now();
-
-      // Swiping UP to scroll down
-      if (deltaY > 15) {
-        if (!isReady) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 180) {
-            setOverlayReady(true);
-            overlayReadyRef.current = true;
-            setStoryStage(0);
-            storyStageRef.current = 0;
-            lastScrollTime.current = now;
-          }
-        } else if (currentStage < 3) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setStoryStage((prev) => {
-              const next = Math.min(3, prev + 1);
-              storyStageRef.current = next;
-              return next;
-            });
-            lastScrollTime.current = now;
-          }
-        }
-      } else if (deltaY < -15) {
-        if (isReady && currentStage > 0 && rect.top >= -80) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setStoryStage((prev) => {
-              const next = Math.max(0, prev - 1);
-              storyStageRef.current = next;
-              return next;
-            });
-            lastScrollTime.current = now;
-          }
-        } else if (isReady && currentStage === 0 && rect.top >= -80) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setOverlayReady(false);
-            overlayReadyRef.current = false;
-            lastScrollTime.current = now;
-          }
-        }
-      }
-    };
-
     window.addEventListener('wheel', onWindowWheel, { passive: false, capture: true });
-    window.addEventListener('touchstart', onWindowTouchStart, { passive: true, capture: true });
-    window.addEventListener('touchmove', onWindowTouchMove, { passive: false, capture: true });
 
     return () => {
       window.removeEventListener('wheel', onWindowWheel, { capture: true } as any);
-      window.removeEventListener('touchstart', onWindowTouchStart, { capture: true } as any);
-      window.removeEventListener('touchmove', onWindowTouchMove, { capture: true } as any);
     };
+  }, []);
+
+  const handleNextStage = useCallback(() => {
+    if (!overlayReadyRef.current) {
+      setOverlayReady(true);
+      overlayReadyRef.current = true;
+      setStoryStage(0);
+      storyStageRef.current = 0;
+    } else {
+      setStoryStage((prev) => {
+        const next = Math.min(3, prev + 1);
+        storyStageRef.current = next;
+        return next;
+      });
+    }
+  }, []);
+
+  const handlePrevStage = useCallback(() => {
+    if (storyStageRef.current === 0) {
+      setOverlayReady(false);
+      overlayReadyRef.current = false;
+    } else {
+      setStoryStage((prev) => {
+        const next = Math.max(0, prev - 1);
+        storyStageRef.current = next;
+        return next;
+      });
+    }
   }, []);
 
   // High-performance direct GPU render loop (wakes on interaction, sleeps when settled)
@@ -679,7 +626,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               </div>
             )}
 
-            {/* CUE WHEN ILLUMINATED: Prompt user that they can scroll to reveal the story */}
+            {/* CUE WHEN ILLUMINATED: Prompt user to explore the story */}
             {!isFlashlightMode && !overlayReady && (
               <div className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 z-30 flex items-center justify-center animate-bounce">
                 {/* Back Golden Aura Glow */}
@@ -687,28 +634,23 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                 
                 <button
                   type="button"
-                  onClick={() => {
-                    setOverlayReady(true);
-                    overlayReadyRef.current = true;
-                    setStoryStage(0);
-                    storyStageRef.current = 0;
-                  }}
-                  className="relative cursor-pointer pointer-events-auto group inline-flex items-center gap-3 px-6 sm:px-8 py-3 rounded-full bg-[rgba(15,16,16,0.82)] hover:bg-[rgba(25,26,26,0.92)] border border-[#b89a62]/60 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_0_25px_rgba(184,154,98,0.35),0_12px_35px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_0_35px_rgba(184,154,98,0.55),0_16px_40px_rgba(0,0,0,0.95)] transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] backdrop-blur-2xl select-none"
+                  onClick={handleNextStage}
+                  className="relative cursor-pointer pointer-events-auto group inline-flex items-center gap-2.5 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full bg-[rgba(15,16,16,0.85)] hover:bg-[rgba(25,26,26,0.95)] border border-[#b89a62]/60 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_0_25px_rgba(184,154,98,0.35),0_12px_35px_rgba(0,0,0,0.85),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_0_35px_rgba(184,154,98,0.55),0_16px_40px_rgba(0,0,0,0.95)] transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98] backdrop-blur-2xl select-none"
                 >
                   {/* Subtle Top Specular Highlight */}
                   <span className="absolute inset-x-5 top-0 h-px bg-gradient-to-r from-transparent via-[#e5c98d]/60 to-transparent" />
                   
-                  <span className="text-xs sm:text-sm tracking-[0.28em] uppercase font-light text-[#f1eee7] group-hover:text-white transition-colors drop-shadow-[0_1px_10px_rgba(0,0,0,0.8)]">
-                    Scroll to explore
+                  <span className="text-xs sm:text-sm tracking-[0.24em] uppercase font-light text-[#f1eee7] group-hover:text-white transition-colors drop-shadow-[0_1px_10px_rgba(0,0,0,0.8)]">
+                    Tap to explore
                   </span>
                   
-                  <ChevronDown className="w-4 h-4 text-[#b89a62] group-hover:text-[#d4af37] transition-transform duration-300 group-hover:translate-y-0.5 drop-shadow-[0_0_8px_rgba(184,154,98,0.6)]" />
+                  <ArrowRight className="w-4 h-4 text-[#b89a62] group-hover:text-[#d4af37] transition-transform duration-300 group-hover:translate-x-0.5 drop-shadow-[0_0_8px_rgba(184,154,98,0.6)]" />
                 </button>
               </div>
             )}
 
             {/* ============================================================ */}
-            {/* 3. EDITORIAL MAGAZINE LAYOUT (APPEARS UPON SCROLLING)       */}
+            {/* 3. EDITORIAL MAGAZINE LAYOUT (APPEARS UPON SCROLLING/TAPPING)*/}
             {/* ============================================================ */}
             {!isFlashlightMode && overlayReady && (
               <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-start p-6 sm:p-10 md:p-14 lg:p-16 animate-in fade-in duration-1000">
@@ -738,10 +680,16 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                         ))}
                       </h3>
 
-                      {/* Subtle Scroll Cue */}
-                      <div className="mt-8 flex items-center gap-2.5 text-xs tracking-[0.25em] uppercase text-[#b89a62] animate-pulse">
-                        <span>Scroll to explore</span>
-                        <ChevronDown className="w-3.5 h-3.5 text-[#b89a62]" />
+                      {/* Tap / Scroll Cue Button */}
+                      <div className="mt-6 sm:mt-8 flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={handleNextStage}
+                          className="pointer-events-auto cursor-pointer inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full liquid-glass-pill text-[11px] sm:text-xs tracking-[0.22em] uppercase text-[#f1eee7] hover:text-white border border-[#b89a62]/60 hover:border-[#b89a62] bg-black/60 shadow-[0_0_15px_rgba(184,154,98,0.25)] active:scale-95 transition-all"
+                        >
+                          <span>Explore Story</span>
+                          <ArrowRight className="w-3.5 h-3.5 text-[#b89a62]" />
+                        </button>
                       </div>
                     </div>
                   ) : (
@@ -871,6 +819,37 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                           </div>
                         </div>
                       )}
+
+                      {/* COMPACT TAP STEPPER BUTTONS (Especially Mobile/Touch friendly) */}
+                      <div className="pt-4 flex items-center justify-between gap-3 pointer-events-auto w-full max-w-sm">
+                        <button
+                          type="button"
+                          onClick={handlePrevStage}
+                          aria-label="Previous step"
+                          className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full liquid-glass-pill text-[10px] sm:text-[11px] tracking-[0.16em] uppercase text-[#b9b5ae] hover:text-white border border-white/20 bg-black/65 active:scale-95 transition-all cursor-pointer select-none"
+                        >
+                          <ChevronLeft className="w-3.5 h-3.5 text-[#b89a62]" />
+                          <span>Back</span>
+                        </button>
+
+                        <div className="text-[10px] sm:text-xs font-mono tracking-[0.2em] text-[#b89a62] font-medium bg-black/50 px-3 py-1 rounded-full border border-white/10">
+                          0{storyStage} / 03
+                        </div>
+
+                        {storyStage < 3 ? (
+                          <button
+                            type="button"
+                            onClick={handleNextStage}
+                            aria-label="Next step"
+                            className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full bg-[#b89a62]/25 hover:bg-[#b89a62]/40 border border-[#b89a62]/80 text-[#f1eee7] text-[10px] sm:text-[11px] tracking-[0.18em] uppercase font-medium shadow-[0_0_15px_rgba(184,154,98,0.3)] active:scale-95 transition-all cursor-pointer select-none"
+                          >
+                            <span>Next</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-[#b89a62]" />
+                          </button>
+                        ) : (
+                          <div className="w-16" />
+                        )}
+                      </div>
                     </div>
                   )}
 
