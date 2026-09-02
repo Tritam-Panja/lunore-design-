@@ -722,7 +722,7 @@ export function MarbleExperience() {
       )}
 
       {/* ========================================================================= */}
-      {/* 6. FINAL NARRATIVE REVEAL: "Marble and Granite Solution" (PARTICLE TEXT)  */}
+      {/* 6. FINAL NARRATIVE REVEAL: "Marble and Granite Solutions"                 */}
       {/* Appears as user scrolls into the full zoom-out with soft background blur  */}
       {/* ========================================================================= */}
       {narrativeProgress > 0.05 && (
@@ -734,37 +734,52 @@ export function MarbleExperience() {
           className="absolute inset-0 z-30 flex flex-col items-center justify-center text-center px-4 sm:px-8 md:px-12 pointer-events-auto select-none overflow-hidden"
         >
           {/* Contrast Dark Backdrop & Ambient Glow */}
-          <div className="absolute w-[950px] h-[550px] bg-black/60 rounded-full blur-[90px] pointer-events-none -z-10" />
-          <div className="absolute w-[800px] h-[400px] bg-[#b89a62]/15 rounded-full blur-[150px] pointer-events-none -z-10" />
+          <div className="absolute inset-0 bg-black/50 pointer-events-none -z-10" />
+          <div className="absolute w-[950px] h-[550px] bg-black/60 rounded-full blur-[90px] pointer-events-none -z-10 hidden sm:block" />
+          <div className="absolute w-[800px] h-[400px] bg-[#b89a62]/15 rounded-full blur-[150px] pointer-events-none -z-10 hidden sm:block" />
 
-          {/* Interactive React Bits ParticleText Headline - Perfectly Aligned Dot Matrix */}
-          <div className="w-full max-w-4xl h-[120px] sm:h-[150px] md:h-[180px] flex items-center justify-center">
-            <ParticleText
-              text="Marble and Granite Solution"
-              particleSize={isMobile ? 1.9 : 2.2}
-              density={4}
-              color="#f8fafc"
-              highlightColor="#b89a62"
-              scatter={190}
-              gatherDuration={1600}
-              stagger={420}
-              pointerRepel={42}
-              repelRadius={120}
-              idleDrift={0.8}
-              trigger="mount"
-              fontSize={isMobile ? "clamp(1.9rem, 6.8vw, 2.8rem)" : "clamp(2.7rem, 5.2vw, 4.2rem)"}
-              fontWeight={800}
-              fontFamily="Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
-              glow={true}
-              className="w-full h-full"
-            />
-          </div>
+          {/* Headline: Crisp Luxury Serif Typography on Mobile (Zero Lag) / ParticleText on Desktop */}
+          {isMobile ? (
+            <div className="flex flex-col items-center justify-center py-2 px-4 text-center">
+              <h2
+                className="text-2xl sm:text-3xl font-normal text-[#f1eee7] tracking-[0.06em] leading-snug drop-shadow-[0_4px_24px_rgba(0,0,0,0.95)]"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                Marble and Granite{' '}
+                <span className="text-gold-shimmer font-medium tracking-[0.08em] drop-shadow-[0_0_30px_rgba(184,154,98,0.65)]">
+                  Solutions
+                </span>
+              </h2>
+            </div>
+          ) : (
+            <div className="w-full max-w-4xl h-[120px] sm:h-[150px] md:h-[180px] flex items-center justify-center">
+              <ParticleText
+                text="Marble and Granite Solution"
+                particleSize={2.2}
+                density={4}
+                color="#f8fafc"
+                highlightColor="#b89a62"
+                scatter={190}
+                gatherDuration={1600}
+                stagger={420}
+                pointerRepel={42}
+                repelRadius={120}
+                idleDrift={0.8}
+                trigger="mount"
+                fontSize="clamp(2.7rem, 5.2vw, 4.2rem)"
+                fontWeight={800}
+                fontFamily="Inter, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif"
+                glow={true}
+                className="w-full h-full"
+              />
+            </div>
+          )}
 
           <div className="my-2.5 sm:my-3.5 w-20 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent" />
 
           {/* Editorial Paragraph in Luminous Ivory White */}
           <p
-            className="text-sm sm:text-base md:text-lg lg:text-[1.12rem] text-[#f8f6f0] font-normal leading-relaxed tracking-wide max-w-3xl px-4 text-center select-text"
+            className="text-xs sm:text-base md:text-lg lg:text-[1.12rem] text-[#f8f6f0] font-normal leading-relaxed tracking-wide max-w-3xl px-4 text-center select-text"
             style={{
               color: '#f8f6f0',
               fontFamily: 'var(--font-serif)',
