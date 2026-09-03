@@ -180,6 +180,7 @@ export function MarbleExperience() {
   const lastRectTimeRef = useRef<number>(0);
 
   const updatePointerPosition = useCallback((clientX: number, clientY: number) => {
+    if (window.innerWidth < 768) return;
     const el = containerRef.current;
     if (!el) return;
 
@@ -213,6 +214,7 @@ export function MarbleExperience() {
 
   useEffect(() => {
     const handleWindowMouseMove = (e: MouseEvent) => {
+      if (window.innerWidth < 768) return;
       updatePointerPosition(e.clientX, e.clientY);
     };
 
@@ -363,9 +365,6 @@ export function MarbleExperience() {
     currentProgressRef.current = 0;
     overscrollDeltaRef.current = 0;
     triggerPhysicsLoopRef.current();
-    if (containerRef.current) {
-      containerRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
   };
 
   const handleUnlockZoom = () => {
@@ -460,11 +459,13 @@ export function MarbleExperience() {
 
   // Translation & Tilt
   const activeInfluence = Math.max(0, 1 - easedP1);
-  const transX = animState.posX * activeInfluence;
-  const transY = animState.posY * activeInfluence + (easedP1 * dockedTargetY) * stage2PinchScale;
-  const rotX = animState.tiltX * activeInfluence;
-  const rotY = animState.tiltY * activeInfluence + animState.flip * activeInfluence;
-  const rotZ = animState.tiltZ * activeInfluence;
+  const transX = isMobile ? 0 : animState.posX * activeInfluence;
+  const transY = isMobile
+    ? (easedP1 * dockedTargetY) * stage2PinchScale
+    : animState.posY * activeInfluence + (easedP1 * dockedTargetY) * stage2PinchScale;
+  const rotX = isMobile ? 0 : animState.tiltX * activeInfluence;
+  const rotY = isMobile ? animState.flip * activeInfluence : animState.tiltY * activeInfluence + animState.flip * activeInfluence;
+  const rotZ = isMobile ? 0 : animState.tiltZ * activeInfluence;
 
   // Bezel & Frame Dissolution (Smoothly fades out glass styling)
   const bezelPadding = Math.max(0, 14 * (1 - easedP1 * 1.8));
@@ -576,7 +577,7 @@ export function MarbleExperience() {
       {/* ========================================================================= */}
       {cardDissolveOpacity > 0.005 && (
         <div
-          className="relative z-30 flex flex-col items-center justify-center pointer-events-none"
+          className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
         >
           {/* GPU-accelerated 3D Transform Wrapper */}
           <div
