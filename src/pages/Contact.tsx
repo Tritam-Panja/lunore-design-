@@ -144,10 +144,10 @@ export function Contact() {
                 </h3>
                 <div className="flex items-start gap-4">
                   <MapPin className="w-5 h-5 text-[#b89a62] flex-shrink-0 mt-1" strokeWidth={1} />
-                  <p className="text-[#b9b5ae] leading-relaxed text-sm">
+                  <p className="text-[#cfcac0] leading-relaxed text-sm font-sans font-light tracking-wide">
                     103 UPPER, ANDHERI INDUSTRIAL ESTATE,<br />
-                    OFF VEERA DESAI ROAD,<br />
-                    Mumbai 400058
+                    OFF VEERA DESAI ROAD, NEAR YASH RAJ FILMS, OPP CHITRAKOOT BANQUETS,<br />
+                    ANDHERI WEST, MUMBAI 400053
                   </p>
                 </div>
               </div>
@@ -160,7 +160,7 @@ export function Contact() {
                   <Phone className="w-5 h-5 text-[#b89a62] flex-shrink-0" strokeWidth={1} />
                   <a
                     href="tel:+919769708628"
-                    className="text-[#cfcac0] hover:text-[#f3e5ab] transition-colors inline-flex items-center gap-2 group cursor-pointer text-sm"
+                    className="text-[#cfcac0] hover:text-[#f3e5ab] transition-colors inline-flex items-center gap-2 group cursor-pointer text-sm font-sans font-normal tracking-wider"
                   >
                     <span>+91 97697 08628</span>
                     <ArrowUpRight className="w-3.5 h-3.5 opacity-40 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-[#b89a62]" />

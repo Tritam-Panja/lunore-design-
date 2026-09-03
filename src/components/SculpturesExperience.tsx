@@ -502,8 +502,8 @@ export function SculpturesExperience() {
   // 2. Landscape -> Portrait Dimensions Morphing
   const isMobile = viewport.w < 640;
   const isTablet = viewport.w >= 640 && viewport.w < 1024;
-  const targetCardW = isMobile ? Math.min(250, viewport.w * 0.74) : isTablet ? 300 : 350;
-  const targetCardH = isMobile ? Math.min(365, viewport.h * 0.48) : isTablet ? 450 : 520;
+  const targetCardW = isMobile ? Math.min(220, viewport.w * 0.58) : isTablet ? 300 : 350;
+  const targetCardH = isMobile ? Math.min(335, viewport.h * 0.44) : isTablet ? 450 : 520;
 
   const currentCardW = viewport.w + (targetCardW - viewport.w) * easedP;
   const currentCardH = viewport.h + (targetCardH - viewport.h) * easedP;
@@ -642,7 +642,7 @@ export function SculpturesExperience() {
 
           {/* 3D CYLINDRICAL STAGE & MORPH CANVAS (INFINITE ROTATION) */}
           <div
-            className={`relative w-full flex-1 flex items-center justify-center my-1 sm:my-2 overflow-visible [perspective:1400px] ${
+            className={`relative w-full flex-1 flex items-center justify-center my-1 sm:my-2 overflow-visible [perspective:1050px] sm:[perspective:1400px] ${
               isDocked ? (isDragging ? 'cursor-grabbing' : 'cursor-grab') : ''
             }`}
           >
@@ -657,19 +657,21 @@ export function SculpturesExperience() {
                 if (diff < -totalCount / 2) diff += totalCount;
 
                 const isCenter = Math.abs(diff) < 0.45;
-                const isVisible = Math.abs(diff) <= 3.2;
+                const isVisible = Math.abs(diff) <= (isMobile ? 2.8 : 3.2);
 
                 // 3D Geometry
-                const radius = isMobile ? Math.min(480, viewport.w * 1.15) : isTablet ? 660 : 820;
-                const angleDeg = diff * (isMobile ? 26 : 23);
+                const radius = isMobile ? Math.min(380, viewport.w * 0.96) : isTablet ? 660 : 820;
+                const angleDeg = diff * (isMobile ? 38 : 23);
                 const angleRad = (angleDeg * Math.PI) / 180;
 
                 const targetTranslateX = radius * Math.sin(angleRad);
-                const targetTranslateZ = radius * (Math.cos(angleRad) - 1) + 45;
-                const targetRotateY = angleDeg * 0.95;
-                const baseScale = Math.max(0.78, 1 - Math.abs(diff) * 0.05);
-                const targetOpacity = isVisible ? Math.max(0.15, 1 - Math.pow(Math.abs(diff) / 3.2, 1.8)) : 0;
-                const zIndex = Math.round(30 - Math.abs(diff) * 8);
+                const targetTranslateZ = radius * (Math.cos(angleRad) - 1) + (isMobile ? 20 : 45);
+                const targetRotateY = angleDeg * (isMobile ? 0.82 : 0.95);
+                const baseScale = isMobile
+                  ? Math.max(0.68, 1 - Math.abs(diff) * 0.16)
+                  : Math.max(0.78, 1 - Math.abs(diff) * 0.05);
+                const targetOpacity = isVisible ? Math.max(0.15, 1 - Math.pow(Math.abs(diff) / (isMobile ? 2.8 : 3.2), 1.8)) : 0;
+                const zIndex = isCenter ? 50 : Math.round(30 - Math.abs(diff) * 8);
 
                 // 1. CENTER HERO CARD (Landscape Fullscreen -> Portrait Card Morph)
                 if (isHeroCard) {
@@ -679,8 +681,8 @@ export function SculpturesExperience() {
 
                   // Mobile: Pure GPU scale matrix (zero layout reflow & zero texture flickering)
                   // Desktop: Original exact pixel dimensions & dynamic padding
-                  const mobileScaleX = (viewport.w / targetCardW) * (1 - easedP) + 1 * easedP;
-                  const mobileScaleY = (viewport.h / targetCardH) * (1 - easedP) + 1 * easedP;
+                  const mobileScaleX = ((viewport.w / targetCardW) * (1 - easedP) + 1 * easedP) * (isCenter ? 1 : baseScale);
+                  const mobileScaleY = ((viewport.h / targetCardH) * (1 - easedP) + 1 * easedP) * (isCenter ? 1 : baseScale);
 
                   const cardStyle: React.CSSProperties = isMobile
                     ? {
@@ -688,7 +690,7 @@ export function SculpturesExperience() {
                         height: `${targetCardH}px`,
                         transform: `translate3d(${heroTranslateX}px, 0, ${heroTranslateZ}px) rotateY(${heroRotateY}deg) scale(${mobileScaleX}, ${mobileScaleY}) translateZ(0)`,
                         transformOrigin: 'center center',
-                        zIndex: 45,
+                        zIndex: isCenter ? 50 : zIndex,
                         pointerEvents: isDocked ? 'auto' : 'none',
                         willChange: 'transform',
                         backfaceVisibility: 'hidden',
@@ -697,7 +699,7 @@ export function SculpturesExperience() {
                         width: `${currentCardW}px`,
                         height: `${currentCardH}px`,
                         transform: `translate3d(${heroTranslateX}px, 0, ${heroTranslateZ}px) rotateY(${heroRotateY}deg)`,
-                        zIndex: 45,
+                        zIndex: isCenter ? 50 : zIndex,
                         pointerEvents: isDocked ? 'auto' : 'none',
                         willChange: 'width, height, transform',
                       };
@@ -793,7 +795,7 @@ export function SculpturesExperience() {
                 const currentTranslateX = targetTranslateX * fanEased;
                 const currentTranslateZ = targetTranslateZ * fanEased + (1 - fanEased) * -280;
                 const currentRotateY = targetRotateY * fanEased;
-                const currentScale = baseScale * (0.65 + fanEased * 0.35);
+                const currentScale = (isCenter ? 1 : baseScale) * (0.65 + fanEased * 0.35);
                 const currentOpacity = isVisible ? targetOpacity * fanEased : 0;
 
                 return (
@@ -817,7 +819,7 @@ export function SculpturesExperience() {
                     className={`absolute rounded-2xl select-none transition-shadow duration-300 ${
                       isCenter
                         ? 'shadow-[0_30px_75px_rgba(0,0,0,0.9),0_0_40px_rgba(184,154,98,0.25),inset_0_1.5px_2px_rgba(255,255,255,0.6)] border border-white/60'
-                        : 'shadow-[0_20px_50px_rgba(0,0,0,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.35)] border border-white/30 hover:border-white/50'
+                        : 'shadow-[0_16px_40px_rgba(0,0,0,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.25)] border border-white/20 hover:border-white/40'
                     }`}
                   >
                     <div className="relative w-full h-full rounded-2xl overflow-hidden backdrop-blur-2xl bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.03)_50%,rgba(255,255,255,0.08)_100%)] p-3 sm:p-4 flex flex-col items-center justify-center">

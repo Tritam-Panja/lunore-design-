@@ -78,15 +78,15 @@ export function Footer() {
             <h4 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-4 sm:mb-5 font-medium">
               Studio
             </h4>
-            <p className="text-xs sm:text-sm text-[#b9b5ae] leading-relaxed font-light">
-              57 Heera Panna M.R. No.2, MHADA Layout,<br />
-              Oshiwara, Jogeshwari(W), Near Dhaba,<br />
-              Mumbai 400058
+            <p className="text-xs sm:text-sm text-[#cfcac0] leading-relaxed font-sans font-light tracking-wide">
+              103 UPPER, ANDHERI INDUSTRIAL ESTATE,<br />
+              OFF VEERA DESAI ROAD, NEAR YASH RAJ FILMS, OPP CHITRAKOOT BANQUETS,<br />
+              ANDHERI WEST, MUMBAI 400053
             </p>
-            <p className="mt-3 text-xs sm:text-sm text-[#b9b5ae] font-light">
+            <p className="mt-3 text-xs sm:text-sm text-[#cfcac0] font-sans font-normal tracking-wider">
               <a href="tel:+919769708628" className="hover:text-[#f3e5ab] transition-colors">+91 97697 08628</a>
             </p>
-            <p className="text-xs sm:text-sm text-[#b9b5ae] font-light truncate">
+            <p className="text-xs sm:text-sm text-[#cfcac0] font-sans font-light truncate">
               <a href="mailto:support@lunoreluxedecorstudio.com" className="hover:text-[#f3e5ab] transition-colors">support@lunoreluxedecorstudio.com</a>
             </p>
           </div>

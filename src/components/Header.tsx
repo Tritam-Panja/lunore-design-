@@ -186,18 +186,18 @@ export function Header() {
               </div>
 
               <div className="pt-10">
-                <div className="pt-6 border-t border-white/10 text-xs text-[#85817a] space-y-2">
+                <div className="pt-6 border-t border-white/10 text-xs font-sans text-[#85817a] space-y-2">
                   <div className="flex items-center gap-2 text-[#b9b5ae]">
                     <MapPin className="w-4 h-4 text-[#b89a62]" />
                     <span>Mumbai, India</span>
                   </div>
                   <div className="flex items-center gap-2 text-[#b9b5ae]">
                     <Phone className="w-4 h-4 text-[#b89a62]" />
-                    <span>+91 97697 08628</span>
+                    <span className="tracking-wide">+91 97697 08628</span>
                   </div>
                   <div className="flex items-center gap-2 text-[#b9b5ae]">
                     <Mail className="w-4 h-4 text-[#b89a62]" />
-                    <span>support@lunoreluxedecorstudio.com</span>
+                    <span className="truncate">support@lunoreluxedecorstudio.com</span>
                   </div>
                 </div>
               </div>

@@ -83,6 +83,9 @@
     background-color: #0d0e0e;
     color: #f1eee7;
     font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    font-variant-numeric: lining-nums proportional-nums;
+    -webkit-font-feature-settings: "lnum" 1;
+    font-feature-settings: "lnum" 1;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
@@ -92,6 +95,9 @@
   }
   p {
     font-family: 'Cormorant Garamond', 'Playfair Display', Georgia, serif;
+    font-variant-numeric: lining-nums proportional-nums;
+    -webkit-font-feature-settings: "lnum" 1;
+    font-feature-settings: "lnum" 1;
     letter-spacing: 0.02em;
     text-rendering: optimizeLegibility;
   }
