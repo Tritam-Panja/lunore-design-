@@ -58,6 +58,9 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
   const [beamSize, setBeamSize] = useState<number>(() =>
     typeof window !== 'undefined' && window.innerWidth < 640 ? 120 : 180
   );
+  const [isMobile, setIsMobile] = useState<boolean>(() =>
+    typeof window !== 'undefined' && window.innerWidth < 768
+  );
   const [hasEntered, setHasEntered] = useState<boolean>(false);
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [isSwitchToggled, setIsSwitchToggled] = useState<boolean>(false);
@@ -103,8 +106,11 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
   // Clean up timers on unmount
   useEffect(() => {
     const handleResize = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
       setBeamSize(window.innerWidth < 640 ? 120 : 180);
     };
+    handleResize();
     window.addEventListener('resize', handleResize);
     return () => {
       window.removeEventListener('resize', handleResize);
@@ -520,13 +526,20 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
             {/* 1. BASE DARK INTERIOR IMAGE (Flashlight mode ambient base)   */}
             {/* ============================================================ */}
             <div className="absolute inset-0 overflow-hidden bg-[#060709]">
-              <img
-                src="/assets/images/interior dark.png"
-                alt="LUNORE Luxury Penthouse Interior in the Dark"
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover object-center scale-100 filter brightness-[0.52] contrast-[1.08]"
-              />
+              <picture className="w-full h-full block">
+                <source
+                  media="(max-width: 767px)"
+                  srcSet="/assets/images/interior-dark-mobile.png"
+                />
+                <img
+                  key={isMobile ? 'mobile-interior-dark' : 'desktop-interior-dark'}
+                  src={isMobile ? "/assets/images/interior-dark-mobile.png" : "/assets/images/interior dark.png"}
+                  alt="LUNORE Luxury Penthouse Interior in the Dark"
+                  loading="eager"
+                  decoding="async"
+                  className="w-full h-full object-cover object-center scale-100 filter brightness-[0.52] contrast-[1.08]"
+                />
+              </picture>
               <div className="absolute inset-0 bg-black/25 mix-blend-multiply pointer-events-none" />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40 pointer-events-none" />
             </div>
@@ -551,14 +564,21 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                   : undefined
               }
             >
-              {/* Sharp image layer */}
-              <img
-                src="/assets/images/interior light .png"
-                alt="LUNORE Luxury Penthouse Interior Fully Illuminated"
-                loading="lazy"
-                decoding="async"
-                className="w-full h-full object-cover object-center scale-100 filter brightness-100"
-              />
+              {/* Sharp image layer (Responsive: mobile optimized portrait image on mobile devices) */}
+              <picture className="w-full h-full block">
+                <source
+                  media="(max-width: 767px)"
+                  srcSet="/assets/images/interior-light-mobile.png"
+                />
+                <img
+                  key={isMobile ? 'mobile-interior' : 'desktop-interior'}
+                  src={isMobile ? "/assets/images/interior-light-mobile.png" : "/assets/images/interior light .png"}
+                  alt="LUNORE Luxury Penthouse Interior Fully Illuminated"
+                  loading="eager"
+                  decoding="async"
+                  className="w-full h-full object-cover object-center scale-100 filter brightness-100"
+                />
+              </picture>
 
               {/* LIQUID GLASS LEFT PANEL OVERLAY (APPEARS ON SCROLL) */}
               {!isFlashlightMode && (
