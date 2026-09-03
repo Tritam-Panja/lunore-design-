@@ -21,7 +21,7 @@ export function LazyImage({
   skeletonClassName = '',
   aspectRatio,
   threshold = 0.01,
-  rootMargin = '200px',
+  rootMargin = '800px',
   fallbackSrc,
   ...props
 }: LazyImageProps) {
@@ -29,6 +29,7 @@ export function LazyImage({
   const [isLoaded, setIsLoaded] = useState(false);
   const [hasError, setHasError] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
 
   useEffect(() => {
     // If IntersectionObserver is not available, load immediately
@@ -60,6 +61,13 @@ export function LazyImage({
     };
   }, [threshold, rootMargin]);
 
+  // Check if image is already cached in memory
+  useEffect(() => {
+    if (imgRef.current?.complete && imgRef.current.naturalWidth > 0) {
+      setIsLoaded(true);
+    }
+  }, [isInView, src]);
+
   // Reset state when src changes
   useEffect(() => {
     setIsLoaded(false);
@@ -72,7 +80,7 @@ export function LazyImage({
       className={`relative overflow-hidden bg-[#181917] ${className}`}
       style={aspectRatio ? { aspectRatio } : undefined}
     >
-      {/* Shimmer Skeleton Placeholder while loading */}
+      {/* Skeleton Placeholder while loading */}
       {!isLoaded && !hasError && (
         <div
           className={`absolute inset-0 z-0 bg-[#202222] overflow-hidden ${skeletonClassName}`}
@@ -98,6 +106,7 @@ export function LazyImage({
       {/* Actual Image */}
       {isInView && !hasError && (
         <img
+          ref={imgRef}
           src={src}
           alt={alt}
           loading="lazy"
@@ -110,8 +119,8 @@ export function LazyImage({
               setHasError(true);
             }
           }}
-          className={`w-full h-full object-cover transition-all duration-700 ease-out ${
-            isLoaded ? 'opacity-100 blur-0 scale-100' : 'opacity-0 blur-sm scale-105'
+          className={`w-full h-full object-cover transition-opacity duration-300 ease-out ${
+            isLoaded ? 'opacity-100' : 'opacity-0'
           } ${imgClassName}`}
           {...props}
         />

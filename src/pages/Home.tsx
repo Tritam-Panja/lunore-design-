@@ -139,6 +139,26 @@ export function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Idle pre-warm heavy 3D and interactive experiences so code chunks are cached before user scrolls
+  useEffect(() => {
+    const prewarmChunks = () => {
+      import('@/components/InteriorExperience');
+      import('@/components/SculpturesExperience');
+      import('@/components/MarbleExperience');
+      import('@/components/AurexaSection');
+    };
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      const id = (window as unknown as { requestIdleCallback: (cb: () => void, opts: { timeout: number }) => number }).requestIdleCallback(prewarmChunks, { timeout: 1500 });
+      return () => {
+        (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(id);
+      };
+    } else {
+      const timer = setTimeout(prewarmChunks, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, []);
+
   // Scroll handler for scroll-driven index update (RAF throttled to avoid layout thrashing)
   useEffect(() => {
     let ticking = false;
@@ -355,8 +375,8 @@ export function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
       {/* 3. INTERACTIVE INTERIOR EXPERIENCE SECTION (LAZY MOUNTED) */}
-      <LazySection minHeight="600px" rootMargin="350px">
-        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+      <LazySection minHeight="600px" rootMargin="1200px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e]" />}>
           <InteriorExperience />
         </Suspense>
       </LazySection>
@@ -364,8 +384,8 @@ export function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
 
       {/* 4. FEATURED PROJECTS & SIGNATURE COLLECTION SECTION (LAZY MOUNTED) */}
-      <LazySection minHeight="600px" rootMargin="350px">
-        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+      <LazySection minHeight="600px" rootMargin="1200px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e]" />}>
           <SculpturesExperience />
         </Suspense>
       </LazySection>
@@ -373,8 +393,8 @@ export function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
       {/* 5. MARBLE EXPERIENCE INTERACTIVE SECTION (LAZY MOUNTED) */}
-      <LazySection minHeight="600px" rootMargin="350px">
-        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#08090a] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+      <LazySection minHeight="600px" rootMargin="1200px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#08090a]" />}>
           <MarbleExperience />
         </Suspense>
       </LazySection>
@@ -382,8 +402,8 @@ export function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
       {/* 6. AUREXA HAUTE STONE SECTION (LAZY MOUNTED WITH GRADUAL BLUR) */}
-      <LazySection minHeight="600px" rootMargin="350px">
-        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0a0b0c] flex items-center justify-center"><div className="w-8 h-8 rounded-full border-t-2 border-[#c2a67e] animate-spin" /></div>}>
+      <LazySection minHeight="600px" rootMargin="1200px">
+        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0a0b0c]" />}>
           <AurexaSection />
         </Suspense>
       </LazySection>

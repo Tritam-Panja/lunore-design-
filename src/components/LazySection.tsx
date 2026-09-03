@@ -12,7 +12,7 @@ interface LazySectionProps {
 export function LazySection({
   children,
   fallback,
-  rootMargin = '600px',
+  rootMargin = '1200px',
   threshold = 0.01,
   className = '',
   minHeight = '100px',

@@ -9,7 +9,7 @@ export interface UseRevealOptions extends IntersectionObserverInit {
  * Supports smooth forward and reversible "undo" motion on reverse scroll.
  */
 export function useReveal<T extends HTMLElement = HTMLDivElement>(
-  options: UseRevealOptions = { threshold: 0.12, once: false }
+  options: UseRevealOptions = { threshold: 0.12, once: true }
 ) {
   const ref = useRef<T | null>(null);
   const [visible, setVisible] = useState(false);
@@ -23,7 +23,7 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(
       return;
     }
 
-    const { once = false, ...observerOptions } = options;
+    const { once = true, ...observerOptions } = options;
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {

@@ -111,9 +111,10 @@
     text-rendering: optimizeLegibility;
   }
   img {
-    content-visibility: auto;
     max-width: 100%;
     height: auto;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
   button, a {
     touch-action: manipulation;
