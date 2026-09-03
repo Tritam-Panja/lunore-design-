@@ -423,9 +423,15 @@ export function SculpturesExperience() {
     const now = performance.now();
     const dt = Math.max(1, now - lastDragTimeRef.current);
 
-    if (currentPinchRef.current >= 0.90) {
-      // Infinite horizontal swipe rotation when docked in carousel
-      if (Math.abs(totalDiffX) > Math.abs(totalDiffY) * 1.1 && Math.abs(totalDiffX) > 4) {
+    if (currentPinchRef.current < 0.90) {
+      // Swiping up in statement view transitions into carousel
+      if (totalDiffY > 20 && Math.abs(totalDiffY) > Math.abs(totalDiffX)) {
+        targetPinchRef.current = Math.min(1, targetPinchRef.current + (totalDiffY - 20) * 0.005);
+        triggerPhysicsLoopRef.current();
+      }
+    } else {
+      // Infinite horizontal swipe rotation when docked in carousel (ensuring vertical page scroll is never trapped)
+      if (Math.abs(totalDiffX) > Math.abs(totalDiffY) * 1.25 && Math.abs(totalDiffX) > 6) {
         const diffFromLast = lastDragXRef.current - currentX;
         const stepDelta = diffFromLast * 0.0042;
         targetRotationRef.current += stepDelta;
@@ -949,7 +955,7 @@ export function SculpturesExperience() {
                 {/* Scroll Down Cue */}
                 <div className="mt-8 sm:mt-10 flex flex-col items-center gap-1.5 opacity-75 hover:opacity-100 transition-opacity">
                   <span className="text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#b89a62]">
-                    Scroll or Click to Enter Carousel
+                    Tap or Scroll to Enter Carousel
                   </span>
                   <ChevronDown className="w-4 h-4 text-[#b89a62] animate-bounce" />
                 </div>

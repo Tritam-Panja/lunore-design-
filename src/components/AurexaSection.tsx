@@ -90,19 +90,21 @@ export function AurexaSection() {
       (entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting && !isUnlockedRef.current) {
-            lockPage();
+            if (!isMobile) {
+              lockPage();
+            }
             setHasStarted(true);
           }
         });
       },
       {
-        threshold: 0.6,
+        threshold: isMobile ? 0.35 : 0.6,
       }
     );
 
     observer.observe(el);
     return () => observer.disconnect();
-  }, [lockPage]);
+  }, [lockPage, isMobile]);
 
   // 2. Play animation smoothly once started, and allow wheel/swipe to advance it
   useEffect(() => {

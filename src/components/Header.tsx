@@ -100,7 +100,7 @@ export function Header() {
     <>
       {/* MINIMAL TOP BAR: APPEARS WHEN SCROLLED PAST HERO */}
       <header
-        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-14 py-3 sm:py-5 md:py-8 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-14 pt-[max(0.75rem,env(safe-area-inset-top,0.75rem))] pb-3 sm:py-5 md:py-8 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
           isHeaderVisible
             ? 'opacity-100 translate-y-0'
             : 'opacity-0 -translate-y-8'
@@ -111,7 +111,7 @@ export function Header() {
           <NavLink
             to="/"
             onClick={(e) => handleLinkClick(e, { label: 'HOME', to: '/', hash: '#hero' })}
-            className="flex flex-col group cursor-pointer select-none"
+            className="flex flex-col group cursor-pointer select-none py-1"
             aria-label="LUNORE Luxe Decor Studio"
           >
             <span className="font-[var(--font-heading)] text-lg sm:text-2xl md:text-3xl tracking-[0.2em] sm:tracking-[0.28em] uppercase text-[#f1eee7] font-semibold group-hover:text-white transition-all duration-300 drop-shadow-[0_2px_12px_rgba(0,0,0,0.85)] leading-none">
@@ -130,7 +130,7 @@ export function Header() {
             onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
-            className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50 shadow-2xl backdrop-blur-xl bg-black/50 border border-white/15 hover:border-[#b89a62]/60 hover:bg-white/10 transition-all duration-300 active:scale-95"
+            className="relative w-12 h-12 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50 shadow-2xl backdrop-blur-xl bg-black/60 border border-white/15 hover:border-[#b89a62]/60 hover:bg-white/10 transition-all duration-300 active:scale-95"
           >
             <div className="relative w-5 h-4 flex flex-col justify-between items-center overflow-hidden">
               <span
@@ -155,7 +155,7 @@ export function Header() {
 
       {/* FULL-SCREEN LIQUID GLASS OVERLAY DRAWER */}
       <div
-        className={`fixed inset-0 z-40 bg-black/85 backdrop-blur-3xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-y-auto overscroll-contain ${
+        className={`fixed inset-0 z-40 bg-black/90 backdrop-blur-3xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-y-auto overscroll-contain transform-gpu ${
           menuOpen
             ? 'opacity-100 pointer-events-auto scale-100'
             : 'opacity-0 pointer-events-none scale-105'
@@ -164,9 +164,9 @@ export function Header() {
         aria-hidden={!menuOpen}
       >
         {/* Subtle Ambient Radial Glow */}
-        <div className="absolute top-0 right-0 w-[350px] sm:w-[600px] h-[350px] sm:h-[600px] bg-[#b89a62]/10 rounded-full blur-[120px] sm:blur-[160px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-[#b89a62]/10 rounded-full blur-[100px] sm:blur-[160px] pointer-events-none" />
 
-        <div className="min-h-screen max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-20 sm:pt-28 md:pt-32 pb-8 sm:pb-16 flex flex-col justify-between relative z-10">
+        <div className="min-h-[100dvh] max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-[max(5rem,calc(env(safe-area-inset-top,0px)+4.5rem))] pb-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1.5rem))] flex flex-col justify-between relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start my-auto">
             {/* Left Brand Identity Card (hidden on mobile, visible on desktop) */}
             <div className="lg:col-span-5 hidden lg:flex flex-col justify-between h-full liquid-glass-card p-8 md:p-10 rounded-3xl">
@@ -218,7 +218,7 @@ export function Header() {
                   <a
                     href={link.hash || link.to}
                     onClick={(e) => handleLinkClick(e, link)}
-                    className="flex items-center justify-between py-2.5 px-3.5 sm:py-3.5 sm:px-6 rounded-xl sm:rounded-2xl liquid-glass-pill border border-white/10 group-hover:border-[#b89a62]/50 group-hover:bg-white/[0.07] active:scale-[0.99] transition-all duration-300 cursor-pointer"
+                    className="flex items-center justify-between min-h-[48px] py-3 px-4 sm:py-3.5 sm:px-6 rounded-xl sm:rounded-2xl liquid-glass-pill border border-white/10 group-hover:border-[#b89a62]/50 group-hover:bg-white/[0.07] active:scale-[0.98] transition-all duration-300 cursor-pointer"
                   >
                     <div className="flex items-baseline gap-3 sm:gap-4">
                       <span className="text-[10px] sm:text-xs tracking-[0.2em] text-[#b89a62] font-mono opacity-70 group-hover:opacity-100 transition-opacity">
@@ -241,11 +241,31 @@ export function Header() {
                   </a>
                 </div>
               ))}
+
+              {/* Mobile Quick Contact Row */}
+              <div className="lg:hidden pt-4 pb-1 grid grid-cols-2 gap-2.5">
+                <a
+                  href="tel:+919769708628"
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-[#cfcac0] active:scale-95 transition-all"
+                >
+                  <Phone className="w-3.5 h-3.5 text-[#b89a62]" />
+                  <span>Call Studio</span>
+                </a>
+                <a
+                  href="https://wa.me/919769708628?text=Hello%20Lunore%20Studio%2C%20I%20would%20like%20to%20inquire%20about%20your%20services."
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 text-xs text-[#25D366] active:scale-95 transition-all"
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-[#25D366]" />
+                  <span>WhatsApp</span>
+                </a>
+              </div>
             </div>
           </div>
 
           {/* Footer inside menu for mobile/tablet */}
-          <div className="pt-6 sm:pt-8 mt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-[#85817a]">
+          <div className="pt-4 sm:pt-8 mt-4 sm:mt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-[#85817a]">
             <p className="text-[11px] sm:text-xs">
               © {new Date().getFullYear()} LUNORE Luxe Decor Studio
             </p>

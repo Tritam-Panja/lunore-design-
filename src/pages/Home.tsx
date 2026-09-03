@@ -256,7 +256,7 @@ export function Home() {
       <section
         ref={heroRef}
         id="hero"
-        className="relative w-full min-h-[85vh] sm:min-h-[90vh] md:h-screen md:min-h-[600px] overflow-hidden bg-[#0d0e0e] flex items-center pt-24 sm:pt-28 md:pt-0"
+        className="relative w-full min-h-[88svh] sm:min-h-[90dvh] md:h-screen md:min-h-[600px] overflow-hidden bg-[#0d0e0e] flex items-center pt-24 sm:pt-28 md:pt-0"
       >
         {/* Background Hero Video */}
         <div className="absolute inset-0 flex justify-end items-center overflow-hidden pointer-events-none">
@@ -287,7 +287,7 @@ export function Home() {
           <div className="max-w-xl text-left">
             {/* Main L U N O R E Wordmark with Golden Glowing N */}
             <h1
-              className="text-[clamp(2.1rem,9.5vw,3.2rem)] sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.08em] sm:tracking-[0.16em] uppercase text-[#f1eee7] leading-none select-none whitespace-nowrap"
+              className="text-[clamp(1.95rem,8.5vw,3.2rem)] sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.06em] sm:tracking-[0.16em] uppercase text-[#f1eee7] leading-none select-none whitespace-nowrap"
               style={{ fontFamily: 'var(--font-display)', perspective: '1000px' }}
             >
               <span className="lunore-brand-letter inline-block" style={{ animationDelay: '0.2s' }}>L</span>
@@ -308,8 +308,8 @@ export function Home() {
             </h1>
 
             {/* Tagline (Positioned below the letter U, clean look without line) */}
-            <div className="mt-3 sm:mt-6 ml-[10%] sm:ml-[16%] md:ml-[17%] lunore-brand-letter" style={{ animationDelay: '1s' }}>
-              <p className="text-[10px] sm:text-sm md:text-[23px] tracking-[0.20em] sm:tracking-[0.30em] uppercase text-[#e2ddd3] font-light whitespace-nowrap">
+            <div className="mt-3 sm:mt-6 ml-[6%] sm:ml-[16%] md:ml-[17%] lunore-brand-letter" style={{ animationDelay: '1s' }}>
+              <p className="text-[9px] sm:text-sm md:text-[23px] tracking-[0.18em] sm:tracking-[0.30em] uppercase text-[#e2ddd3] font-light whitespace-nowrap">
                 Luxe Decor Studio
               </p>
             </div>
@@ -438,18 +438,18 @@ export function Home() {
 
                 {/* Large Portrait with Mobile Navigation Arrows */}
                 <Reveal direction="zoom" delay={0.2} className="w-full">
-                  <div className="flex items-center justify-center gap-2 sm:gap-5 w-full px-2">
+                  <div className="flex items-center justify-center gap-3 sm:gap-5 w-full px-2">
                     {/* Previous Arrow */}
                     <button
                       onClick={() => setActiveIndex((prev) => (prev === 0 ? directors.length - 1 : prev - 1))}
                       aria-label="Previous Director"
-                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-90 cursor-pointer shrink-0"
+                      className="w-11 h-11 sm:w-12 sm:h-12 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-90 cursor-pointer shrink-0"
                     >
-                      <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <ChevronLeft className="w-5 h-5" />
                     </button>
 
                     {/* Main Avatar */}
-                    <div className="w-[130px] h-[130px] sm:w-[160px] sm:h-[160px] rounded-full overflow-hidden border-2 border-[#b89a62]/50 p-1 bg-[#181917] shadow-[0_0_25px_rgba(0,0,0,0.8),0_0_15px_rgba(184,154,98,0.3)] shrink-0">
+                    <div className="w-[140px] h-[140px] sm:w-[160px] sm:h-[160px] rounded-full overflow-hidden border-2 border-[#b89a62]/50 p-1 bg-[#181917] shadow-[0_0_25px_rgba(0,0,0,0.8),0_0_15px_rgba(184,154,98,0.3)] shrink-0">
                       <LazyImage
                         src={activeMember.image}
                         alt={activeMember.name}
@@ -462,9 +462,9 @@ export function Home() {
                     <button
                       onClick={() => setActiveIndex((prev) => (prev === directors.length - 1 ? 0 : prev + 1))}
                       aria-label="Next Director"
-                      className="w-8 h-8 sm:w-10 sm:h-10 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-90 cursor-pointer shrink-0"
+                      className="w-11 h-11 sm:w-12 sm:h-12 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-90 cursor-pointer shrink-0"
                     >
-                      <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <ChevronRight className="w-5 h-5" />
                     </button>
                   </div>
                 </Reveal>
@@ -485,22 +485,23 @@ export function Home() {
                 {/* Mobile Avatar Parade (Centered Row) */}
                 <Reveal direction="up" delay={0.3} className="w-full">
                   <div className="w-full pt-3 overflow-x-auto no-scrollbar">
-                    <div className="flex items-center justify-center gap-2 sm:gap-3 px-2">
+                    <div className="flex items-center justify-center gap-2.5 sm:gap-3 px-2">
                       {directors.map((member, idx) => (
                         <button
                           key={member.name}
                           onClick={() => setActiveIndex(idx)}
-                          className={`relative rounded-full overflow-hidden flex-shrink-0 transition-all duration-300 ${
+                          aria-label={`Select ${member.name}`}
+                          className={`relative rounded-full overflow-hidden flex-shrink-0 transition-all duration-300 cursor-pointer p-0.5 ${
                             idx === activeIndex
-                              ? 'w-10 h-10 sm:w-12 sm:h-12 border-2 border-[#b89a62] scale-110 shadow-[0_0_15px_rgba(184,154,98,0.5)]'
-                              : 'w-8 h-8 sm:w-9 sm:h-9 opacity-40 hover:opacity-80 border border-white/10'
+                              ? 'w-11 h-11 sm:w-12 sm:h-12 border-2 border-[#b89a62] scale-110 shadow-[0_0_15px_rgba(184,154,98,0.5)]'
+                              : 'w-9 h-9 sm:w-10 sm:h-10 opacity-45 hover:opacity-80 border border-white/10'
                           }`}
                         >
                           <LazyImage
                             src={member.image}
                             alt={member.name}
-                            className="w-full h-full"
-                            imgClassName="w-full h-full object-cover"
+                            className="w-full h-full rounded-full"
+                            imgClassName="w-full h-full object-cover rounded-full"
                           />
                         </button>
                       ))}
@@ -510,14 +511,14 @@ export function Home() {
 
                 {/* Mobile Dots */}
                 <Reveal direction="blur" delay={0.35}>
-                  <div className="flex items-center justify-center gap-2 pt-2">
+                  <div className="flex items-center justify-center gap-2 pt-2 pb-1">
                     {directors.map((_, idx) => (
                       <button
                         key={idx}
                         onClick={() => setActiveIndex(idx)}
                         aria-label={`Select director ${idx + 1}`}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${
-                          idx === activeIndex ? 'w-6 bg-[#b89a62]' : 'w-1.5 bg-white/20'
+                        className={`h-2 py-1 rounded-full transition-all duration-300 cursor-pointer ${
+                          idx === activeIndex ? 'w-7 bg-[#b89a62]' : 'w-2 bg-white/20 hover:bg-white/40'
                         }`}
                       />
                     ))}

@@ -54,8 +54,10 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
   // Flashlight vs Full Illumination mode
   const [isFlashlightMode, setIsFlashlightMode] = useState<boolean>(true);
   
-  // Spotlight beam radius in pixels (default: 180px Focused)
-  const beamSize = 180;
+  // Spotlight beam radius in pixels (responsive: 120px mobile, 180px desktop)
+  const [beamSize, setBeamSize] = useState<number>(() =>
+    typeof window !== 'undefined' && window.innerWidth < 640 ? 120 : 180
+  );
   const [hasEntered, setHasEntered] = useState<boolean>(false);
   const [isHovered, setIsHovered] = useState<boolean>(false);
   const [isSwitchToggled, setIsSwitchToggled] = useState<boolean>(false);
@@ -100,7 +102,12 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
 
   // Clean up timers on unmount
   useEffect(() => {
+    const handleResize = () => {
+      setBeamSize(window.innerWidth < 640 ? 120 : 180);
+    };
+    window.addEventListener('resize', handleResize);
     return () => {
+      window.removeEventListener('resize', handleResize);
       if (timerRef.current) clearTimeout(timerRef.current);
       if (glowTimerRef.current) clearTimeout(glowTimerRef.current);
       if (switchTimerRef.current) clearTimeout(switchTimerRef.current);
@@ -404,7 +411,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     triggerRenderLoopRef.current();
   }, [getContainerRect]);
 
-  const handleTouchMoveFlashlight = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
     if (e.touches.length === 0) return;
     if (isFlashlightMode) {
       const rect = getContainerRect();
@@ -413,8 +420,22 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       posRef.current.targetX = Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100));
       posRef.current.targetY = Math.max(0, Math.min(100, ((touch.clientY - rect.top) / rect.height) * 100));
       triggerRenderLoopRef.current();
+    } else {
+      // Mobile swipe navigation for illuminated story stages
+      const currentY = e.touches[0].clientY;
+      const diffY = touchStartY.current - currentY;
+      const now = Date.now();
+      if (Math.abs(diffY) > 45 && now - lastScrollTime.current > 300) {
+        if (diffY > 45) {
+          handleNextStage();
+        } else if (diffY < -45 && storyStageRef.current > 0) {
+          handlePrevStage();
+        }
+        touchStartY.current = currentY;
+        lastScrollTime.current = now;
+      }
     }
-  }, [isFlashlightMode, getContainerRect]);
+  }, [isFlashlightMode, getContainerRect, handleNextStage, handlePrevStage]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -436,7 +457,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
   return (
     <section
       id="interior-experience"
-      className={`relative w-full py-16 sm:py-24 md:py-32 bg-[#0d0e0e] overflow-hidden ${className}`}
+      className={`relative w-full py-12 sm:py-24 md:py-32 bg-[#0d0e0e] overflow-hidden ${className}`}
     >
       {/* Ambient Glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#b89a62]/5 rounded-full blur-[180px] pointer-events-none" />
@@ -444,7 +465,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+        <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-12">
           <h2
             className="text-2xl sm:text-3xl md:text-5xl font-normal text-[#f1eee7] tracking-tight"
             style={{ fontFamily: 'var(--font-serif)' }}
@@ -470,13 +491,16 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               setIsHovered(false);
             }
           }}
-          onTouchStart={() => {
+          onTouchStart={(e) => {
+            if (e.touches.length > 0) {
+              touchStartY.current = e.touches[0].clientY;
+            }
             if (isFlashlightMode) {
               isHoveredRef.current = true;
               setIsHovered(true);
             }
           }}
-          onTouchMove={handleTouchMoveFlashlight}
+          onTouchMove={handleTouchMove}
           onTouchEnd={() => {
             if (isFlashlightMode) {
               isHoveredRef.current = false;
@@ -490,7 +514,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
           }}
           className="relative w-full overflow-hidden rounded-2xl sm:rounded-3xl lg:rounded-[2.5rem] border border-white/15 bg-[#030405] shadow-[0_30px_90px_rgba(0,0,0,0.95)] cursor-default select-none group"
         >
-          <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[21/11] min-h-[580px] sm:min-h-[640px] md:min-h-[720px] overflow-hidden">
+          <div className="relative w-full aspect-[4/3] sm:aspect-[16/10] md:aspect-[21/11] min-h-[460px] sm:min-h-[600px] md:min-h-[720px] overflow-hidden">
             
             {/* ============================================================ */}
             {/* 1. BASE DARK INTERIOR IMAGE (Flashlight mode ambient base)   */}
@@ -806,9 +830,9 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                           type="button"
                           onClick={handlePrevStage}
                           aria-label="Previous step"
-                          className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full liquid-glass-pill text-[10px] sm:text-[11px] tracking-[0.16em] uppercase text-[#b9b5ae] hover:text-white border border-white/20 bg-black/65 active:scale-95 transition-all cursor-pointer select-none"
+                          className="inline-flex items-center justify-center min-h-[44px] min-w-[84px] gap-2 px-4 py-2.5 rounded-full liquid-glass-pill text-[11px] tracking-[0.16em] uppercase text-[#b9b5ae] hover:text-white border border-white/20 bg-black/65 active:scale-95 transition-all cursor-pointer select-none shadow-md"
                         >
-                          <ChevronLeft className="w-3.5 h-3.5 text-[#b89a62]" />
+                          <ChevronLeft className="w-4 h-4 text-[#b89a62]" />
                           <span>Back</span>
                         </button>
 
@@ -817,10 +841,10 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                             type="button"
                             onClick={handleNextStage}
                             aria-label="Next step"
-                            className="inline-flex items-center gap-1.5 px-5 py-2 rounded-full bg-[#b89a62]/25 hover:bg-[#b89a62]/40 border border-[#b89a62]/80 text-[#f1eee7] text-[10px] sm:text-[11px] tracking-[0.18em] uppercase font-medium shadow-[0_0_15px_rgba(184,154,98,0.3)] active:scale-95 transition-all cursor-pointer select-none ml-auto"
+                            className="inline-flex items-center justify-center min-h-[44px] min-w-[96px] gap-2 px-5 py-2.5 rounded-full bg-[#b89a62]/30 hover:bg-[#b89a62]/45 border border-[#b89a62]/80 text-[#f1eee7] text-[11px] tracking-[0.18em] uppercase font-medium shadow-[0_0_15px_rgba(184,154,98,0.3)] active:scale-95 transition-all cursor-pointer select-none ml-auto"
                           >
                             <span>Next</span>
-                            <ChevronRight className="w-3.5 h-3.5 text-[#b89a62]" />
+                            <ChevronRight className="w-4 h-4 text-[#b89a62]" />
                           </button>
                         )}
                       </div>

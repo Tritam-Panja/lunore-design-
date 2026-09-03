@@ -262,7 +262,7 @@ export function MarbleExperience() {
           triggerPhysicsLoopRef.current();
         } else if (isZoomUnlockedRef.current) {
           overscrollDeltaRef.current += Math.abs(deltaY);
-          if (overscrollDeltaRef.current > 140) {
+          if (overscrollDeltaRef.current > (isMobile ? 70 : 140)) {
             handleNextSection();
           }
         }

@@ -161,11 +161,11 @@ export function About() {
 
               {/* Large Portrait with Navigation Arrows */}
               <Reveal direction="zoom" delay={0.2} className="w-full">
-                <div className="flex items-center justify-center gap-3 sm:gap-5 w-full px-2">
+                <div className="flex items-center justify-center gap-3 sm:gap-5 w-full">
                   <button
                     onClick={() => setActiveIndex((prev) => (prev === 0 ? directors.length - 1 : prev - 1))}
                     aria-label="Previous Director"
-                    className="w-10 h-10 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-90 cursor-pointer shrink-0"
+                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-90 cursor-pointer shrink-0"
                   >
                     <ChevronLeft className="w-5 h-5" />
                   </button>
@@ -182,7 +182,7 @@ export function About() {
                   <button
                     onClick={() => setActiveIndex((prev) => (prev === directors.length - 1 ? 0 : prev + 1))}
                     aria-label="Next Director"
-                    className="w-10 h-10 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-90 cursor-pointer shrink-0"
+                    className="w-11 h-11 sm:w-12 sm:h-12 rounded-full liquid-glass-btn-secondary border border-[#b89a62]/40 text-[#e6cb97] hover:text-white flex items-center justify-center transition-all duration-300 shadow-md active:scale-90 cursor-pointer shrink-0"
                   >
                     <ChevronRight className="w-5 h-5" />
                   </button>
@@ -194,7 +194,7 @@ export function About() {
                 <div className="w-full max-w-sm sm:max-w-md px-3 sm:px-4 mt-1">
                   <span className="text-3xl font-serif text-[#b89a62] opacity-40 leading-none select-none block mb-0.5">“</span>
                   <p
-                    className="text-xs sm:text-sm leading-relaxed font-light font-display italic tracking-wide"
+                    className="text-xs sm:text-sm leading-relaxed font-light font-display italic tracking-wide break-words"
                     style={{ color: '#e6cb97' }}
                   >
                     {activeMember.testimonial}
@@ -210,17 +210,18 @@ export function About() {
                       <button
                         key={member.name}
                         onClick={() => setActiveIndex(idx)}
-                        className={`relative rounded-full overflow-hidden flex-shrink-0 transition-all duration-300 ${
+                        aria-label={`Select ${member.name}`}
+                        className={`relative rounded-full overflow-hidden flex-shrink-0 transition-all duration-300 cursor-pointer p-0.5 ${
                           idx === activeIndex
-                            ? 'w-11 h-11 border-2 border-[#b89a62] scale-110 shadow-[0_0_15px_rgba(184,154,98,0.5)]'
-                            : 'w-8 h-8 opacity-40 hover:opacity-80 border border-white/10'
+                            ? 'w-11 h-11 sm:w-12 sm:h-12 border-2 border-[#b89a62] scale-110 shadow-[0_0_15px_rgba(184,154,98,0.5)]'
+                            : 'w-9 h-9 sm:w-10 sm:h-10 opacity-45 hover:opacity-80 border border-white/10'
                         }`}
                       >
                         <LazyImage
                           src={member.image}
                           alt={member.name}
-                          className="w-full h-full"
-                          imgClassName="w-full h-full object-cover"
+                          className="w-full h-full rounded-full"
+                          imgClassName="w-full h-full object-cover rounded-full"
                         />
                       </button>
                     ))}
@@ -230,14 +231,14 @@ export function About() {
 
               {/* Indicator Dots */}
               <Reveal direction="blur" delay={0.35}>
-                <div className="flex items-center justify-center gap-2 pt-2">
+                <div className="flex items-center justify-center gap-2 pt-2 pb-1">
                   {directors.map((_, idx) => (
                     <button
                       key={idx}
                       onClick={() => setActiveIndex(idx)}
                       aria-label={`Select director ${idx + 1}`}
-                      className={`h-1.5 rounded-full transition-all duration-300 ${
-                        idx === activeIndex ? 'w-6 bg-[#b89a62]' : 'w-1.5 bg-white/20'
+                      className={`h-2 py-1 rounded-full transition-all duration-300 cursor-pointer ${
+                        idx === activeIndex ? 'w-7 bg-[#b89a62]' : 'w-2 bg-white/20 hover:bg-white/40'
                       }`}
                     />
                   ))}
