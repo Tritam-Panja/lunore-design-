@@ -8,9 +8,16 @@ interface LenisContextType {
   scrollTo: (target: string | HTMLElement, options?: Record<string, any>) => void;
 }
 
+const defaultScrollTo = (target: string | HTMLElement) => {
+  const el = typeof target === 'string' ? document.querySelector(target) : target;
+  if (el) {
+    el.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
 const LenisContext = createContext<LenisContextType>({
   lenis: null,
-  scrollTo: () => {},
+  scrollTo: defaultScrollTo,
 });
 
 export function useLenis() {

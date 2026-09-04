@@ -559,8 +559,10 @@ export function SculpturesExperience() {
             <img
               src={images.sculptureHero}
               alt="LUNORE Signature Sculptures Gallery"
-              loading="eager"
+              loading="lazy"
               decoding="async"
+              width={1600}
+              height={870}
               className="w-full h-full object-cover object-center brightness-100 contrast-100"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/20 to-black/40 pointer-events-none" />
@@ -757,8 +759,10 @@ export function SculpturesExperience() {
                           <img
                             src={item.image}
                             alt={item.title}
-                            loading="eager"
+                            loading="lazy"
                             decoding="async"
+                            width={800}
+                            height={1000}
                             style={{
                               filter: isMobile ? undefined : `brightness(${0.72 + 0.28 * easedP}) contrast(${1.06 - 0.02 * easedP})`,
                             }}
@@ -829,9 +833,11 @@ export function SculpturesExperience() {
                         <img
                           src={item.image}
                           alt={item.title}
-                          className="w-full h-full object-cover object-center brightness-95 contrast-105 pointer-events-none"
                           loading="lazy"
                           decoding="async"
+                          width={800}
+                          height={1000}
+                          className="w-full h-full object-cover object-center brightness-95 contrast-105 pointer-events-none"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-white/[0.08] pointer-events-none" />
                         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(255,255,255,0.15)_0%,transparent_60%)] pointer-events-none" />

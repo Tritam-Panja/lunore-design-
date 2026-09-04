@@ -535,8 +535,10 @@ export function MarbleExperience() {
           <img
             src={images.marbleZoomed}
             alt="Lunore Balcony Marble Facade Zoomed"
-            loading="eager"
+            loading="lazy"
             decoding="async"
+            width={1600}
+            height={755}
             className="w-full h-full object-cover object-center brightness-100 contrast-105"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/40" />
@@ -560,8 +562,10 @@ export function MarbleExperience() {
           <img
             src={images.marbleHero}
             alt="Lunore Monumental Marble Building Architecture"
-            loading="eager"
+            loading="lazy"
             decoding="async"
+            width={1600}
+            height={900}
             className="w-full h-full object-cover object-center brightness-[1.02] contrast-[1.03]"
           />
  
@@ -648,6 +652,10 @@ export function MarbleExperience() {
                 <img
                   src={images.marbleCutout}
                   alt="Lunore Architectural Marble Cutout"
+                  loading="lazy"
+                  decoding="async"
+                  width={1847}
+                  height={851}
                   style={
                     useStoneFilter
                       ? { filter: `brightness(${stoneBrightness}) contrast(${stoneContrast}) saturate(${stoneSaturate})` }

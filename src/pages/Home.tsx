@@ -57,20 +57,20 @@ const directors: TeamMember[] = [
     name: "DINKESH SHARMA",
     role: "Founder & Director — Interior Design & Project Execution",
     testimonial: "As founder, Dinkesh brings  creative vision and craftsmanship to every project. He steers luxury interiors from initial concept through to beautifully realised spaces , Whether intimate homes, sprawling villas or hospitality venues. Dinkesh works closely with clients to understand their dreams, and leads a talented design team to bring them to life. His philosophy is simple: listen carefully, design thoughtfully, and execute flawlessly..",
-    image: "/assets/images/Director Dhinkesh.PNG"
+    image: "/assets/images/Director Dhinkesh.webp"
   },
   
   {
     name: "Suchitra Pandey ",
     role: "Director — Human Resources",
     testimonial: "Suchitra is passionate about building a team where talented people do their best work. She leads recruitment, shapes HR policies, and nurtures a workplace culture grounded in respect, growth and collaboration. As Lunore expands, Suchitra ensures that our people feel valued, supported and connected to our shared mission: creating extraordinary spaces and experiences.",
-    image: "/assets/images/Director Suchitra .jpeg"
+    image: "/assets/images/Director Suchitra .webp"
   },
   {
     name: "CHIRAG GODSE",
     role: "Director — Marketing, Business Development & Aurexa",
     testimonial: "Every touchpoint tells a story. Chirag oversees Lunore's brand strategy, digital presence and business development with an eye toward creating memorable experiences. Through Aurexa, his passion project of luxury art events and auctions, Chirag has opened a direct channel to high-net-worth collectors and design influencers. He believes that authentic brands are built on genuine expertise and meaningful relationships , principles that guide everything from social media content to high-stakes client meetings.",
-    image: "/assets/images/Director Chirag.PNG"
+    image: "/assets/images/Director Chirag.webp"
   },
   {
     name: "JITANDAR LOHAR ",
@@ -313,7 +313,7 @@ export function Home() {
             muted
             playsInline
             preload="auto"
-            poster="/assets/images/hero.jpg"
+            poster="/assets/images/hero.webp"
             className="md:hidden h-full w-full object-cover object-center"
           >
             <source src={encodeURI('/assets/images/Lunore hero mobile.mp4')} type="video/mp4" />
@@ -327,7 +327,7 @@ export function Home() {
             muted
             playsInline
             preload="metadata"
-            poster="/assets/images/hero.jpg"
+            poster="/assets/images/hero.webp"
             className="hidden md:block h-full w-full md:w-auto md:max-w-none md:object-contain object-cover object-right"
           >
             <source src={encodeURI('/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4')} type="video/mp4" />

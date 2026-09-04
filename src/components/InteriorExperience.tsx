@@ -529,14 +529,18 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               <picture className="w-full h-full block">
                 <source
                   media="(max-width: 767px)"
-                  srcSet="/assets/images/interior-dark-mobile.png"
+                  srcSet="/assets/images/interior-dark-mobile.webp"
+                  width="944"
+                  height="1665"
                 />
                 <img
                   key={isMobile ? 'mobile-interior-dark' : 'desktop-interior-dark'}
-                  src={isMobile ? "/assets/images/interior-dark-mobile.png" : "/assets/images/interior dark.png"}
+                  src={isMobile ? "/assets/images/interior-dark-mobile.webp" : "/assets/images/interior dark.webp"}
                   alt="LUNORE Luxury Penthouse Interior in the Dark"
-                  loading="eager"
+                  loading="lazy"
                   decoding="async"
+                  width={isMobile ? 944 : 2752}
+                  height={isMobile ? 1665 : 1470}
                   className="w-full h-full object-cover object-center scale-100 filter brightness-[0.52] contrast-[1.08]"
                 />
               </picture>
@@ -568,14 +572,18 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               <picture className="w-full h-full block">
                 <source
                   media="(max-width: 767px)"
-                  srcSet="/assets/images/interior-light-mobile.png"
+                  srcSet="/assets/images/interior-light-mobile.webp"
+                  width="853"
+                  height="1844"
                 />
                 <img
                   key={isMobile ? 'mobile-interior' : 'desktop-interior'}
-                  src={isMobile ? "/assets/images/interior-light-mobile.png" : "/assets/images/interior light .png"}
+                  src={isMobile ? "/assets/images/interior-light-mobile.webp" : "/assets/images/interior light .webp"}
                   alt="LUNORE Luxury Penthouse Interior Fully Illuminated"
-                  loading="eager"
+                  loading="lazy"
                   decoding="async"
+                  width={isMobile ? 853 : 2752}
+                  height={isMobile ? 1844 : 1464}
                   className="w-full h-full object-cover object-center scale-100 filter brightness-100"
                 />
               </picture>

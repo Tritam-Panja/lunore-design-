@@ -4,13 +4,13 @@ import { useLenis } from './SmoothScroll';
 import ImageTrail from './ImageTrail';
 
 const AUREXA_TRAIL_IMAGES = [
-  '/assets/images/imagetrail1.jpg',
-  '/assets/images/imagetrail2.jpg',
-  '/assets/images/imagetrail3.jpg',
-  '/assets/images/imagetrail4.jpg',
-  '/assets/images/imagetrail5.jpg',
-  '/assets/images/imagetrail6.jpg',
-  '/assets/images/imagetrail9.jpg',
+  '/assets/images/imagetrail1.webp',
+  '/assets/images/imagetrail2.webp',
+  '/assets/images/imagetrail3.webp',
+  '/assets/images/imagetrail4.webp',
+  '/assets/images/imagetrail5.webp',
+  '/assets/images/imagetrail6.webp',
+  '/assets/images/imagetrail9.webp',
 ];
 
 interface FloatingCard {
@@ -270,6 +270,10 @@ export function AurexaSection() {
                 <img
                   src={card.src}
                   alt="Aurexa Haute Slab Cutout"
+                  loading="lazy"
+                  decoding="async"
+                  width={112}
+                  height={144}
                   className="w-full h-full object-cover object-center brightness-110"
                 />
               </div>

@@ -17,10 +17,10 @@ export const images = {
   aboutHero: onlineImages.aboutHero,
   brandStoryHero: onlineImages.brandStoryHero,
   interiorHero: onlineImages.interiorHero,
-  marbleHero: encodeURI('/assets/images/mable hero.jpeg'),
-  marbleZoomed: encodeURI('/assets/images/marble zoomed .jpeg'),
-  marbleCutout: encodeURI('/assets/images/marble cutout.png'),
-  sculptureHero: encodeURI('/assets/images/sculpture hero .jpeg'),
+  marbleHero: encodeURI('/assets/images/mable hero.webp'),
+  marbleZoomed: encodeURI('/assets/images/marble zoomed .webp'),
+  marbleCutout: encodeURI('/assets/images/marble cutout.webp'),
+  sculptureHero: encodeURI('/assets/images/sculpture hero .webp'),
 
   // Process steps
   process: [
