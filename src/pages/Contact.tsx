@@ -167,35 +167,44 @@ export function Contact() {
                   </a>
                 </div>
 
-                {/* Social Channels: Filled Instagram & LinkedIn */}
-                <div className="pt-2 pb-4 border-t border-white/[0.08] flex flex-wrap items-center gap-3">
+                {/* Direct Action Cards: Instagram, LinkedIn, Email & WhatsApp (Uniform Size & Styling) */}
+                <div className="space-y-3 pt-3 border-t border-white/[0.08]">
+                  {/* Instagram Card */}
                   <a
                     href="https://instagram.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#E1306C] via-[#FD1D1D] to-[#C13584] hover:brightness-110 text-xs text-white font-medium shadow-[0_3px_16px_rgba(225,48,108,0.35)] hover:shadow-[0_4px_22px_rgba(225,48,108,0.55)] transition-all duration-300 group cursor-pointer"
+                    className="group/insta cursor-pointer relative overflow-hidden inline-flex items-center justify-center gap-3.5 w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-[#E1306C]/20 via-[#FD1D1D]/10 to-[#C13584]/20 hover:from-[#E1306C]/30 hover:to-[#C13584]/30 border border-[#E1306C]/40 hover:border-[#E1306C] text-white shadow-[0_4px_20px_rgba(225,48,108,0.15)] hover:shadow-[0_6px_28px_rgba(225,48,108,0.3)] transition-all duration-300"
                     title="Follow Lunore on Instagram"
                   >
-                    <InstagramIcon className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
-                    <span className="font-semibold text-white tracking-wide">Instagram</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 text-white/90 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-[#E1306C]/30 to-[#C13584]/30 flex items-center justify-center text-white group-hover/insta:scale-110 transition-transform flex-shrink-0">
+                      <InstagramIcon className="w-4.5 h-4.5" />
+                    </div>
+                    <div className="flex flex-col text-left flex-1 min-w-0">
+                      <span className="text-xs sm:text-[13px] uppercase tracking-[0.2em] font-semibold text-white">Instagram</span>
+                      <span className="text-xs sm:text-[12px] text-[#f472b6] font-medium tracking-wide truncate">Follow @lunore.luxedecor</span>
+                    </div>
+                    <ArrowUpRight className="w-4.5 h-4.5 text-[#f472b6] ml-auto group-hover/insta:translate-x-0.5 group-hover/insta:-translate-y-0.5 transition-transform flex-shrink-0" />
                   </a>
 
+                  {/* LinkedIn Card */}
                   <a
                     href="https://linkedin.com"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full bg-gradient-to-r from-[#0077B5] to-[#0A66C2] hover:brightness-110 text-xs text-white font-medium shadow-[0_3px_16px_rgba(10,102,194,0.35)] hover:shadow-[0_4px_22px_rgba(10,102,194,0.55)] transition-all duration-300 group cursor-pointer"
+                    className="group/li cursor-pointer relative overflow-hidden inline-flex items-center justify-center gap-3.5 w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-[#0077B5]/20 via-[#0A66C2]/10 to-[#0077B5]/20 hover:from-[#0077B5]/30 hover:to-[#0A66C2]/30 border border-[#0A66C2]/40 hover:border-[#0A66C2] text-white shadow-[0_4px_20px_rgba(10,102,194,0.15)] hover:shadow-[0_6px_28px_rgba(10,102,194,0.3)] transition-all duration-300"
                     title="Connect with Lunore on LinkedIn"
                   >
-                    <LinkedinIcon className="w-4 h-4 text-white group-hover:scale-110 transition-transform" />
-                    <span className="font-semibold text-white tracking-wide">LinkedIn</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 text-white/90 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+                    <div className="w-9 h-9 rounded-full bg-[#0A66C2]/25 flex items-center justify-center text-[#38bdf8] group-hover/li:scale-110 transition-transform flex-shrink-0">
+                      <LinkedinIcon className="w-4.5 h-4.5" />
+                    </div>
+                    <div className="flex flex-col text-left flex-1 min-w-0">
+                      <span className="text-xs sm:text-[13px] uppercase tracking-[0.2em] font-semibold text-white">LinkedIn</span>
+                      <span className="text-xs sm:text-[12px] text-[#38bdf8] font-medium tracking-wide truncate">Connect on LinkedIn</span>
+                    </div>
+                    <ArrowUpRight className="w-4.5 h-4.5 text-[#38bdf8] ml-auto group-hover/li:translate-x-0.5 group-hover/li:-translate-y-0.5 transition-transform flex-shrink-0" />
                   </a>
-                </div>
 
-                {/* Direct Action Card Buttons: Email & WhatsApp */}
-                <div className="space-y-3 pt-2">
                   {/* Direct Email Card Button */}
                   <a
                     href="mailto:support@lunoreluxedecorstudio.com"
@@ -206,7 +215,7 @@ export function Contact() {
                     </div>
                     <div className="flex flex-col text-left flex-1 min-w-0">
                       <span className="text-xs sm:text-[13px] uppercase tracking-[0.2em] font-semibold text-white">Contact via Email</span>
-                      <span className="text-xs sm:text-[13px] text-[#f3e5ab] font-medium tracking-normal truncate">support@lunoreluxedecorstudio.com</span>
+                      <span className="text-xs sm:text-[12px] text-[#f3e5ab] font-medium tracking-normal truncate">support@lunoreluxedecorstudio.com</span>
                     </div>
                     <ArrowUpRight className="w-4.5 h-4.5 text-[#f3e5ab] ml-auto group-hover/mail:translate-x-0.5 group-hover/mail:-translate-y-0.5 transition-transform flex-shrink-0" />
                   </a>
@@ -223,7 +232,7 @@ export function Contact() {
                     </div>
                     <div className="flex flex-col text-left flex-1 min-w-0">
                       <span className="text-xs sm:text-[13px] uppercase tracking-[0.2em] font-semibold text-white">Contact via WhatsApp</span>
-                      <span className="text-xs sm:text-[12px] text-[#25D366] font-medium tracking-wide">Direct Concierge • Instant Response</span>
+                      <span className="text-xs sm:text-[12px] text-[#25D366] font-medium tracking-wide truncate">Direct Concierge • Instant Response</span>
                     </div>
                     <ArrowUpRight className="w-4.5 h-4.5 text-[#25D366] ml-auto group-hover/wa:translate-x-0.5 group-hover/wa:-translate-y-0.5 transition-transform flex-shrink-0" />
                   </a>

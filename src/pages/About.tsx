@@ -202,32 +202,6 @@ export function About() {
                 </div>
               </Reveal>
 
-              {/* Mobile Avatar Selector Bar */}
-              <Reveal direction="up" delay={0.3} className="w-full">
-                <div className="w-full pt-3 overflow-x-auto no-scrollbar">
-                  <div className="flex items-center justify-center gap-2.5 sm:gap-3 px-2">
-                    {directors.map((member, idx) => (
-                      <button
-                        key={member.name}
-                        onClick={() => setActiveIndex(idx)}
-                        aria-label={`Select ${member.name}`}
-                        className={`relative rounded-full overflow-hidden flex-shrink-0 transition-all duration-300 cursor-pointer p-0.5 ${
-                          idx === activeIndex
-                            ? 'w-11 h-11 sm:w-12 sm:h-12 border-2 border-[#b89a62] scale-110 shadow-[0_0_15px_rgba(184,154,98,0.5)]'
-                            : 'w-9 h-9 sm:w-10 sm:h-10 opacity-45 hover:opacity-80 border border-white/10'
-                        }`}
-                      >
-                        <LazyImage
-                          src={member.image}
-                          alt={member.name}
-                          className="w-full h-full rounded-full"
-                          imgClassName="w-full h-full object-cover rounded-full"
-                        />
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </Reveal>
 
               {/* Indicator Dots */}
               <Reveal direction="blur" delay={0.35}>
