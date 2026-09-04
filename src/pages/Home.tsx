@@ -88,23 +88,40 @@ export function Home() {
 
   const aboutRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
+  const desktopVideoRef = useRef<HTMLVideoElement>(null);
+  const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   const [isTablet, setIsTablet] = useState(false);
 
   // Battery & CPU Optimization: Pause hero video when out of viewport or tab hidden
   useEffect(() => {
-    const video = videoRef.current;
     const hero = heroRef.current;
-    if (!video || !hero) return;
+    if (!hero) return;
+
+    const getVideos = () => [mobileVideoRef.current, desktopVideoRef.current].filter(Boolean) as HTMLVideoElement[];
+
+    const playVisibleVideo = () => {
+      getVideos().forEach((v) => {
+        const isVisible = v.offsetWidth > 0 && v.offsetHeight > 0 && window.getComputedStyle(v).display !== 'none';
+        if (isVisible) {
+          v.play().catch(() => {});
+        } else {
+          v.pause();
+        }
+      });
+    };
+
+    const pauseAllVideos = () => {
+      getVideos().forEach((v) => v.pause());
+    };
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          video.play().catch(() => {});
+          playVisibleVideo();
         } else {
-          video.pause();
+          pauseAllVideos();
         }
       },
       { threshold: 0.1 }
@@ -114,17 +131,25 @@ export function Home() {
 
     const handleVisibility = () => {
       if (document.hidden) {
-        video.pause();
+        pauseAllVideos();
       } else if (hero.getBoundingClientRect().bottom > 0) {
-        video.play().catch(() => {});
+        playVisibleVideo();
       }
     };
 
+    const handleResize = () => {
+      playVisibleVideo();
+    };
+
     document.addEventListener('visibilitychange', handleVisibility);
+    window.addEventListener('resize', handleResize);
+
+    playVisibleVideo();
 
     return () => {
       observer.disconnect();
       document.removeEventListener('visibilitychange', handleVisibility);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -276,38 +301,58 @@ export function Home() {
       <section
         ref={heroRef}
         id="hero"
-        className="relative w-full min-h-[88svh] sm:min-h-[90dvh] md:h-screen md:min-h-[600px] overflow-hidden bg-[#0d0e0e] flex items-center pt-24 sm:pt-28 md:pt-0"
+        className="relative w-full h-[100svh] min-h-[580px] md:h-screen md:min-h-[600px] overflow-hidden bg-[#0d0e0e] flex items-center pt-16 sm:pt-20 md:pt-0"
       >
         {/* Background Hero Video */}
-        <div className="absolute inset-0 flex justify-end items-center overflow-hidden pointer-events-none">
+        <div className="absolute inset-0 flex justify-center md:justify-end items-center overflow-hidden pointer-events-none">
+          {/* Mobile Video for phones & small screens (< md) */}
           <video
-            ref={videoRef}
+            ref={mobileVideoRef}
+            autoPlay
+            loop
+            muted
+            playsInline
+            preload="auto"
+            poster="/assets/images/hero.jpg"
+            className="md:hidden h-full w-full object-cover object-center"
+          >
+            <source src={encodeURI('/assets/images/Lunore hero mobile.mp4')} type="video/mp4" />
+          </video>
+
+          {/* Desktop Video for tablets & desktop screens (>= md) */}
+          <video
+            ref={desktopVideoRef}
             autoPlay
             loop
             muted
             playsInline
             preload="metadata"
             poster="/assets/images/hero.jpg"
-            className="h-full w-full object-cover object-[70%_center] sm:object-right md:w-auto md:max-w-none md:object-contain"
+            className="hidden md:block h-full w-full md:w-auto md:max-w-none md:object-contain object-cover object-right"
           >
-            <source src="/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4" type="video/mp4" />
+            <source src={encodeURI('/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4')} type="video/mp4" />
           </video>
         </div>
 
         {/* Responsive Gradient Vignette Overlays */}
-        <div className="absolute inset-0 bg-gradient-to-b from-black/40 via-transparent to-[#0d0e0e] pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0d0e0e] via-[#0d0e0e]/50 to-transparent sm:hidden pointer-events-none" />
+        {/* Top subtle vignette for navigation readability */}
+        <div className="absolute inset-x-0 top-0 h-28 sm:h-36 bg-gradient-to-b from-black/60 via-black/20 to-transparent pointer-events-none" />
+        {/* Bottom smooth edge blend into the next section */}
+        <div className="absolute inset-x-0 bottom-0 h-16 sm:h-24 bg-gradient-to-t from-[#0d0e0e] via-[#0d0e0e]/30 to-transparent pointer-events-none" />
+        {/* Desktop left fade for typography readability */}
         <div className="hidden sm:block absolute inset-y-0 left-0 w-1/2 lg:w-1/3 bg-gradient-to-r from-[#0d0e0e] via-[#0d0e0e]/75 to-transparent pointer-events-none" />
+        {/* Mobile subtle text ambient backdrop */}
+        <div className="sm:hidden absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-transparent pointer-events-none" />
 
         {/* Subtle Ambient Radial Glow */}
         <div className="absolute -top-24 left-1/6 w-[600px] h-[600px] bg-[#b89a62]/15 rounded-full blur-[150px] pointer-events-none" />
 
         {/* Left Side LUNORE Branding with Glowing Golden 'N' */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-12 lg:px-16 flex items-center">
-          <div className="max-w-xl text-left">
+          <div className="max-w-xl text-left drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
             {/* Main L U N O R E Wordmark with Golden Glowing N */}
             <h1
-              className="text-[clamp(1.95rem,8.5vw,3.2rem)] sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.06em] sm:tracking-[0.16em] uppercase text-[#f1eee7] leading-none select-none whitespace-nowrap"
+              className="text-[clamp(2.1rem,9.2vw,3.4rem)] sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-light tracking-[0.07em] sm:tracking-[0.16em] uppercase text-[#f1eee7] leading-none select-none whitespace-nowrap"
               style={{ fontFamily: 'var(--font-display)', perspective: '1000px' }}
             >
               <span className="lunore-brand-letter inline-block" style={{ animationDelay: '0.2s' }}>L</span>
@@ -329,7 +374,7 @@ export function Home() {
 
             {/* Tagline (Positioned below the letter U, clean look without line) */}
             <div className="mt-3 sm:mt-6 ml-[6%] sm:ml-[16%] md:ml-[17%] lunore-brand-letter" style={{ animationDelay: '1s' }}>
-              <p className="text-[9px] sm:text-sm md:text-[23px] tracking-[0.18em] sm:tracking-[0.30em] uppercase text-[#e2ddd3] font-light whitespace-nowrap">
+              <p className="text-[10px] sm:text-sm md:text-[23px] tracking-[0.22em] sm:tracking-[0.30em] uppercase text-[#e2ddd3] font-light whitespace-nowrap drop-shadow-[0_1px_4px_rgba(0,0,0,0.6)]">
                 Luxe Decor Studio
               </p>
             </div>
