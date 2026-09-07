@@ -313,7 +313,6 @@ export function Home() {
             muted
             playsInline
             preload="auto"
-            poster="/assets/images/hero.webp"
             className="md:hidden h-full w-full object-cover object-center"
           >
             <source src={encodeURI('/assets/images/Lunore hero mobile.mp4')} type="video/mp4" />
@@ -326,8 +325,7 @@ export function Home() {
             loop
             muted
             playsInline
-            preload="metadata"
-            poster="/assets/images/hero.webp"
+            preload="auto"
             className="hidden md:block h-full w-full md:w-auto md:max-w-none md:object-contain object-cover object-right"
           >
             <source src={encodeURI('/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4')} type="video/mp4" />
