@@ -32,7 +32,7 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '180 × 180 × 25 cm',
     year: '2026',
     edition: 'Edition of 3',
-    image: 'public/assets/images/carrousel 1 (1).jpeg',
+    image: '/assets/images/carrousel 1 (1).jpeg',
   },
   {
     id: '03',
@@ -42,7 +42,7 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '195 × 75 × 70 cm',
     year: '2025',
     edition: 'Masterpiece 1 of 1',
-    image: 'public/assets/images/carrousel 2 (2).jpeg',
+    image: '/assets/images/carrousel 2 (2).jpeg',
   },
   {
     id: '04',
@@ -52,7 +52,7 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '210 × 90 × 80 cm',
     year: '2026',
     edition: 'Edition of 2',
-    image: 'public/assets/images/carrousel 3 (3).jpeg',
+    image: '/assets/images/carrousel 3 (3).jpeg',
   },
   {
     id: '05',
@@ -62,7 +62,7 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '240 × 110 × 90 cm',
     year: '2026',
     edition: 'Unique 1 of 1',
-    image: 'public/assets/images/carrousel 4 (4).jpeg',
+    image: '/assets/images/carrousel 4 (4).jpeg',
   },
   {
     id: '06',
@@ -72,7 +72,7 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '260 × 95 × 70 cm',
     year: '2026',
     edition: 'Masterpiece 1 of 1',
-    image: 'public/assets/images/carrousel 5 (5).jpeg',
+    image: '/assets/images/carrousel 5 (5).jpeg',
   },
   {
     id: '07',
@@ -82,7 +82,7 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '185 × 70 × 60 cm',
     year: '2025',
     edition: 'Edition of 2',
-    image: 'public/assets/images/carrousel 6 (6).jpeg',
+    image: '/assets/images/carrousel 6 (6).jpeg',
   },
 ];
 
