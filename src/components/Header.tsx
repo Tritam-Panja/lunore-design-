@@ -12,11 +12,7 @@ interface NavItem {
 
 const navLinks: NavItem[] = [
   { label: 'PROJECTS', to: '/dream-project', hash: '#projects', sublabel: 'Visionary Works' },
-  { label: 'STUDIO', to: '/about', hash: '#about', sublabel: 'Legacy & Philosophy' },
   { label: 'SERVICES', to: '/interior-design', hash: '#services', sublabel: 'Turnkey & Stone' },
-  { label: 'PROCESS', to: '/process', hash: '#process', sublabel: 'Master Craftsmanship' },
-  { label: 'COLLECTION', to: '/products', sublabel: 'Signature Sculptures' },
-  { label: 'EXHIBITIONS', to: '/exhibitions', sublabel: 'Gallery & Showcase' },
   { label: 'ABOUT', to: '/brand-story', sublabel: 'The Space For You' },
   { label: 'CONTACT', to: '/contact', hash: '#contact', sublabel: 'Start a Project' },
 ];
@@ -24,13 +20,14 @@ const navLinks: NavItem[] = [
 export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { scrollTo } = useLenis();
+  const { scrollTo, lenis } = useLenis();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [inFooter, setInFooter] = useState(false);
 
   const isHome = location.pathname === '/';
 
-  // Track scroll position: hide on first section (hero), show once scrolled to second section
+  // Track scroll position: hide on first section (hero), show on content, hide on footer in mobile
   useEffect(() => {
     let ticking = false;
 
@@ -40,6 +37,21 @@ export function Header() {
           const threshold = isHome ? Math.min(300, window.innerHeight * 0.45) : 40;
           const isScrolled = window.scrollY > threshold;
           setScrolled(isScrolled);
+
+          // Hide navbar when user visits the footer section on mobile screens
+          const isMobile = window.innerWidth < 768;
+          if (isMobile) {
+            const footerEl = document.getElementById('site-footer') || document.querySelector('footer');
+            if (footerEl) {
+              const rect = footerEl.getBoundingClientRect();
+              setInFooter(rect.top <= window.innerHeight * 0.7);
+            } else {
+              setInFooter(false);
+            }
+          } else {
+            setInFooter(false);
+          }
+
           ticking = false;
         });
         ticking = true;
@@ -47,9 +59,20 @@ export function Header() {
     };
 
     handleScroll();
+    if (lenis) {
+      lenis.on('scroll', handleScroll);
+    }
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [isHome]);
+    window.addEventListener('resize', handleScroll);
+
+    return () => {
+      if (lenis) {
+        lenis.off('scroll', handleScroll);
+      }
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
+  }, [isHome, lenis]);
 
   // Close overlay on route change
   useEffect(() => {
@@ -94,7 +117,7 @@ export function Header() {
     }
   };
 
-  const isHeaderVisible = !isHome || scrolled || menuOpen;
+  const isHeaderVisible = ((!isHome || scrolled) && !inFooter) || menuOpen;
 
   return (
     <>

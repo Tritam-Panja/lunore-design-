@@ -11,11 +11,8 @@ interface FooterLink {
 const footerLinks: FooterLink[] = [
   { label: 'Home', to: '/', hash: '#hero' },
   { label: 'Brand Story', to: '/brand-story', hash: '#brand-story' },
-  { label: 'About Us', to: '/about', hash: '#about' },
   { label: 'Interior Design', to: '/interior-design' },
   { label: 'Marble & Granite', to: '/marble-granite' },
-  { label: 'Collection', to: '/products', hash: '#projects' },
-  { label: 'Process', to: '/process', hash: '#process' },
   { label: 'Dream Projects', to: '/dream-project' },
   { label: 'Contact Us', to: '/contact', hash: '#contact' },
 ];
@@ -40,7 +37,7 @@ export function Footer() {
   };
 
   return (
-    <footer className="border-t border-white/10 bg-[#0d0e0e]/95 backdrop-blur-2xl mt-16 sm:mt-24 relative overflow-hidden">
+    <footer id="site-footer" className="border-t border-white/10 bg-[#0d0e0e]/95 backdrop-blur-2xl mt-16 sm:mt-24 relative overflow-hidden">
       {/* Subtle radial glow in footer */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#b89a62]/5 rounded-full blur-[140px] pointer-events-none" />
 

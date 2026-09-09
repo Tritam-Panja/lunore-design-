@@ -6,22 +6,28 @@ interface ScrollColorTextProps {
   className?: string;
   style?: React.CSSProperties;
   as?: 'p' | 'h2' | 'h3' | 'span' | 'div';
+  scrollDistance?: number;
+  once?: boolean;
 }
 
 /**
  * ScrollColorText Component
  * Word-by-word scroll-driven color illumination effect.
- * As the user scrolls down, words smoothly transition from dimmed/muted to radiant champagne gold,
- * and seamlessly reverse when scrolling back up.
+ * As the user scrolls down, words smoothly transition from dimmed to radiant champagne gold.
+ * Once revealed, words remain revealed and do not reverse when scrolling backwards.
+ * Revealed completely in ~2 scrolls (~220px scroll distance).
  */
 export function ScrollColorText({
   text,
   className = '',
   style = {},
   as: Component = 'p',
+  scrollDistance = 220,
+  once = true,
 }: ScrollColorTextProps) {
   const containerRef = useRef<HTMLElement>(null);
   const [scrollProgress, setScrollProgress] = useState(0);
+  const maxProgressRef = useRef(0);
   const { lenis } = useLenis();
 
   useEffect(() => {
@@ -29,16 +35,24 @@ export function ScrollColorText({
 
     const handleScroll = () => {
       if (!containerRef.current) return;
+      if (once && maxProgressRef.current >= 1) return;
+
       const rect = containerRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
 
-      // Start highlighting when element enters viewport (80% from top),
-      // reach 100% illumination when it reaches the upper-middle (30% from top)
-      const start = windowHeight * 0.82;
-      const end = windowHeight * 0.28;
-      const progress = Math.min(1, Math.max(0, (start - rect.top) / (start - end)));
+      // Start illuminating when element enters comfortable view (78% from top)
+      const start = windowHeight * 0.78;
+      // Complete illumination within ~2 scrolls (~220px)
+      const rawProgress = Math.min(1, Math.max(0, (start - rect.top) / scrollDistance));
 
-      setScrollProgress(progress);
+      if (once) {
+        if (rawProgress > maxProgressRef.current) {
+          maxProgressRef.current = rawProgress;
+          setScrollProgress(rawProgress);
+        }
+      } else {
+        setScrollProgress(rawProgress);
+      }
     };
 
     const onScroll = () => {
@@ -62,7 +76,7 @@ export function ScrollColorText({
         window.removeEventListener('scroll', onScroll);
       }
     };
-  }, [lenis]);
+  }, [lenis, scrollDistance, once]);
 
   const words = text.split(' ');
   const totalWords = words.length;
@@ -74,16 +88,19 @@ export function ScrollColorText({
       style={style}
     >
       {words.map((word, index) => {
-        // Calculate each word's individual highlight progress
-        const wordStart = index / totalWords;
-        const wordEnd = (index + 1.2) / totalWords;
-        const wordProgress = Math.min(
-          1,
-          Math.max(0, (scrollProgress - wordStart) / (wordEnd - wordStart))
-        );
+        // Calculate each word's individual highlight progress across [0, 1]
+        const wordStart = (index / totalWords) * 0.86;
+        const wordEnd = Math.min(1, wordStart + 0.14);
+        const wordProgress =
+          scrollProgress >= 1
+            ? 1
+            : Math.min(
+                1,
+                Math.max(0, (scrollProgress - wordStart) / (wordEnd - wordStart))
+              );
 
         // Word illumination interpolation
-        const isHighlighted = wordProgress > 0.5;
+        const isHighlighted = wordProgress > 0.45;
 
         return (
           <span

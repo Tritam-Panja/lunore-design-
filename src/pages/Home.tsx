@@ -399,17 +399,26 @@ export function Home() {
             stagger={0.06}
           />
 
-          <Reveal direction="zoom" delay={0.3}>
-            <div className="my-8 sm:my-10 w-24 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent mx-auto" />
-          </Reveal>
-
           {/* Scroll Color Text Animation (Illuminates word-by-word into champagne gold as you scroll) */}
-          <div className="mt-8 sm:mt-10">
+          <div className="mt-5 sm:mt-7">
             <ScrollColorText
               text="Luxury homes begin with three things: exquisite space, exceptional materials, and meaningful art. Lunore masters all three. From turnkey interior design to premium marble sourcing to curated sculptures and paintings, we deliver homes that are completely, irreplaceably yours."
               className="text-lg sm:text-xl md:text-2xl lg:text-3xl leading-relaxed font-light max-w-4xl mx-auto"
               style={{ fontFamily: 'var(--font-serif)' }}
             />
+          </div>
+
+          {/* About More Action Button */}
+          <div className="mt-10 sm:mt-12 flex justify-center">
+            <Reveal direction="up" delay={0.2}>
+              <Link
+                to="/brand-story"
+                className="liquid-glass-btn-secondary px-7 sm:px-9 py-3.5 sm:py-4 text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-[#f1eee7] inline-flex items-center justify-center gap-2.5 hover:border-[#b89a62]/60 hover:text-[#b89a62] transition-all group shadow-[0_8px_24px_rgba(0,0,0,0.4)]"
+              >
+                <span>About More</span>
+                <ArrowRight className="w-4 h-4 text-[#b89a62] transition-transform duration-300 group-hover:translate-x-1" />
+              </Link>
+            </Reveal>
           </div>
         </div>
 
@@ -713,7 +722,7 @@ export function Home() {
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12">
             {/* Form */}
-            <Reveal direction="left" className="liquid-glass-card p-8 md:p-10 rounded-3xl">
+            <Reveal direction="left" className="order-2 lg:order-1 liquid-glass-card p-8 md:p-10 rounded-3xl">
               {status === 'success' ? (
                 <div className="p-8 border border-[#b89a62] bg-[#b89a62]/10 rounded-2xl text-center">
                   <Check className="w-10 h-10 text-[#b89a62] mx-auto mb-4" strokeWidth={1.5} />
@@ -797,7 +806,7 @@ export function Home() {
             </Reveal>
 
             {/* Studio Info */}
-            <Reveal direction="right" className="liquid-glass-card p-8 md:p-10 rounded-3xl space-y-8 flex flex-col justify-between">
+            <Reveal direction="right" className="order-1 lg:order-2 liquid-glass-card p-8 md:p-10 rounded-3xl space-y-8 flex flex-col justify-between">
               <div>
                 <h3 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-6">
                   Studio Details

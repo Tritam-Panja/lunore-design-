@@ -21,7 +21,7 @@ export function TextReveal({
   delay = 0,
   stagger = 0.035,
 }: TextRevealProps) {
-  const { ref, visible } = useReveal({ threshold: 0.1 });
+  const { ref, visible } = useReveal({ threshold: 0.1, once: true });
 
   const words = useMemo(() => text.split(' '), [text]);
 

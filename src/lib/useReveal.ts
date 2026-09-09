@@ -13,21 +13,28 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(
 ) {
   const ref = useRef<T | null>(null);
   const [visible, setVisible] = useState(false);
+  const revealedRef = useRef(false);
 
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    if (typeof IntersectionObserver === 'undefined') {
+    const { once = true, ...observerOptions } = options;
+    if (once && revealedRef.current) {
       setVisible(true);
       return;
     }
 
-    const { once = true, ...observerOptions } = options;
+    if (typeof IntersectionObserver === 'undefined') {
+      revealedRef.current = true;
+      setVisible(true);
+      return;
+    }
 
     const observer = new IntersectionObserver((entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
+          revealedRef.current = true;
           setVisible(true);
           if (once) {
             observer.unobserve(entry.target);
@@ -44,6 +51,6 @@ export function useReveal<T extends HTMLElement = HTMLDivElement>(
     return () => observer.disconnect();
   }, [options.root, options.rootMargin, options.threshold, options.once]);
 
-  return { ref, visible };
+  return { ref, visible: visible || (options.once ?? true ? revealedRef.current : false) };
 }
 

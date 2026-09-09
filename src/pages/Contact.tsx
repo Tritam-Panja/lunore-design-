@@ -51,7 +51,7 @@ export function Contact() {
       <section className="py-8 sm:py-12 md:py-16 relative z-10">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
           {/* Form */}
-          <Reveal direction="left" className="liquid-glass-card p-8 md:p-10 rounded-3xl">
+          <Reveal direction="left" className="order-2 lg:order-1 liquid-glass-card p-8 md:p-10 rounded-3xl">
             {status === 'success' ? (
               <div className="p-8 border border-[#b89a62] bg-[#b89a62]/10 rounded-2xl text-center">
                 <Check className="w-10 h-10 text-[#b89a62] mx-auto mb-4" strokeWidth={1.5} />
@@ -136,7 +136,7 @@ export function Contact() {
           </Reveal>
 
           {/* Studio info */}
-          <Reveal direction="right" className="liquid-glass-card p-8 md:p-10 rounded-3xl flex flex-col justify-between space-y-8">
+          <Reveal direction="right" className="order-1 lg:order-2 liquid-glass-card p-8 md:p-10 rounded-3xl flex flex-col justify-between space-y-8">
             <div className="space-y-6">
               <div>
                 <h3 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-5">
