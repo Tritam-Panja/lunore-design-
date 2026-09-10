@@ -482,7 +482,7 @@ export function Home() {
         </div>
 
         {/* Interactive Directors Parade */}
-        <div className="relative py-8 sm:py-12 md:py-16">
+        <div className="relative pt-8 sm:pt-12 md:pt-16 pb-16 sm:pb-20 md:pb-24">
           <div className="max-w-7xl mx-auto w-full px-4 sm:px-6 md:px-12 flex flex-col justify-center relative">
             
             {isMobile ? (
@@ -683,17 +683,9 @@ export function Home() {
 
           </div>
         </div>
-
-        {/* Footer Navigation Link back to collection */}
-        <div className="py-12 sm:py-14 text-center border-t border-white/[0.08] bg-[#0d0e0e] relative z-10">
-          <Link
-            to="/about"
-            className="liquid-glass-btn-secondary px-6 sm:px-8 py-3.5 text-[11px] sm:text-xs tracking-[0.25em] sm:tracking-[0.3em] uppercase text-[#f1eee7] inline-flex items-center justify-center gap-2 hover:border-[#b89a62]/60 hover:text-[#b89a62] transition-all"
-          >
-            Learn More About Our Team <ArrowRight className="w-4 h-4 text-[#b89a62]" />
-          </Link>
-        </div>
       </section>
+
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
 
       {/* 8. CONTACT PREVIEW SECTION */}
