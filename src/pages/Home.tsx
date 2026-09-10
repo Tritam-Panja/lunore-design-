@@ -408,7 +408,7 @@ export function Home() {
             />
           </div>
 
-          {/* About More Action Button */}
+          {/* About More Action Button - Navigates directly to Brand Story Page */}
           <div className="mt-10 sm:mt-12 flex justify-center">
             <Reveal direction="up" delay={0.2}>
               <Link
