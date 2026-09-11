@@ -1,16 +1,18 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, RotateCcw, ChevronDown } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, RotateCcw, ChevronDown, Maximize2, X } from 'lucide-react';
 import { images } from '@/lib/images';
 
 export interface SculptureItem {
   id: string;
   title: string;
   category: string;
-  material: string;
-  dimensions: string;
-  year: string;
-  edition: string;
+  material?: string;
+  dimensions?: string;
+  year?: string;
+  edition?: string;
   image: string;
+  description?: string;
 }
 
 export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
@@ -23,6 +25,7 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     year: '2026',
     edition: 'Masterpiece 1 of 1',
     image: images.sculptureHero,
+    description: '',
   },
   {
     id: '02',
@@ -33,6 +36,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     year: '2026',
     edition: 'Edition of 3',
     image: '/assets/images/carrousel 1 (1).jpeg',
+    description:
+      'A faceless, meditative figure sits cross-legged in serene stillness, carved from a cool grey-toned marble with soft, flowing veining that mimics the drape of monastic robes. The smooth, featureless face draws focus entirely to posture and presence rather than expression, evoking calm and quiet introspection.',
   },
   {
     id: '03',
@@ -43,6 +48,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     year: '2025',
     edition: 'Masterpiece 1 of 1',
     image: '/assets/images/carrousel 2 (2).jpeg',
+    description:
+      'A single wing, carved in pure white Carrara-style marble with fine grey veining, stretches upward in a dramatic sweep of individually detailed feathers. Mounted on a rough-hewn black base, the contrast between the polished, delicate wing and the raw stone anchor gives it a sense of lightness breaking free from weight.',
   },
   {
     id: '04',
@@ -53,6 +60,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     year: '2026',
     edition: 'Edition of 2',
     image: '/assets/images/carrousel 3 (3).jpeg',
+    description:
+      'Two profiled faces lean toward one another in near-silhouette, carved from deep black marble with striking white veining that traces the contours like light catching in shadow. The negative space between them forms a subtle heart shape, turning the piece into a quiet study of connection and intimacy.',
   },
   {
     id: '05',
@@ -63,6 +72,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     year: '2026',
     edition: 'Unique 1 of 1',
     image: '/assets/images/carrousel 4 (4).jpeg',
+    description:
+      'A crane stands poised mid-motion on one leg, wings partly raised, carved from a soft white-and-plum marble whose veining mimics natural feather patterning with remarkable precision. Perched on a jagged black rock base, the sculpture balances delicate realism with dramatic natural contrast.',
   },
   {
     id: '06',
@@ -73,6 +84,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     year: '2026',
     edition: 'Masterpiece 1 of 1',
     image: '/assets/images/carrousel 5 (5).jpeg',
+    description:
+      'An eagle captured mid-launch, wings fully extended and talons gripping a rugged stone base, carved from warm brown marble with intricate gold-and-cream veining running through every feather. The dynamic pose and richly textured stone give the piece a sense of raw power and motion despite being solid marble.',
   },
   {
     id: '07',
@@ -83,8 +96,315 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     year: '2025',
     edition: 'Edition of 2',
     image: '/assets/images/carrousel 6 (6).jpeg',
+    description:
+      "A bull's head and shoulders emerge from a rough, unfinished marble base, carved in deep oxblood-red stone with dramatic dark veining across its face and horns. The transition from the polished, defined musculature to the raw, textured base creates a striking sense of strength breaking through rock.",
+  },
+  {
+    id: '08',
+    title: 'Touch of Creation',
+    category: 'Emperador Masterpiece',
+    material: 'Dark Emperador Marble',
+    dimensions: '190 × 90 × 40 cm',
+    year: '2026',
+    edition: 'Masterpiece 1 of 1',
+    image: '/assets/images/carrousel 7 (7).jpeg',
+    description:
+      'Two hands carved in dark emperador marble reach toward each other against a black backdrop, fingertips almost touching in a gesture reminiscent of a timeless creation myth. The rich brown-and-gold veining runs through each finger and knuckle, giving the stone a warm, almost skin-like depth despite its hardness.',
   },
 ];
+
+interface SculpturePreviewModalProps {
+  currentIndex: number;
+  onClose: () => void;
+  onNavigate: (newIndex: number) => void;
+}
+
+function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculpturePreviewModalProps) {
+  const [isPureFullscreen, setIsPureFullscreen] = useState(false);
+  const item = SCULPTURE_CAROUSEL_ITEMS[currentIndex];
+  const total = SCULPTURE_CAROUSEL_ITEMS.length;
+
+  // Lock body scroll while modal is active
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
+  // Keyboard controls for modal navigation
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isPureFullscreen) {
+          setIsPureFullscreen(false);
+        } else {
+          onClose();
+        }
+      } else if (e.key === 'ArrowLeft') {
+        onNavigate((currentIndex - 1 + total) % total);
+      } else if (e.key === 'ArrowRight') {
+        onNavigate((currentIndex + 1) % total);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [currentIndex, onClose, onNavigate, total, isPureFullscreen]);
+
+
+  // Pure Full Screen Image View ("thats it nothing other that just image")
+  if (isPureFullscreen) {
+    return createPortal(
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={`${item.title} Fullscreen Image`}
+        className="fixed inset-0 z-[100000] flex items-center justify-center bg-black select-none overflow-hidden cursor-zoom-out"
+        onClick={() => setIsPureFullscreen(false)}
+      >
+        {/* Subtle radial depth behind sculpture */}
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(184,154,98,0.08)_0%,transparent_75%)] pointer-events-none" />
+
+        {/* Pure Fullscreen Image */}
+        <img
+          src={item.image}
+          alt={item.title}
+          decoding="async"
+          className="relative z-10 max-w-[100vw] max-h-[100vh] w-auto h-auto object-contain object-center drop-shadow-[0_20px_60px_rgba(0,0,0,0.95)] select-none p-2 sm:p-4"
+        />
+
+        {/* Floating Minimal Close Button */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsPureFullscreen(false);
+          }}
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 cursor-pointer p-2.5 sm:p-3 rounded-full bg-black/50 hover:bg-black/85 border border-white/20 hover:border-[#b89a62] text-[#f1eee7]/80 hover:text-[#b89a62] transition-all backdrop-blur-md group shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
+          title="Exit Fullscreen (Esc or Click anywhere)"
+          aria-label="Exit Fullscreen"
+        >
+          <X className="w-4 sm:w-5 h-4 sm:h-5 group-hover:rotate-90 transition-transform duration-300" />
+        </button>
+
+        {/* Subtle Prev/Next Navigation Controls */}
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onNavigate((currentIndex - 1 + total) % total);
+          }}
+          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 cursor-pointer p-3 sm:p-3.5 rounded-full bg-black/40 hover:bg-black/80 border border-white/15 hover:border-[#b89a62] text-[#f1eee7]/70 hover:text-[#b89a62] transition-all backdrop-blur-md opacity-40 hover:opacity-100 active:scale-95 shadow-[0_8px_30px_rgba(0,0,0,0.8)]"
+          title="Previous Sculpture (Left Arrow)"
+          aria-label="Previous Sculpture"
+        >
+          <ChevronLeft className="w-5 sm:w-6 h-5 sm:h-6" />
+        </button>
+
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onNavigate((currentIndex + 1) % total);
+          }}
+          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 cursor-pointer p-3 sm:p-3.5 rounded-full bg-black/40 hover:bg-black/80 border border-white/15 hover:border-[#b89a62] text-[#f1eee7]/70 hover:text-[#b89a62] transition-all backdrop-blur-md opacity-40 hover:opacity-100 active:scale-95 shadow-[0_8px_30px_rgba(0,0,0,0.8)]"
+          title="Next Sculpture (Right Arrow)"
+          aria-label="Next Sculpture"
+        >
+          <ChevronRight className="w-5 sm:w-6 h-5 sm:h-6" />
+        </button>
+
+        {/* Discreet Return Hint */}
+        <div className="absolute bottom-4 inset-x-0 flex justify-center pointer-events-none opacity-40 hover:opacity-80 transition-opacity">
+          <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#ded9cf]/70 bg-black/60 px-3.5 py-1 rounded-full backdrop-blur-sm border border-white/10">
+            Click anywhere or press Esc to return
+          </span>
+        </div>
+      </div>,
+      document.body
+    );
+  }
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${item.title} Full Preview`}
+      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-black/92 backdrop-blur-2xl text-[#f1eee7] select-none overflow-hidden"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+    >
+      {/* Ambient background glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[750px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.12)_0%,transparent_70%)] blur-[120px] pointer-events-none" />
+
+      {/* TOP BAR */}
+      <header className="relative z-20 flex items-center justify-between w-full px-4 sm:px-8 py-3.5 sm:py-4 border-b border-white/[0.08] bg-black/40 backdrop-blur-xl">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <span className="text-[11px] sm:text-xs tracking-[0.3em] uppercase text-[#b89a62] font-semibold">
+            LUNORE
+          </span>
+          <span className="h-3 w-px bg-white/20" />
+          <span className="text-[10px] sm:text-xs tracking-[0.18em] uppercase text-[#ded9cf]/80 hidden sm:inline">
+            Sculpture Archive
+          </span>
+          <span className="text-[10px] sm:text-xs tracking-[0.18em] uppercase text-[#ded9cf]/60 hidden md:inline">
+            • {item.category}
+          </span>
+        </div>
+
+        {/* Counter Badge */}
+        <div className="liquid-glass-pill px-3.5 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#f1eee7]/90 shadow-md">
+          <span className="text-[#b89a62] font-semibold">{item.id}</span>
+          <span className="text-[#85817a] mx-2">/</span>
+          <span>0{total}</span>
+        </div>
+
+        {/* Right Actions */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {/* Full Screen Toggle Button */}
+          <button
+            onClick={() => setIsPureFullscreen(true)}
+            className="cursor-pointer liquid-glass-pill hover:border-[#b89a62]/80 hover:text-[#b89a62] px-3 sm:px-3.5 py-1.5 rounded-full inline-flex items-center gap-2 text-[10px] sm:text-xs tracking-[0.16em] uppercase transition-all"
+            title="View image on full screen"
+            aria-label="View full screen image"
+          >
+            <Maximize2 className="w-3.5 h-3.5 text-[#b89a62]" />
+            <span className="hidden sm:inline">Full Screen</span>
+          </button>
+
+          {/* Close Button */}
+          <button
+            onClick={onClose}
+            className="cursor-pointer liquid-glass-pill hover:border-[#b89a62]/80 hover:text-[#b89a62] px-3.5 sm:px-4 py-1.5 rounded-full inline-flex items-center gap-2 text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.5)] group"
+            title="Close Preview (Esc)"
+            aria-label="Close Preview"
+          >
+            <X className="w-3.5 h-3.5 text-[#b89a62] group-hover:rotate-90 transition-transform duration-300" />
+            <span className="hidden sm:inline">Close</span>
+          </button>
+        </div>
+      </header>
+
+      {/* MAIN GALLERY STAGE */}
+      <div className="relative flex-1 w-full max-w-7xl mx-auto flex items-center justify-between px-2 sm:px-6 md:px-10 py-2 sm:py-4 overflow-hidden">
+        {/* Previous Button */}
+        <button
+          onClick={() => onNavigate((currentIndex - 1 + total) % total)}
+          className="cursor-pointer liquid-glass-pill p-2.5 sm:p-3.5 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all active:scale-95 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.8)]"
+          aria-label="Previous Sculpture"
+          title="Previous (Left Arrow)"
+        >
+          <ChevronLeft className="w-4 sm:w-5 h-4 sm:h-5" />
+        </button>
+
+        {/* Center Artwork View */}
+        <div
+          className="relative flex-1 h-full flex flex-col md:flex-row items-center justify-center gap-4 sm:gap-8 lg:gap-12 px-2 sm:px-4 overflow-y-auto md:overflow-hidden max-h-[calc(100vh-180px)]"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              onClose();
+            }
+          }}
+        >
+          {/* Framed Sculpture Image - Clicking opens pure fullscreen view */}
+          <div
+            className="relative flex items-center justify-center max-h-[50vh] sm:max-h-[58vh] md:max-h-[64vh] max-w-[85vw] sm:max-w-[480px] md:max-w-[460px] lg:max-w-[500px] rounded-2xl p-2.5 sm:p-3 border border-white/20 bg-black/60 shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(184,154,98,0.2)] backdrop-blur-md overflow-hidden cursor-pointer group flex-shrink-0"
+            onClick={() => setIsPureFullscreen(true)}
+            title="Click to view image on full screen"
+          >
+            {/* Top Specular Edge Glow */}
+            <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/80 to-transparent z-10" />
+
+            <div className="relative w-full h-full rounded-xl overflow-hidden bg-black/40 flex items-center justify-center">
+              <img
+                src={item.image}
+                alt={item.title}
+                decoding="async"
+                className="max-h-[46vh] sm:max-h-[54vh] md:max-h-[60vh] w-auto max-w-full object-contain object-center rounded-lg transition-transform duration-500 ease-out select-none group-hover:scale-[1.03] cursor-zoom-in"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-white/[0.06] pointer-events-none" />
+              
+              {/* Fullscreen hover badge */}
+              <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1.5 rounded-full bg-black/80 border border-white/20 text-[9px] sm:text-[10px] tracking-[0.18em] uppercase text-[#ded9cf] group-hover:text-[#b89a62] group-hover:border-[#b89a62]/80 pointer-events-none opacity-0 group-hover:opacity-100 transition-all flex items-center gap-1.5 shadow-[0_4px_16px_rgba(0,0,0,0.8)] backdrop-blur-sm">
+                <Maximize2 className="w-3 h-3 text-[#b89a62]" />
+                <span>Full Screen</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Details & Specifications Panel */}
+          <div className="flex flex-col max-w-md w-full text-left bg-white/[0.03] border border-white/[0.12] rounded-2xl p-4 sm:p-6 md:p-7 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] flex-shrink">
+            <div className="inline-flex items-center gap-2 mb-2">
+              <span className="w-2 h-2 rounded-full bg-[#b89a62] animate-pulse" />
+              <span className="text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#b89a62] font-semibold">
+                {item.category}
+              </span>
+            </div>
+
+            <h3
+              className="text-xl sm:text-2xl md:text-3xl text-[#f1eee7] font-normal tracking-[0.06em] leading-tight mb-4 drop-shadow-[0_2px_15px_rgba(0,0,0,0.8)]"
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              {item.title}
+            </h3>
+
+            <div className="w-16 h-[1px] bg-gradient-to-r from-[#b89a62] to-transparent mb-4 sm:mb-5" />
+
+            {/* Custom Content Description */}
+            {item.description ? (
+              <p
+                className="!text-white text-white font-normal text-sm sm:text-base leading-relaxed tracking-wide whitespace-pre-line"
+                style={{ color: '#ffffff', opacity: 1 }}
+              >
+                {item.description}
+              </p>
+            ) : null}
+          </div>
+        </div>
+
+        {/* Next Button */}
+        <button
+          onClick={() => onNavigate((currentIndex + 1) % total)}
+          className="cursor-pointer liquid-glass-pill p-2.5 sm:p-3.5 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all active:scale-95 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.8)]"
+          aria-label="Next Sculpture"
+          title="Next (Right Arrow)"
+        >
+          <ChevronRight className="w-4 sm:w-5 h-4 sm:h-5" />
+        </button>
+      </div>
+
+      {/* BOTTOM THUMBNAIL STRIP */}
+      <footer className="relative z-20 w-full px-4 py-3 border-t border-white/[0.08] bg-black/50 backdrop-blur-xl flex items-center justify-center">
+        <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto max-w-full py-1 px-2 no-scrollbar">
+          {SCULPTURE_CAROUSEL_ITEMS.map((thumb, idx) => {
+            const isActive = idx === currentIndex;
+            return (
+              <button
+                key={thumb.id}
+                onClick={() => onNavigate(idx)}
+                className={`relative cursor-pointer transition-all duration-300 rounded-lg overflow-hidden flex-shrink-0 w-10 sm:w-12 h-14 sm:h-16 border ${
+                  isActive
+                    ? 'border-[#b89a62] ring-2 ring-[#b89a62]/60 scale-105 shadow-[0_0_15px_rgba(184,154,98,0.4)]'
+                    : 'border-white/20 opacity-40 hover:opacity-90 hover:border-white/50'
+                }`}
+                title={thumb.title}
+                aria-label={`Preview ${thumb.title}`}
+              >
+                <img
+                  src={thumb.image}
+                  alt={thumb.title}
+                  className="w-full h-full object-cover object-center"
+                />
+              </button>
+            );
+          })}
+        </div>
+      </footer>
+    </div>,
+    document.body
+  );
+}
 
 export function SculpturesExperience() {
   const [experienceState, setExperienceState] = useState<'entrance' | 'statement' | 'carousel'>('entrance');
@@ -113,6 +433,10 @@ export function SculpturesExperience() {
   const isHoveredRef = useRef<boolean>(false);
   const lastInteractionTimeRef = useRef<number>(Date.now());
   const touchStartRef = useRef<{ x: number; y: number; rot: number; time: number } | null>(null);
+  const hasMovedRef = useRef<boolean>(false);
+
+  // Full-screen image preview state
+  const [previewIndex, setPreviewIndex] = useState<number | null>(null);
 
   const total = SCULPTURE_CAROUSEL_ITEMS.length;
   const activeIndex = ((Math.round(rotation) % total) + total) % total;
@@ -303,6 +627,32 @@ export function SculpturesExperience() {
     triggerPhysicsLoopRef.current();
   }, []);
 
+  // Navigate directly to sculpture (syncing carousel rotation and preview modal)
+  const handlePreviewNavigate = useCallback((newIndex: number) => {
+    setPreviewIndex(newIndex);
+    const currentNorm = ((Math.round(targetRotationRef.current) % total) + total) % total;
+    let stepDiff = (newIndex - currentNorm) % total;
+    if (stepDiff > total / 2) stepDiff -= total;
+    if (stepDiff < -total / 2) stepDiff += total;
+    targetRotationRef.current = Math.round(targetRotationRef.current) + stepDiff;
+    lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
+  }, [total]);
+
+  // Click on any card in the carousel to open its full preview
+  const handleCardClick = useCallback((index: number, diff: number) => {
+    if (hasMovedRef.current) return;
+    if (currentPinchRef.current < 0.90) return;
+
+    if (Math.abs(diff) > 0.05) {
+      targetRotationRef.current = Math.round(targetRotationRef.current + diff);
+      lastInteractionTimeRef.current = Date.now();
+      triggerPhysicsLoopRef.current();
+    }
+
+    setPreviewIndex(index);
+  }, []);
+
   const handleNext = useCallback(() => {
     momentumVelocityRef.current = 0;
     targetRotationRef.current = Math.round(targetRotationRef.current) + 1;
@@ -344,6 +694,7 @@ export function SculpturesExperience() {
   // =========================================================================
   const handleMouseDown = (e: React.MouseEvent) => {
     if (currentPinchRef.current < 0.90) return;
+    hasMovedRef.current = false;
     isDraggingRef.current = true;
     setIsDragging(true);
     momentumVelocityRef.current = 0;
@@ -358,6 +709,9 @@ export function SculpturesExperience() {
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!isDraggingRef.current) return;
+    if (Math.abs(e.clientX - dragStartXRef.current) > 5) {
+      hasMovedRef.current = true;
+    }
     const now = performance.now();
     const dt = Math.max(1, now - lastDragTimeRef.current);
     const diffFromLast = lastDragXRef.current - e.clientX;
@@ -399,6 +753,7 @@ export function SculpturesExperience() {
   // Touch Swipe & Drag Handling (Infinite continuous mobile rotation with speed scaling)
   const handleTouchStart = (e: React.TouchEvent) => {
     if (experienceState === 'entrance' || e.touches.length === 0) return;
+    hasMovedRef.current = false;
     isDraggingRef.current = true;
     momentumVelocityRef.current = 0;
     touchStartRef.current = {
@@ -420,6 +775,9 @@ export function SculpturesExperience() {
     const currentY = e.touches[0].clientY;
     const totalDiffX = touchStartRef.current.x - currentX;
     const totalDiffY = touchStartRef.current.y - currentY;
+    if (Math.abs(totalDiffX) > 6 || Math.abs(totalDiffY) > 6) {
+      hasMovedRef.current = true;
+    }
     const now = performance.now();
     const dt = Math.max(1, now - lastDragTimeRef.current);
 
@@ -473,7 +831,7 @@ export function SculpturesExperience() {
   // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (experienceState === 'entrance') return;
+      if (experienceState === 'entrance' || previewIndex !== null) return;
       if (currentPinchRef.current >= 0.85) {
         if (e.key === 'ArrowLeft') {
           handlePrev();
@@ -486,7 +844,7 @@ export function SculpturesExperience() {
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [experienceState, handlePrev, handleNext, handleReset]);
+  }, [experienceState, previewIndex, handlePrev, handleNext, handleReset]);
 
   // =========================================================================
   // CONTINUOUS PINCH-IN & PORTRAIT MORPH INTERPOLATION
@@ -729,14 +1087,11 @@ export function SculpturesExperience() {
                   return (
                     <div
                       key={item.id}
-                      onClick={() => {
-                        if (isDocked && Math.abs(diff) > 0.3) {
-                          targetRotationRef.current = Math.round(targetRotationRef.current + diff);
-                          lastInteractionTimeRef.current = Date.now();
-                        }
-                      }}
+                      onClick={() => handleCardClick(index, diff)}
                       style={cardStyle}
-                      className="absolute select-none transition-shadow duration-300"
+                      className={`absolute select-none transition-shadow duration-300 ${
+                        isDocked ? 'cursor-pointer' : ''
+                      }`}
                     >
                       {/* LIQUID GLASS PANEL */}
                       <div
@@ -805,12 +1160,7 @@ export function SculpturesExperience() {
                 return (
                   <div
                     key={item.id}
-                    onClick={() => {
-                      if (isDocked && Math.abs(diff) > 0.3) {
-                        targetRotationRef.current = Math.round(targetRotationRef.current + diff);
-                        lastInteractionTimeRef.current = Date.now();
-                      }
-                    }}
+                    onClick={() => handleCardClick(index, diff)}
                     style={{
                       width: `${targetCardW}px`,
                       height: `${targetCardH}px`,
@@ -821,6 +1171,8 @@ export function SculpturesExperience() {
                       willChange: 'transform, opacity',
                     }}
                     className={`absolute rounded-2xl select-none transition-shadow duration-300 ${
+                      isDocked ? 'cursor-pointer' : ''
+                    } ${
                       isCenter
                         ? 'shadow-[0_30px_75px_rgba(0,0,0,0.9),0_0_40px_rgba(184,154,98,0.25),inset_0_1.5px_2px_rgba(255,255,255,0.6)] border border-white/60'
                         : 'shadow-[0_16px_40px_rgba(0,0,0,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.25)] border border-white/20 hover:border-white/40'
@@ -972,6 +1324,15 @@ export function SculpturesExperience() {
           )}
 
         </div>
+      )}
+
+      {/* Fullscreen Sculpture Artwork Preview Modal */}
+      {previewIndex !== null && (
+        <SculpturePreviewModal
+          currentIndex={previewIndex}
+          onClose={() => setPreviewIndex(null)}
+          onNavigate={handlePreviewNavigate}
+        />
       )}
     </section>
   );
