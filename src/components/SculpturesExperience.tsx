@@ -160,7 +160,8 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
         role="dialog"
         aria-modal="true"
         aria-label={`${item.title} Fullscreen Image`}
-        className="fixed inset-0 z-[100000] flex items-center justify-center bg-black select-none overflow-hidden cursor-zoom-out"
+        data-lenis-prevent="true"
+        className="fixed inset-0 z-[100000] flex items-center justify-center bg-black select-none overflow-hidden cursor-zoom-out h-[100dvh]"
         onClick={() => setIsPureFullscreen(false)}
       >
         {/* Subtle radial depth behind sculpture */}
@@ -171,7 +172,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
           src={item.image}
           alt={item.title}
           decoding="async"
-          className="relative z-10 max-w-[100vw] max-h-[100vh] w-auto h-auto object-contain object-center drop-shadow-[0_20px_60px_rgba(0,0,0,0.95)] select-none p-2 sm:p-4"
+          className="relative z-10 max-w-[96vw] max-h-[92dvh] sm:max-w-[100vw] sm:max-h-[100vh] w-auto h-auto object-contain object-center drop-shadow-[0_20px_60px_rgba(0,0,0,0.95)] select-none p-2 sm:p-4"
         />
 
         {/* Floating Minimal Close Button */}
@@ -228,7 +229,8 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
       role="dialog"
       aria-modal="true"
       aria-label={`${item.title} Full Preview`}
-      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-black/92 backdrop-blur-2xl text-[#f1eee7] select-none overflow-hidden"
+      data-lenis-prevent="true"
+      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-black/92 backdrop-blur-2xl text-[#f1eee7] select-none overflow-hidden h-[100dvh]"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -239,7 +241,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[750px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.12)_0%,transparent_70%)] blur-[120px] pointer-events-none" />
 
       {/* TOP BAR */}
-      <header className="relative z-20 flex items-center justify-between w-full px-4 sm:px-8 py-3.5 sm:py-4 border-b border-white/[0.08] bg-black/40 backdrop-blur-xl">
+      <header className="relative z-20 flex items-center justify-between w-full px-3.5 sm:px-8 py-2.5 sm:py-4 border-b border-white/[0.08] bg-black/40 backdrop-blur-xl flex-shrink-0">
         <div className="flex items-center gap-2 sm:gap-3">
           <span className="text-[11px] sm:text-xs tracking-[0.3em] uppercase text-[#b89a62] font-semibold">
             LUNORE
@@ -265,7 +267,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
           {/* Full Screen Toggle Button */}
           <button
             onClick={() => setIsPureFullscreen(true)}
-            className="cursor-pointer liquid-glass-pill hover:border-[#b89a62]/80 hover:text-[#b89a62] px-3 sm:px-3.5 py-1.5 rounded-full inline-flex items-center gap-2 text-[10px] sm:text-xs tracking-[0.16em] uppercase transition-all"
+            className="cursor-pointer liquid-glass-pill hover:border-[#b89a62]/80 hover:text-[#b89a62] px-2.5 sm:px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs tracking-[0.16em] uppercase transition-all"
             title="View image on full screen"
             aria-label="View full screen image"
           >
@@ -276,7 +278,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="cursor-pointer liquid-glass-pill hover:border-[#b89a62]/80 hover:text-[#b89a62] px-3.5 sm:px-4 py-1.5 rounded-full inline-flex items-center gap-2 text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.5)] group"
+            className="cursor-pointer liquid-glass-pill hover:border-[#b89a62]/80 hover:text-[#b89a62] px-3 sm:px-4 py-1.5 rounded-full inline-flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.5)] group"
             title="Close Preview (Esc)"
             aria-label="Close Preview"
           >
@@ -287,11 +289,11 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
       </header>
 
       {/* MAIN GALLERY STAGE */}
-      <div className="relative flex-1 w-full max-w-7xl mx-auto flex items-center justify-between px-2 sm:px-6 md:px-10 py-2 sm:py-4 overflow-hidden">
+      <div className="relative flex-1 min-h-0 w-full max-w-7xl mx-auto flex items-center justify-between px-1 sm:px-6 md:px-10 py-1 sm:py-4 overflow-hidden">
         {/* Previous Button */}
         <button
           onClick={() => onNavigate((currentIndex - 1 + total) % total)}
-          className="cursor-pointer liquid-glass-pill p-2.5 sm:p-3.5 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all active:scale-95 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.8)]"
+          className="cursor-pointer liquid-glass-pill p-2 sm:p-3.5 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all active:scale-95 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.8)] flex-shrink-0"
           aria-label="Previous Sculpture"
           title="Previous (Left Arrow)"
         >
@@ -300,7 +302,8 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
 
         {/* Center Artwork View */}
         <div
-          className="relative flex-1 h-full flex flex-col md:flex-row items-center justify-center gap-4 sm:gap-8 lg:gap-12 px-2 sm:px-4 overflow-y-auto md:overflow-hidden max-h-[calc(100vh-180px)]"
+          data-lenis-prevent="true"
+          className="relative flex-1 h-full min-h-0 w-full flex flex-col md:flex-row items-center justify-start md:justify-center gap-4 sm:gap-8 lg:gap-12 px-2 sm:px-4 py-3 sm:py-6 overflow-y-auto md:overflow-hidden overscroll-contain"
           onClick={(e) => {
             if (e.target === e.currentTarget) {
               onClose();
@@ -309,7 +312,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
         >
           {/* Framed Sculpture Image - Clicking opens pure fullscreen view */}
           <div
-            className="relative flex items-center justify-center max-h-[50vh] sm:max-h-[58vh] md:max-h-[64vh] max-w-[85vw] sm:max-w-[480px] md:max-w-[460px] lg:max-w-[500px] rounded-2xl p-2.5 sm:p-3 border border-white/20 bg-black/60 shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(184,154,98,0.2)] backdrop-blur-md overflow-hidden cursor-pointer group flex-shrink-0"
+            className="relative flex items-center justify-center max-h-[44vh] sm:max-h-[58vh] md:max-h-[64vh] max-w-[88vw] sm:max-w-[480px] md:max-w-[460px] lg:max-w-[500px] rounded-2xl p-2 sm:p-3 border border-white/20 bg-black/60 shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(184,154,98,0.2)] backdrop-blur-md overflow-hidden cursor-pointer group flex-shrink-0"
             onClick={() => setIsPureFullscreen(true)}
             title="Click to view image on full screen"
           >
@@ -321,7 +324,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
                 src={item.image}
                 alt={item.title}
                 decoding="async"
-                className="max-h-[46vh] sm:max-h-[54vh] md:max-h-[60vh] w-auto max-w-full object-contain object-center rounded-lg transition-transform duration-500 ease-out select-none group-hover:scale-[1.03] cursor-zoom-in"
+                className="max-h-[38vh] sm:max-h-[54vh] md:max-h-[60vh] w-auto max-w-full object-contain object-center rounded-lg transition-transform duration-500 ease-out select-none group-hover:scale-[1.03] cursor-zoom-in"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-white/[0.06] pointer-events-none" />
               
@@ -334,7 +337,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
           </div>
 
           {/* Details & Specifications Panel */}
-          <div className="flex flex-col max-w-md w-full text-left bg-white/[0.03] border border-white/[0.12] rounded-2xl p-4 sm:p-6 md:p-7 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] flex-shrink">
+          <div className="flex flex-col max-w-md w-full text-left bg-white/[0.03] border border-white/[0.12] rounded-2xl p-4 sm:p-6 md:p-7 backdrop-blur-xl shadow-[0_20px_60px_rgba(0,0,0,0.7)] flex-shrink-0 md:flex-shrink mb-4 md:mb-0">
             <div className="inline-flex items-center gap-2 mb-2">
               <span className="w-2 h-2 rounded-full bg-[#b89a62] animate-pulse" />
               <span className="text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#b89a62] font-semibold">
@@ -366,7 +369,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
         {/* Next Button */}
         <button
           onClick={() => onNavigate((currentIndex + 1) % total)}
-          className="cursor-pointer liquid-glass-pill p-2.5 sm:p-3.5 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all active:scale-95 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.8)]"
+          className="cursor-pointer liquid-glass-pill p-2 sm:p-3.5 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all active:scale-95 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.8)] flex-shrink-0"
           aria-label="Next Sculpture"
           title="Next (Right Arrow)"
         >
@@ -375,7 +378,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
       </div>
 
       {/* BOTTOM THUMBNAIL STRIP */}
-      <footer className="relative z-20 w-full px-4 py-3 border-t border-white/[0.08] bg-black/50 backdrop-blur-xl flex items-center justify-center">
+      <footer className="relative z-20 w-full px-4 py-2 sm:py-3 border-t border-white/[0.08] bg-black/50 backdrop-blur-xl flex items-center justify-center flex-shrink-0">
         <div className="flex items-center gap-2 sm:gap-3 overflow-x-auto max-w-full py-1 px-2 no-scrollbar">
           {SCULPTURE_CAROUSEL_ITEMS.map((thumb, idx) => {
             const isActive = idx === currentIndex;

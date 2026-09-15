@@ -1,10 +1,98 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { ChevronDown, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { Link } from 'react-router-dom';
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  ArrowRight,
+  X,
+  Sparkles,
+  ArrowUpRight,
+  CheckCircle2,
+  Clock,
+  Layers,
+  Building2,
+  Compass,
+} from 'lucide-react';
 import { useLenis } from '@/components/SmoothScroll';
 
 interface InteriorExperienceProps {
   className?: string;
 }
+
+export interface InteriorDomain {
+  id: string;
+  category: string;
+  title: string;
+  subtitle: string;
+  image: string;
+  tagline: string;
+  description: string;
+  features: string[];
+  materials: string[];
+  timeline: string;
+  scope: string;
+}
+
+export const INTERIOR_DOMAINS: InteriorDomain[] = [
+  {
+    id: '01',
+    category: 'VILLAS & ESTATES',
+    title: 'Sanctuary Residences',
+    subtitle: 'Warmth, Privacy & Generational Craft',
+    tagline: 'Tailored Luxury for Everyday Living',
+    image: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    description:
+      'Tailored residential sanctuaries harmonizing bespoke millwork, curated stone, and fluid spatial layouts engineered for generational comfort.',
+    features: ['Custom Joinery & Millwork', 'Handpicked Statuary Marble', 'Acoustic Suite Partitions'],
+    materials: ['Fior di Bosco Marble', 'Smoked European Oak', 'Brushed Champagne Brass'],
+    timeline: '12 – 16 Weeks Full Turnkey',
+    scope: 'Architectural space planning, custom cabinetry, wet areas, ambient cove lighting, and curated decor curation.',
+  },
+  {
+    id: '02',
+    category: 'PENTHOUSES & SKY MANSIONS',
+    title: 'Skyline Penthouses',
+    subtitle: 'Monolithic Presence & City Horizons',
+    tagline: 'High-Elevation Panoramic Luxury',
+    image: '/assets/images/interior light .webp',
+    description:
+      'Panoramic skyline residences featuring dramatic bookmatched marble feature walls, floating ceiling planes, and integrated architectural illumination.',
+    features: ['Bookmatched Feature Walls', '360° Panorama Integration', 'Floating Architectural Ceilings'],
+    materials: ['Vein-Matched Calacatta Oro', 'Belgian Smoked Glass', 'Architectural Plaster'],
+    timeline: '14 – 20 Weeks Bespoke Build',
+    scope: 'Monolithic double-height stone walls, smart automation, floating acoustic ceiling planes, and private sky lounges.',
+  },
+  {
+    id: '03',
+    category: 'CORPORATE & FLAGSHIP',
+    title: 'Executive Suites',
+    subtitle: 'Command, Authority & Distinction',
+    tagline: 'Prestigious Corporate Architectural Environments',
+    image: 'https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    description:
+      'Prestigious executive boardrooms, corporate headquarters, and luxury retail galleries crafted to reflect organizational stature and quiet authority.',
+    features: ['Concealed Conference Tech', 'Travertine Meeting Tables', 'Soundproof Executive Boiserie'],
+    materials: ['Silver Travertine', 'American Black Walnut', 'Acoustic Fabric Panels'],
+    timeline: '8 – 12 Weeks Fast-Track Turnkey',
+    scope: 'Acoustic engineering, bespoke executive conference tables, concealed cabling infrastructure, and reception galleries.',
+  },
+  {
+    id: '04',
+    category: 'HOSPITALITY & LOUNGES',
+    title: 'Boutique Lounges',
+    subtitle: 'Immersive Sensory Atmospheres',
+    tagline: 'Atmospheric Spaces Designed to Captivate',
+    image: 'https://images.pexels.com/photos/941861/pexels-photo-941861.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    description:
+      'Atmospheric private dining clubs, cocktail lounges, and boutique hotel sanctuaries where sculptural bars and ambient lighting awaken the senses.',
+    features: ['Illuminated Onyx Bar Fronts', 'Sculptural Banquette Seating', 'Circadian Atmospheric Lighting'],
+    materials: ['Backlit Honey Onyx', 'Oxblood Saddle Leather', 'Antiqued Bronze Accents'],
+    timeline: '10 – 14 Weeks Concept to Opening',
+    scope: 'Sculptural wet bars, custom leather upholstery, theatrical circadian lighting, and custom VIP hospitality alcoves.',
+  },
+];
 
 const TITLE_WORDS = ['Interior', 'Design', 'Experts'];
 
@@ -68,8 +156,11 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
   const [overlayReady, setOverlayReady] = useState<boolean>(false);
   
   // Tracks active story stage: 
-  // 0 = Title (INSIGHT magazine style), 1 = Paragraph (User copy), 2 = Journey, 3 = Explore CTA
+  // 0 = Title (INSIGHT magazine style), 1 = Paragraph (User copy), 2 = Journey, 3 = Explore CTA, 4 = 4-Cards Domain Layout
   const [storyStage, setStoryStage] = useState<number>(0);
+  
+  // Selected domain for deep-dive detail view modal
+  const [selectedDomain, setSelectedDomain] = useState<InteriorDomain | null>(null);
   
   // Tracks if the user has tapped the main button
   const [hasBeenTapped, setHasBeenTapped] = useState<boolean>(false);
@@ -688,198 +779,298 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
             )}
 
             {/* ============================================================ */}
-            {/* 3. EDITORIAL MAGAZINE LAYOUT (APPEARS UPON SCROLLING/TAPPING)*/}
+            {/* 3. EDITORIAL MAGAZINE LAYOUT & 4-CARDS INNER SECTION        */}
             {/* ============================================================ */}
             {!isFlashlightMode && overlayReady && (
-              <div className="absolute inset-0 z-30 pointer-events-none flex items-center justify-start p-6 sm:p-10 md:p-14 lg:p-16 animate-in fade-in duration-1000">
-                
-                {/* MIDDLE CONTENT: HEADING + DYNAMIC SCROLL CONTENT */}
-                <div className="w-full max-w-2xl text-left py-4 sm:py-6 flex flex-col justify-center transition-all duration-700">
-                  
-                  {/* STAGE 0: INITIAL LARGE STACKED HEADING - CLEAN WHITE TEXT */}
-                  {storyStage === 0 ? (
-                    <div className="py-4 sm:py-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-out">
-                      <h3
-                        className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-[0.04em] uppercase leading-[0.92] text-white select-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]"
-                        style={{ fontFamily: 'var(--font-serif)' }}
+              <div
+                className={`absolute inset-0 z-30 transition-all duration-300 ease-out ${
+                  storyStage === 4
+                    ? 'pointer-events-auto flex flex-col p-3.5 sm:p-6 md:p-8 lg:p-10 bg-black/92 backdrop-blur-2xl overflow-y-auto overscroll-contain'
+                    : 'pointer-events-none flex items-center justify-start p-6 sm:p-10 md:p-14 lg:p-16'
+                }`}
+                data-lenis-prevent={storyStage === 4 ? 'true' : undefined}
+              >
+                {storyStage === 4 ? (
+                  /* ============================================================ */
+                  /* STAGE 4: INNER SECTION -> 4 SIGNATURE ARCHITECTURAL CARDS   */
+                  /* ============================================================ */
+                  <div className="w-full h-full flex flex-col justify-between max-w-7xl mx-auto animate-in fade-in duration-200 ease-out py-1">
+                    {/* Header Bar */}
+                    <div className="flex items-center justify-end pb-3 sm:pb-4 border-b border-white/15 animate-in fade-in slide-in-from-top-2 duration-200">
+                      {/* Back to Experience Stepper Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setStoryStage(3);
+                          storyStageRef.current = 3;
+                        }}
+                        className="cursor-pointer inline-flex items-center gap-2 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full liquid-glass-pill text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] hover:text-[#b89a62] border border-white/20 hover:border-[#b89a62]/80 bg-black/60 shadow-md active:scale-95 transition-all duration-150"
                       >
-                        {['INTERIOR', 'DESIGN', 'EXPERTS'].map((line, lineIdx) => (
-                          <span key={line} className="block overflow-hidden">
-                            <span
-                              className="inline-block text-white"
-                              style={{
-                                animation: 'lunore-letter-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) both',
-                                animationDelay: `${lineIdx * 0.12}s`,
-                              }}
-                            >
-                              {line}
-                            </span>
-                          </span>
-                        ))}
-                      </h3>
+                        <ChevronLeft className="w-3.5 h-3.5 text-[#b89a62]" />
+                        <span>Back to Overview</span>
+                      </button>
+                    </div>
 
-                      {/* Tap / Scroll Cue Button */}
-                      <div className="mt-6 sm:mt-8 flex items-center gap-3">
+                    {/* 4 Cards Vertical Section List */}
+                    <div className="flex flex-col gap-3.5 sm:gap-4.5 my-3 sm:my-4">
+                      {INTERIOR_DOMAINS.map((domain, idx) => (
+                        <div
+                          key={domain.id}
+                          onClick={() => setSelectedDomain(domain)}
+                          className="group relative flex flex-col md:flex-row items-stretch rounded-2xl border border-white/15 hover:border-[#b89a62]/80 bg-gradient-to-r from-white/[0.08] via-black/75 to-black/90 backdrop-blur-xl p-3.5 sm:p-4 md:p-5 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.25)] cursor-pointer overflow-hidden select-none gap-4 md:gap-6 will-change-transform transform-gpu"
+                          style={{
+                            animation: 'domain-card-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both',
+                            animationDelay: `${0.02 + idx * 0.04}s`,
+                          }}
+                        >
+                          {/* Top Specular Edge Glow */}
+                          <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#b89a62]/70 to-transparent z-10" />
+
+                          {/* Image Thumbnail Container */}
+                          <div className="relative w-full md:w-72 lg:w-80 aspect-[16/10] md:aspect-auto md:min-h-[220px] rounded-xl overflow-hidden border border-white/10 bg-black/50 shrink-0">
+                            <img
+                              src={domain.image}
+                              alt={domain.title}
+                              loading="lazy"
+                              decoding="async"
+                              className="w-full h-full object-cover object-center group-hover:scale-[1.03] transition-transform duration-300 ease-out"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+                          </div>
+
+                          {/* Content Column */}
+                          <div className="flex-1 flex flex-col justify-center py-2 text-left">
+                            <h5
+                              className="text-xl sm:text-2xl lg:text-3xl text-white font-normal tracking-wide mb-1 leading-snug group-hover:text-[#f1eee7] transition-colors duration-150"
+                              style={{ fontFamily: 'var(--font-serif)' }}
+                            >
+                              {domain.title}
+                            </h5>
+
+                            <p className="text-xs sm:text-sm text-[#ded9cf]/70 font-light mb-2.5 italic">
+                              {domain.subtitle}
+                            </p>
+
+                            <p className="text-xs sm:text-sm text-[#f1eee7]/85 font-light leading-relaxed max-w-3xl">
+                              {domain.description}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Bottom Status / Proposal Bar */}
+                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-white/15 text-center sm:text-left">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-[#b89a62] animate-pulse" />
+                        <span className="text-[10px] sm:text-xs text-[#ded9cf]/80 tracking-wide font-light">
+                          All domains include turnkey 3D rendering, custom stone curation, and weekly progress supervision.
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
                         <button
                           type="button"
-                          onClick={handleNextStage}
-                          className="pointer-events-auto cursor-pointer inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full liquid-glass-pill text-[11px] sm:text-xs tracking-[0.22em] uppercase text-[#f1eee7] hover:text-white border border-[#b89a62]/60 hover:border-[#b89a62] bg-black/60 shadow-[0_0_15px_rgba(184,154,98,0.25)] active:scale-95 transition-all"
+                          onClick={() => {
+                            setStoryStage(3);
+                            storyStageRef.current = 3;
+                          }}
+                          className="px-4 py-1.5 rounded-full text-[10px] tracking-[0.16em] uppercase text-[#b9b5ae] hover:text-white border border-white/15 bg-black/50 transition-all cursor-pointer select-none"
                         >
-                          <span>Explore Story</span>
-                          <ArrowRight className="w-3.5 h-3.5 text-[#b89a62]" />
+                          ‹ Back
                         </button>
+                        <Link
+                          to="/contact"
+                          className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full bg-[#b89a62] hover:bg-[#c4a86f] text-[#0d0e0e] font-medium text-[10px] sm:text-[11px] tracking-[0.2em] uppercase transition-all shadow-[0_0_20px_rgba(184,154,98,0.4)] active:scale-95"
+                        >
+                          <span>Request Bespoke Proposal</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </Link>
                       </div>
                     </div>
-                  ) : (
-                    /* STAGE 1, 2, 3: HEADING MOVED UP AND ALIGNED IN ONE SINGLE LINE - CLEAN WHITE TEXT */
-                    <div className="mb-4 sm:mb-6 animate-in fade-in slide-in-from-top-4 duration-700">
-                      <h3
-                        className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light tracking-[0.06em] uppercase leading-tight text-white select-none drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)]"
-                        style={{ fontFamily: 'var(--font-serif)' }}
-                      >
-                        <span className="inline-block text-white">
-                          INTERIOR DESIGN EXPERTS
-                        </span>
-                      </h3>
-                    </div>
-                  )}
-
-                  {/* DYNAMIC SCROLL CONTENT BELOW PERSISTENT ONE-LINE HEADING */}
-                  {storyStage > 0 && (
-                    <div className="w-full">
-                      {/* STAGE 1: 1ST SCROLL -> USER COPY PARAGRAPH */}
-                      {storyStage === 1 && (
-                        <div key="stage-1" className="space-y-3 max-w-xl animate-in fade-in zoom-in-98 duration-700">
-                          {PARAGRAPH_1_LINES.map((line, lineIdx) => (
-                            <p
-                              key={lineIdx}
-                              className="text-sm sm:text-base md:text-lg lg:text-xl font-light text-white leading-relaxed tracking-wide select-none"
-                              style={{
-                                fontFamily: 'var(--font-serif)',
-                                textShadow: '0 2px 20px rgba(0,0,0,0.9)',
-                              }}
-                            >
-                              {line.split(' ').map((word, wordIdx) => (
-                                <span
-                                  key={`${word}-${wordIdx}`}
-                                  className="inline-block overflow-hidden mr-[0.24em] last:mr-0 align-bottom"
-                                >
-                                  <span
-                                    className="inline-block text-white"
-                                    style={{
-                                      animation: 'lunore-letter-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) both',
-                                      animationDelay: `${0.05 + lineIdx * 0.18 + wordIdx * 0.025}s`,
-                                    }}
-                                  >
-                                    {word}
-                                  </span>
-                                </span>
-                              ))}
-                            </p>
-                          ))}
-                        </div>
-                      )}
-
-                      {/* STAGE 2: 2ND SCROLL -> THE LUNORE DESIGN JOURNEY (6 STEPS) */}
-                      {storyStage === 2 && (
-                        <div key="stage-2" className="space-y-2.5 sm:space-y-3 max-w-3xl animate-in fade-in zoom-in-98 duration-700">
-                          <p className="text-[11px] sm:text-sm font-medium text-[#b89a62] tracking-wider uppercase">
-                            The Lunore Design Journey
-                          </p>
-
-                          <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5 text-left w-full">
-                            {JOURNEY_STEPS.map((item, idx) => (
-                              <div
-                                key={item.step}
-                                className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-black/60 backdrop-blur-md border border-white/15 hover:border-[#b89a62]/50 transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.5)] flex flex-col justify-between"
+                  </div>
+                ) : (
+                  /* MIDDLE CONTENT: HEADING + DYNAMIC SCROLL CONTENT (STAGES 0, 1, 2, 3) */
+                  <div className="w-full max-w-2xl text-left py-4 sm:py-6 flex flex-col justify-center transition-all duration-700">
+                    
+                    {/* STAGE 0: INITIAL LARGE STACKED HEADING - CLEAN WHITE TEXT */}
+                    {storyStage === 0 ? (
+                      <div className="py-4 sm:py-6 animate-in fade-in slide-in-from-bottom-6 duration-1000 ease-out">
+                        <h3
+                          className="text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-light tracking-[0.04em] uppercase leading-[0.92] text-white select-none drop-shadow-[0_4px_30px_rgba(0,0,0,0.95)]"
+                          style={{ fontFamily: 'var(--font-serif)' }}
+                        >
+                          {['INTERIOR', 'DESIGN', 'EXPERTS'].map((line, lineIdx) => (
+                            <span key={line} className="block overflow-hidden">
+                              <span
+                                className="inline-block text-white"
                                 style={{
-                                  animation: 'lunore-letter-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both',
-                                  animationDelay: `${0.06 + idx * 0.05}s`,
+                                  animation: 'lunore-letter-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) both',
+                                  animationDelay: `${lineIdx * 0.12}s`,
                                 }}
                               >
-                                <div className="flex items-center gap-1.5 mb-0.5">
-                                  <span className="text-[9px] sm:text-[10px] font-mono text-[#b89a62] font-semibold">
-                                    {item.step}
-                                  </span>
-                                  <span className="text-[11px] sm:text-sm font-medium text-white tracking-wide truncate">
-                                    {item.title}
-                                  </span>
-                                </div>
-                                <p className="text-[9px] sm:text-[11px] text-[#f1eee7]/80 font-light leading-snug">
-                                  {item.desc}
-                                </p>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                                {line}
+                              </span>
+                            </span>
+                          ))}
+                        </h3>
 
-                      {/* STAGE 3: 3RD/4TH SCROLL -> "EXPLORE MORE" CTA */}
-                      {storyStage === 3 && (
-                        <div key="stage-3" className="space-y-5 animate-in fade-in zoom-in-98 duration-700 max-w-xl">
-                          <div className="space-y-2">
-                            <h4
-                              className="text-2xl sm:text-3xl md:text-4xl font-light text-white tracking-tight leading-tight"
-                              style={{ fontFamily: 'var(--font-heading)' }}
-                            >
-                              Step Into The Experience
-                            </h4>
-                            <p className="text-xs sm:text-sm text-[#f1eee7]/85 font-light leading-relaxed">
-                              Explore our signature penthouses, curated marble collections, and bespoke architectural portfolio.
-                            </p>
-                          </div>
-
-                          <div className="pt-1">
-                            <a
-                              href="#projects"
-                              onClick={(e) => {
-                                e.preventDefault();
-                                const el = document.getElementById('projects');
-                                if (el) {
-                                  if (lenis) {
-                                    lenis.scrollTo(el, { offset: -70 });
-                                  } else {
-                                    el.scrollIntoView({ behavior: 'smooth' });
-                                  }
-                                }
-                              }}
-                              className="pointer-events-auto inline-flex items-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full liquid-glass-pill backdrop-blur-2xl border border-[#b89a62] bg-black/85 text-[#f1eee7] hover:text-[#0d0e0e] hover:bg-[#b89a62] font-medium text-[11px] sm:text-xs tracking-[0.22em] uppercase transition-all duration-500 hover:scale-105 shadow-[0_0_30px_rgba(184,154,98,0.35)] cursor-pointer select-none group"
-                            >
-                              <span>EXPLORE MORE</span>
-                              <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
-                            </a>
-                          </div>
-                        </div>
-                      )}
-
-                      {/* COMPACT TAP STEPPER BUTTONS (Especially Mobile/Touch friendly) */}
-                      <div className="pt-4 flex items-center justify-between gap-4 pointer-events-auto w-full max-w-sm">
-                        <button
-                          type="button"
-                          onClick={handlePrevStage}
-                          aria-label="Previous step"
-                          className="inline-flex items-center justify-center min-h-[44px] min-w-[84px] gap-2 px-4 py-2.5 rounded-full liquid-glass-pill text-[11px] tracking-[0.16em] uppercase text-[#b9b5ae] hover:text-white border border-white/20 bg-black/65 active:scale-95 transition-all cursor-pointer select-none shadow-md"
-                        >
-                          <ChevronLeft className="w-4 h-4 text-[#b89a62]" />
-                          <span>Back</span>
-                        </button>
-
-                        {storyStage < 3 && (
+                        {/* Tap / Scroll Cue Button */}
+                        <div className="mt-6 sm:mt-8 flex items-center gap-3">
                           <button
                             type="button"
                             onClick={handleNextStage}
-                            aria-label="Next step"
-                            className="inline-flex items-center justify-center min-h-[44px] min-w-[96px] gap-2 px-5 py-2.5 rounded-full bg-[#b89a62]/30 hover:bg-[#b89a62]/45 border border-[#b89a62]/80 text-[#f1eee7] text-[11px] tracking-[0.18em] uppercase font-medium shadow-[0_0_15px_rgba(184,154,98,0.3)] active:scale-95 transition-all cursor-pointer select-none ml-auto"
+                            className="pointer-events-auto cursor-pointer inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full liquid-glass-pill text-[11px] sm:text-xs tracking-[0.22em] uppercase text-[#f1eee7] hover:text-white border border-[#b89a62]/60 hover:border-[#b89a62] bg-black/60 shadow-[0_0_15px_rgba(184,154,98,0.25)] active:scale-95 transition-all"
                           >
-                            <span>Next</span>
-                            <ChevronRight className="w-4 h-4 text-[#b89a62]" />
+                            <span>Explore Story</span>
+                            <ArrowRight className="w-3.5 h-3.5 text-[#b89a62]" />
                           </button>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    ) : (
+                      /* STAGE 1, 2, 3: HEADING MOVED UP AND ALIGNED IN ONE SINGLE LINE - CLEAN WHITE TEXT */
+                      <div className="mb-4 sm:mb-6 animate-in fade-in slide-in-from-top-4 duration-700">
+                        <h3
+                          className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-light tracking-[0.06em] uppercase leading-tight text-white select-none drop-shadow-[0_2px_18px_rgba(0,0,0,0.95)]"
+                          style={{ fontFamily: 'var(--font-serif)' }}
+                        >
+                          <span className="inline-block text-white">
+                            INTERIOR DESIGN EXPERTS
+                          </span>
+                        </h3>
+                      </div>
+                    )}
 
-                </div>
+                    {/* DYNAMIC SCROLL CONTENT BELOW PERSISTENT ONE-LINE HEADING */}
+                    {storyStage > 0 && (
+                      <div className="w-full">
+                        {/* STAGE 1: 1ST SCROLL -> USER COPY PARAGRAPH */}
+                        {storyStage === 1 && (
+                          <div key="stage-1" className="space-y-3 max-w-xl animate-in fade-in zoom-in-98 duration-700">
+                            {PARAGRAPH_1_LINES.map((line, lineIdx) => (
+                              <p
+                                key={lineIdx}
+                                className="text-sm sm:text-base md:text-lg lg:text-xl font-light text-white leading-relaxed tracking-wide select-none"
+                                style={{
+                                  fontFamily: 'var(--font-serif)',
+                                  textShadow: '0 2px 20px rgba(0,0,0,0.9)',
+                                }}
+                              >
+                                {line.split(' ').map((word, wordIdx) => (
+                                  <span
+                                    key={`${word}-${wordIdx}`}
+                                    className="inline-block overflow-hidden mr-[0.24em] last:mr-0 align-bottom"
+                                  >
+                                    <span
+                                      className="inline-block text-white"
+                                      style={{
+                                        animation: 'lunore-letter-reveal 0.85s cubic-bezier(0.16, 1, 0.3, 1) both',
+                                        animationDelay: `${0.05 + lineIdx * 0.18 + wordIdx * 0.025}s`,
+                                      }}
+                                    >
+                                      {word}
+                                    </span>
+                                  </span>
+                                ))}
+                              </p>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* STAGE 2: 2ND SCROLL -> THE LUNORE DESIGN JOURNEY (6 STEPS) */}
+                        {storyStage === 2 && (
+                          <div key="stage-2" className="space-y-2.5 sm:space-y-3 max-w-3xl animate-in fade-in zoom-in-98 duration-700">
+                            <p className="text-[11px] sm:text-sm font-medium text-[#b89a62] tracking-wider uppercase">
+                              The Lunore Design Journey
+                            </p>
+
+                            <div className="grid grid-cols-2 gap-1.5 sm:gap-2.5 text-left w-full">
+                              {JOURNEY_STEPS.map((item, idx) => (
+                                <div
+                                  key={item.step}
+                                  className="p-2 sm:p-3 rounded-lg sm:rounded-xl bg-black/60 backdrop-blur-md border border-white/15 hover:border-[#b89a62]/50 transition-all duration-300 shadow-[0_4px_16px_rgba(0,0,0,0.5)] flex flex-col justify-between"
+                                  style={{
+                                    animation: 'lunore-letter-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both',
+                                    animationDelay: `${0.06 + idx * 0.05}s`,
+                                  }}
+                                >
+                                  <div className="flex items-center gap-1.5 mb-0.5">
+                                    <span className="text-[9px] sm:text-[10px] font-mono text-[#b89a62] font-semibold">
+                                      {item.step}
+                                    </span>
+                                    <span className="text-[11px] sm:text-sm font-medium text-white tracking-wide truncate">
+                                      {item.title}
+                                    </span>
+                                  </div>
+                                  <p className="text-[9px] sm:text-[11px] text-[#f1eee7]/80 font-light leading-snug">
+                                    {item.desc}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* STAGE 3: 3RD/4TH SCROLL -> "EXPLORE MORE" CTA */}
+                        {storyStage === 3 && (
+                          <div key="stage-3" className="space-y-5 animate-in fade-in zoom-in-98 duration-700 max-w-xl">
+                            <div className="space-y-2">
+                              <h4
+                                className="text-2xl sm:text-3xl md:text-4xl font-light text-white tracking-tight leading-tight"
+                                style={{ fontFamily: 'var(--font-heading)' }}
+                              >
+                                Step Into The Experience
+                              </h4>
+                              <p className="text-xs sm:text-sm text-[#f1eee7]/85 font-light leading-relaxed">
+                                Explore our signature penthouses, curated marble collections, and bespoke architectural portfolio.
+                              </p>
+                            </div>
+
+                            <div className="pt-1">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setStoryStage(4);
+                                  storyStageRef.current = 4;
+                                }}
+                                className="pointer-events-auto inline-flex items-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full liquid-glass-pill backdrop-blur-2xl border border-[#b89a62] bg-black/85 text-[#f1eee7] hover:text-[#0d0e0e] hover:bg-[#b89a62] font-medium text-[11px] sm:text-xs tracking-[0.22em] uppercase transition-all duration-500 hover:scale-105 shadow-[0_0_30px_rgba(184,154,98,0.35)] cursor-pointer select-none group"
+                              >
+                                <span>EXPLORE MORE</span>
+                                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* COMPACT TAP STEPPER BUTTONS (Especially Mobile/Touch friendly) */}
+                        <div className="pt-4 flex items-center justify-between gap-4 pointer-events-auto w-full max-w-sm">
+                          <button
+                            type="button"
+                            onClick={handlePrevStage}
+                            aria-label="Previous step"
+                            className="inline-flex items-center justify-center min-h-[44px] min-w-[84px] gap-2 px-4 py-2.5 rounded-full liquid-glass-pill text-[11px] tracking-[0.16em] uppercase text-[#b9b5ae] hover:text-white border border-white/20 bg-black/65 active:scale-95 transition-all cursor-pointer select-none shadow-md"
+                          >
+                            <ChevronLeft className="w-4 h-4 text-[#b89a62]" />
+                            <span>Back</span>
+                          </button>
+
+                          {storyStage < 3 && (
+                            <button
+                              type="button"
+                              onClick={handleNextStage}
+                              aria-label="Next step"
+                              className="inline-flex items-center justify-center min-h-[44px] min-w-[96px] gap-2 px-5 py-2.5 rounded-full bg-[#b89a62]/30 hover:bg-[#b89a62]/45 border border-[#b89a62]/80 text-[#f1eee7] text-[11px] tracking-[0.18em] uppercase font-medium shadow-[0_0_15px_rgba(184,154,98,0.3)] active:scale-95 transition-all cursor-pointer select-none ml-auto"
+                            >
+                              <span>Next</span>
+                              <ChevronRight className="w-4 h-4 text-[#b89a62]" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  </div>
+                )}
 
               </div>
             )}
@@ -887,7 +1078,173 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
           </div>
         </div>
       </div>
+
+      {/* Domain Deep Dive Preview Modal */}
+      {selectedDomain && (
+        <DomainDetailModal
+          domain={selectedDomain}
+          onClose={() => setSelectedDomain(null)}
+        />
+      )}
     </section>
+  );
+}
+
+interface DomainDetailModalProps {
+  domain: InteriorDomain;
+  onClose: () => void;
+}
+
+function DomainDetailModal({ domain, onClose }: DomainDetailModalProps) {
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${domain.title} Space Detail`}
+      data-lenis-prevent="true"
+      className="fixed inset-0 z-[100000] flex items-center justify-center p-3 sm:p-6 bg-black/92 backdrop-blur-2xl text-[#f1eee7] select-none overflow-hidden h-[100dvh] animate-in fade-in duration-150"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      {/* Ambient background glow */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.12)_0%,transparent_70%)] blur-[120px] pointer-events-none" />
+
+      {/* Modal Dialog Card */}
+      <div className="relative w-full max-w-4xl max-h-[92vh] sm:max-h-[88vh] overflow-y-auto rounded-2xl sm:rounded-3xl border border-white/20 bg-[#0d0e0e]/95 backdrop-blur-2xl p-4 sm:p-8 shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(184,154,98,0.2)] overscroll-contain animate-in fade-in zoom-in-95 duration-200 ease-out">
+        {/* Top Specular Edge */}
+        <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#b89a62] to-transparent" />
+
+        {/* Header with Close */}
+        <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <span className="text-[10px] sm:text-xs tracking-[0.28em] uppercase text-[#b89a62] font-semibold">
+              {domain.id} / {domain.category}
+            </span>
+          </div>
+
+          <button
+            onClick={onClose}
+            className="cursor-pointer liquid-glass-pill hover:border-[#b89a62]/80 hover:text-[#b89a62] p-2 sm:px-3 sm:py-1.5 rounded-full inline-flex items-center gap-1.5 text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] transition-all group shadow-md"
+            title="Close Detail View (Esc)"
+            aria-label="Close Detail View"
+          >
+            <X className="w-4 h-4 text-[#b89a62] group-hover:rotate-90 transition-transform duration-300" />
+            <span className="hidden sm:inline">Close</span>
+          </button>
+        </div>
+
+        {/* Content Body: Image + Story */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
+          {/* Left Column: Image with frame */}
+          <div className="md:col-span-6 relative rounded-2xl overflow-hidden border border-white/15 shadow-2xl bg-black/60">
+            <img
+              src={domain.image}
+              alt={domain.title}
+              className="w-full h-auto aspect-[4/3] object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+            <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between text-[10px] tracking-widest uppercase text-[#ded9cf]/80">
+              <span className="flex items-center gap-1">
+                <Compass className="w-3 h-3 text-[#b89a62]" />
+                {domain.timeline}
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-black/60 border border-white/15">
+                Turnkey Architecture
+              </span>
+            </div>
+          </div>
+
+          {/* Right Column: Architectural Narrative & Specs */}
+          <div className="md:col-span-6 flex flex-col justify-between space-y-5 text-left">
+            <div>
+              <span className="text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#b89a62] font-semibold block mb-1">
+                {domain.tagline}
+              </span>
+              <h3
+                className="text-2xl sm:text-3xl text-white font-normal tracking-wide mb-2"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                {domain.title}
+              </h3>
+              <p className="text-xs sm:text-sm text-[#ded9cf]/70 font-light italic mb-3">
+                {domain.subtitle}
+              </p>
+              <p className="text-xs sm:text-sm text-[#f1eee7]/90 font-light leading-relaxed mb-4">
+                {domain.description}
+              </p>
+              <div className="p-3 rounded-xl bg-white/[0.03] border border-white/10 mb-4">
+                <span className="text-[10px] uppercase tracking-wider text-[#b89a62] font-medium block mb-1">
+                  Scope & Engineering
+                </span>
+                <p className="text-[11px] text-[#ded9cf]/80 font-light leading-relaxed">
+                  {domain.scope}
+                </p>
+              </div>
+            </div>
+
+            {/* Materials Palette */}
+            <div>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-[#b89a62] font-semibold block mb-2">
+                Primary Materiality Palette
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {domain.materials.map((mat, mIdx) => (
+                  <span
+                    key={mIdx}
+                    className="text-[10px] px-2.5 py-1 rounded-full bg-black/60 border border-[#b89a62]/40 text-[#f1eee7] font-light"
+                  >
+                    {mat}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Key Deliverables */}
+            <div>
+              <span className="text-[10px] uppercase tracking-[0.2em] text-[#b89a62] font-semibold block mb-2">
+                Signature Deliverables
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+                {domain.features.map((feat, fIdx) => (
+                  <div key={fIdx} className="flex items-center gap-1.5 text-[11px] text-[#ded9cf]/90">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-[#b89a62] flex-shrink-0" />
+                    <span className="truncate">{feat}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="pt-4 flex flex-col sm:flex-row items-center gap-3 border-t border-white/10">
+              <Link
+                to="/contact"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-full bg-[#b89a62] hover:bg-[#c4a86f] text-[#0d0e0e] font-semibold text-xs tracking-[0.2em] uppercase transition-all shadow-lg active:scale-95 text-center"
+              >
+                <span>Inquire About This Space</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <button
+                type="button"
+                onClick={onClose}
+                className="w-full sm:w-auto px-5 py-3 rounded-full border border-white/20 hover:border-white/40 text-xs tracking-[0.18em] uppercase text-[#ded9cf] hover:text-white transition-all cursor-pointer text-center"
+              >
+                Return to Domains
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body
   );
 }
 
