@@ -22,75 +22,110 @@ interface InteriorExperienceProps {
 }
 
 export interface InteriorDomain {
-  id: string;
-  category: string;
+  id?: string;
+  category?: string;
+  subtitle?: string;
+  tagline?: string;
   title: string;
-  subtitle: string;
   image: string;
-  tagline: string;
   description: string;
   features: string[];
   materials: string[];
   timeline: string;
   scope: string;
+  path: string;
 }
 
 export const INTERIOR_DOMAINS: InteriorDomain[] = [
   {
     id: '01',
-    category: 'VILLAS & ESTATES',
-    title: 'Sanctuary Residences',
-    subtitle: 'Warmth, Privacy & Generational Craft',
-    tagline: 'Tailored Luxury for Everyday Living',
-    image: 'https://images.pexels.com/photos/1571460/pexels-photo-1571460.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    category: 'Japanese Minimalist Spine',
+    subtitle: 'Pale Birch Wood & Seamless Spatial Datum',
+    tagline: 'Continuous Raised Platform Architecture',
+    title: 'The Engawa Line',
+    image: '/assets/THE%20ENGAWA%20LINE/1.jpg',
     description:
-      'Tailored residential sanctuaries harmonizing bespoke millwork, curated stone, and fluid spatial layouts engineered for generational comfort.',
-    features: ['Custom Joinery & Millwork', 'Handpicked Statuary Marble', 'Acoustic Suite Partitions'],
-    materials: ['Fior di Bosco Marble', 'Smoked European Oak', 'Brushed Champagne Brass'],
+      'The Engawa Line borrows a single idea from traditional Japanese homes — the raised wooden platform that quietly threads a house together — and lets it become the spine of the entire apartment. Instead of walls carving up living, dining, and rest, one continuous datum of pale birch wood carries you from room to room, broken only by a black steel shelf standing in for a door. It is a home designed around the pause between spaces rather than the spaces themselves: fewer boundaries, more light, and just enough shadow to remind you it is evening.',
+    features: ['Continuous Pale Birch Datum', 'Black Steel Spatial Partitions', 'Subtle Evening Shadow Plays'],
+    materials: ['Smoked European Birch', 'Fior di Bosco Marble', 'Blackened Steel'],
     timeline: '12 – 16 Weeks Full Turnkey',
-    scope: 'Architectural space planning, custom cabinetry, wet areas, ambient cove lighting, and curated decor curation.',
+    scope: 'Architectural space planning, raised platform joinery, continuous datum millwork, and minimal ambient lighting.',
+    path: '/the-engawa-line',
   },
   {
     id: '02',
-    category: 'PENTHOUSES & SKY MANSIONS',
-    title: 'Skyline Penthouses',
-    subtitle: 'Monolithic Presence & City Horizons',
-    tagline: 'High-Elevation Panoramic Luxury',
-    image: '/assets/images/interior light .webp',
+    category: 'Warm Golden-Hour Textures',
+    subtitle: 'Fluted Timber, Walnut & Brushed Brass',
+    tagline: 'Mumbai Golden-Hour Skyline Palette',
+    title: 'Amber & Olive',
+    image: '/assets/AMBER%20&%20OLIVE/1.jpg',
     description:
-      'Panoramic skyline residences featuring dramatic bookmatched marble feature walls, floating ceiling planes, and integrated architectural illumination.',
-    features: ['Bookmatched Feature Walls', '360° Panorama Integration', 'Floating Architectural Ceilings'],
-    materials: ['Vein-Matched Calacatta Oro', 'Belgian Smoked Glass', 'Architectural Plaster'],
+      "Amber & Olive takes its cue from Mumbai's golden-hour light, letting warm walnut, brushed brass, and soft olive tones carry the entire apartment. Rather than a stark, minimal palette, this home leans into warmth and texture — fluted timber, marble, and rattan sitting comfortably together — with the living and dining spaces opening onto a skyline view that stays the real focal point from morning to evening.",
+    features: ['Fluted Timber Feature Joinery', 'Brushed Brass Accentuation', 'Warm Circadian Glow'],
+    materials: ['Vein-Matched Calacatta Oro', 'Warm American Walnut', 'Belgian Smoked Glass'],
     timeline: '14 – 20 Weeks Bespoke Build',
-    scope: 'Monolithic double-height stone walls, smart automation, floating acoustic ceiling planes, and private sky lounges.',
+    scope: 'Monolithic stone walls, smart golden-hour automation, fluted wall treatments, and private sky lounges.',
+    path: '/amber-and-olive',
   },
   {
     id: '03',
-    category: 'CORPORATE & FLAGSHIP',
-    title: 'Executive Suites',
-    subtitle: 'Command, Authority & Distinction',
-    tagline: 'Prestigious Corporate Architectural Environments',
-    image: 'https://images.pexels.com/photos/260922/pexels-photo-260922.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    category: 'Panoramic Skyline Architecture',
+    subtitle: 'Marble, Rattan & Floor-to-Ceiling Light',
+    tagline: 'Skyline Panorama Integration',
+    title: 'The Skyline Residence',
+    image: '/assets/THE%20SKYLINE%20RESIDENCE/1.jpg',
     description:
-      'Prestigious executive boardrooms, corporate headquarters, and luxury retail galleries crafted to reflect organizational stature and quiet authority.',
-    features: ['Concealed Conference Tech', 'Travertine Meeting Tables', 'Soundproof Executive Boiserie'],
+      "The Skyline Residence takes its cue from Mumbai's golden-hour light, letting warm walnut, brushed brass, and soft olive tones carry the entire apartment. Rather than a stark, minimal palette, this home leans into warmth and texture — fluted timber, marble, and rattan sitting comfortably together — with the living and dining spaces opening onto a skyline view that stays the real focal point from morning to evening.",
+    features: ['Floor-to-Ceiling Vista Frames', 'Rattan & Marble Dialogue', 'Concealed Tech Architecture'],
     materials: ['Silver Travertine', 'American Black Walnut', 'Acoustic Fabric Panels'],
-    timeline: '8 – 12 Weeks Fast-Track Turnkey',
-    scope: 'Acoustic engineering, bespoke executive conference tables, concealed cabling infrastructure, and reception galleries.',
+    timeline: '10 – 14 Weeks Concept to Reality',
+    scope: 'Acoustic engineering, bespoke skyline lounge tables, concealed cabling, and open living spatial layout.',
+    path: '/the-skyline-residence',
   },
   {
     id: '04',
-    category: 'HOSPITALITY & LOUNGES',
-    title: 'Boutique Lounges',
-    subtitle: 'Immersive Sensory Atmospheres',
-    tagline: 'Atmospheric Spaces Designed to Captivate',
-    image: 'https://images.pexels.com/photos/941861/pexels-photo-941861.jpeg?auto=compress&cs=tinysrgb&w=1200',
+    category: 'Sun-Warmed Earth & Courtyard',
+    subtitle: 'Travertine, Terracotta & Plum Velvet',
+    tagline: 'Courtyard & Living Synthesis',
+    title: 'The Olive Grove Residence',
+    image: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/1.jpg',
     description:
-      'Atmospheric private dining clubs, cocktail lounges, and boutique hotel sanctuaries where sculptural bars and ambient lighting awaken the senses.',
-    features: ['Illuminated Onyx Bar Fronts', 'Sculptural Banquette Seating', 'Circadian Atmospheric Lighting'],
-    materials: ['Backlit Honey Onyx', 'Oxblood Saddle Leather', 'Antiqued Bronze Accents'],
-    timeline: '10 – 14 Weeks Concept to Opening',
-    scope: 'Sculptural wet bars, custom leather upholstery, theatrical circadian lighting, and custom VIP hospitality alcoves.',
+      "The Olive Grove Residence draws on sun-warmed travertine and hand-thrown terracotta to root the apartment in something ancient and tactile. Deep plum velvet and reclaimed live-edge wood soften the stone against the light, while olive trees planted right through the living spaces blur the line between the interior and the courtyard outside — a home that feels gathered over time rather than designed all at once.",
+    features: ['Integrated Indoor Olive Trees', 'Hand-Thrown Terracotta Accents', 'Reclaimed Live-Edge Joinery'],
+    materials: ['Sun-Warmed Travertine', 'Oxblood & Plum Velvet', 'Reclaimed Hardwood'],
+    timeline: '12 – 16 Weeks Turnkey',
+    scope: 'Tactile stone integration, custom live-edge carpentry, interior horticulture installation, and ambient courtyard lighting.',
+    path: '/the-olive-grove-residence',
+  },
+  {
+    id: '05',
+    category: 'Coastal Villa Earth Palette',
+    subtitle: 'Terracotta Cabinetry & Muted Sage Greens',
+    tagline: 'Kitchen-Garden & Coastal Elegance',
+    title: 'Clay & Sage',
+    image: '/assets/CLAY%20&%20SAGE/1.jpg',
+    description:
+      "Clay & Sage pairs warm terracotta cabinetry and hand-glazed green tile with soft, curved furniture in muted sage — a palette that feels equal parts kitchen-garden and coastal villa. Rattan pendants, woven rugs, and travertine surfaces carry the same warmth from the living room through to the walk-in closet, so every space feels considered without feeling formal.",
+    features: ['Warm Terracotta Kitchen Cabinetry', 'Hand-Glazed Sage Green Tiles', 'Curved Organic Furniture'],
+    materials: ['Hand-Glazed Ceramic', 'Raw Terracotta', 'Natural Travertine & Woven Rattan'],
+    timeline: '10 – 14 Weeks Concept to Delivery',
+    scope: 'Curved bespoke furniture, artisanal glazed tilework, rattan architectural lighting, and closet design.',
+    path: '/clay-and-sage',
+  },
+  {
+    id: '06',
+    category: 'Biophilic Glass Pavilion',
+    subtitle: 'Curved Plaster & Forest Canopy Immersion',
+    tagline: 'Dissolving Boundaries with Nature',
+    title: 'The Canopy House',
+    image: '/assets/THE%20CANOPY%20HOUSE/1.jpg',
+    description:
+      "The Canopy House was designed around one idea: let the forest do most of the work. Curved plaster walls and floor-to-ceiling glass dissolve the edge between inside and out, while raw live-edge wood, rattan, and soft sage tones keep the interior quiet enough that the view stays the focus in every room.",
+    features: ['Seamless Curved Plaster Envelopes', 'Curtain Wall Forest Views', 'Live-Edge Organic Wood Tables'],
+    materials: ['Natural Lime Plaster', 'Structural Low-Iron Glass', 'Sage Linen & Raw Oak'],
+    timeline: '14 – 18 Weeks Bespoke Execution',
+    scope: 'Curved partition engineering, floor-to-ceiling glass connections, natural acoustic tuning, and biophilic interior landscape.',
+    path: '/the-canopy-house',
   },
 ];
 
@@ -811,13 +846,13 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                       </button>
                     </div>
 
-                    {/* 4 Cards Vertical Section List */}
+                    {/* 6 Cards Vertical Section List */}
                     <div className="flex flex-col gap-3.5 sm:gap-4.5 my-3 sm:my-4">
                       {INTERIOR_DOMAINS.map((domain, idx) => (
-                        <div
-                          key={domain.id}
-                          onClick={() => setSelectedDomain(domain)}
-                          className="group relative flex flex-col md:flex-row items-stretch rounded-2xl border border-white/15 hover:border-[#b89a62]/80 bg-gradient-to-r from-white/[0.08] via-black/75 to-black/90 backdrop-blur-xl p-3.5 sm:p-4 md:p-5 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.25)] cursor-pointer overflow-hidden select-none gap-4 md:gap-6 will-change-transform transform-gpu"
+                        <Link
+                          key={domain.path || domain.id || idx}
+                          to={domain.path}
+                          className="group relative flex flex-col md:flex-row items-stretch rounded-2xl border border-white/15 hover:border-[#b89a62]/80 bg-gradient-to-r from-white/[0.08] via-black/75 to-black/90 backdrop-blur-xl p-3.5 sm:p-4 md:p-5 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.25)] cursor-pointer overflow-hidden select-none gap-4 md:gap-6 will-change-transform transform-gpu no-underline"
                           style={{
                             animation: 'domain-card-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both',
                             animationDelay: `${0.02 + idx * 0.04}s`,
@@ -841,52 +876,25 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                           {/* Content Column */}
                           <div className="flex-1 flex flex-col justify-center py-2 text-left">
                             <h5
-                              className="text-xl sm:text-2xl lg:text-3xl text-white font-normal tracking-wide mb-1 leading-snug group-hover:text-[#f1eee7] transition-colors duration-150"
+                              className="text-xl sm:text-2xl lg:text-3xl text-white font-normal tracking-wide mb-2 leading-snug group-hover:text-[#f1eee7] transition-colors duration-150"
                               style={{ fontFamily: 'var(--font-serif)' }}
                             >
                               {domain.title}
                             </h5>
 
-                            <p className="text-xs sm:text-sm text-[#ded9cf]/70 font-light mb-2.5 italic">
-                              {domain.subtitle}
-                            </p>
-
                             <p className="text-xs sm:text-sm text-[#f1eee7]/85 font-light leading-relaxed max-w-3xl">
                               {domain.description}
                             </p>
                           </div>
-                        </div>
-                      ))}
-                    </div>
 
-                    {/* Bottom Status / Proposal Bar */}
-                    <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-3 border-t border-white/15 text-center sm:text-left">
-                      <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#b89a62] animate-pulse" />
-                        <span className="text-[10px] sm:text-xs text-[#ded9cf]/80 tracking-wide font-light">
-                          All domains include turnkey 3D rendering, custom stone curation, and weekly progress supervision.
-                        </span>
-                      </div>
-
-                      <div className="flex items-center gap-2">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setStoryStage(3);
-                            storyStageRef.current = 3;
-                          }}
-                          className="px-4 py-1.5 rounded-full text-[10px] tracking-[0.16em] uppercase text-[#b9b5ae] hover:text-white border border-white/15 bg-black/50 transition-all cursor-pointer select-none"
-                        >
-                          ‹ Back
-                        </button>
-                        <Link
-                          to="/contact"
-                          className="inline-flex items-center gap-1.5 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full bg-[#b89a62] hover:bg-[#c4a86f] text-[#0d0e0e] font-medium text-[10px] sm:text-[11px] tracking-[0.2em] uppercase transition-all shadow-[0_0_20px_rgba(184,154,98,0.4)] active:scale-95"
-                        >
-                          <span>Request Bespoke Proposal</span>
-                          <ArrowRight className="w-3 h-3" />
+                          {/* Right Arrow Action Indicator */}
+                          <div className="hidden md:flex items-center justify-center self-center pr-2 shrink-0">
+                            <div className="w-10 h-10 rounded-full border border-white/20 group-hover:border-[#b89a62] group-hover:bg-[#b89a62]/20 flex items-center justify-center transition-all duration-200">
+                              <ArrowRight className="w-4 h-4 text-[#b89a62] group-hover:text-white group-hover:translate-x-0.5 transition-transform duration-200" />
+                            </div>
+                          </div>
                         </Link>
-                      </div>
+                      ))}
                     </div>
                   </div>
                 ) : (
@@ -1127,7 +1135,7 @@ function DomainDetailModal({ domain, onClose }: DomainDetailModalProps) {
         <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
           <div className="flex items-center gap-2 sm:gap-3">
             <span className="text-[10px] sm:text-xs tracking-[0.28em] uppercase text-[#b89a62] font-semibold">
-              {domain.id} / {domain.category}
+              {domain.id || '01'} / {domain.category || 'RESIDENTIAL INTERIOR'}
             </span>
           </div>
 
@@ -1166,18 +1174,22 @@ function DomainDetailModal({ domain, onClose }: DomainDetailModalProps) {
           {/* Right Column: Architectural Narrative & Specs */}
           <div className="md:col-span-6 flex flex-col justify-between space-y-5 text-left">
             <div>
-              <span className="text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#b89a62] font-semibold block mb-1">
-                {domain.tagline}
-              </span>
+              {domain.tagline && (
+                <span className="text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#b89a62] font-semibold block mb-1">
+                  {domain.tagline}
+                </span>
+              )}
               <h3
                 className="text-2xl sm:text-3xl text-white font-normal tracking-wide mb-2"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
                 {domain.title}
               </h3>
-              <p className="text-xs sm:text-sm text-[#ded9cf]/70 font-light italic mb-3">
-                {domain.subtitle}
-              </p>
+              {domain.subtitle && (
+                <p className="text-xs sm:text-sm text-[#ded9cf]/70 font-light italic mb-3">
+                  {domain.subtitle}
+                </p>
+              )}
               <p className="text-xs sm:text-sm text-[#f1eee7]/90 font-light leading-relaxed mb-4">
                 {domain.description}
               </p>

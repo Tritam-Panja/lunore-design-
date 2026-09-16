@@ -16,6 +16,12 @@ const InteriorDesign = lazy(() => import('@/pages/InteriorDesign').then(m => ({ 
 const MarbleGranite = lazy(() => import('@/pages/MarbleGranite').then(m => ({ default: m.MarbleGranite })));
 const Process = lazy(() => import('@/pages/Process').then(m => ({ default: m.Process })));
 const Contact = lazy(() => import('@/pages/Contact').then(m => ({ default: m.Contact })));
+const TheEngawaLine = lazy(() => import('@/pages/TheEngawaLine').then(m => ({ default: m.TheEngawaLine })));
+const AmberAndOlive = lazy(() => import('@/pages/AmberAndOlive').then(m => ({ default: m.AmberAndOlive })));
+const TheSkylineResidence = lazy(() => import('@/pages/TheSkylineResidence').then(m => ({ default: m.TheSkylineResidence })));
+const TheOliveGroveResidence = lazy(() => import('@/pages/TheOliveGroveResidence').then(m => ({ default: m.TheOliveGroveResidence })));
+const ClayAndSage = lazy(() => import('@/pages/ClayAndSage').then(m => ({ default: m.ClayAndSage })));
+const TheCanopyHouse = lazy(() => import('@/pages/TheCanopyHouse').then(m => ({ default: m.TheCanopyHouse })));
 const NotFound = lazy(() => import('@/pages/NotFound').then(m => ({ default: m.NotFound })));
 
 function App() {
@@ -36,6 +42,24 @@ function App() {
               <Route path="/marble-granite" element={<MarbleGranite />} />
               <Route path="/process" element={<Process />} />
               <Route path="/contact" element={<Contact />} />
+              {/* Dedicated Interior Project Pages */}
+              <Route path="/the-engawa-line" element={<TheEngawaLine />} />
+              <Route path="/amber-and-olive" element={<AmberAndOlive />} />
+              <Route path="/the-skyline-residence" element={<TheSkylineResidence />} />
+              <Route path="/the-olive-grove-residence" element={<TheOliveGroveResidence />} />
+              <Route path="/clay-and-sage" element={<ClayAndSage />} />
+              <Route path="/the-canopy-house" element={<TheCanopyHouse />} />
+              {/* Legacy Aliases & Sub-routes */}
+              <Route path="/sanctuary-residences" element={<TheEngawaLine />} />
+              <Route path="/skyline-penthouses" element={<AmberAndOlive />} />
+              <Route path="/executive-suites" element={<TheSkylineResidence />} />
+              <Route path="/boutique-lounges" element={<TheOliveGroveResidence />} />
+              <Route path="/interiors/the-engawa-line" element={<TheEngawaLine />} />
+              <Route path="/interiors/amber-and-olive" element={<AmberAndOlive />} />
+              <Route path="/interiors/the-skyline-residence" element={<TheSkylineResidence />} />
+              <Route path="/interiors/the-olive-grove-residence" element={<TheOliveGroveResidence />} />
+              <Route path="/interiors/clay-and-sage" element={<ClayAndSage />} />
+              <Route path="/interiors/the-canopy-house" element={<TheCanopyHouse />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>
