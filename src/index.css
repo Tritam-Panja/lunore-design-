@@ -335,6 +335,66 @@
   }
 }
 
+/* ===== Full-Screen Stage 4 Page Transitions (Fast & Silky Smooth) ===== */
+@keyframes fullscreen-overlay-in {
+  0% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    transform: scale(0.99);
+  }
+  100% {
+    opacity: 1;
+    backdrop-filter: blur(20px);
+    transform: scale(1);
+  }
+}
+
+@keyframes fullscreen-overlay-out {
+  0% {
+    opacity: 1;
+    backdrop-filter: blur(20px);
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+    transform: scale(0.99);
+  }
+}
+
+@keyframes fullscreen-header-slide-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fullscreen-content-reveal {
+  0% {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes card-stagger-rise {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
 .lunore-n-glow {
   color: #b89a62 !important;
   text-shadow: 

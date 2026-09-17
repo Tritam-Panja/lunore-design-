@@ -200,6 +200,10 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
   // Tracks if the user has tapped the main button
   const [hasBeenTapped, setHasBeenTapped] = useState<boolean>(false);
 
+  // Smooth cinematic transitions for Stage 4 full-screen mode
+  const [isOpeningStage4, setIsOpeningStage4] = useState<boolean>(false);
+  const [isExitingStage4, setIsExitingStage4] = useState<boolean>(false);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const isHoveredRef = useRef<boolean>(false);
   const isFlashlightModeRef = useRef<boolean>(true);
@@ -257,6 +261,47 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       return () => clearTimeout(timer);
     }
   }, [location]);
+
+  // Immediate smooth open transition when clicking "EXPLORE MORE"
+  const handleOpenStage4 = useCallback(() => {
+    setStoryStage(4);
+    storyStageRef.current = 4;
+  }, []);
+
+  // Fast smooth close transition when returning to overview
+  const handleCloseStage4 = useCallback(() => {
+    setIsExitingStage4(true);
+    setTimeout(() => {
+      sessionStorage.removeItem('lunore_interior_stage');
+      setStoryStage(3);
+      storyStageRef.current = 3;
+      setIsExitingStage4(false);
+      const section = document.getElementById('interior-experience');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 180);
+  }, []);
+
+  // Lock body scroll and listen for Escape key when Stage 4 cards are in full-screen mode
+  useEffect(() => {
+    if (storyStage === 4) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+
+      const handleKeyDown = (e: KeyboardEvent) => {
+        if (e.key === 'Escape') {
+          handleCloseStage4();
+        }
+      };
+
+      window.addEventListener('keydown', handleKeyDown);
+      return () => {
+        document.body.style.overflow = originalOverflow;
+        window.removeEventListener('keydown', handleKeyDown);
+      };
+    }
+  }, [storyStage, handleCloseStage4]);
 
   // Clean up timers on unmount
   useEffect(() => {
@@ -843,97 +888,14 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
             )}
 
             {/* ============================================================ */}
-            {/* 3. EDITORIAL MAGAZINE LAYOUT & 4-CARDS INNER SECTION        */}
+            {/* 3. EDITORIAL MAGAZINE LAYOUT (STAGES 0, 1, 2, 3)             */}
             {/* ============================================================ */}
-            {!isFlashlightMode && overlayReady && (
+            {!isFlashlightMode && overlayReady && storyStage < 4 && (
               <div
-                className={`absolute inset-0 z-30 transition-all duration-300 ease-out ${
-                  storyStage === 4
-                    ? 'pointer-events-auto flex flex-col p-3.5 sm:p-6 md:p-8 lg:p-10 bg-black/92 backdrop-blur-2xl overflow-y-auto overscroll-contain'
-                    : 'pointer-events-none flex items-center justify-start p-6 sm:p-10 md:p-14 lg:p-16'
-                }`}
-                data-lenis-prevent={storyStage === 4 ? 'true' : undefined}
+                className="absolute inset-0 z-30 pointer-events-none flex items-center justify-start p-6 sm:p-10 md:p-14 lg:p-16 transition-all duration-300 ease-out"
               >
-                {storyStage === 4 ? (
-                  /* ============================================================ */
-                  /* STAGE 4: INNER SECTION -> 4 SIGNATURE ARCHITECTURAL CARDS   */
-                  /* ============================================================ */
-                  <div className="w-full h-full flex flex-col justify-between max-w-7xl mx-auto animate-in fade-in duration-200 ease-out py-1">
-                    {/* Header Bar */}
-                    <div className="flex items-center justify-end pb-3 sm:pb-4 border-b border-white/15 animate-in fade-in slide-in-from-top-2 duration-200">
-                      {/* Back to Experience Stepper Button */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          sessionStorage.removeItem('lunore_interior_stage');
-                          setStoryStage(3);
-                          storyStageRef.current = 3;
-                        }}
-                        className="cursor-pointer inline-flex items-center gap-2 px-4 sm:px-5 py-1.5 sm:py-2 rounded-full liquid-glass-pill text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] hover:text-[#b89a62] border border-white/20 hover:border-[#b89a62]/80 bg-black/60 shadow-md active:scale-95 transition-all duration-150"
-                      >
-                        <ChevronLeft className="w-3.5 h-3.5 text-[#b89a62]" />
-                        <span>Back to Overview</span>
-                      </button>
-                    </div>
-
-                    {/* 6 Cards Vertical Section List */}
-                    <div className="flex flex-col gap-3.5 sm:gap-4.5 my-3 sm:my-4">
-                      {INTERIOR_DOMAINS.map((domain, idx) => (
-                        <Link
-                          key={domain.path || domain.id || idx}
-                          to={domain.path}
-                          state={{ returnToCards: true }}
-                          onClick={() => {
-                            sessionStorage.setItem('lunore_interior_stage', '4');
-                          }}
-                          className="group relative flex flex-col md:flex-row items-stretch rounded-2xl border border-white/15 hover:border-[#b89a62]/80 bg-gradient-to-r from-white/[0.08] via-black/75 to-black/90 backdrop-blur-xl p-3.5 sm:p-4 md:p-5 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.25)] cursor-pointer overflow-hidden select-none gap-4 md:gap-6 will-change-transform transform-gpu no-underline"
-                          style={{
-                            animation: 'domain-card-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both',
-                            animationDelay: `${0.02 + idx * 0.04}s`,
-                          }}
-                        >
-                          {/* Top Specular Edge Glow */}
-                          <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#b89a62]/70 to-transparent z-10" />
-
-                          {/* Image Thumbnail Container */}
-                          <div className="relative w-full md:w-72 lg:w-80 aspect-[16/10] md:aspect-auto md:min-h-[220px] rounded-xl overflow-hidden border border-white/10 bg-black/50 shrink-0">
-                            <img
-                              src={domain.image}
-                              alt={domain.title}
-                              loading="lazy"
-                              decoding="async"
-                              className="w-full h-full object-cover object-center group-hover:scale-[1.03] transition-transform duration-300 ease-out"
-                            />
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
-                          </div>
-
-                          {/* Content Column */}
-                          <div className="flex-1 flex flex-col justify-center py-2 text-left">
-                            <h5
-                              className="text-xl sm:text-2xl lg:text-3xl text-white font-normal tracking-wide mb-2 leading-snug group-hover:text-[#f1eee7] transition-colors duration-150"
-                              style={{ fontFamily: 'var(--font-serif)' }}
-                            >
-                              {domain.title}
-                            </h5>
-
-                            <p className="text-xs sm:text-sm text-[#f1eee7]/85 font-light leading-relaxed max-w-3xl">
-                              {domain.description}
-                            </p>
-                          </div>
-
-                          {/* Right Arrow Action Indicator */}
-                          <div className="hidden md:flex items-center justify-center self-center pr-2 shrink-0">
-                            <div className="w-10 h-10 rounded-full border border-white/20 group-hover:border-[#b89a62] group-hover:bg-[#b89a62]/20 flex items-center justify-center transition-all duration-200">
-                              <ArrowRight className="w-4 h-4 text-[#b89a62] group-hover:text-white group-hover:translate-x-0.5 transition-transform duration-200" />
-                            </div>
-                          </div>
-                        </Link>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  /* MIDDLE CONTENT: HEADING + DYNAMIC SCROLL CONTENT (STAGES 0, 1, 2, 3) */
-                  <div className="w-full max-w-2xl text-left py-4 sm:py-6 flex flex-col justify-center transition-all duration-700">
+                {/* MIDDLE CONTENT: HEADING + DYNAMIC SCROLL CONTENT (STAGES 0, 1, 2, 3) */}
+                <div className="w-full max-w-2xl text-left py-4 sm:py-6 flex flex-col justify-center transition-all duration-700">
                     
                     {/* STAGE 0: INITIAL LARGE STACKED HEADING - CLEAN WHITE TEXT */}
                     {storyStage === 0 ? (
@@ -1071,14 +1033,11 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                             <div className="pt-1">
                               <button
                                 type="button"
-                                onClick={() => {
-                                  setStoryStage(4);
-                                  storyStageRef.current = 4;
-                                }}
-                                className="pointer-events-auto inline-flex items-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full liquid-glass-pill backdrop-blur-2xl border border-[#b89a62] bg-black/85 text-[#f1eee7] hover:text-[#0d0e0e] hover:bg-[#b89a62] font-medium text-[11px] sm:text-xs tracking-[0.22em] uppercase transition-all duration-500 hover:scale-105 shadow-[0_0_30px_rgba(184,154,98,0.35)] cursor-pointer select-none group"
+                                onClick={handleOpenStage4}
+                                className="pointer-events-auto inline-flex items-center gap-2.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full liquid-glass-pill backdrop-blur-2xl border border-[#b89a62] bg-black/85 text-[#f1eee7] hover:text-[#0d0e0e] hover:bg-[#b89a62] font-medium text-[11px] sm:text-xs tracking-[0.22em] uppercase transition-all duration-300 hover:scale-105 shadow-[0_0_30px_rgba(184,154,98,0.35)] cursor-pointer select-none group active:scale-95"
                               >
                                 <span>EXPLORE MORE</span>
-                                <ArrowRight className="w-4 h-4 transition-transform duration-300 group-hover:translate-x-1" />
+                                <ArrowRight className="w-4 h-4 transition-transform duration-200 group-hover:translate-x-1" />
                               </button>
                             </div>
                           </div>
@@ -1112,14 +1071,163 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                     )}
 
                   </div>
-                )}
 
-              </div>
-            )}
+                </div>
+              )}
 
           </div>
         </div>
       </div>
+
+      {/* Full-Screen Mode for Stage 4 (Cards Showcase) with Fast & Smooth Transitions */}
+      {storyStage === 4 && typeof document !== 'undefined' && createPortal(
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Interior Design Signature Residences Portfolio"
+          data-lenis-prevent="true"
+          className="fixed inset-0 z-[99999] flex flex-col bg-[#070809] text-[#f1eee7] overflow-y-auto overscroll-contain select-none"
+          style={{
+            animation: isExitingStage4
+              ? 'fullscreen-overlay-out 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards'
+              : 'fullscreen-overlay-in 0.28s cubic-bezier(0.16, 1, 0.3, 1) both',
+          }}
+        >
+          {/* Subtle Ambient Golden Glows */}
+          <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#b89a62]/10 rounded-full blur-[160px] pointer-events-none" />
+          <div className="fixed bottom-0 right-1/4 w-[600px] h-[450px] bg-[#b89a62]/5 rounded-full blur-[180px] pointer-events-none" />
+
+          {/* Full Screen Header Navigation Bar */}
+          <header
+            className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-3.5 sm:py-4.5 border-b border-white/10 bg-[#070809]/95 backdrop-blur-2xl shrink-0 shadow-2xl"
+            style={{
+              animation: 'fullscreen-header-slide-down 0.24s cubic-bezier(0.16, 1, 0.3, 1) both',
+            }}
+          >
+            <div className="flex items-center gap-3 sm:gap-4">
+              <div className="flex flex-col select-none">
+                <span className="font-[var(--font-heading)] text-sm sm:text-lg tracking-[0.22em] uppercase text-[#f1eee7] font-semibold leading-none">
+                  LU<span className="text-[#b89a62]">N</span>ORE
+                </span>
+                <span className="text-[8px] sm:text-[9px] tracking-[0.3em] uppercase text-[#b89a62] font-medium mt-1">
+                  Luxe Decor Studio
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={handleCloseStage4}
+                className="cursor-pointer inline-flex items-center gap-2 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full border border-white/20 bg-white/5 hover:bg-white/10 hover:border-[#b89a62]/80 text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] hover:text-[#b89a62] transition-all group shadow-sm active:scale-95"
+                title="Back to Overview (Esc)"
+                aria-label="Back to Overview"
+              >
+                <ChevronLeft className="w-3.5 h-3.5 text-[#b89a62] group-hover:-translate-x-0.5 transition-transform" />
+                <span>BACK TO OVERVIEW</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleCloseStage4}
+                className="cursor-pointer p-2 sm:p-2.5 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 hover:border-[#b89a62]/80 text-[#ded9cf] hover:text-[#b89a62] transition-all shadow-sm active:scale-95"
+                title="Close Full Screen (Esc)"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </header>
+
+          {/* Full Screen Scrollable Content */}
+          <main className="flex-1 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-14 relative z-10">
+            <div
+              className="text-center max-w-2xl mx-auto mb-8 sm:mb-12"
+              style={{
+                animation: 'fullscreen-content-reveal 0.26s cubic-bezier(0.16, 1, 0.3, 1) both',
+              }}
+            >
+              <span className="text-[10px] sm:text-xs tracking-[0.3em] uppercase text-[#b89a62] font-semibold block mb-2">
+                Portfolio Showcase
+              </span>
+              <h3
+                className="text-2xl sm:text-4xl md:text-5xl font-normal text-white tracking-wide mb-3 leading-tight"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                Signature Living Spaces
+              </h3>
+              <p className="text-xs sm:text-sm text-[#ded9cf]/80 font-light leading-relaxed">
+                Select any residence below to explore the room-by-room architectural stack in detail.
+              </p>
+            </div>
+
+            <div className="flex flex-col gap-5 sm:gap-6">
+              {INTERIOR_DOMAINS.map((domain, idx) => (
+                <Link
+                  key={domain.path || domain.id || idx}
+                  to={domain.path}
+                  state={{ returnToCards: true }}
+                  onClick={() => {
+                    sessionStorage.setItem('lunore_interior_stage', '4');
+                  }}
+                  className="group relative flex flex-col md:flex-row items-stretch rounded-2xl md:rounded-3xl border border-white/15 hover:border-[#b89a62]/80 bg-gradient-to-r from-white/[0.08] via-black/75 to-black/90 backdrop-blur-xl p-4 sm:p-5 md:p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.95),0_0_30px_rgba(184,154,98,0.25)] cursor-pointer overflow-hidden select-none gap-5 md:gap-8 will-change-transform transform-gpu no-underline"
+                  style={{
+                    animation: 'card-stagger-rise 0.28s cubic-bezier(0.16, 1, 0.3, 1) both',
+                    animationDelay: `${0.02 + idx * 0.035}s`,
+                  }}
+                >
+                  <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#b89a62]/70 to-transparent z-10" />
+
+                  {/* Thumbnail Image */}
+                  <div className="relative w-full md:w-80 lg:w-96 aspect-[16/10] md:aspect-auto md:min-h-[220px] rounded-xl md:rounded-2xl overflow-hidden border border-white/10 bg-black/50 shrink-0">
+                    <img
+                      src={domain.image}
+                      alt={domain.title}
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500 ease-out"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/20 to-transparent pointer-events-none" />
+                  </div>
+
+                  {/* Project Details */}
+                  <div className="flex-1 flex flex-col justify-center py-1 text-left">
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#b89a62] font-semibold">
+                        Project {String(idx + 1).padStart(2, '0')}
+                      </span>
+                    </div>
+
+                    <h4
+                      className="text-2xl sm:text-3xl lg:text-4xl text-white font-normal tracking-wide mb-3 leading-snug group-hover:text-[#f1eee7] transition-colors duration-150"
+                      style={{ fontFamily: 'var(--font-serif)' }}
+                    >
+                      {domain.title}
+                    </h4>
+
+                    <p className="text-xs sm:text-sm text-[#ded9cf]/85 font-light leading-relaxed max-w-3xl">
+                      {domain.description}
+                    </p>
+
+                    <div className="mt-4 flex items-center gap-2 text-[11px] sm:text-xs tracking-[0.2em] uppercase text-[#b89a62] group-hover:text-white transition-colors">
+                      <span>Explore Project Stack</span>
+                      <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-1 transition-transform" />
+                    </div>
+                  </div>
+
+                  {/* Right Circle Arrow Button */}
+                  <div className="hidden md:flex items-center justify-center self-center pr-2 shrink-0">
+                    <div className="w-12 h-12 rounded-full border border-white/20 group-hover:border-[#b89a62] group-hover:bg-[#b89a62]/20 flex items-center justify-center transition-all duration-300">
+                      <ArrowRight className="w-5 h-5 text-[#b89a62] group-hover:text-white group-hover:translate-x-0.5 transition-transform duration-200" />
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </main>
+        </div>,
+        document.body
+      )}
 
       {/* Domain Deep Dive Preview Modal */}
       {selectedDomain && (
