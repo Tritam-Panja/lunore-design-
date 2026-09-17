@@ -224,9 +224,10 @@ export function AurexaSection() {
     }
   };
 
-  // Visual calculation
-  const clipWidth = progress * 1200; // SVG viewBox 1200 x 240
-  const scale = 0.96 + progress * 0.06;
+  // Visual calculation (clamped to prevent negative rect dimensions on scroll bounce)
+  const safeProgress = Math.max(0, Math.min(1, progress || 0));
+  const clipWidth = Math.max(0, Math.min(1200, safeProgress * 1200)); // SVG viewBox 1200 x 240
+  const scale = 0.96 + safeProgress * 0.06;
 
   return (
     <section

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { createPortal } from 'react-dom';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import {
   ChevronDown,
   ChevronLeft,
@@ -228,6 +228,35 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       containerRef.current.style.setProperty('--beam-size', `${beamSize}px`);
     }
   }, [isFlashlightMode, overlayReady, beamSize, storyStage]);
+
+  const location = useLocation();
+
+  // Restore Stage 4 (cards view) when returning back from any project page
+  useEffect(() => {
+    const hasStage4Storage = sessionStorage.getItem('lunore_interior_stage') === '4';
+    const hasCardsHash = location.hash === '#interior-cards' || location.hash === '#interior-experience';
+    const isReturnState = (location.state as any)?.returnToCards;
+
+    if (hasStage4Storage || hasCardsHash || isReturnState) {
+      setIsFlashlightMode(false);
+      isFlashlightModeRef.current = false;
+      setOverlayReady(true);
+      overlayReadyRef.current = true;
+      setStoryStage(4);
+      storyStageRef.current = 4;
+      setHasBeenTapped(true);
+      setIsSwitchToggled(true);
+
+      const timer = setTimeout(() => {
+        const section = document.getElementById('interior-experience');
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
+
+      return () => clearTimeout(timer);
+    }
+  }, [location]);
 
   // Clean up timers on unmount
   useEffect(() => {
@@ -836,6 +865,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                       <button
                         type="button"
                         onClick={() => {
+                          sessionStorage.removeItem('lunore_interior_stage');
                           setStoryStage(3);
                           storyStageRef.current = 3;
                         }}
@@ -852,6 +882,10 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                         <Link
                           key={domain.path || domain.id || idx}
                           to={domain.path}
+                          state={{ returnToCards: true }}
+                          onClick={() => {
+                            sessionStorage.setItem('lunore_interior_stage', '4');
+                          }}
                           className="group relative flex flex-col md:flex-row items-stretch rounded-2xl border border-white/15 hover:border-[#b89a62]/80 bg-gradient-to-r from-white/[0.08] via-black/75 to-black/90 backdrop-blur-xl p-3.5 sm:p-4 md:p-5 transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-[0_16px_40px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.25)] cursor-pointer overflow-hidden select-none gap-4 md:gap-6 will-change-transform transform-gpu no-underline"
                           style={{
                             animation: 'domain-card-in 0.3s cubic-bezier(0.16, 1, 0.3, 1) both',
