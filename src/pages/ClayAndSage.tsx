@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Sparkles, X } from 'lucide-react';
-import ScrollStack, { ScrollStackItem } from '@/components/ScrollStack';
+import ScrollShowcase from '@/components/ScrollShowcase';
 import FullScreenImageViewer from '@/components/FullScreenImageViewer';
 
 const CLAY_SAGE_IMAGES = [
@@ -156,58 +156,16 @@ export function ClayAndSage() {
         </div>
       </header>
 
-      {/* Main Full-Screen Stacking Canvas */}
+      {/* Main Full-Screen Scroll-Driven Showcase */}
       <main className="flex-1 relative overflow-hidden">
-        <ScrollStack
-          itemDistance={480}
-          itemScale={0.035}
-          stackPosition="4%"
+        <ScrollShowcase
+          items={CLAY_SAGE_IMAGES}
+          projectTitle="Clay & Sage"
+          projectTag="Project 03 / Earth & Pigment Sanctuary"
+          nextProject={{ title: 'The Skyline Residence', path: '/the-skyline-residence' }}
+          onItemClick={(item) => setActiveImage(item.url)}
           className="w-full h-full"
-        >
-          {CLAY_SAGE_IMAGES.map((card) => (
-            <ScrollStackItem key={card.id}>
-              <div 
-                onClick={() => setActiveImage(card.url)}
-                className="group relative w-full h-[62vh] sm:h-[72vh] md:h-[76vh] rounded-2xl md:rounded-3xl overflow-hidden border border-white/15 bg-gradient-to-b from-[#161819] to-[#0d0e0f] shadow-[0_30px_90px_rgba(0,0,0,0.95)] select-none cursor-pointer transition-all duration-300 hover:border-[#b89a62]/60"
-                role="button"
-                tabIndex={0}
-                aria-label={`View ${card.title} full screen`}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    setActiveImage(card.url);
-                  }
-                }}
-              >
-                {/* Visual Image Background */}
-                <img
-                  src={card.url}
-                  alt={card.title}
-                  loading={card.id <= 2 ? 'eager' : 'lazy'}
-                  decoding="async"
-                  className="absolute inset-0 w-full h-full object-cover object-center brightness-[0.88] group-hover:scale-105 group-hover:brightness-95 transition-all duration-700 ease-out will-change-transform transform-gpu"
-                />
-
-                {/* Cinematic Overlays */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/35 to-transparent pointer-events-none" />
-                <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-transparent pointer-events-none" />
-
-                {/* Subtle Specular Top Border */}
-                <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[#b89a62]/60 to-transparent pointer-events-none" />
-
-                {/* Bottom Story Content */}
-                <div className="absolute bottom-0 inset-x-0 p-4 sm:p-8 md:p-10 z-20 pointer-events-none">
-                  <h2
-                    className="text-lg sm:text-3xl md:text-4xl text-white font-normal tracking-wide leading-tight drop-shadow-md"
-                    style={{ fontFamily: 'var(--font-serif)' }}
-                  >
-                    {card.title}
-                  </h2>
-                </div>
-              </div>
-            </ScrollStackItem>
-          ))}
-        </ScrollStack>
+        />
       </main>
 
       {/* Pure Full-Screen Image Lightbox Viewer */}

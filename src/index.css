@@ -1117,3 +1117,24 @@ html.lunore-experience-active h3 {
     transform: translate(-50%, -110%) scale(0.85) rotate(-6deg);
   }
 }
+
+/* Scroll-Driven Interactive Timeline Nodes */
+.timeline-node-inactive {
+  border-width: 2px;
+  border-color: rgba(255, 255, 255, 0.2);
+  background-color: #090a0b;
+  color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0 0 0 5px #090a0b;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.timeline-node-active {
+  border-width: 2px;
+  border-color: #f3dfba;
+  background-color: #b89a62;
+  color: #090a0b;
+  box-shadow: 0 0 0 5px #090a0b, 0 0 24px rgba(184, 154, 98, 0.95);
+  transform: translate(-50%, -50%) scale(1.15);
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
