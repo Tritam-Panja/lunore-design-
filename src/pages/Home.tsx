@@ -91,8 +91,8 @@ export function Home() {
   const desktopVideoRef = useRef<HTMLVideoElement>(null);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isMobile, setIsMobile] = useState(false);
-  const [isTablet, setIsTablet] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 768 : false));
+  const [isTablet, setIsTablet] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 768 && window.innerWidth < 1024 : false));
 
   // Battery & CPU Optimization: Pause hero video when out of viewport or tab hidden
   useEffect(() => {
@@ -151,7 +151,7 @@ export function Home() {
       document.removeEventListener('visibilitychange', handleVisibility);
       window.removeEventListener('resize', handleResize);
     };
-  }, []);
+  }, [isMobile]);
 
   // Handle responsive detection
   useEffect(() => {
@@ -305,31 +305,35 @@ export function Home() {
       >
         {/* Background Hero Video */}
         <div className="absolute inset-0 flex justify-center md:justify-end items-center overflow-hidden pointer-events-none">
-          {/* Mobile Video for phones & small screens (< md) */}
-          <video
-            ref={mobileVideoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            className="md:hidden h-full w-full object-cover object-center"
-          >
-            <source src={encodeURI('/assets/images/Lunore hero mobile.mp4')} type="video/mp4" />
-          </video>
-
-          {/* Desktop Video for tablets & desktop screens (>= md) */}
-          <video
-            ref={desktopVideoRef}
-            autoPlay
-            loop
-            muted
-            playsInline
-            preload="auto"
-            className="hidden md:block h-full w-full md:w-auto md:max-w-none md:object-contain object-cover object-right"
-          >
-            <source src={encodeURI('/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4')} type="video/mp4" />
-          </video>
+          {isMobile ? (
+            /* Mobile Video for phones & small screens (< md) */
+            <video
+              ref={mobileVideoRef}
+              key="hero-mobile-video"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              className="h-full w-full object-cover object-center"
+            >
+              <source src={encodeURI('/assets/images/Lunore hero mobile.mp4')} type="video/mp4" />
+            </video>
+          ) : (
+            /* Desktop Video for tablets & desktop screens (>= md) */
+            <video
+              ref={desktopVideoRef}
+              key="hero-desktop-video"
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              className="h-full w-full md:w-auto md:max-w-none md:object-contain object-cover object-right"
+            >
+              <source src={encodeURI('/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4')} type="video/mp4" />
+            </video>
+          )}
         </div>
 
         {/* Responsive Gradient Vignette Overlays */}
