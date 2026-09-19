@@ -320,90 +320,6 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     };
   }, []);
 
-  // Play signature Samsung Galaxy / One UI droplet tap sound effect via Web Audio API
-  const playSwitchSound = () => {
-    try {
-      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-      if (!AudioCtx) return;
-      const ctx = new AudioCtx();
-      if (ctx.state === 'suspended') {
-        ctx.resume();
-      }
-      const now = ctx.currentTime;
-
-      // 1. Primary Samsung Droplet "Tok" Tone (Fast downward pitch sweep)
-      const oscPrimary = ctx.createOscillator();
-      const gainPrimary = ctx.createGain();
-      oscPrimary.type = 'sine';
-      oscPrimary.frequency.setValueAtTime(2200, now);
-      oscPrimary.frequency.exponentialRampToValueAtTime(720, now + 0.052);
-
-      gainPrimary.gain.setValueAtTime(0.55, now);
-      gainPrimary.gain.exponentialRampToValueAtTime(0.001, now + 0.052);
-
-      oscPrimary.connect(gainPrimary);
-      gainPrimary.connect(ctx.destination);
-      oscPrimary.start(now);
-      oscPrimary.stop(now + 0.052);
-
-      // 2. High-harmonic Glassy Droplet Ring (~3400Hz)
-      const oscChime = ctx.createOscillator();
-      const gainChime = ctx.createGain();
-      oscChime.type = 'sine';
-      oscChime.frequency.setValueAtTime(3400, now);
-      oscChime.frequency.exponentialRampToValueAtTime(1200, now + 0.038);
-
-      gainChime.gain.setValueAtTime(0.28, now);
-      gainChime.gain.exponentialRampToValueAtTime(0.001, now + 0.038);
-
-      oscChime.connect(gainChime);
-      gainChime.connect(ctx.destination);
-      oscChime.start(now);
-      oscChime.stop(now + 0.038);
-
-      // 3. Warm Tactile Acoustic Body (~480Hz)
-      const oscBody = ctx.createOscillator();
-      const gainBody = ctx.createGain();
-      oscBody.type = 'triangle';
-      oscBody.frequency.setValueAtTime(480, now);
-      oscBody.frequency.exponentialRampToValueAtTime(160, now + 0.045);
-
-      gainBody.gain.setValueAtTime(0.32, now);
-      gainBody.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
-
-      oscBody.connect(gainBody);
-      gainBody.connect(ctx.destination);
-      oscBody.start(now);
-      oscBody.stop(now + 0.045);
-
-      // 4. Subtle Initial Percussive Transient
-      const bufferSize = Math.floor(ctx.sampleRate * 0.012); // 12ms
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = (Math.random() * 2 - 1) * Math.exp(-i / (ctx.sampleRate * 0.003));
-      }
-      const noise = ctx.createBufferSource();
-      noise.buffer = noiseBuffer;
-
-      const filter = ctx.createBiquadFilter();
-      filter.type = 'highpass';
-      filter.frequency.value = 3000;
-
-      const noiseGain = ctx.createGain();
-      noiseGain.gain.setValueAtTime(0.2, now);
-      noiseGain.gain.exponentialRampToValueAtTime(0.001, now + 0.012);
-
-      noise.connect(filter);
-      filter.connect(noiseGain);
-      noiseGain.connect(ctx.destination);
-      noise.start(now);
-      noise.stop(now + 0.012);
-    } catch {
-      // AudioContext fallback
-    }
-  };
-
   // Handle Full Illumination switch: animate toggle knob -> soft white light -> wait in pure image until user scrolls to reveal text
   const handleToggleClick = () => {
     if (isSwitchToggled) return;
@@ -411,9 +327,6 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       setHasBeenTapped(true);
     }
 
-    // Play tactile mechanical switch on sound effect
-    playSwitchSound();
-    
     // 1. Immediately animate toggle switch sliding to the other side
     setIsSwitchToggled(true);
 

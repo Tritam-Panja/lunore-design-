@@ -1,12 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Sparkles, ArrowRight, RotateCcw, ChevronDown } from 'lucide-react';
+import { Sparkles, ArrowRight, RotateCcw, ChevronDown, Plus } from 'lucide-react';
 import { images } from '@/lib/images';
 import ParticleText from './ParticleText';
+import { MarbleStackModal } from './MarbleStackModal';
  
 export function MarbleExperience() {
   const [isEntered, setIsEntered] = useState<boolean>(false);
   const [isZoomUnlocked, setIsZoomUnlocked] = useState<boolean>(false);
   const isZoomUnlockedRef = useRef<boolean>(false);
+  const [isStackOpen, setIsStackOpen] = useState<boolean>(false);
  
   const [windowSize, setWindowSize] = useState<{ width: number; height: number }>({
     width: typeof window !== 'undefined' ? window.innerWidth : 1200,
@@ -834,6 +836,23 @@ export function MarbleExperience() {
           >
             At Lunore, we deal in a wide range of premium marble and granite, offering carefully selected materials for every design requirement. What truly sets us apart, however, is not just the stone we supply, but the service and assurance behind every order. Every piece is thoroughly inspected by our marble experts before delivery to ensure the right quality, finish, size, and consistency—so you receive your marble exactly as it should be, with no compromises, surprises, or mistakes. With Lunore, every stone is checked, trusted, and delivered with confidence.
           </p>
+
+          {/* "Add More" Button to open the full screen stack view */}
+          <div className="mt-5 sm:mt-7 flex items-center justify-center pointer-events-auto">
+            <button
+              onClick={() => setIsStackOpen(true)}
+              className="group relative cursor-pointer inline-flex items-center justify-center gap-3 px-8 sm:px-10 py-3 sm:py-3.5 rounded-full bg-white/[0.06] hover:bg-white/[0.14] border border-white/35 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_12px_32px_rgba(0,0,0,0.6),inset_0_1px_2px_rgba(255,255,255,0.4)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(184,154,98,0.45),inset_0_1.5px_3px_rgba(255,255,255,0.6)] transition-all duration-400 transform hover:scale-[1.04] active:scale-[0.98] backdrop-blur-md"
+            >
+              <span className="absolute inset-x-5 top-0 h-[1.2px] bg-gradient-to-r from-transparent via-white/80 to-transparent" />
+              <div className="w-6 h-6 rounded-full bg-white/[0.08] border border-white/30 group-hover:border-[#b89a62]/80 flex items-center justify-center text-[#b89a62] group-hover:rotate-45 transition-transform duration-500 shadow-[0_0_12px_rgba(184,154,98,0.3)]">
+                <Plus className="w-3.5 h-3.5" />
+              </div>
+              <span className="text-xs sm:text-sm tracking-[0.28em] uppercase font-semibold text-[#f1eee7] group-hover:text-[#b89a62] transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
+                Add More
+              </span>
+              <ArrowRight className="w-3.5 h-3.5 text-[#b89a62] transition-transform duration-300 group-hover:translate-x-1" />
+            </button>
+          </div>
         </div>
       )}
  
@@ -896,6 +915,11 @@ export function MarbleExperience() {
             <span>Reset</span>
           </button>
         </div>
+      )}
+
+      {/* Fullscreen Marble Stack Modal */}
+      {isStackOpen && (
+        <MarbleStackModal onClose={() => setIsStackOpen(false)} />
       )}
     </section>
   );

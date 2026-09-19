@@ -23,6 +23,7 @@ export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({ children, item
 export interface ScrollStackProps {
   className?: string;
   children: ReactNode;
+  footer?: ReactNode;
   itemDistance?: number;
   itemScale?: number;
   itemStackDistance?: number;
@@ -38,13 +39,16 @@ export interface ScrollStackProps {
 
 interface LayoutMetrics {
   cardTops: number[];
+  cardHeights: number[];
   endElementTop: number;
+  footerElementTop: number;
   containerHeight: number;
   stackPositionPx: number;
 }
 
 export const ScrollStack: React.FC<ScrollStackProps> = ({
   children,
+  footer,
   className = '',
   itemDistance = 480,
   itemScale = 0.035,
@@ -63,7 +67,9 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
   const layoutMetricsRef = useRef<LayoutMetrics>({
     cardTops: [],
+    cardHeights: [],
     endElementTop: 0,
+    footerElementTop: 0,
     containerHeight: 0,
     stackPositionPx: 0,
   });
@@ -94,6 +100,10 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       ? (document.querySelector('.scroll-stack-end') as HTMLElement | null)
       : (scroller?.querySelector('.scroll-stack-end') as HTMLElement | null);
 
+    const footerElement = useWindowScroll
+      ? (document.querySelector('.scroll-stack-footer') as HTMLElement | null)
+      : (scroller?.querySelector('.scroll-stack-footer') as HTMLElement | null);
+
     const getOffset = (el: HTMLElement) => {
       if (useWindowScroll) {
         return el.getBoundingClientRect().top + window.scrollY;
@@ -103,11 +113,15 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     };
 
     const endElementTop = endElement ? getOffset(endElement) : 0;
+    const footerElementTop = footerElement ? getOffset(footerElement) : 0;
     const cardTops = cardsRef.current.map((card) => (card ? getOffset(card) : 0));
+    const cardHeights = cardsRef.current.map((card) => (card ? card.offsetHeight : 0));
 
     layoutMetricsRef.current = {
       cardTops,
+      cardHeights,
       endElementTop,
+      footerElementTop,
       containerHeight,
       stackPositionPx,
     };
@@ -125,12 +139,19 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       measureLayout();
     }
 
-    const { cardTops, endElementTop, containerHeight, stackPositionPx } = layoutMetricsRef.current;
+    const { cardTops, cardHeights, endElementTop, footerElementTop, containerHeight, stackPositionPx } = layoutMetricsRef.current;
     const scrollTop = typeof customScroll === 'number'
       ? customScroll
       : (useWindowScroll ? window.scrollY : (scrollerRef.current?.scrollTop ?? 0));
 
-    const pinEnd = endElementTop - containerHeight / 2;
+    const lastCardHeight = (cardHeights && cardHeights[cardsCount - 1]) || 540;
+    const desiredGap = 28; // Clean, luxury 28px gap between bottom of 10th card and top of footer card
+
+    // As soon as the footer reaches 28px below the last card, release pin so they glide together seamlessly with zero dead scroll
+    let pinEnd = endElementTop - containerHeight / 2;
+    if (footerElementTop > 0) {
+      pinEnd = footerElementTop - stackPositionPx - lastCardHeight - desiredGap;
+    }
 
     for (let i = 0; i < cardsCount; i++) {
       const card = cards[i];
@@ -219,6 +240,12 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     measureLayout,
   ]);
 
+  const updateCardTransformsRef = useRef(updateCardTransforms);
+  updateCardTransformsRef.current = updateCardTransforms;
+
+  const measureLayoutRef = useRef(measureLayout);
+  measureLayoutRef.current = measureLayout;
+
   useLayoutEffect(() => {
     if (!useWindowScroll && !scrollerRef.current) return;
 
@@ -232,6 +259,8 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     cards.forEach((card, i) => {
       if (i < cards.length - 1) {
         card.style.marginBottom = `${itemDistance}px`;
+      } else {
+        card.style.marginBottom = `${footer ? 48 : 0}px`;
       }
       card.style.zIndex = `${i + 1}`;
       card.style.willChange = 'transform, opacity';
@@ -243,33 +272,33 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
     measureLayout();
 
-    // High performance Lenis instance with RAF loop
+    // High performance Lenis instance with responsive easing & zero sluggish drag
     const scroller = scrollerRef.current;
     const lenis = new Lenis(
       useWindowScroll
         ? {
-            duration: 1.0,
+            duration: 0.65,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             smoothWheel: true,
-            touchMultiplier: 1.5,
-            wheelMultiplier: 1.0,
-            lerp: 0.1,
+            touchMultiplier: 1.6,
+            wheelMultiplier: 1.15,
+            lerp: 0.16,
           }
         : {
             wrapper: scroller!,
             content: scroller!.querySelector('.scroll-stack-inner') as HTMLElement,
-            duration: 1.0,
+            duration: 0.65,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             smoothWheel: true,
-            touchMultiplier: 1.5,
+            touchMultiplier: 1.6,
             gestureOrientation: 'vertical',
-            wheelMultiplier: 1.0,
-            lerp: 0.1,
+            wheelMultiplier: 1.15,
+            lerp: 0.16,
           }
     );
 
     lenis.on('scroll', (e: { scroll: number }) => {
-      updateCardTransforms(e.scroll);
+      updateCardTransformsRef.current(e.scroll);
     });
 
     const raf = (time: number) => {
@@ -280,11 +309,11 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     lenisRef.current = lenis;
 
     // Initial render tick
-    updateCardTransforms(0);
+    updateCardTransformsRef.current(0);
 
     const handleResize = () => {
-      measureLayout();
-      updateCardTransforms();
+      measureLayoutRef.current();
+      updateCardTransformsRef.current();
     };
     window.addEventListener('resize', handleResize, { passive: true });
 
@@ -301,12 +330,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       lastTransformsRef.current.clear();
       isUpdatingRef.current = false;
     };
-  }, [
-    itemDistance,
-    useWindowScroll,
-    measureLayout,
-    updateCardTransforms,
-  ]);
+  }, [itemDistance, useWindowScroll]);
 
   return (
     <div
@@ -321,10 +345,11 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         willChange: 'scroll-position',
       }}
     >
-      <div className="scroll-stack-inner pt-[2vh] sm:pt-[4vh] md:pt-[4.5vh] px-3 sm:px-8 md:px-16 pb-[30rem] sm:pb-[35rem] min-h-screen">
+      <div className="scroll-stack-inner pt-[2vh] sm:pt-[4vh] md:pt-[4.5vh] px-3 sm:px-8 md:px-16 pb-[8rem] sm:pb-[12rem] min-h-screen">
         {children}
         {/* Spacer so the last pin can release cleanly */}
         <div className="scroll-stack-end w-full h-px" />
+        {footer && <div className="scroll-stack-footer w-full pt-4 sm:pt-6 pb-16 sm:pb-24">{footer}</div>}
       </div>
     </div>
   );

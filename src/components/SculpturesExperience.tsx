@@ -888,7 +888,7 @@ export function SculpturesExperience() {
       ref={containerRef}
       id="projects"
       style={{ touchAction: 'pan-y' }}
-      className="relative w-full h-[100dvh] min-h-[600px] bg-[#050607] overflow-hidden select-none"
+      className="relative w-full h-[108dvh] md:h-[110vh] min-h-[680px] bg-[#050607] overflow-hidden select-none"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}

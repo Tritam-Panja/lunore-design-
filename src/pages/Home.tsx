@@ -432,8 +432,8 @@ export function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
 
       {/* 4. FEATURED PROJECTS & SIGNATURE COLLECTION SECTION (LAZY MOUNTED) */}
-      <LazySection minHeight="600px" rootMargin="1200px">
-        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e]" />}>
+      <LazySection minHeight="680px" rootMargin="1200px">
+        <Suspense fallback={<div className="w-full min-h-[680px] bg-[#0d0e0e]" />}>
           <SculpturesExperience />
         </Suspense>
       </LazySection>
