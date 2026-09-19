@@ -101,55 +101,45 @@ export function Home() {
 
     const getVideos = () => [mobileVideoRef.current, desktopVideoRef.current].filter(Boolean) as HTMLVideoElement[];
 
-    const playVisibleVideo = () => {
+    const playHeroVideos = () => {
       getVideos().forEach((v) => {
-        const isVisible = v.offsetWidth > 0 && v.offsetHeight > 0 && window.getComputedStyle(v).display !== 'none';
-        if (isVisible) {
-          v.play().catch(() => {});
-        } else {
-          v.pause();
-        }
+        v.play().catch(() => {});
       });
     };
 
-    const pauseAllVideos = () => {
+    const pauseHeroVideos = () => {
       getVideos().forEach((v) => v.pause());
     };
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          playVisibleVideo();
+          playHeroVideos();
         } else {
-          pauseAllVideos();
+          pauseHeroVideos();
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.05 }
     );
 
     observer.observe(hero);
 
     const handleVisibility = () => {
       if (document.hidden) {
-        pauseAllVideos();
+        pauseHeroVideos();
       } else if (hero.getBoundingClientRect().bottom > 0) {
-        playVisibleVideo();
+        playHeroVideos();
       }
     };
 
-    const handleResize = () => {
-      playVisibleVideo();
-    };
-
     document.addEventListener('visibilitychange', handleVisibility);
-    window.addEventListener('resize', handleResize);
 
-    playVisibleVideo();
+    // Eagerly trigger playback
+    playHeroVideos();
 
     return () => {
       observer.disconnect();
       document.removeEventListener('visibilitychange', handleVisibility);
-      window.removeEventListener('resize', handleResize);
     };
   }, [isMobile]);
 
@@ -310,6 +300,7 @@ export function Home() {
             <video
               ref={mobileVideoRef}
               key="hero-mobile-video"
+              src={encodeURI('/assets/images/Lunore hero mobile.mp4')}
               autoPlay
               loop
               muted
@@ -324,6 +315,7 @@ export function Home() {
             <video
               ref={desktopVideoRef}
               key="hero-desktop-video"
+              src={encodeURI('/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4')}
               autoPlay
               loop
               muted

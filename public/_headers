@@ -1,0 +1,8 @@
+# Aggressive CDN caching and range request support for background video files
+/assets/images/*.mp4
+  Cache-Control: public, max-age=31536000, immutable
+  Accept-Ranges: bytes
+
+# Web fonts and static assets
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
