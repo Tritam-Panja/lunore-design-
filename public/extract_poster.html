@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html>
+<head><title>Extract Poster</title></head>
+<body>
+  <h1>Extracting first frames...</h1>
+  <div id="status">Starting...</div>
+  <script>
+    async function captureFirstFrame(videoUrl) {
+      return new Promise((resolve, reject) => {
+        const video = document.createElement('video');
+        video.crossOrigin = 'anonymous';
+        video.src = videoUrl;
+        video.muted = true;
+        video.playsInline = true;
+        video.preload = 'auto';
+
+        video.addEventListener('loadeddata', () => {
+          video.currentTime = 0.05;
+        });
+
+        video.addEventListener('seeked', () => {
+          try {
+            const canvas = document.createElement('canvas');
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/webp', 0.85);
+            resolve(dataUrl);
+          } catch (err) {
+            reject(err);
+          }
+        });
+
+        video.addEventListener('error', (e) => reject(video.error));
+        video.load();
+      });
+    }
+
+    async function run() {
+      const status = document.getElementById('status');
+      try {
+        status.innerText = 'Extracting mobile poster...';
+        const mobileData = await captureFirstFrame('/assets/images/Lunore hero mobile.mp4');
+        
+        status.innerText = 'Extracting desktop poster...';
+        const desktopData = await captureFirstFrame('/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4');
+
+        // Save via fetch or store in window
+        window.posterResults = { mobile: mobileData, desktop: desktopData };
+        status.innerText = 'SUCCESS! Results ready in window.posterResults';
+        document.title = 'DONE_SUCCESS';
+      } catch (err) {
+        status.innerText = 'ERROR: ' + err.message;
+        document.title = 'DONE_ERROR';
+      }
+    }
+    run();
+  </script>
+</body>
+</html>
