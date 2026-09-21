@@ -190,11 +190,11 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
         if (cardsAbove > 0) {
           scale = Math.max(0.88, 1 - cardsAbove * itemScale);
-          opacity = Math.max(0.65, 1 - cardsAbove * 0.08);
+          opacity = Math.max(0.80, 1 - cardsAbove * 0.04);
         } else if (scrollTop > nextPinStart - transitionDistance) {
           const progress = calculateProgress(scrollTop, nextPinStart - transitionDistance, nextPinStart);
           scale = 1 - progress * itemScale;
-          opacity = 1 - progress * 0.08;
+          opacity = 1 - progress * 0.04;
         }
       }
 

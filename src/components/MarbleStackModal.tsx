@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { X, ArrowRight, Sparkles } from 'lucide-react';
@@ -18,103 +18,103 @@ export interface StoneItem {
 export const MARBLE_COLLECTION_ITEMS: StoneItem[] = [
   {
     id: '01',
-    name: 'Calacatta Gold Italian Marble',
-    category: 'High-Luxe Calacatta',
-    origin: 'Carrara, Italy',
-    finish: 'Bookmatched Polish / Honed',
-    idealFor: 'Grand Master Suites, Island Cascades & Luxury Lobbies',
-    image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=compress&cs=tinysrgb&w=1600&q=80',
-    description: 'Iconic crystalline milk-white ground traced with dramatic honey-gold branching, smoky taupe accents, and rich grey striations.',
+    name: 'Avocado Green',
+    category: 'Exotic Quartzite',
+    origin: 'Bahia, Brazil',
+    finish: 'Bookmatched Polish / Leathered',
+    idealFor: 'Statement Islands, Master Baths & Feature Elevations',
+    image: encodeURI('/assets/Marbles/Avocado Green.jpeg'),
+    description: 'Lush olive and pistachio bedrock swept with vivid crystalline quartz veining, emerald ribbons, and rich mineral depth.',
   },
   {
     id: '02',
-    name: 'Patagonia Translucent Quartzite',
-    category: 'Exotic Gemstone Quartzite',
-    origin: 'Bahia, Brazil',
-    finish: 'Mirror Polish / Backlit LED Ready',
-    idealFor: 'Backlit Bar Counters, Double-Height Feature Walls & Focal Panels',
-    image: 'https://images.unsplash.com/photo-1600585154526-990dced4db0d?auto=compress&cs=tinysrgb&w=1600&q=80',
-    description: 'A geological wonder blending translucent quartz crystals, deep feldspar deposits, and obsidian-black crystalline clouds.',
+    name: 'Cippo Fantasy',
+    category: 'Dynamic Veined Marble',
+    origin: 'Carrara, Italy',
+    finish: 'Bookmatched Polish / Honed',
+    idealFor: 'Grand Foyers, Bookmatched Slabs & Accent Architecture',
+    image: encodeURI('/assets/Marbles/CIPPO FANTASY.jpeg'),
+    description: 'Sinuous rhythmic currents of warm earth, smoky taupe, and soft ivory ribbons that evoke kinetic natural artistry.',
   },
   {
     id: '03',
-    name: 'Statuario Extra Statuary Marble',
-    category: 'Monolithic Sculptural Marble',
-    origin: 'Carrara, Tuscany, Italy',
-    finish: 'High-Lustre Italian Polish',
-    idealFor: 'Formal Reception Halls, Monolithic Bath Vanities & Sweeping Staircases',
-    image: 'https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=compress&cs=tinysrgb&w=1600&q=80',
-    description: 'The pinnacle of Italian stone heritage featuring brilliant snowy-white depth interrupted only by bold, expressive pewter branching.',
+    name: 'Cosmic Fantasy Polish',
+    category: 'Monumental Deep Granite',
+    origin: 'Minas Gerais, Brazil',
+    finish: 'High-Lustre Mirror Polish',
+    idealFor: 'Executive Suites, Architectural Countertops & Monolithic Cascades',
+    image: encodeURI('/assets/Marbles/COSMIC FANTASY POLISH .jpeg'),
+    description: 'A stellar dark nightscape swept with celestial golden magma rivers, shimmering quartz crystals, and deep bronze accents.',
   },
   {
     id: '04',
-    name: 'Black Taurus Cosmic Granite',
-    category: 'Monumental Deep Granite',
-    origin: 'Minas Gerais, Brazil',
-    finish: 'Leathered / High Gloss Satin',
-    idealFor: 'Executive Boardrooms, Chef Kitchen Islands & Monolithic Cladding',
-    image: 'https://images.unsplash.com/photo-1600566753376-12c8ab7fb75b?auto=compress&cs=tinysrgb&w=1600&q=80',
-    description: 'Deep pitch-black geological bed swept with volcanic gold waves, amber rivers, and luminous ivory striations.',
+    name: 'Exotic Green',
+    category: 'Alpine Serpentine Marble',
+    origin: 'Aosta Valley, Italian Alps',
+    finish: 'Mirror Polish / Velvet Honed',
+    idealFor: 'Boutique Powder Rooms, Private Libraries & Statement Bars',
+    image: encodeURI('/assets/Marbles/EXOTIC GREEN .jpeg'),
+    description: 'Deep forest and emerald greens laced with delicate white calcite ribbons and intricate crystalline mineral formations.',
   },
   {
     id: '05',
-    name: 'Verde Alpi Emerald Marble',
-    category: 'Alpine Serpentine Marble',
-    origin: 'Aosta Valley, Italian Alps',
-    finish: 'Velvet Honed / Silk Polish',
-    idealFor: 'Boutique Powder Rooms, Private Libraries & Architectural Fireplaces',
-    image: 'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?auto=compress&cs=tinysrgb&w=1600&q=80',
-    description: 'Dramatic deep forest and bottle-green hues intertwined with crisp white calcite ribbons and ancient mineral deposits.',
+    name: 'Ice Onyx',
+    category: 'Translucent Gemstone Onyx',
+    origin: 'Tuscany, Italy',
+    finish: 'Mirror Polish / Backlit LED Ready',
+    idealFor: 'Backlit Bar Counters, Luminous Partitions & Monolithic Spas',
+    image: encodeURI('/assets/Marbles/Ice Onyx.jpeg'),
+    description: 'Pristine glacial translucency enriched by subtle frost-like crystalline strata, glowing with breathtaking ethereal radiance when backlit.',
   },
   {
     id: '06',
-    name: 'Titanium Black Satin Granite',
-    category: 'Architectural Heavy Granite',
+    name: 'Lava Black Polish',
+    category: 'Volcanic Heavy Granite',
     origin: 'Espírito Santo, Brazil',
-    finish: 'Brushed Antique / Flamed / Polished',
-    idealFor: 'Heavy-Traffic Commercial Flooring, Exterior Elevations & Terraces',
-    image: 'https://images.unsplash.com/photo-1600573472591-ee6b68d14c68?auto=compress&cs=tinysrgb&w=1600&q=80',
-    description: 'Deep slate-black granite defined by striking silver swirls, platinum highlights, and subtle gold quartz veining.',
+    finish: 'High Gloss Polish / Satin',
+    idealFor: 'Monolithic Kitchen Islands, Fireplace Surrounds & Cladding',
+    image: encodeURI('/assets/Marbles/LAVA BLACK POLISH.jpeg'),
+    description: 'Volcanic obsidian bedrock electrified by energetic molten gold currents, silver platinum highlights, and deep basalt textures.',
   },
   {
     id: '07',
-    name: 'Botticino Classico Heritage Marble',
-    category: 'Warm Mediterranean Marble',
-    origin: 'Brescia, Lombardy, Italy',
-    finish: 'Honed / Soft Silk Polish',
-    idealFor: 'Expansive Villa Flooring, Classical Columns & Sunlit Living Salons',
-    image: 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3?auto=compress&cs=tinysrgb&w=1600&q=80',
-    description: 'Warm cream-beige base with delicate golden streaks and gentle hazelnut clouds, providing serene and timeless elegance.',
+    name: 'Luxury Black',
+    category: 'Monolithic Calcite Marble',
+    origin: 'Carrara, Italy',
+    finish: 'Ultra-High Gloss Polish',
+    idealFor: 'Double-Height Atriums, Luxury Dining Tables & Modernist Elevations',
+    image: encodeURI('/assets/Marbles/LUXURY BLACK.jpeg'),
+    description: 'Deep velvety pitch-black depth defined by crisp, elegant architectural veining and subtle graphite crystallization.',
   },
   {
     id: '08',
-    name: 'Portoro Gold Nero Marble',
-    category: 'Royal Polychrome Marble',
-    origin: 'La Spezia, Liguria, Italy',
-    finish: 'Ultra-High Gloss Polish',
-    idealFor: 'Haute Horlogerie Boutiques, Dining Ensembles & Bespoke Inlay Artwork',
-    image: 'https://images.unsplash.com/photo-1600585152220-90363fe7e115?auto=compress&cs=tinysrgb&w=1600&q=80',
-    description: 'Intense obsidian-black limestone laced with vibrant undulating veins of bright gold and pyrite crystallization.',
+    name: 'Marine Black Patagonia',
+    category: 'Exotic Gemstone Quartzite',
+    origin: 'Bahia, Brazil',
+    finish: 'Bookmatched Mirror Polish',
+    idealFor: 'Double-Height Feature Walls, Monolithic Islands & Signature Vanities',
+    image: encodeURI('/assets/Marbles/Marine Black Patagonia.jpeg'),
+    description: 'A striking geological fusion of dark oceanic pigments, smoky translucent feldspar clusters, and bold architectural fissures.',
   },
   {
     id: '09',
-    name: 'Azul Macaubas Celestial Quartzite',
-    category: 'Rare Natural Blue Quartzite',
-    origin: 'Macaúbas, Bahia, Brazil',
-    finish: 'Mirror Polish / Bookmatched',
-    idealFor: 'Infinity Spa Enclosures, Luxury Yacht Salons & Statement Counters',
-    image: 'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?auto=compress&cs=tinysrgb&w=1600&q=80',
-    description: 'One of the rarest natural stones on Earth, characterized by mesmerizing waves of cobalt, sky blue, and shimmering quartz.',
+    name: 'Rainforest Brown',
+    category: 'Serpentine Exotic Stone',
+    origin: 'Rajasthan, India',
+    finish: 'Leathered Antique / High Polish',
+    idealFor: 'Private Study Cladding, Master Bath Vanities & Gallery Walls',
+    image: encodeURI('/assets/Marbles/RAINFOREST BROWN .jpeg'),
+    description: 'An evocative tapestry of rich cocoa and russet tones interwoven with a dramatic labyrinth of dark tree-like veining.',
   },
   {
     id: '10',
-    name: 'Arabescato Orobico Grigio Marble',
-    category: 'Dynamic Veined Calcite Marble',
-    origin: 'Bergamo, Lombardy, Italy',
-    finish: 'Bookmatched Polish / Satin',
-    idealFor: 'Penthouse Atriums, Entrance Foyers & Monolithic Gallery Walls',
-    image: 'https://images.unsplash.com/photo-1600607687644-c7171b42498b?auto=compress&cs=tinysrgb&w=1600&q=80',
-    description: 'An evocative tapestry of dove greys, anthracite, and warm ochre ribbons that create dramatic optical symmetry.',
+    name: 'Red Jasper Polish',
+    category: 'Precious Gemstone Granite',
+    origin: 'Minas Gerais, Brazil',
+    finish: 'Brilliant Diamond Polish',
+    idealFor: 'Haute Horlogerie Foyers, Statement Reception Counters & Art Inlays',
+    image: encodeURI('/assets/Marbles/RED JASPER POLISH.jpeg'),
+    description: 'Vibrant terracotta and fiery crimson jasper formations enriched by undulating breccia patterns and warm golden quartz highlights.',
   },
 ];
 
@@ -124,12 +124,17 @@ interface MarbleStackModalProps {
 
 export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
   const navigate = useNavigate();
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Handle ESC key press and lock background page scroll
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
-        onClose();
+        if (selectedImage) {
+          setSelectedImage(null);
+        } else {
+          onClose();
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
@@ -141,7 +146,7 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = originalOverflow;
     };
-  }, [onClose]);
+  }, [onClose, selectedImage]);
 
   const handleContactClick = () => {
     onClose();
@@ -156,11 +161,11 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
       data-lenis-prevent="true"
       className="fixed inset-0 z-[100000] flex flex-col bg-[#070809] text-[#f1eee7] select-none overflow-hidden h-[100dvh] animate-in fade-in duration-250"
     >
-      {/* Ambient background glow */}
+      {/* Ambient background glow (lightened) */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[850px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.12)_0%,transparent_70%)] blur-[150px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.03)_0%,transparent_70%)] blur-[130px]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/60" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.16)_0%,transparent_70%)] blur-[150px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.06)_0%,transparent_70%)] blur-[130px]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50" />
       </div>
 
       {/* Top Specular Gold Edge */}
@@ -252,35 +257,40 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
               Masterpiece Marble &amp; Granite
             </h1>
             <p className="text-xs sm:text-sm text-[#ded9cf]/80 font-light leading-relaxed max-w-2xl mx-auto">
-              Scroll down to peel through 10 of our most sought-after natural stones. Each piece represents uncompromising geological rarity and craftsmanship.
+              Scroll down to peel through 10 of our most sought-after natural stones. Click on any stone to view in full screen.
             </p>
           </div>
 
           {/* 10 Precision Stack Cards */}
-          {MARBLE_COLLECTION_ITEMS.map((item, index) => (
+          {MARBLE_COLLECTION_ITEMS.map((item) => (
             <ScrollStackItem
               key={item.id}
               itemClassName="max-w-5xl mx-auto h-[62vh] sm:h-[70vh] max-h-[580px] min-h-[380px]"
             >
-              <div className="relative w-full h-full rounded-2xl sm:rounded-[32px] overflow-hidden border border-white/15 bg-[#0e1011] shadow-[0_25px_60px_rgba(0,0,0,0.95),0_0_30px_rgba(0,0,0,0.8)] group select-none flex flex-col justify-end p-6 sm:p-8 md:p-10">
-                {/* Background Full-Bleed Image */}
+              <div
+                onClick={() => setSelectedImage(item.image)}
+                title="Click to view full screen"
+                className="relative w-full h-full rounded-2xl sm:rounded-[32px] overflow-hidden border border-white/20 bg-[#121416] shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_30px_rgba(0,0,0,0.6)] group select-none flex flex-col justify-end p-6 sm:p-8 md:p-10 cursor-zoom-in transition-all duration-300 hover:border-[#b89a62]/50 hover:shadow-[0_25px_65px_rgba(0,0,0,0.9),0_0_35px_rgba(184,154,98,0.25)]"
+              >
+                {/* Background Full-Bleed Image (lightened up) */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                   <img
                     src={item.image}
                     alt={item.name}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-1000 ease-out"
+                    className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] group-hover:scale-105 transition-transform duration-1000 ease-out"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/20" />
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(0,0,0,0.1)_0%,rgba(0,0,0,0.7)_100%)]" />
+                  {/* Lightened, natural gradient solely for bottom text legibility */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.25)_100%)]" />
                 </div>
 
                 {/* Top Specular Edge */}
                 <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#b89a62] to-transparent z-10" />
 
                 {/* Card Bottom: Name & Description */}
-                <div className="relative z-10 max-w-3xl">
+                <div className="relative z-10 max-w-3xl pointer-events-none">
                   <h3
                     className="text-xl sm:text-3xl md:text-4xl text-white font-normal tracking-wide mb-2.5 leading-snug drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)]"
                     style={{ fontFamily: 'var(--font-serif)' }}
@@ -297,6 +307,23 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
           ))}
         </ScrollStack>
       </main>
+
+      {/* Pure Fullscreen Image Viewer: "just the image nothing else" */}
+      {selectedImage && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Fullscreen Marble Specimen"
+          onClick={() => setSelectedImage(null)}
+          className="fixed inset-0 z-[200000] bg-black/95 backdrop-blur-md flex items-center justify-center cursor-zoom-out select-none animate-in fade-in duration-200"
+        >
+          <img
+            src={selectedImage}
+            alt="Fullscreen Marble"
+            className="w-full h-full object-contain p-2 sm:p-4 pointer-events-none"
+          />
+        </div>
+      )}
     </div>,
     document.body
   );
