@@ -22,6 +22,7 @@ const TheSkylineResidence = lazy(() => import('@/pages/TheSkylineResidence').the
 const TheOliveGroveResidence = lazy(() => import('@/pages/TheOliveGroveResidence').then(m => ({ default: m.TheOliveGroveResidence })));
 const ClayAndSage = lazy(() => import('@/pages/ClayAndSage').then(m => ({ default: m.ClayAndSage })));
 const TheCanopyHouse = lazy(() => import('@/pages/TheCanopyHouse').then(m => ({ default: m.TheCanopyHouse })));
+const ComingSoon = lazy(() => import('@/pages/ComingSoon').then(m => ({ default: m.ComingSoon })));
 const NotFound = lazy(() => import('@/pages/NotFound').then(m => ({ default: m.NotFound })));
 
 function App() {
@@ -60,6 +61,9 @@ function App() {
               <Route path="/interiors/the-olive-grove-residence" element={<TheOliveGroveResidence />} />
               <Route path="/interiors/clay-and-sage" element={<ClayAndSage />} />
               <Route path="/interiors/the-canopy-house" element={<TheCanopyHouse />} />
+              {/* Coming Soon / Aurexa Showcase */}
+              <Route path="/coming-soon" element={<ComingSoon />} />
+              <Route path="/aurexa" element={<ComingSoon />} />
               <Route path="*" element={<NotFound />} />
             </Route>
           </Routes>

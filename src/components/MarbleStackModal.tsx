@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { useNavigate } from 'react-router-dom';
 import { X, ArrowRight, Sparkles } from 'lucide-react';
 import { ScrollStack, ScrollStackItem } from './ScrollStack';
 
@@ -123,7 +122,6 @@ interface MarbleStackModalProps {
 }
 
 export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
-  const navigate = useNavigate();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   // Handle ESC key press and lock background page scroll
@@ -147,11 +145,6 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
       document.body.style.overflow = originalOverflow;
     };
   }, [onClose, selectedImage]);
-
-  const handleContactClick = () => {
-    onClose();
-    navigate('/contact');
-  };
 
   return createPortal(
     <div
@@ -218,12 +211,7 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
             <div className="max-w-4xl mx-auto px-4 text-center select-none">
               <div className="p-8 sm:p-12 rounded-2xl sm:rounded-3xl border border-white/15 bg-gradient-to-b from-white/[0.06] to-black/80 backdrop-blur-2xl shadow-[0_20px_60px_rgba(0,0,0,0.9)] relative overflow-hidden">
                 <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#b89a62] to-transparent" />
-                <div className="w-10 h-10 rounded-full bg-[#b89a62]/20 border border-[#b89a62]/40 flex items-center justify-center text-[#b89a62] mx-auto mb-4">
-                  <Sparkles className="w-5 h-5" />
-                </div>
-                <span className="text-[10px] sm:text-xs tracking-[0.32em] uppercase text-[#b89a62] font-semibold block mb-2">
-                  Bespoke Architectural Supply
-                </span>
+
                 <h3
                   className="text-2xl sm:text-3xl md:text-4xl text-white font-normal tracking-wide mb-3"
                   style={{ fontFamily: 'var(--font-serif)' }}
@@ -234,16 +222,20 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
                   Every slab in our collection is hand-inspected at the quarry for purity, veining integrity, and exact architectural tolerances. Contact our studio for private viewings and tailored project specifications.
                 </p>
 
-                {/* The requested "Contact Us for More" button */}
-                <button
-                  onClick={handleContactClick}
+                {/* WhatsApp redirect button */}
+                <a
+                  href={`https://wa.me/919769708628?text=${encodeURIComponent(
+                    "Hello Lunore Studio, I am interested in your marble and granite collection. I would like to inquire about slab availability and tailored project specifications."
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="group relative cursor-pointer inline-flex items-center justify-center gap-3.5 px-8 sm:px-10 py-3.5 sm:py-4 rounded-full bg-gradient-to-r from-[#b89a62] via-[#cfb27b] to-[#b89a62] text-[#0d0e0e] font-semibold shadow-[0_12px_32px_rgba(184,154,98,0.45)] hover:shadow-[0_16px_45px_rgba(184,154,98,0.65)] transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.98]"
                 >
                   <span className="text-xs sm:text-sm tracking-[0.24em] uppercase font-bold text-[#0d0e0e]">
                     Contact Us for More
                   </span>
                   <ArrowRight className="w-4 h-4 text-[#0d0e0e] transition-transform duration-300 group-hover:translate-x-1" />
-                </button>
+                </a>
               </div>
             </div>
           }

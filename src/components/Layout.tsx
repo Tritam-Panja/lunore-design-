@@ -25,6 +25,8 @@ const FULLSCREEN_ROUTES = [
   '/interiors/skyline-penthouses',
   '/interiors/executive-suites',
   '/interiors/boutique-lounges',
+  '/coming-soon',
+  '/aurexa',
 ];
 
 export function Layout() {

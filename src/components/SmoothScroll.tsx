@@ -86,16 +86,30 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
   useEffect(() => {
     if (location.hash) {
       const targetId = location.hash;
-      const el = document.querySelector(targetId);
-      if (el) {
-        const timer = setTimeout(() => {
+      const scrollToElement = () => {
+        const el = document.querySelector(targetId);
+        if (el) {
           if (lenisRef.current) {
-            lenisRef.current.scrollTo(el as HTMLElement, { offset: -70 });
+            lenisRef.current.scrollTo(el as HTMLElement, { offset: 0 });
           } else {
             el.scrollIntoView({ behavior: 'smooth' });
           }
-        }, 150);
-        return () => clearTimeout(timer);
+          return true;
+        }
+        return false;
+      };
+
+      if (!scrollToElement()) {
+        const interval = setInterval(() => {
+          if (scrollToElement()) {
+            clearInterval(interval);
+          }
+        }, 50);
+        const timeout = setTimeout(() => clearInterval(interval), 2000);
+        return () => {
+          clearInterval(interval);
+          clearTimeout(timeout);
+        };
       }
     } else {
       if (lenisRef.current) {

@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { Sparkles, ArrowUpRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { ArrowUpRight } from 'lucide-react';
 import { useLenis } from './SmoothScroll';
 import ImageTrail from './ImageTrail';
 
@@ -296,15 +297,7 @@ export function AurexaSection() {
       {/* Background Architectural Grid */}
       <div className="absolute inset-0 bg-[radial-gradient(#ffffff05_1px,transparent_1px)] [background-size:32px_32px] opacity-40 pointer-events-none" />
 
-      {/* 3. TOP PILL BADGE */}
-      <div className="relative z-20 flex flex-col items-center">
-        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.04] border border-[#b89a62]/35 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.5)]">
-          <Sparkles className="w-3.5 h-3.5 text-[#b89a62]" />
-          <span className="text-[10px] sm:text-xs tracking-[0.35em] uppercase text-[#ded9cf] font-medium">
-            The Haute Stone Pavilion
-          </span>
-        </div>
-      </div>
+
 
       {/* 4. HARDWARE-ACCELERATED SVG TEXT SCROLL MASK (In front of ImageTrail) */}
       <div
@@ -422,15 +415,13 @@ export function AurexaSection() {
 
       {/* 6. BOTTOM ACTION: Click Here to Aurexa Website */}
       <div className="relative z-40 flex flex-col items-center gap-3 pointer-events-auto">
-        <a
-          href="#"
-          target="_blank"
-          rel="noopener noreferrer"
+        <Link
+          to="/coming-soon"
           className="group cursor-pointer px-8 py-3.5 rounded-full bg-[#b89a62]/20 hover:bg-[#b89a62]/35 border border-[#b89a62]/60 hover:border-[#b89a62] text-[#f8f0dc] text-xs uppercase tracking-[0.25em] font-medium inline-flex items-center gap-3 shadow-[0_4px_25px_rgba(184,154,98,0.25)] hover:shadow-[0_4px_35px_rgba(184,154,98,0.45)] transition-all duration-300 active:scale-95"
         >
           <span>Click Here</span>
           <ArrowUpRight className="w-4 h-4 text-[#b89a62] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
-        </a>
+        </Link>
       </div>
     </section>
   );
