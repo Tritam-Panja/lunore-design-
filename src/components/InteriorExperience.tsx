@@ -584,9 +584,9 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 relative z-10">
         
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-12">
+        <div className="text-center max-w-6xl mx-auto mb-6 sm:mb-12">
           <h2
-            className="text-2xl sm:text-3xl md:text-5xl font-normal text-[#f1eee7] tracking-tight"
+            className="text-[clamp(0.85rem,3.6vw,1.75rem)] sm:text-3xl md:text-4xl lg:text-5xl font-normal text-[#f1eee7] tracking-tight whitespace-nowrap"
             style={{ fontFamily: 'var(--font-serif)' }}
           >
             “Some Spaces Are Seen. Ours Are Experienced.”

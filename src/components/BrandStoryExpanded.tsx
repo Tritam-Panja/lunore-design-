@@ -39,7 +39,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
           </h2>
 
           <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
-            In a world of mass production and fleeting trends, true luxury is rare. It is thoughtful. It is personal. It is a space that doesn't just look beautiful — it speaks to who you are.
+            In a world of mass production and fleeting trends, true luxury is rare. It is thoughtful. It is personal. It is a space that doesn't just look beautiful, it speaks to who you are.
           </p>
 
           <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
@@ -60,7 +60,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
           </h2>
 
           <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
-            Every great design studio starts with a founder who sees differently. Ours began with Dinkesh — a designer who believed that luxury interiors should never feel like showrooms. They should feel like home, amplified. Like the space was always meant to be exactly this.
+            Every great design studio starts with a founder who sees differently. Ours began with Dinkesh, a designer who believed that luxury interiors should never feel like showrooms. They should feel like home, amplified. Like the space was always meant to be exactly this.
           </p>
 
           <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
@@ -72,7 +72,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
               className="text-lg sm:text-xl md:text-2xl text-[#f5ebd2] italic font-light leading-relaxed"
               style={{ fontFamily: 'var(--font-serif)' }}
             >
-              "That obsession with intention — with curation over decoration — became Lunore."
+              "That obsession with intention, with curation over decoration, became Lunore."
             </p>
           </blockquote>
         </section>
@@ -104,7 +104,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
             </h3>
 
             <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
-              We deliver turnkey interior projects for discerning clients — homes, villas, commercial spaces, hospitality venues — where every material, colour, light and object is chosen with precision.
+              We deliver turnkey interior projects for discerning clients, including homes, villas, commercial spaces, and hospitality venues, where every material, colour, light and object is chosen with precision.
             </p>
 
             <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
@@ -126,11 +126,11 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
             </h3>
 
             <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
-              Luxury interiors demand premium materials. We've built deep relationships with quarries, mills and suppliers across India — for marble, granite, exotic stone and architectural finishes.
+              Luxury interiors demand premium materials. We've built deep relationships with quarries, mills and suppliers across India for marble, granite, exotic stone and architectural finishes.
             </p>
 
             <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
-              We don't just supply slabs. We curate selections. We negotiate on your behalf. We quality-inspect every piece. We manage logistics to your site. We understand that the right marble isn't just beautiful — it's the foundation of a space that will be admired for decades.
+              We don't just supply slabs. We curate selections. We negotiate on your behalf. We quality-inspect every piece. We manage logistics to your site. We understand that the right marble isn't just beautiful, it's the foundation of a space that will be admired for decades.
             </p>
 
             <p className="text-base sm:text-lg md:text-xl text-[#f5ebd2] italic font-light">
@@ -148,7 +148,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
             </h3>
 
             <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
-              A room without art is a room without a soul. We commission and curate bespoke stone sculptures and fine art — pieces that become focal points, conversation starters, and investments that hold or grow in value over time.
+              A room without art is a room without a soul. We commission and curate bespoke stone sculptures and fine art: pieces that become focal points, conversation starters, and investments that hold or grow in value over time.
             </p>
 
             <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
@@ -177,7 +177,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
           </h3>
 
           <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
-            In 20 years, you won't remember the cost of your interiors. You'll remember how they made you feel. You'll remember the conversations that happened in that room. You'll remember the sculpture that stopped visitors in their tracks.
+            In 20 years, you won't remember what your interiors cost. You'll remember how they made you feel. You'll remember the conversations that happened in that room. You'll remember the sculpture that stopped visitors in their tracks.
           </p>
 
           <p className="text-lg sm:text-xl md:text-2xl text-[#f5ebd2] font-normal leading-relaxed">
@@ -185,7 +185,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
           </p>
 
           <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
-            We work with clients who understand that luxury is about choice — choosing materials that age beautifully, choosing designs that reflect who you are, choosing art that moves you.
+            We work with clients who understand that luxury is about choice, choosing materials that age beautifully, choosing designs that reflect who you are, choosing art that moves you.
           </p>
 
           <p className="text-base sm:text-lg md:text-xl text-[#e6cb97] italic font-light">

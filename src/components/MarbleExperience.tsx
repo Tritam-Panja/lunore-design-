@@ -127,7 +127,8 @@ export function MarbleExperience() {
       if (Math.abs(pDiff) < 0.0001) {
         currentProgressRef.current = targetProgressRef.current;
       } else {
-        currentProgressRef.current += pDiff * Math.min(1, 0.12 * timeScale);
+        const progressLerp = Math.abs(pDiff) > 0.15 ? 0.045 : 0.12;
+        currentProgressRef.current += pDiff * Math.min(1, progressLerp * timeScale);
       }
  
       if (!isChanging) {
@@ -291,6 +292,10 @@ export function MarbleExperience() {
           overscrollDeltaRef.current = 0;
           targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.0055);
           triggerPhysicsLoopRef.current();
+        } else if (isZoomUnlockedRef.current && targetProgressRef.current > 0.68) {
+          overscrollDeltaRef.current = 0;
+          targetProgressRef.current = Math.max(0.68, targetProgressRef.current + deltaY * 0.0055);
+          triggerPhysicsLoopRef.current();
         }
       }
     }
@@ -303,7 +308,9 @@ export function MarbleExperience() {
     if (vel > 0.45) {
       if (targetProgressRef.current < 0.44 && !isZoomUnlockedRef.current) {
         targetProgressRef.current = 0.44;
-      } else if (isZoomUnlockedRef.current || targetProgressRef.current >= 0.44) {
+      } else if (isZoomUnlockedRef.current && targetProgressRef.current < 0.68) {
+        targetProgressRef.current = 0.68;
+      } else if (isZoomUnlockedRef.current && targetProgressRef.current >= 0.68) {
         targetProgressRef.current = 1.0;
       }
       triggerPhysicsLoopRef.current();
@@ -311,12 +318,15 @@ export function MarbleExperience() {
       if (!isZoomUnlockedRef.current && targetProgressRef.current <= 0.44) {
         targetProgressRef.current = 0;
         triggerPhysicsLoopRef.current();
+      } else if (isZoomUnlockedRef.current && targetProgressRef.current > 0.68) {
+        targetProgressRef.current = 0.68;
+        triggerPhysicsLoopRef.current();
       }
     } else {
       if (targetProgressRef.current > 0.28 && targetProgressRef.current < 0.44 && !isZoomUnlockedRef.current) {
         targetProgressRef.current = 0.44;
         triggerPhysicsLoopRef.current();
-      } else if (targetProgressRef.current > 0.70 && isZoomUnlockedRef.current) {
+      } else if (targetProgressRef.current > 0.80 && isZoomUnlockedRef.current) {
         targetProgressRef.current = 1.0;
         triggerPhysicsLoopRef.current();
       }
@@ -351,6 +361,12 @@ export function MarbleExperience() {
           overscrollDeltaRef.current = 0;
           targetProgressRef.current = Math.max(0, targetProgressRef.current + Math.max(e.deltaY * 0.0015, -0.09));
           triggerPhysicsLoopRef.current();
+        } else if (isZoomUnlockedRef.current && targetProgressRef.current > 0.68) {
+          e.preventDefault();
+          e.stopPropagation();
+          overscrollDeltaRef.current = 0;
+          targetProgressRef.current = Math.max(0.68, targetProgressRef.current + Math.max(e.deltaY * 0.0015, -0.09));
+          triggerPhysicsLoopRef.current();
         }
       }
     };
@@ -380,7 +396,7 @@ export function MarbleExperience() {
   const handleUnlockZoom = () => {
     setIsZoomUnlocked(true);
     isZoomUnlockedRef.current = true;
-    targetProgressRef.current = 1.0;
+    targetProgressRef.current = 0.68;
     triggerPhysicsLoopRef.current();
   };
  
@@ -411,7 +427,7 @@ export function MarbleExperience() {
   const zoomCrossfadeWeight = Math.cos(easedP2 * Math.PI * 0.5);
   const heroCrossfadeWeight = Math.sin(easedP2 * Math.PI * 0.5);
  
-  const narrativeProgress = Math.max(0, Math.min(1, (p - 0.62) / 0.38));
+  const narrativeProgress = Math.max(0, Math.min(1, (p - 0.68) / 0.32));
   const narrativeEased = narrativeProgress * narrativeProgress * (3 - 2 * narrativeProgress);
   const narrativeDarken = narrativeEased * 0.52;
  
@@ -834,7 +850,7 @@ export function MarbleExperience() {
               textShadow: '0 2px 18px rgba(0,0,0,1), 0 4px 30px rgba(0,0,0,0.95)',
             }}
           >
-            At Lunore, we deal in a wide range of premium marble and granite, offering carefully selected materials for every design requirement. What truly sets us apart, however, is not just the stone we supply, but the service and assurance behind every order. Every piece is thoroughly inspected by our marble experts before delivery to ensure the right quality, finish, size, and consistency—so you receive your marble exactly as it should be, with no compromises, surprises, or mistakes. With Lunore, every stone is checked, trusted, and delivered with confidence.
+            At Lunore, we deal in a wide range of premium marble and granite, offering carefully selected materials for every design requirement. What truly sets us apart, however, is not just the stone we supply, but the service and assurance behind every order. Every piece is thoroughly inspected by our marble experts before delivery to ensure the right quality, finish, size, and consistency, so you receive your marble exactly as it should be, with no compromises, surprises, or mistakes. With Lunore, every stone is checked, trusted, and delivered with confidence.
           </p>
 
           {/* "View More" Button to open the full screen stack view */}
@@ -845,7 +861,7 @@ export function MarbleExperience() {
             >
               <span className="absolute inset-x-5 top-0 h-[1.2px] bg-gradient-to-r from-transparent via-white/80 to-transparent" />
               <span className="text-xs sm:text-sm tracking-[0.28em] uppercase font-semibold text-[#f1eee7] group-hover:text-[#b89a62] transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
-                View More
+                Explore Collection
               </span>
               <ArrowRight className="w-3.5 h-3.5 text-[#b89a62] transition-transform duration-300 group-hover:translate-x-1" />
             </button>
@@ -888,7 +904,7 @@ export function MarbleExperience() {
           </div>
         )}
  
-        {isEntered && isZoomUnlocked && p >= 0.55 && p < 0.72 && (
+        {isEntered && isZoomUnlocked && p >= 0.55 && p < 0.76 && (
           <div className="flex flex-col items-center gap-1.5 opacity-85 transition-opacity duration-300">
             <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#b89a62] font-medium drop-shadow-md">
               Scroll down to explore Lunore Stone Collection • Scroll up to reverse
