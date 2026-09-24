@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { Layout } from '@/components/Layout';
 import { PageLoader } from '@/components/PageLoader';
 import { ExperienceProvider } from '@/components/ExperienceContext';
+import { BackgroundAudio } from '@/components/BackgroundAudio';
 
 // Lazily load all page components for code splitting & initial bundle optimization 
 const Home = lazy(() => import('@/pages/Home').then(m => ({ default: m.Home })));
@@ -29,6 +30,7 @@ function App() {
   return (
     <ExperienceProvider>
       <BrowserRouter>
+        <BackgroundAudio />
         <Suspense fallback={<PageLoader />}>
           <Routes>
             <Route element={<Layout />}>
