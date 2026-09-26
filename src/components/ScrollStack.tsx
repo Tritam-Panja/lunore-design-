@@ -14,6 +14,7 @@ export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({ children, item
       backfaceVisibility: 'hidden',
       WebkitBackfaceVisibility: 'hidden',
       transformStyle: 'preserve-3d',
+      touchAction: 'pan-y',
     }}
   >
     {children}
@@ -272,34 +273,45 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
     measureLayout();
 
-    // High performance Lenis instance with responsive easing & zero sluggish drag
+    // High performance Lenis instance tuned for smooth desktop scrolling & native 1:1 mobile touch
     const scroller = scrollerRef.current;
     const lenis = new Lenis(
       useWindowScroll
         ? {
-            duration: 0.65,
+            duration: 0.6,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             smoothWheel: true,
-            touchMultiplier: 1.6,
+            syncTouch: false,
+            touchMultiplier: 1.0,
             wheelMultiplier: 1.15,
-            lerp: 0.16,
           }
         : {
             wrapper: scroller!,
             content: scroller!.querySelector('.scroll-stack-inner') as HTMLElement,
-            duration: 0.65,
+            duration: 0.6,
             easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
             smoothWheel: true,
-            touchMultiplier: 1.6,
+            syncTouch: false,
             gestureOrientation: 'vertical',
+            touchMultiplier: 1.0,
             wheelMultiplier: 1.15,
-            lerp: 0.16,
           }
     );
 
     lenis.on('scroll', (e: { scroll: number }) => {
       updateCardTransformsRef.current(e.scroll);
     });
+
+    // Native scroll event listener for mobile swipe immediacy (0ms delay)
+    const handleNativeScroll = () => {
+      const currentScroll = useWindowScroll ? window.scrollY : (scroller?.scrollTop ?? 0);
+      updateCardTransformsRef.current(currentScroll);
+    };
+
+    const targetEl = useWindowScroll ? window : scroller;
+    if (targetEl) {
+      targetEl.addEventListener('scroll', handleNativeScroll, { passive: true });
+    }
 
     const raf = (time: number) => {
       lenis.raf(time);
@@ -319,6 +331,9 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      if (targetEl) {
+        targetEl.removeEventListener('scroll', handleNativeScroll);
+      }
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
@@ -339,10 +354,10 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       style={{
         overscrollBehavior: 'contain',
         WebkitOverflowScrolling: 'touch',
-        scrollBehavior: 'smooth',
+        touchAction: 'pan-y',
+        scrollBehavior: 'auto',
         WebkitTransform: 'translateZ(0)',
         transform: 'translateZ(0)',
-        willChange: 'scroll-position',
       }}
     >
       <div className="scroll-stack-inner pt-[2vh] sm:pt-[4vh] md:pt-[4.5vh] px-3 sm:px-8 md:px-16 pb-[8rem] sm:pb-[12rem] min-h-screen">

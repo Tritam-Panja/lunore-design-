@@ -154,11 +154,11 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
       data-lenis-prevent="true"
       className="fixed inset-0 z-[100000] flex flex-col bg-[#070809] text-[#f1eee7] select-none overflow-hidden h-[100dvh] animate-in fade-in duration-250"
     >
-      {/* Ambient background glow (lightened) */}
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.16)_0%,transparent_70%)] blur-[150px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.06)_0%,transparent_70%)] blur-[130px]" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50" />
+      {/* Ambient background glow (optimized for mobile) */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden transform-gpu">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] sm:w-[900px] h-[360px] sm:h-[900px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.16)_0%,transparent_70%)] blur-[40px] sm:blur-[150px] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[300px] sm:w-[700px] h-[300px] sm:h-[700px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.06)_0%,transparent_70%)] blur-[35px] sm:blur-[130px] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50 pointer-events-none" />
       </div>
 
       {/* Top Specular Gold Edge */}
@@ -262,7 +262,7 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
               <div
                 onClick={() => setSelectedImage(item.image)}
                 title="Click to view full screen"
-                className="relative w-full h-full rounded-2xl sm:rounded-[32px] overflow-hidden border border-white/20 bg-[#121416] shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_30px_rgba(0,0,0,0.6)] group select-none flex flex-col justify-end p-6 sm:p-8 md:p-10 cursor-zoom-in transition-all duration-300 hover:border-[#b89a62]/50 hover:shadow-[0_25px_65px_rgba(0,0,0,0.9),0_0_35px_rgba(184,154,98,0.25)]"
+                className="relative w-full h-full rounded-2xl sm:rounded-[32px] overflow-hidden border border-white/20 bg-[#121416] shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_30px_rgba(0,0,0,0.6)] group select-none flex flex-col justify-end p-6 sm:p-8 md:p-10 cursor-zoom-in transition-all duration-300 sm:hover:border-[#b89a62]/50 sm:hover:shadow-[0_25px_65px_rgba(0,0,0,0.9),0_0_35px_rgba(184,154,98,0.25)] touch-pan-y"
               >
                 {/* Background Full-Bleed Image (lightened up) */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
@@ -271,11 +271,11 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
                     alt={item.name}
                     loading="lazy"
                     decoding="async"
-                    className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] group-hover:scale-105 transition-transform duration-1000 ease-out"
+                    className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] sm:group-hover:scale-105 transition-transform duration-700 ease-out transform-gpu"
                   />
                   {/* Lightened, natural gradient solely for bottom text legibility */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.25)_100%)]" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent pointer-events-none" />
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.25)_100%)] pointer-events-none" />
                 </div>
 
                 {/* Top Specular Edge */}
