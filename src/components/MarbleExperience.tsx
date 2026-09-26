@@ -399,6 +399,11 @@ export function MarbleExperience() {
     targetProgressRef.current = 0.68;
     triggerPhysicsLoopRef.current();
   };
+
+  const handleNextPage = () => {
+    targetProgressRef.current = 1.0;
+    triggerPhysicsLoopRef.current();
+  };
  
   const handleResetClick = () => {
     setIsEntered(false);
@@ -896,20 +901,42 @@ export function MarbleExperience() {
         )}
  
         {isEntered && p < 0.38 && (
-          <div className="flex flex-col items-center gap-1.5 opacity-85 transition-opacity duration-300">
-            <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#b89a62] font-medium drop-shadow-md">
-              Scroll down to dock monolith into facade
-            </span>
-            <ChevronDown className="w-4 h-4 text-[#b89a62] animate-bounce" />
+          <div className="pointer-events-auto flex flex-col items-center gap-1.5 animate-in fade-in duration-300">
+            <button
+              onClick={() => {
+                targetProgressRef.current = 0.44;
+                triggerPhysicsLoopRef.current();
+              }}
+              className="group relative cursor-pointer inline-flex items-center justify-center gap-2 sm:gap-2.5 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full bg-black/65 hover:bg-black/90 border border-[#b89a62]/60 hover:border-[#b89a62] text-[#f1eee7] hover:text-[#b89a62] shadow-[0_8px_24px_rgba(0,0,0,0.8),0_0_15px_rgba(184,154,98,0.25)] transition-all duration-300 transform hover:scale-105 active:scale-95 backdrop-blur-md"
+              title="Dock monolith into facade"
+              aria-label="Dock Monolith"
+            >
+              <span className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-[#b89a62]/60 to-transparent" />
+              <span className="text-[10px] sm:text-xs tracking-[0.24em] uppercase font-semibold text-[#f1eee7] group-hover:text-[#b89a62] transition-colors">
+                Dock Monolith
+              </span>
+              <ChevronDown className="w-3.5 h-3.5 text-[#b89a62] transition-transform duration-300 group-hover:translate-y-0.5" />
+            </button>
           </div>
         )}
- 
-        {isEntered && isZoomUnlocked && p >= 0.55 && p < 0.76 && (
-          <div className="flex flex-col items-center gap-1.5 opacity-85 transition-opacity duration-300">
-            <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#b89a62] font-medium drop-shadow-md">
-              Scroll down to explore Lunore Stone Collection • Scroll up to reverse
-            </span>
-            <ChevronDown className="w-4 h-4 text-[#b89a62] animate-bounce" />
+
+        {isEntered && isZoomUnlocked && p >= 0.50 && p < 0.82 && (
+          <div className="pointer-events-auto flex flex-col items-center gap-2 animate-in fade-in zoom-in-95 duration-400">
+            <button
+              onClick={handleNextPage}
+              className="group relative cursor-pointer inline-flex items-center justify-center gap-2.5 sm:gap-3 px-5 sm:px-7 py-2 sm:py-2.5 rounded-full bg-black/70 hover:bg-black/95 border border-[#b89a62]/80 hover:border-[#cfb27b] text-[#f1eee7] shadow-[0_8px_24px_rgba(0,0,0,0.8),0_0_20px_rgba(184,154,98,0.3)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.95),0_0_30px_rgba(184,154,98,0.55)] transition-all duration-300 transform hover:scale-105 active:scale-95 backdrop-blur-md"
+              title="Next Page: Explore Lunore Stone Collection"
+              aria-label="Next Page"
+            >
+              <span className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent" />
+              <span className="absolute inset-0 rounded-full border border-[#b89a62]/30 animate-ping opacity-20 pointer-events-none" />
+
+              <span className="text-[10px] sm:text-xs tracking-[0.26em] uppercase font-semibold text-[#f1eee7] group-hover:text-[#b89a62] transition-colors drop-shadow-md">
+                Next Page
+              </span>
+
+              <ArrowRight className="w-3.5 h-3.5 text-[#b89a62] transition-transform duration-300 group-hover:translate-x-1" />
+            </button>
           </div>
         )}
       </div>

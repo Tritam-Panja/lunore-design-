@@ -13,7 +13,8 @@ export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({ children, item
     style={{
       backfaceVisibility: 'hidden',
       WebkitBackfaceVisibility: 'hidden',
-      transformStyle: 'preserve-3d',
+      transform: 'translate3d(0, 0, 0)',
+      contain: 'paint layout',
     }}
   >
     {children}
@@ -40,6 +41,7 @@ export interface ScrollStackProps {
 interface LayoutMetrics {
   cardTops: number[];
   cardHeights: number[];
+  pinStarts: number[];
   endElementTop: number;
   footerElementTop: number;
   containerHeight: number;
@@ -62,12 +64,13 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const lenisRef = useRef<Lenis | null>(null);
   const cardsRef = useRef<HTMLElement[]>([]);
-  const lastTransformsRef = useRef(new Map<number, { y: number; s: number; o: number }>());
+  const lastTransformsRef = useRef<Map<number, { y: number; s: number; o: number; v: boolean }>>(new Map());
   const isUpdatingRef = useRef(false);
 
   const layoutMetricsRef = useRef<LayoutMetrics>({
     cardTops: [],
     cardHeights: [],
+    pinStarts: [],
     endElementTop: 0,
     footerElementTop: 0,
     containerHeight: 0,
@@ -87,7 +90,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     return parseFloat(value as string);
   }, []);
 
-  // Pre-measure all card offsets ONCE on layout/resize to avoid layout thrashing during scroll frames
+  // Pre-measure layout & precalculate pin boundaries ONCE on layout/resize (zero DOM reads during scroll)
   const measureLayout = useCallback(() => {
     const scroller = scrollerRef.current;
     const containerHeight = useWindowScroll
@@ -114,20 +117,29 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
     const endElementTop = endElement ? getOffset(endElement) : 0;
     const footerElementTop = footerElement ? getOffset(footerElement) : 0;
-    const cardTops = cardsRef.current.map((card) => (card ? getOffset(card) : 0));
-    const cardHeights = cardsRef.current.map((card) => (card ? card.offsetHeight : 0));
+    const cards = cardsRef.current;
+    const cardTops = cards.map((card) => (card ? getOffset(card) : 0));
+    const cardHeights = cards.map((card) => (card ? card.offsetHeight : 0));
+
+    // Precalculate pinStart for every card to eliminate redundant math in the hot animation loop
+    const pinStarts: number[] = [];
+    for (let i = 0; i < cards.length; i++) {
+      pinStarts.push(cardTops[i] - stackPositionPx + itemStackDistance * i);
+    }
 
     layoutMetricsRef.current = {
       cardTops,
       cardHeights,
+      pinStarts,
       endElementTop,
       footerElementTop,
       containerHeight,
       stackPositionPx,
     };
-  }, [useWindowScroll, stackPosition, parsePercentage]);
+  }, [useWindowScroll, stackPosition, itemStackDistance, parsePercentage]);
 
-  // Ultra-optimized 60/120fps transform updater: Pure arithmetic, ZERO DOM layout reads during scroll
+  // Ultra-smooth 60/120fps hardware-accelerated transform updater:
+  // Pure array lookups, occlusion culling, and zero layout thrashing
   const updateCardTransforms = useCallback((customScroll?: number) => {
     const cards = cardsRef.current;
     const cardsCount = cards.length;
@@ -139,15 +151,14 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       measureLayout();
     }
 
-    const { cardTops, cardHeights, endElementTop, footerElementTop, containerHeight, stackPositionPx } = layoutMetricsRef.current;
+    const { cardHeights, pinStarts, endElementTop, footerElementTop, containerHeight, stackPositionPx } = layoutMetricsRef.current;
     const scrollTop = typeof customScroll === 'number'
       ? customScroll
       : (useWindowScroll ? window.scrollY : (scrollerRef.current?.scrollTop ?? 0));
 
-    const lastCardHeight = (cardHeights && cardHeights[cardsCount - 1]) || 540;
-    const desiredGap = 28; // Clean, luxury 28px gap between bottom of 10th card and top of footer card
+    const lastCardHeight = (cardHeights && cardHeights[cardsCount - 1]) || 500;
+    const desiredGap = 24;
 
-    // As soon as the footer reaches 28px below the last card, release pin so they glide together seamlessly with zero dead scroll
     let pinEnd = endElementTop - containerHeight / 2;
     if (footerElementTop > 0) {
       pinEnd = footerElementTop - stackPositionPx - lastCardHeight - desiredGap;
@@ -157,36 +168,30 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       const card = cards[i];
       if (!card) continue;
 
-      const cardTop = cardTops[i] ?? 0;
-      const pinStart = cardTop - stackPositionPx + itemStackDistance * i;
+      const pinStart = pinStarts[i] ?? 0;
 
       // Pinned translateY calculation
-      let translateY = 0;
-      if (scrollTop >= pinStart && scrollTop <= pinEnd) {
-        translateY = scrollTop - cardTop + stackPositionPx + itemStackDistance * i;
-      } else if (scrollTop > pinEnd) {
-        translateY = pinEnd - cardTop + stackPositionPx + itemStackDistance * i;
+      const translateY = Math.max(0, Math.min(scrollTop - pinStart, pinEnd - pinStart));
+
+      // Fast check: how many cards have stacked above this card?
+      let cardsAbove = 0;
+      for (let k = i + 1; k < cardsCount; k++) {
+        if (scrollTop >= (pinStarts[k] ?? 0)) {
+          cardsAbove++;
+        } else {
+          break;
+        }
       }
 
-      // Smooth depth scale & opacity:
-      // The active foreground card is ALWAYS full scale 1.0 and opacity 1.0.
-      // As the next card arrives, the underneath card smoothly scales to (1 - itemScale) and slightly dims.
+      // Occlusion culling: cards covered by 2+ opaque cards are culled from GPU compositor
+      const isVisible = cardsAbove < 2;
+
       let scale = 1;
       let opacity = 1;
 
       if (i < cardsCount - 1) {
-        const nextCardTop = cardTops[i + 1] ?? 0;
-        const nextPinStart = nextCardTop - stackPositionPx + itemStackDistance * (i + 1);
-        const transitionDistance = Math.min(containerHeight * 0.6, 400);
-
-        let cardsAbove = 0;
-        for (let k = i + 1; k < cardsCount; k++) {
-          const kTop = cardTops[k] ?? 0;
-          const kPin = kTop - stackPositionPx + itemStackDistance * k;
-          if (scrollTop >= kPin) {
-            cardsAbove++;
-          }
-        }
+        const nextPinStart = pinStarts[i + 1] ?? 0;
+        const transitionDistance = Math.min(containerHeight * 0.55, 360);
 
         if (cardsAbove > 0) {
           scale = Math.max(0.88, 1 - cardsAbove * itemScale);
@@ -198,25 +203,31 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         }
       }
 
-      const roundedTranslateY = Math.round(translateY * 10) / 10;
-      const roundedScale = Math.round(scale * 1000) / 1000;
-      const roundedOpacity = Math.round(opacity * 100) / 100;
-
+      // High-precision subpixel transforms for silky 120fps motion
       const last = lastTransformsRef.current.get(i);
       const needsUpdate =
         !last ||
-        Math.abs(last.y - roundedTranslateY) > 0.1 ||
-        Math.abs(last.s - roundedScale) > 0.001 ||
-        Math.abs(last.o - roundedOpacity) > 0.01;
+        Math.abs(last.y - translateY) > 0.05 ||
+        Math.abs(last.s - scale) > 0.0005 ||
+        Math.abs(last.o - opacity) > 0.005 ||
+        last.v !== isVisible;
 
       if (needsUpdate) {
-        card.style.transform = `translate3d(0, ${roundedTranslateY}px, 0) scale(${roundedScale})`;
-        if (roundedOpacity < 1) {
-          card.style.opacity = `${roundedOpacity}`;
+        card.style.transform = `translate3d(0, ${translateY.toFixed(2)}px, 0) scale(${scale.toFixed(4)})`;
+
+        if (opacity < 1) {
+          card.style.opacity = opacity.toFixed(3);
         } else if (last && last.o < 1) {
           card.style.opacity = '1';
         }
-        lastTransformsRef.current.set(i, { y: roundedTranslateY, s: roundedScale, o: roundedOpacity });
+
+        if (!isVisible && (!last || last.v)) {
+          card.style.visibility = 'hidden';
+        } else if (isVisible && last && !last.v) {
+          card.style.visibility = 'visible';
+        }
+
+        lastTransformsRef.current.set(i, { y: translateY, s: scale, o: opacity, v: isVisible });
       }
 
       if (i === cardsCount - 1) {
@@ -233,7 +244,6 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     isUpdatingRef.current = false;
   }, [
     itemScale,
-    itemStackDistance,
     useWindowScroll,
     onStackComplete,
     calculateProgress,
@@ -256,9 +266,13 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     ) as HTMLElement[];
     cardsRef.current = cards;
 
+    // Responsive item distance: tighter spacing on mobile for seamless continuous stacking
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 640;
+    const effectiveItemDistance = isMobile ? Math.min(itemDistance, 240) : itemDistance;
+
     cards.forEach((card, i) => {
       if (i < cards.length - 1) {
-        card.style.marginBottom = `${itemDistance}px`;
+        card.style.marginBottom = `${effectiveItemDistance}px`;
       } else {
         card.style.marginBottom = `${footer ? 48 : 0}px`;
       }
@@ -272,44 +286,69 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
     measureLayout();
 
-    // High performance Lenis instance with responsive easing & zero sluggish drag
     const scroller = scrollerRef.current;
-    const lenis = new Lenis(
-      useWindowScroll
-        ? {
-            duration: 0.65,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smoothWheel: true,
-            touchMultiplier: 1.6,
-            wheelMultiplier: 1.15,
-            lerp: 0.16,
-          }
-        : {
-            wrapper: scroller!,
-            content: scroller!.querySelector('.scroll-stack-inner') as HTMLElement,
-            duration: 0.65,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            smoothWheel: true,
-            touchMultiplier: 1.6,
-            gestureOrientation: 'vertical',
-            wheelMultiplier: 1.15,
-            lerp: 0.16,
-          }
+    const isTouch = typeof window !== 'undefined' && (
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      window.matchMedia('(pointer: coarse)').matches
     );
 
-    lenis.on('scroll', (e: { scroll: number }) => {
-      updateCardTransformsRef.current(e.scroll);
-    });
-
-    const raf = (time: number) => {
-      lenis.raf(time);
-      animationFrameRef.current = requestAnimationFrame(raf);
+    // On touch/mobile devices: Use native momentum scroll + hardware V-Sync RAF loop
+    // This delivers authentic 60/120Hz ProMotion touch fidelity with ZERO touch-lag
+    let nativeScrollScheduled = false;
+    const handleNativeScroll = () => {
+      if (!nativeScrollScheduled) {
+        nativeScrollScheduled = true;
+        requestAnimationFrame(() => {
+          nativeScrollScheduled = false;
+          const currentScroll = useWindowScroll ? window.scrollY : (scroller?.scrollTop ?? 0);
+          updateCardTransformsRef.current(currentScroll);
+        });
+      }
     };
-    animationFrameRef.current = requestAnimationFrame(raf);
-    lenisRef.current = lenis;
+
+    const targetEl = useWindowScroll ? window : scroller;
+    if (targetEl) {
+      targetEl.addEventListener('scroll', handleNativeScroll, { passive: true });
+    }
+
+    // On desktop: Use Lenis for mouse wheel smoothing
+    if (!isTouch && scroller) {
+      const lenis = new Lenis(
+        useWindowScroll
+          ? {
+              duration: 0.65,
+              easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+              smoothWheel: true,
+              syncTouch: false,
+              wheelMultiplier: 1.0,
+            }
+          : {
+              wrapper: scroller,
+              content: scroller.querySelector('.scroll-stack-inner') as HTMLElement,
+              duration: 0.65,
+              easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+              smoothWheel: true,
+              syncTouch: false,
+              gestureOrientation: 'vertical',
+              wheelMultiplier: 1.0,
+            }
+      );
+
+      lenis.on('scroll', (e: { scroll: number }) => {
+        updateCardTransformsRef.current(e.scroll);
+      });
+
+      const raf = (time: number) => {
+        lenis.raf(time);
+        animationFrameRef.current = requestAnimationFrame(raf);
+      };
+      animationFrameRef.current = requestAnimationFrame(raf);
+      lenisRef.current = lenis;
+    }
 
     // Initial render tick
-    updateCardTransformsRef.current(0);
+    updateCardTransformsRef.current(useWindowScroll ? window.scrollY : (scroller?.scrollTop ?? 0));
 
     const handleResize = () => {
       measureLayoutRef.current();
@@ -319,18 +358,22 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      if (targetEl) {
+        targetEl.removeEventListener('scroll', handleNativeScroll);
+      }
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
       }
       if (lenisRef.current) {
         lenisRef.current.destroy();
+        lenisRef.current = null;
       }
       stackCompletedRef.current = false;
       cardsRef.current = [];
       lastTransformsRef.current.clear();
       isUpdatingRef.current = false;
     };
-  }, [itemDistance, useWindowScroll]);
+  }, [itemDistance, footer, useWindowScroll, measureLayout]);
 
   return (
     <div
@@ -339,7 +382,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       style={{
         overscrollBehavior: 'contain',
         WebkitOverflowScrolling: 'touch',
-        scrollBehavior: 'smooth',
+        scrollBehavior: 'auto',
         WebkitTransform: 'translateZ(0)',
         transform: 'translateZ(0)',
         willChange: 'scroll-position',
@@ -348,7 +391,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       <div className="scroll-stack-inner pt-[2vh] sm:pt-[4vh] md:pt-[4.5vh] px-3 sm:px-8 md:px-16 pb-[8rem] sm:pb-[12rem] min-h-screen">
         {children}
         {/* Spacer so the last pin can release cleanly */}
-        <div className="scroll-stack-end w-full h-px" />
+        <div className="scroll-stack-end w-full h-px pointer-events-none" />
         {footer && <div className="scroll-stack-footer w-full pt-4 sm:pt-6 pb-16 sm:pb-24">{footer}</div>}
       </div>
     </div>
