@@ -124,6 +124,18 @@ interface MarbleStackModalProps {
 export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
+  const [isMobile, setIsMobile] = useState(
+    typeof window !== 'undefined' ? window.innerWidth < 640 : false
+  );
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 640);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   // Handle ESC key press and lock background page scroll
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -202,9 +214,9 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
       {/* Main Interactive Scroll Stack Canvas */}
       <main className="flex-1 w-full relative min-h-0 overflow-hidden">
         <ScrollStack
-          itemDistance={380}
-          itemScale={0.038}
-          stackPosition="6%"
+          itemDistance={isMobile ? 260 : 380}
+          itemScale={isMobile ? 0.032 : 0.038}
+          stackPosition={isMobile ? '4%' : '6%'}
           useWindowScroll={false}
           className="w-full h-full"
           footer={
@@ -254,24 +266,24 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
           </div>
 
           {/* 10 Precision Stack Cards */}
-          {MARBLE_COLLECTION_ITEMS.map((item) => (
+          {MARBLE_COLLECTION_ITEMS.map((item, index) => (
             <ScrollStackItem
               key={item.id}
-              itemClassName="max-w-5xl mx-auto h-[62vh] sm:h-[70vh] max-h-[580px] min-h-[380px]"
+              itemClassName="max-w-5xl mx-auto h-[58dvh] sm:h-[70vh] max-h-[580px] min-h-[340px]"
             >
               <div
                 onClick={() => setSelectedImage(item.image)}
                 title="Click to view full screen"
-                className="relative w-full h-full rounded-2xl sm:rounded-[32px] overflow-hidden border border-white/20 bg-[#121416] shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_30px_rgba(0,0,0,0.6)] group select-none flex flex-col justify-end p-6 sm:p-8 md:p-10 cursor-zoom-in transition-all duration-300 sm:hover:border-[#b89a62]/50 sm:hover:shadow-[0_25px_65px_rgba(0,0,0,0.9),0_0_35px_rgba(184,154,98,0.25)] touch-pan-y"
+                className="relative w-full h-full rounded-2xl sm:rounded-[32px] overflow-hidden border border-white/20 bg-[#121416] shadow-[0_16px_40px_rgba(0,0,0,0.85)] sm:shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_30px_rgba(0,0,0,0.6)] group select-none flex flex-col justify-end p-5 sm:p-8 md:p-10 cursor-zoom-in transition-[border-color,box-shadow] duration-300 sm:hover:border-[#b89a62]/50 sm:hover:shadow-[0_25px_65px_rgba(0,0,0,0.9),0_0_35px_rgba(184,154,98,0.25)] touch-pan-y"
               >
                 {/* Background Full-Bleed Image (lightened up) */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                   <img
                     src={item.image}
                     alt={item.name}
-                    loading="lazy"
+                    loading={index < 3 ? 'eager' : 'lazy'}
                     decoding="async"
-                    className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] sm:group-hover:scale-105 transition-transform duration-700 ease-out transform-gpu"
+                    className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] sm:group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
                   {/* Lightened, natural gradient solely for bottom text legibility */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent pointer-events-none" />

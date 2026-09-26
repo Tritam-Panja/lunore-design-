@@ -83,15 +83,8 @@ export function MarbleExperience() {
       const rawDt = Math.min(48, Math.max(1, now - lastTime));
       lastTime = now;
  
-      // Frame-rate gate: mobile updates at ~30fps, desktop at full RAF rate
-      const frameInterval = isMobileRef.current ? 33 : 0;
-      accumulatedTime += rawDt;
-      if (accumulatedTime < frameInterval) {
-        animId = requestAnimationFrame(updatePhysics);
-        return;
-      }
-      const dt = accumulatedTime;
-      accumulatedTime = 0;
+      // Full RAF frame-rate for smooth 60fps touch gestures on mobile and desktop
+      const dt = rawDt;
       const timeScale = dt / 16.67;
  
       const diffTiltX = targetTiltRef.current.x - currentTiltRef.current.x;
