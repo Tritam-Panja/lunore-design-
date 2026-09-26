@@ -1,35 +1,138 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { VolumeX } from 'lucide-react';
+
+const TARGET_VOLUME = 0.85;
+const FADE_IN_DURATION = 3.2; // Seconds for gentle swell at start of loop
+const FADE_OUT_DURATION = 3.6; // Seconds for gentle decrescendo near end of loop
+const END_BUFFER = 0.25; // Reaches silence before track end for zero click/pop
 
 export function BackgroundAudio() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const rafRef = useRef<number | null>(null);
+  const interactionGainRef = useRef<number>(0);
+  const fadeAnimationRef = useRef<number | null>(null);
+
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
+
+  // Calculate volume factor based on track position (Fade In & Fade Out)
+  const getTrackFadeFactor = useCallback((currentTime: number, duration: number): number => {
+    if (!duration || isNaN(duration) || duration <= 0) {
+      const progress = Math.max(0, Math.min(1, currentTime / FADE_IN_DURATION));
+      return Math.sin((progress * Math.PI) / 2);
+    }
+
+    // 1. Gentle fade-in at the start of each loop
+    if (currentTime < FADE_IN_DURATION) {
+      const progress = Math.max(0, Math.min(1, currentTime / FADE_IN_DURATION));
+      return Math.sin((progress * Math.PI) / 2);
+    }
+
+    // 2. Gentle fade-out approaching the end of each loop
+    const fadeOutStart = duration - FADE_OUT_DURATION - END_BUFFER;
+    if (currentTime > fadeOutStart) {
+      const remaining = Math.max(0, duration - END_BUFFER - currentTime);
+      const progress = Math.max(0, Math.min(1, remaining / FADE_OUT_DURATION));
+      return Math.sin((progress * Math.PI) / 2);
+    }
+
+    // 3. Steady playback in the body of the track
+    return 1.0;
+  }, []);
+
+  // Update volume smoothly based on both track position and interaction gain
+  const applySmoothVolume = useCallback(() => {
+    const audio = audioRef.current;
+    if (!audio) return;
+
+    if (audio.paused || audio.muted) {
+      if (audio.volume !== 0) {
+        audio.volume = 0;
+      }
+      return;
+    }
+
+    const trackFactor = getTrackFadeFactor(audio.currentTime, audio.duration);
+    const target = TARGET_VOLUME * trackFactor * interactionGainRef.current;
+    const clamped = Math.max(0, Math.min(1, target));
+
+    // Update volume smoothly
+    if (Math.abs(audio.volume - clamped) > 0.002) {
+      audio.volume = clamped;
+    }
+  }, [getTrackFadeFactor]);
+
+  // Smooth ramp for interaction gain (mute/unmute/interaction)
+  const animateInteractionGain = useCallback(
+    (targetGain: number, durationMs: number, onComplete?: () => void) => {
+      if (fadeAnimationRef.current) {
+        cancelAnimationFrame(fadeAnimationRef.current);
+        fadeAnimationRef.current = null;
+      }
+
+      const startGain = interactionGainRef.current;
+      const startTime = performance.now();
+
+      const step = (now: number) => {
+        const elapsed = now - startTime;
+        const progress = Math.min(1, Math.max(0, elapsed / durationMs));
+        // Equal power sinusoidal easing
+        const ease = Math.sin((progress * Math.PI) / 2);
+        interactionGainRef.current = startGain + (targetGain - startGain) * ease;
+
+        applySmoothVolume();
+
+        if (progress < 1) {
+          fadeAnimationRef.current = requestAnimationFrame(step);
+        } else {
+          interactionGainRef.current = targetGain;
+          applySmoothVolume();
+          fadeAnimationRef.current = null;
+          if (onComplete) onComplete();
+        }
+      };
+
+      fadeAnimationRef.current = requestAnimationFrame(step);
+    },
+    [applySmoothVolume]
+  );
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    audio.volume = 1.0;
+    // Start with volume 0 so it can fade in naturally
+    audio.volume = 0;
 
-    // Function to unmute and ensure playback
+    // Continuous 60fps volume update loop for organic crossfades
+    const loopVolumeCheck = () => {
+      applySmoothVolume();
+      rafRef.current = requestAnimationFrame(loopVolumeCheck);
+    };
+    rafRef.current = requestAnimationFrame(loopVolumeCheck);
+
+    const onVisibilityChange = () => {
+      applySmoothVolume();
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
+    // Function to unmute and smoothly fade in on user gesture
     const unmuteAndPlay = () => {
       if (!audio) return;
       audio.muted = false;
-      audio.volume = 1.0;
 
       const promise = audio.play();
       if (promise !== undefined) {
         promise
           .then(() => {
             audio.muted = false;
-            audio.volume = 1.0;
             setIsMuted(false);
             setIsPlaying(true);
+            animateInteractionGain(1.0, 1400);
             removeInteractionListeners();
           })
           .catch(() => {
-            // Browser still requires a direct click/tap gesture: keep muted until gesture occurs
+            // Browser still requires direct gesture
             audio.muted = true;
             setIsMuted(true);
           });
@@ -37,6 +140,7 @@ export function BackgroundAudio() {
         audio.muted = false;
         setIsMuted(false);
         setIsPlaying(true);
+        animateInteractionGain(1.0, 1400);
         removeInteractionListeners();
       }
     };
@@ -62,7 +166,6 @@ export function BackgroundAudio() {
 
     // 1. Try immediate unmuted play on mount
     audio.muted = false;
-    audio.volume = 1.0;
     const initialPlay = audio.play();
     if (initialPlay !== undefined) {
       initialPlay
@@ -70,14 +173,16 @@ export function BackgroundAudio() {
           audio.muted = false;
           setIsMuted(false);
           setIsPlaying(true);
+          animateInteractionGain(1.0, 1400);
         })
         .catch(() => {
           // Browser requires interaction: start muted so audio track runs immediately
           audio.muted = true;
           setIsMuted(true);
+          interactionGainRef.current = 0;
           audio.play().catch(() => {});
 
-          // Attach broad interaction listeners (click, tap, scroll, key) to unmute on first action
+          // Attach broad interaction listeners to unmute and fade in on first user action
           window.addEventListener('click', handleInteraction, { passive: true });
           window.addEventListener('pointerup', handleInteraction, { passive: true });
           window.addEventListener('pointerdown', handleInteraction, { passive: true });
@@ -91,8 +196,15 @@ export function BackgroundAudio() {
 
     return () => {
       removeInteractionListeners();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
+      if (rafRef.current) {
+        cancelAnimationFrame(rafRef.current);
+      }
+      if (fadeAnimationRef.current) {
+        cancelAnimationFrame(fadeAnimationRef.current);
+      }
     };
-  }, []);
+  }, [animateInteractionGain, applySmoothVolume]);
 
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -102,16 +214,24 @@ export function BackgroundAudio() {
     if (!audio) return;
 
     if (!audio.paused && !isMuted) {
-      audio.pause();
-      setIsPlaying(false);
+      // Smooth fade-out before pausing
+      setIsMuted(true);
+      animateInteractionGain(0.0, 320, () => {
+        if (audioRef.current) {
+          audioRef.current.pause();
+          setIsPlaying(false);
+        }
+      });
     } else {
       audio.muted = false;
-      audio.volume = 1.0;
+      audio.volume = 0;
+      interactionGainRef.current = 0;
       setIsMuted(false);
       audio
         .play()
         .then(() => {
           setIsPlaying(true);
+          animateInteractionGain(1.0, 600);
         })
         .catch(() => {});
     }
@@ -129,16 +249,23 @@ export function BackgroundAudio() {
         muted={isMuted}
         preload="auto"
         playsInline
+        onTimeUpdate={applySmoothVolume}
         onPlay={() => {
           if (audioRef.current && !audioRef.current.muted) {
             setIsMuted(false);
             setIsPlaying(true);
           }
         }}
-        onPause={() => setIsPlaying(false)}
-        onVolumeChange={() => {
+        onPause={() => {
+          if (interactionGainRef.current === 0) {
+            setIsPlaying(false);
+          }
+        }}
+        onEnded={() => {
+          // Backup loop handler if native loop ever completes
           if (audioRef.current) {
-            setIsMuted(audioRef.current.muted);
+            audioRef.current.currentTime = 0;
+            audioRef.current.play().catch(() => {});
           }
         }}
       />
