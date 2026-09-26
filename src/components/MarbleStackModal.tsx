@@ -154,11 +154,11 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
       data-lenis-prevent="true"
       className="fixed inset-0 z-[100000] flex flex-col bg-[#070809] text-[#f1eee7] select-none overflow-hidden h-[100dvh] animate-in fade-in duration-250"
     >
-      {/* Ambient background glow (optimized for mobile fill-rate) */}
-      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden transform-gpu">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[340px] sm:w-[850px] h-[340px] sm:h-[850px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.18)_0%,transparent_70%)] blur-[40px] sm:blur-[120px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-[280px] sm:w-[650px] h-[280px] sm:h-[650px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.06)_0%,transparent_70%)] blur-[35px] sm:blur-[100px] pointer-events-none" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50 pointer-events-none" />
+      {/* Ambient background glow (lightened) */}
+      <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[900px] h-[900px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.16)_0%,transparent_70%)] blur-[150px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.06)_0%,transparent_70%)] blur-[130px]" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50" />
       </div>
 
       {/* Top Specular Gold Edge */}
@@ -241,9 +241,9 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
           }
         >
           {/* Top Intro Section within Scroll Area */}
-          <div className="max-w-4xl mx-auto text-center mb-6 sm:mb-12 pt-3 sm:pt-4 px-4 select-none">
+          <div className="max-w-4xl mx-auto text-center mb-8 sm:mb-12 pt-4 px-4 select-none">
             <h1
-              className="text-2xl sm:text-4xl md:text-5xl text-white font-normal tracking-wide mb-2.5 sm:mb-3 leading-tight"
+              className="text-2xl sm:text-4xl md:text-5xl text-white font-normal tracking-wide mb-3 leading-tight"
               style={{ fontFamily: 'var(--font-serif)' }}
             >
               Masterpiece Marble &amp; Granite
@@ -254,29 +254,28 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
           </div>
 
           {/* 10 Precision Stack Cards */}
-          {MARBLE_COLLECTION_ITEMS.map((item, index) => (
+          {MARBLE_COLLECTION_ITEMS.map((item) => (
             <ScrollStackItem
               key={item.id}
-              itemClassName="max-w-5xl mx-auto h-[58vh] sm:h-[70vh] max-h-[580px] min-h-[350px]"
+              itemClassName="max-w-5xl mx-auto h-[62vh] sm:h-[70vh] max-h-[580px] min-h-[380px]"
             >
               <div
                 onClick={() => setSelectedImage(item.image)}
                 title="Click to view full screen"
-                className="relative w-full h-full rounded-2xl sm:rounded-[32px] overflow-hidden border border-white/20 bg-[#121416] shadow-[0_12px_28px_rgba(0,0,0,0.75)] sm:shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_30px_rgba(0,0,0,0.6)] group select-none flex flex-col justify-end p-5 sm:p-8 md:p-10 cursor-zoom-in transition-all duration-300 sm:hover:border-[#b89a62]/50 sm:hover:shadow-[0_25px_65px_rgba(0,0,0,0.9),0_0_35px_rgba(184,154,98,0.25)]"
+                className="relative w-full h-full rounded-2xl sm:rounded-[32px] overflow-hidden border border-white/20 bg-[#121416] shadow-[0_25px_60px_rgba(0,0,0,0.85),0_0_30px_rgba(0,0,0,0.6)] group select-none flex flex-col justify-end p-6 sm:p-8 md:p-10 cursor-zoom-in transition-all duration-300 hover:border-[#b89a62]/50 hover:shadow-[0_25px_65px_rgba(0,0,0,0.9),0_0_35px_rgba(184,154,98,0.25)]"
               >
                 {/* Background Full-Bleed Image (lightened up) */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                   <img
                     src={item.image}
                     alt={item.name}
-                    loading={index < 2 ? 'eager' : 'lazy'}
+                    loading="lazy"
                     decoding="async"
-                    fetchPriority={index < 2 ? 'high' : 'auto'}
-                    className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] sm:group-hover:scale-105 transition-transform duration-700 ease-out transform-gpu"
+                    className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] group-hover:scale-105 transition-transform duration-1000 ease-out"
                   />
                   {/* Lightened, natural gradient solely for bottom text legibility */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent pointer-events-none" />
-                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.25)_100%)] pointer-events-none" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent" />
+                  <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,rgba(0,0,0,0.25)_100%)]" />
                 </div>
 
                 {/* Top Specular Edge */}
@@ -285,13 +284,13 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
                 {/* Card Bottom: Name & Description */}
                 <div className="relative z-10 max-w-3xl pointer-events-none">
                   <h3
-                    className="text-xl sm:text-3xl md:text-4xl text-white font-normal tracking-wide mb-2 sm:mb-2.5 leading-snug drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)]"
+                    className="text-xl sm:text-3xl md:text-4xl text-white font-normal tracking-wide mb-2.5 leading-snug drop-shadow-[0_2px_15px_rgba(0,0,0,0.9)]"
                     style={{ fontFamily: 'var(--font-serif)' }}
                   >
                     {item.name}
                   </h3>
 
-                  <p className="text-[11px] sm:text-sm text-[#ded9cf]/90 font-light leading-relaxed max-w-2xl line-clamp-2 sm:line-clamp-3 drop-shadow-md">
+                  <p className="text-xs sm:text-sm text-[#ded9cf]/90 font-light leading-relaxed max-w-2xl line-clamp-2 sm:line-clamp-3 drop-shadow-md">
                     {item.description}
                   </p>
                 </div>
