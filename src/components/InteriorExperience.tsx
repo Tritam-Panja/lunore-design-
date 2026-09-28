@@ -235,13 +235,40 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
 
   const location = useLocation();
 
-  // Restore Stage 4 (cards view) when returning back from any project page
+  // Restore or open Stage 4 (projects cards view) when navigating to projects or returning back
   useEffect(() => {
-    const hasStage4Storage = sessionStorage.getItem('lunore_interior_stage') === '4';
-    const hasCardsHash = location.hash === '#interior-cards' || location.hash === '#interior-experience';
-    const isReturnState = (location.state as any)?.returnToCards;
+    const checkAndOpenProjects = () => {
+      const hasStage4Storage = sessionStorage.getItem('lunore_interior_stage') === '4';
+      const hasCardsHash =
+        location.hash === '#interior-cards' ||
+        location.hash === '#interior-experience' ||
+        location.hash === '#projects';
+      const isReturnState = (location.state as any)?.returnToCards;
 
-    if (hasStage4Storage || hasCardsHash || isReturnState) {
+      if (hasStage4Storage || hasCardsHash || isReturnState) {
+        setIsFlashlightMode(false);
+        isFlashlightModeRef.current = false;
+        setOverlayReady(true);
+        overlayReadyRef.current = true;
+        setStoryStage(4);
+        storyStageRef.current = 4;
+        setHasBeenTapped(true);
+        setIsSwitchToggled(true);
+
+        const timer = setTimeout(() => {
+          const section = document.getElementById('interior-experience');
+          if (section) {
+            section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 100);
+
+        return () => clearTimeout(timer);
+      }
+    };
+
+    checkAndOpenProjects();
+
+    const handleCustomOpen = () => {
       setIsFlashlightMode(false);
       isFlashlightModeRef.current = false;
       setOverlayReady(true);
@@ -250,16 +277,14 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       storyStageRef.current = 4;
       setHasBeenTapped(true);
       setIsSwitchToggled(true);
+      const section = document.getElementById('interior-experience');
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    };
 
-      const timer = setTimeout(() => {
-        const section = document.getElementById('interior-experience');
-        if (section) {
-          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
-
-      return () => clearTimeout(timer);
-    }
+    window.addEventListener('open-interior-projects', handleCustomOpen);
+    return () => window.removeEventListener('open-interior-projects', handleCustomOpen);
   }, [location]);
 
   // Immediate smooth open transition when clicking "EXPLORE MORE"

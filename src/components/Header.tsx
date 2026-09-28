@@ -11,10 +11,10 @@ interface NavItem {
 }
 
 const navLinks: NavItem[] = [
-  { label: 'PROJECTS', to: '/dream-project', hash: '#projects', sublabel: 'Visionary Works' },
+  { label: 'PROJECTS', to: '/#interior-cards', hash: '#interior-cards', sublabel: 'Visionary Works' },
   { label: 'SERVICES', to: '/interior-design', hash: '#services', sublabel: 'Turnkey & Stone' },
   { label: 'ABOUT', to: '/brand-story', sublabel: 'The Space For You' },
-  { label: 'CONTACT', to: '/contact', hash: '#contact', sublabel: 'Start a Project' },
+  { label: 'CONTACT', to: '/#contact', hash: '#contact', sublabel: 'Start a Project' },
 ];
 
 export function Header() {
@@ -103,12 +103,55 @@ export function Header() {
   }, [menuOpen]);
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: NavItem) => {
+    document.body.style.overflow = '';
     setMenuOpen(false);
+
+    if (link.label === 'PROJECTS') {
+      e.preventDefault();
+      sessionStorage.setItem('lunore_interior_stage', '4');
+      window.dispatchEvent(new CustomEvent('open-interior-projects'));
+
+      if (location.pathname === '/') {
+        const targetEl = document.getElementById('interior-experience');
+        if (targetEl) {
+          scrollTo(targetEl);
+        }
+      } else {
+        navigate('/#interior-cards', { state: { returnToCards: true } });
+      }
+      return;
+    }
+
+    if (link.label === 'CONTACT') {
+      e.preventDefault();
+      if (location.pathname === '/') {
+        setTimeout(() => {
+          const contactEl = document.getElementById('contact');
+          if (contactEl) {
+            scrollTo(contactEl, { offset: -20 });
+            contactEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 80);
+      } else {
+        navigate('/#contact');
+        setTimeout(() => {
+          const contactEl = document.getElementById('contact');
+          if (contactEl) {
+            scrollTo(contactEl, { offset: -20 });
+            contactEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }, 300);
+      }
+      return;
+    }
+
     if (location.pathname === '/' && link.hash) {
       const targetEl = document.querySelector(link.hash);
       if (targetEl) {
         e.preventDefault();
-        scrollTo(targetEl as HTMLElement);
+        setTimeout(() => {
+          scrollTo(targetEl as HTMLElement);
+        }, 60);
         return;
       }
     } else if (location.pathname !== '/' && link.hash) {

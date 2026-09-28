@@ -120,11 +120,11 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     const stackPositionPx = parsePercentage(stackPosition, containerHeight);
     const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight);
 
-    const endElement = useWindowScroll
-      ? (document.querySelector('.scroll-stack-end') as HTMLElement | null)
-      : (scrollerRef.current?.querySelector('.scroll-stack-end') as HTMLElement | null);
-
-    const endElementTop = endElement ? getElementOffset(endElement) : 0;
+    const lastCardIndex = cardsRef.current.length - 1;
+    const lastCard = cardsRef.current[lastCardIndex];
+    const lastCardTop = lastCard ? getElementOffset(lastCard) : 0;
+    const lastCardPinStart = lastCardTop - stackPositionPx - itemStackDistance * lastCardIndex;
+    const pinEnd = lastCardPinStart;
 
     cardsRef.current.forEach((card, i) => {
       if (!card) return;
@@ -133,7 +133,6 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       const triggerStart = cardTop - stackPositionPx - itemStackDistance * i;
       const triggerEnd = cardTop - scaleEndPositionPx;
       const pinStart = cardTop - stackPositionPx - itemStackDistance * i;
-      const pinEnd = endElementTop - containerHeight / 2;
 
       const scaleProgress = calculateProgress(scrollTop, triggerStart, triggerEnd);
       const targetScale = Math.min(1, baseScale + i * itemScale);
@@ -293,6 +292,8 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     cards.forEach((card, i) => {
       if (i < cards.length - 1) {
         card.style.marginBottom = `${itemDistance}px`;
+      } else {
+        card.style.marginBottom = '64px';
       }
       card.style.zIndex = `${i + 1}`;
       card.style.willChange = 'transform, filter';
@@ -360,11 +361,11 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         willChange: 'scroll-position',
       }}
     >
-      <div className="scroll-stack-inner pt-[6vh] sm:pt-[10vh] px-3 sm:px-10 md:px-20 pb-[50rem] min-h-screen">
+      <div className="scroll-stack-inner pt-[6vh] sm:pt-[10vh] px-3 sm:px-10 md:px-20 pb-[45vh] min-h-screen">
         {children}
+        {footer && <div className="scroll-stack-footer w-full mt-8 sm:mt-14 mb-8 sm:mb-12 relative z-20">{footer}</div>}
         {/* Spacer so the last pin can release cleanly */}
         <div className="scroll-stack-end w-full h-px" />
-        {footer && <div className="scroll-stack-footer w-full pt-16 pb-20">{footer}</div>}
       </div>
     </div>
   );
