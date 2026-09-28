@@ -214,9 +214,12 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
       {/* Main Interactive Scroll Stack Canvas */}
       <main className="flex-1 w-full relative min-h-0 overflow-hidden">
         <ScrollStack
-          itemDistance={isMobile ? 260 : 380}
-          itemScale={isMobile ? 0.032 : 0.038}
-          stackPosition={isMobile ? '4%' : '6%'}
+          itemDistance={isMobile ? 120 : 160}
+          itemScale={isMobile ? 0.012 : 0.015}
+          itemStackDistance={isMobile ? 12 : 16}
+          stackPosition={isMobile ? '8%' : '10%'}
+          scaleEndPosition={isMobile ? '4%' : '5%'}
+          baseScale={isMobile ? 0.88 : 0.86}
           useWindowScroll={false}
           className="w-full h-full"
           footer={
@@ -269,7 +272,7 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
           {MARBLE_COLLECTION_ITEMS.map((item, index) => (
             <ScrollStackItem
               key={item.id}
-              itemClassName="max-w-5xl mx-auto h-[58dvh] sm:h-[70vh] max-h-[580px] min-h-[340px]"
+              itemClassName="max-w-5xl mx-auto h-[55vh] sm:h-[65vh] max-h-[560px] min-h-[320px] p-0"
             >
               <div
                 onClick={() => setSelectedImage(item.image)}
