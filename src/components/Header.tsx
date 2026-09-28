@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, MapPin, Phone, Mail } from 'lucide-react';
+import { ArrowRight, Sparkles, MapPin, Phone, Mail, ChevronDown } from 'lucide-react';
 import { useLenis } from './SmoothScroll';
 
 interface NavItem {
@@ -10,11 +10,23 @@ interface NavItem {
   sublabel?: string;
 }
 
+interface ServiceSubItem {
+  name: string;
+  sub: string;
+  targetId: string;
+}
+
 const navLinks: NavItem[] = [
   { label: 'PROJECTS', to: '/#interior-cards', hash: '#interior-cards', sublabel: 'Visionary Works' },
-  { label: 'SERVICES', to: '/interior-design', hash: '#services', sublabel: 'Turnkey & Stone' },
+  { label: 'SERVICES', to: '/#services', hash: '#services', sublabel: 'Turnkey & Stone' },
   { label: 'ABOUT', to: '/brand-story', sublabel: 'The Space For You' },
   { label: 'CONTACT', to: '/#contact', hash: '#contact', sublabel: 'Start a Project' },
+];
+
+const serviceSubItems: ServiceSubItem[] = [
+  { name: 'Interior', sub: 'Turnkey Architecture', targetId: 'interior-experience' },
+  { name: 'Marble', sub: 'Rare Stone Monoliths', targetId: 'marble-experience' },
+  { name: 'Sculptures', sub: 'Monumental Art', targetId: 'sculptures-experience' },
 ];
 
 export function Header() {
@@ -23,6 +35,7 @@ export function Header() {
   const { scrollTo, lenis } = useLenis();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [servicesOpen, setServicesOpen] = useState(false);
   const [inFooter, setInFooter] = useState(false);
 
   const isHome = location.pathname === '/';
@@ -77,7 +90,15 @@ export function Header() {
   // Close overlay on route change
   useEffect(() => {
     setMenuOpen(false);
+    setServicesOpen(false);
   }, [location.pathname]);
+
+  // Reset dropdown when menu closes
+  useEffect(() => {
+    if (!menuOpen) {
+      setServicesOpen(false);
+    }
+  }, [menuOpen]);
 
   // Lock body scroll when overlay is open
   useEffect(() => {
@@ -101,6 +122,32 @@ export function Header() {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [menuOpen]);
+
+  const handleServiceSubClick = (e: React.MouseEvent, targetId: string) => {
+    e.preventDefault();
+    document.body.style.overflow = '';
+    setMenuOpen(false);
+    setServicesOpen(false);
+
+    if (location.pathname === '/') {
+      setTimeout(() => {
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          scrollTo(targetEl, { offset: -20 });
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 80);
+    } else {
+      navigate(`/#${targetId}`);
+      setTimeout(() => {
+        const targetEl = document.getElementById(targetId);
+        if (targetEl) {
+          scrollTo(targetEl, { offset: -20 });
+          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 300);
+    }
+  };
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: NavItem) => {
     document.body.style.overflow = '';
@@ -271,42 +318,117 @@ export function Header() {
 
             {/* Right Large Liquid Glass Navigation Items */}
             <div className="lg:col-span-7 flex flex-col space-y-2 sm:space-y-3 w-full">
-              {navLinks.map((link, index) => (
-                <div
-                  key={link.label}
-                  className={`group transition-all duration-700 ease-out transform ${
-                    menuOpen
-                      ? 'translate-y-0 opacity-100'
-                      : 'translate-y-6 opacity-0'
-                  }`}
-                  style={{ transitionDelay: `${menuOpen ? 100 + index * 40 : 0}ms` }}
-                >
-                  <a
-                    href={link.hash || link.to}
-                    onClick={(e) => handleLinkClick(e, link)}
-                    className="flex items-center justify-between min-h-[48px] py-3 px-4 sm:py-3.5 sm:px-6 rounded-xl sm:rounded-2xl liquid-glass-pill border border-white/10 group-hover:border-[#b89a62]/50 group-hover:bg-white/[0.07] active:scale-[0.98] transition-all duration-300 cursor-pointer"
+              {navLinks.map((link, index) => {
+                const isServices = link.label === 'SERVICES';
+                return (
+                  <div
+                    key={link.label}
+                    className={`group transition-all duration-700 ease-out transform ${
+                      menuOpen
+                        ? 'translate-y-0 opacity-100'
+                        : 'translate-y-6 opacity-0'
+                    }`}
+                    style={{ transitionDelay: `${menuOpen ? 100 + index * 40 : 0}ms` }}
                   >
-                    <div className="flex items-baseline gap-3 sm:gap-4">
-                      <span className="text-[10px] sm:text-xs tracking-[0.2em] text-[#b89a62] font-mono opacity-70 group-hover:opacity-100 transition-opacity">
-                        0{index + 1}
-                      </span>
-                      <span
-                        className="text-lg sm:text-2xl xl:text-3xl font-light tracking-[0.06em] sm:tracking-[0.08em] text-[#f1eee7] group-hover:text-white group-hover:translate-x-1.5 transition-all duration-300 ease-out"
-                        style={{ fontFamily: 'var(--font-display)' }}
-                      >
-                        {link.label}
-                      </span>
-                    </div>
+                    {isServices ? (
+                      <div className="flex flex-col">
+                        <button
+                          type="button"
+                          onClick={() => setServicesOpen((prev) => !prev)}
+                          aria-expanded={servicesOpen}
+                          className="w-full flex items-center justify-between min-h-[48px] py-3 px-4 sm:py-3.5 sm:px-6 rounded-xl sm:rounded-2xl liquid-glass-pill border border-white/10 hover:border-[#b89a62]/50 hover:bg-white/[0.07] active:scale-[0.98] transition-all duration-300 cursor-pointer text-left"
+                        >
+                          <div className="flex items-baseline gap-3 sm:gap-4">
+                            <span className="text-[10px] sm:text-xs tracking-[0.2em] text-[#b89a62] font-mono opacity-70 group-hover:opacity-100 transition-opacity">
+                              0{index + 1}
+                            </span>
+                            <span
+                              className="text-lg sm:text-2xl xl:text-3xl font-light tracking-[0.06em] sm:tracking-[0.08em] text-[#f1eee7] group-hover:text-white group-hover:translate-x-1.5 transition-all duration-300 ease-out"
+                              style={{ fontFamily: 'var(--font-display)' }}
+                            >
+                              {link.label}
+                            </span>
+                          </div>
 
-                    <div className="flex items-center gap-2 sm:gap-3">
-                      <span className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#85817a] group-hover:text-[#b89a62] transition-colors hidden sm:inline-block">
-                        {link.sublabel}
-                      </span>
-                      <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b89a62] opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
-                    </div>
-                  </a>
-                </div>
-              ))}
+                          <div className="flex items-center gap-2 sm:gap-3">
+                            <span className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#85817a] group-hover:text-[#b89a62] transition-colors hidden sm:inline-block">
+                              {link.sublabel}
+                            </span>
+                            <ChevronDown
+                              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b89a62] transition-transform duration-300 ease-out ${
+                                servicesOpen ? 'rotate-180 text-white' : 'opacity-60 group-hover:opacity-100'
+                              }`}
+                            />
+                          </div>
+                        </button>
+
+                        {/* Subtle Sub-services Accordion / Dropdown */}
+                        <div
+                          className={`overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+                            servicesOpen
+                              ? 'max-h-80 opacity-100 mt-2 sm:mt-2.5'
+                              : 'max-h-0 opacity-0 mt-0 pointer-events-none'
+                          }`}
+                        >
+                          <div className="flex flex-col space-y-1.5 sm:space-y-2 pl-3 sm:pl-5 border-l border-[#b89a62]/25 my-1">
+                            {serviceSubItems.map((sub, sIdx) => (
+                              <button
+                                key={sub.name}
+                                type="button"
+                                onClick={(e) => handleServiceSubClick(e, sub.targetId)}
+                                className="group/sub flex items-center justify-between py-2 sm:py-2.5 px-3.5 sm:px-4 rounded-xl bg-white/[0.02] hover:bg-[#b89a62]/10 border border-white/5 hover:border-[#b89a62]/30 active:scale-[0.98] transition-all duration-300 text-left w-full cursor-pointer"
+                              >
+                                <div className="flex items-center gap-2.5 sm:gap-3">
+                                  <span className="text-[9px] sm:text-[10px] tracking-[0.2em] text-[#b89a62]/70 font-mono group-hover/sub:text-[#b89a62] transition-colors">
+                                    02.{sIdx + 1}
+                                  </span>
+                                  <span
+                                    className="text-sm sm:text-base md:text-lg font-light tracking-[0.06em] text-[#e0ded8] group-hover/sub:text-white group-hover/sub:translate-x-1 transition-all duration-200"
+                                    style={{ fontFamily: 'var(--font-display)' }}
+                                  >
+                                    {sub.name}
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-[9px] sm:text-[10px] tracking-[0.16em] uppercase text-[#737069] group-hover/sub:text-[#b89a62] transition-colors hidden sm:inline-block">
+                                    {sub.sub}
+                                  </span>
+                                  <ArrowRight className="w-3 h-3 text-[#b89a62] opacity-40 group-hover/sub:opacity-100 group-hover/sub:translate-x-1 transition-all duration-200" />
+                                </div>
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      <a
+                        href={link.hash || link.to}
+                        onClick={(e) => handleLinkClick(e, link)}
+                        className="flex items-center justify-between min-h-[48px] py-3 px-4 sm:py-3.5 sm:px-6 rounded-xl sm:rounded-2xl liquid-glass-pill border border-white/10 group-hover:border-[#b89a62]/50 group-hover:bg-white/[0.07] active:scale-[0.98] transition-all duration-300 cursor-pointer"
+                      >
+                        <div className="flex items-baseline gap-3 sm:gap-4">
+                          <span className="text-[10px] sm:text-xs tracking-[0.2em] text-[#b89a62] font-mono opacity-70 group-hover:opacity-100 transition-opacity">
+                            0{index + 1}
+                          </span>
+                          <span
+                            className="text-lg sm:text-2xl xl:text-3xl font-light tracking-[0.06em] sm:tracking-[0.08em] text-[#f1eee7] group-hover:text-white group-hover:translate-x-1.5 transition-all duration-300 ease-out"
+                            style={{ fontFamily: 'var(--font-display)' }}
+                          >
+                            {link.label}
+                          </span>
+                        </div>
+
+                        <div className="flex items-center gap-2 sm:gap-3">
+                          <span className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#85817a] group-hover:text-[#b89a62] transition-colors hidden sm:inline-block">
+                            {link.sublabel}
+                          </span>
+                          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b89a62] opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
+                        </div>
+                      </a>
+                    )}
+                  </div>
+                );
+              })}
 
               {/* Mobile Quick Contact Row */}
               <div className="lg:hidden pt-4 pb-1 grid grid-cols-2 gap-2.5">

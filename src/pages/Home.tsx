@@ -423,29 +423,35 @@ export function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
       {/* 3. INTERACTIVE INTERIOR EXPERIENCE SECTION (LAZY MOUNTED) */}
-      <LazySection minHeight="600px" rootMargin="1200px">
-        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e]" />}>
-          <InteriorExperience />
-        </Suspense>
-      </LazySection>
+      <div id="interior-experience" className="relative">
+        <LazySection minHeight="600px" rootMargin="1200px">
+          <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e]" />}>
+            <InteriorExperience />
+          </Suspense>
+        </LazySection>
+      </div>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.16)] to-transparent" />
 
       {/* 4. FEATURED PROJECTS & SIGNATURE COLLECTION SECTION (LAZY MOUNTED) */}
-      <LazySection minHeight="680px" rootMargin="1200px">
-        <Suspense fallback={<div className="w-full min-h-[680px] bg-[#0d0e0e]" />}>
-          <SculpturesExperience />
-        </Suspense>
-      </LazySection>
+      <div id="sculptures-experience" className="relative">
+        <LazySection minHeight="680px" rootMargin="1200px">
+          <Suspense fallback={<div className="w-full min-h-[680px] bg-[#0d0e0e]" />}>
+            <SculpturesExperience />
+          </Suspense>
+        </LazySection>
+      </div>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
       {/* 5. MARBLE EXPERIENCE INTERACTIVE SECTION (LAZY MOUNTED) */}
-      <LazySection minHeight="600px" rootMargin="1200px">
-        <Suspense fallback={<div className="w-full min-h-[600px] bg-[#08090a]" />}>
-          <MarbleExperience />
-        </Suspense>
-      </LazySection>
+      <div id="marble-experience" className="relative">
+        <LazySection minHeight="600px" rootMargin="1200px">
+          <Suspense fallback={<div className="w-full min-h-[600px] bg-[#08090a]" />}>
+            <MarbleExperience />
+          </Suspense>
+        </LazySection>
+      </div>
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
