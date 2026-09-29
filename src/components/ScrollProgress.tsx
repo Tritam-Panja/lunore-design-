@@ -46,6 +46,9 @@ export function ScrollProgress() {
   }, []);
 
   useEffect(() => {
+    // Small screens (< 640px) hide this indicator via CSS; skip RAF loop to save mobile CPU/battery
+    if (typeof window !== 'undefined' && window.innerWidth < 640) return;
+
     let animationFrameId: number | null = null;
     let isRunning = false;
 

@@ -63,7 +63,12 @@
     box-sizing: border-box;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
-    overscroll-behavior-y: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  @media (hover: hover) and (pointer: fine) {
+    html, body {
+      overscroll-behavior-y: none;
+    }
   }
   *, *::before, *::after {
     box-sizing: border-box;

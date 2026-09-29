@@ -33,16 +33,28 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
-    const isMobile = window.innerWidth < 768;
+    // Mobile phones & touchscreens (iOS Safari & Android Chrome) have dedicated hardware-composited
+    // 120Hz/60Hz momentum scrolling. Intercepting touch with JS causes lag and scroll-locking.
+    const isTouchOrMobile = typeof window !== 'undefined' && (
+      'ontouchstart' in window ||
+      navigator.maxTouchPoints > 0 ||
+      window.innerWidth < 1024
+    );
+
+    if (isTouchOrMobile) {
+      document.documentElement.classList.remove('lenis', 'lenis-smooth', 'lenis-stopped');
+      document.body.style.overflow = '';
+      return;
+    }
 
     const instance = new Lenis({
-      duration: isMobile ? 0.9 : 1.2,
+      duration: 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 1.05,
-      touchMultiplier: isMobile ? 1.4 : 1.2,
+      touchMultiplier: 1.2,
       syncTouch: false,
       infinite: false,
       autoRaf: false,
@@ -51,7 +63,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     lenisRef.current = instance;
     setLenis(instance);
 
-    // Apply lenis class to html root
+    // Apply lenis class to html root on desktop
     document.documentElement.classList.add('lenis', 'lenis-smooth');
 
     let rafId: number;
@@ -82,8 +94,17 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  // Handle hash scrolling on location change
+  // Handle route and hash changes: ensure page is unlocked and scrollable
   useEffect(() => {
+    // Always unlock document overflow and start Lenis on any route change
+    document.body.style.overflow = '';
+    document.documentElement.style.overflow = '';
+    document.documentElement.classList.remove('lenis-stopped');
+
+    if (lenisRef.current) {
+      lenisRef.current.start();
+    }
+
     if (location.hash) {
       const targetId = location.hash;
       const scrollToElement = () => {

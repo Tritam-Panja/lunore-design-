@@ -32,13 +32,9 @@ export function AurexaSection() {
   const [progress, setProgress] = useState<number>(0);
   const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
   const [hasStarted, setHasStarted] = useState<boolean>(false);
-  const [isMobile, setIsMobile] = useState<boolean>(typeof window !== 'undefined' ? window.innerWidth < 640 : false);
-
-  // Mobile spawned touch cards
-  const [spawnedCards, setSpawnedCards] = useState<FloatingCard[]>([]);
-  const nextSpawnIdRef = useRef<number>(1);
-  const lastSpawnIndexRef = useRef<number>(0);
-  const lastSpawnTimeRef = useRef<number>(0);
+  const [isMobile, setIsMobile] = useState<boolean>(() => 
+    typeof window !== 'undefined' ? (window.innerWidth < 1024 || 'ontouchstart' in window || navigator.maxTouchPoints > 0) : false
+  );
 
   const progressRef = useRef<number>(0);
   const isUnlockedRef = useRef<boolean>(false);
@@ -46,30 +42,29 @@ export function AurexaSection() {
 
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 640);
+      setIsMobile(window.innerWidth < 1024 || 'ontouchstart' in window || navigator.maxTouchPoints > 0);
     };
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Helper to safely lock/unlock Lenis outer scroll
+  // Helper to safely lock/unlock Lenis outer scroll (Desktop only - NEVER locks on mobile)
   const lockPage = useCallback(() => {
+    if (isMobile) return;
     if (!isLockedRef.current && !isUnlockedRef.current) {
       isLockedRef.current = true;
       if (lenis) {
         lenis.stop();
       }
     }
-  }, [lenis]);
+  }, [lenis, isMobile]);
 
   const unlockPage = useCallback(() => {
-    if (isLockedRef.current || !isUnlockedRef.current) {
-      isLockedRef.current = false;
-      isUnlockedRef.current = true;
-      setIsUnlocked(true);
-      if (lenis) {
-        lenis.start();
-      }
+    isLockedRef.current = false;
+    isUnlockedRef.current = true;
+    setIsUnlocked(true);
+    if (lenis) {
+      lenis.start();
     }
   }, [lenis]);
 
@@ -90,16 +85,20 @@ export function AurexaSection() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !isUnlockedRef.current) {
-            if (!isMobile) {
-              lockPage();
-            }
+          if (entry.isIntersecting) {
             setHasStarted(true);
+            if (!isMobile && !isUnlockedRef.current) {
+              lockPage();
+            } else if (isMobile) {
+              // On mobile, never lock scroll; allow smooth native progression
+              setIsUnlocked(true);
+              isUnlockedRef.current = true;
+            }
           }
         });
       },
       {
-        threshold: isMobile ? 0.35 : 0.6,
+        threshold: isMobile ? 0.2 : 0.6,
       }
     );
 
@@ -107,9 +106,9 @@ export function AurexaSection() {
     return () => observer.disconnect();
   }, [lockPage, isMobile]);
 
-  // 2. Play animation smoothly once started, and allow wheel/swipe to advance it
+  // 2. Play animation smoothly once started
   useEffect(() => {
-    if (!hasStarted || isUnlockedRef.current) return;
+    if (!hasStarted) return;
 
     let animId: number;
     let lastTime = performance.now();
@@ -118,8 +117,8 @@ export function AurexaSection() {
       const delta = (time - lastTime) / 1000;
       lastTime = time;
 
-      // Auto-advance smoothly over ~2.0 seconds if user is idle
-      progressRef.current = Math.min(1, progressRef.current + delta * 0.5);
+      // Auto-advance smoothly over ~1.6 seconds
+      progressRef.current = Math.min(1, progressRef.current + delta * (isMobile ? 0.75 : 0.5));
       setProgress(progressRef.current);
 
       if (progressRef.current >= 0.999) {
@@ -133,14 +132,14 @@ export function AurexaSection() {
 
     animId = requestAnimationFrame(step);
     return () => cancelAnimationFrame(animId);
-  }, [hasStarted, unlockPage]);
+  }, [hasStarted, unlockPage, isMobile]);
 
-  // 3. User wheel interaction accelerates the animation while holding the page in place
+  // 3. Desktop user wheel interaction accelerates the animation while holding the page in place
   useEffect(() => {
-    if (isUnlocked || !hasStarted) return;
+    if (isUnlocked || !hasStarted || isMobile) return;
 
     const onWheel = (e: WheelEvent) => {
-      if (!isUnlockedRef.current && hasStarted) {
+      if (!isUnlockedRef.current && hasStarted && !isMobile) {
         e.preventDefault();
         e.stopPropagation();
 
@@ -158,72 +157,7 @@ export function AurexaSection() {
 
     window.addEventListener('wheel', onWheel, { passive: false });
     return () => window.removeEventListener('wheel', onWheel);
-  }, [hasStarted, isUnlocked, unlockPage]);
-
-  // Mobile Touch Spawning Function (Spawns floating cards on touch swipe/move)
-  const spawnCardAt = useCallback((clientX: number, clientY: number) => {
-    const el = containerRef.current;
-    if (!el) return;
-    const rect = el.getBoundingClientRect();
-    const x = clientX - rect.left;
-    const y = clientY - rect.top;
-
-    const imgIndex = lastSpawnIndexRef.current % AUREXA_TRAIL_IMAGES.length;
-    lastSpawnIndexRef.current += 1;
-
-    const newCard: FloatingCard = {
-      id: nextSpawnIdRef.current++,
-      src: AUREXA_TRAIL_IMAGES[imgIndex],
-      x,
-      y,
-      rotation: (Math.random() - 0.5) * 18,
-      scale: 0.88 + Math.random() * 0.24,
-      opacity: 1,
-    };
-
-    setSpawnedCards((prev) => [...prev.slice(-8), newCard]);
-
-    // Fade out and remove spawned card after 2.2s
-    setTimeout(() => {
-      setSpawnedCards((prev) => prev.filter((c) => c.id !== newCard.id));
-    }, 2200);
-  }, []);
-
-  // Touch swipe support for mobile devices
-  const touchStartY = useRef<number>(0);
-
-  const handleTouchStart = (e: React.TouchEvent) => {
-    if (e.touches.length > 0) {
-      touchStartY.current = e.touches[0].clientY;
-      spawnCardAt(e.touches[0].clientX, e.touches[0].clientY);
-    }
-  };
-
-  const handleTouchMove = (e: React.TouchEvent) => {
-    if (e.touches.length > 0) {
-      const touch = e.touches[0];
-      const now = performance.now();
-      if (now - lastSpawnTimeRef.current > 80) {
-        lastSpawnTimeRef.current = now;
-        spawnCardAt(touch.clientX, touch.clientY);
-      }
-    }
-
-    if (!isUnlockedRef.current && hasStarted) {
-      const currentY = e.touches[0].clientY;
-      const diffY = touchStartY.current - currentY;
-      if (diffY > 4) {
-        progressRef.current = Math.min(1, progressRef.current + diffY * 0.005);
-        setProgress(progressRef.current);
-        touchStartY.current = currentY;
-        if (progressRef.current >= 0.999) {
-          progressRef.current = 1;
-          setProgress(1);
-          unlockPage();
-        }
-      }
-    }
-  };
+  }, [hasStarted, isUnlocked, unlockPage, isMobile]);
 
   // Visual calculation (clamped to prevent negative rect dimensions on scroll bounce)
   const safeProgress = Math.max(0, Math.min(1, progress || 0));
@@ -234,15 +168,7 @@ export function AurexaSection() {
     <section
       ref={containerRef}
       id="aurexa"
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
-      onClick={(e) => {
-        if (isMobile) {
-          spawnCardAt(e.clientX, e.clientY);
-        }
-      }}
-      style={{ touchAction: 'pan-y' }}
-      className="relative w-full h-[100dvh] min-h-[580px] sm:min-h-[650px] bg-[#070809] overflow-hidden select-none flex flex-col justify-between items-center border-t border-b border-white/[0.06] py-8 sm:py-14 px-4 sm:px-8"
+      className="relative w-full h-[100dvh] min-h-[560px] sm:min-h-[650px] bg-[#070809] overflow-hidden select-none flex flex-col justify-between items-center border-t border-b border-white/[0.06] py-8 sm:py-14 px-4 sm:px-8 touch-pan-y"
     >
       {/* 1. DESKTOP INTERACTIVE CURSOR IMAGE TRAIL */}
       {!isMobile && (
@@ -254,33 +180,32 @@ export function AurexaSection() {
         </div>
       )}
 
-      {/* 2. MOBILE INTERACTIVE TOUCH-SPAWNED FLOATING CARDS (Spawns on swipe/touch) */}
+      {/* 2. MOBILE LIGHTWEIGHT STATIC CURATED SLABS (Zero-lag, 100% smooth GPU layer) */}
       {isMobile && (
-        <div className="absolute inset-0 z-[6] pointer-events-none overflow-hidden">
-          {spawnedCards.map((card) => (
-            <div
-              key={card.id}
-              style={{
-                left: `${card.x}px`,
-                top: `${card.y}px`,
-                transform: `translate(-50%, -50%) rotate(${card.rotation}deg) scale(${card.scale})`,
-                animation: 'lunore-card-pop 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards',
-              }}
-              className="absolute w-28 h-36 rounded-xl p-1 bg-white/[0.12] border border-[#b89a62]/80 shadow-[0_20px_45px_rgba(0,0,0,0.9),0_0_25px_rgba(184,154,98,0.45)] backdrop-blur-lg"
-            >
-              <div className="w-full h-full rounded-lg overflow-hidden border border-white/30">
-                <img
-                  src={card.src}
-                  alt="Aurexa Haute Slab Cutout"
-                  loading="lazy"
-                  decoding="async"
-                  width={112}
-                  height={144}
-                  className="w-full h-full object-cover object-center brightness-110"
-                />
-              </div>
-            </div>
-          ))}
+        <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden flex items-center justify-center opacity-65">
+          <div className="relative w-full max-w-sm h-56">
+            <img
+              src="/assets/images/imagetrail2.webp"
+              alt="Aurexa Specimen"
+              loading="lazy"
+              decoding="async"
+              className="absolute left-4 top-2 w-28 h-36 rounded-xl object-cover -rotate-6 border border-white/20 shadow-2xl brightness-95"
+            />
+            <img
+              src="/assets/images/imagetrail3.webp"
+              alt="Aurexa Specimen"
+              loading="lazy"
+              decoding="async"
+              className="absolute left-1/2 -translate-x-1/2 top-0 w-32 h-40 rounded-xl object-cover z-10 border border-[#b89a62]/60 shadow-[0_15px_35px_rgba(0,0,0,0.85)] brightness-105"
+            />
+            <img
+              src="/assets/images/imagetrail4.webp"
+              alt="Aurexa Specimen"
+              loading="lazy"
+              decoding="async"
+              className="absolute right-4 top-3 w-28 h-36 rounded-xl object-cover rotate-6 border border-white/20 shadow-2xl brightness-95"
+            />
+          </div>
         </div>
       )}
 

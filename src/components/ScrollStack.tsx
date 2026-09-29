@@ -247,34 +247,9 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       lenisRef.current = lenis;
       return lenis;
     } else {
-      const scroller = scrollerRef.current;
-      if (!scroller) return;
-
-      const lenis = new Lenis({
-        wrapper: scroller,
-        content: scroller.querySelector('.scroll-stack-inner') as HTMLElement,
-        duration: 1.2,
-        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-        touchMultiplier: 2,
-        infinite: false,
-        gestureOrientation: 'vertical',
-        wheelMultiplier: 1,
-        lerp: 0.1,
-        syncTouch: true,
-        syncTouchLerp: 0.075,
-      });
-
-      lenis.on('scroll', handleScroll);
-
-      const raf = (time: number) => {
-        lenis.raf(time);
-        animationFrameRef.current = requestAnimationFrame(raf);
-      };
-      animationFrameRef.current = requestAnimationFrame(raf);
-
-      lenisRef.current = lenis;
-      return lenis;
+      // In container mode (inside modal), native browser scrolling on the container with overflow-y-auto
+      // is 100% reliable across all mice, trackpads, and touch devices without Lenis event collisions.
+      return null;
     }
   }, [handleScroll, useWindowScroll]);
 
@@ -350,15 +325,14 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
   return (
     <div
-      className={`relative w-full h-full overflow-y-auto overflow-x-visible ${className}`.trim()}
+      className={`relative w-full h-full overflow-y-auto overflow-x-hidden ${className}`.trim()}
       ref={scrollerRef}
       style={{
         overscrollBehavior: 'contain',
         WebkitOverflowScrolling: 'touch',
-        scrollBehavior: 'smooth',
+        scrollBehavior: 'auto',
         WebkitTransform: 'translateZ(0)',
         transform: 'translateZ(0)',
-        willChange: 'scroll-position',
       }}
     >
       <div className="scroll-stack-inner pt-[6vh] sm:pt-[10vh] px-3 sm:px-10 md:px-20 pb-[45vh] min-h-screen">
