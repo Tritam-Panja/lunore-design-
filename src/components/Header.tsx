@@ -6,33 +6,33 @@ import { useLenis } from './SmoothScroll';
 interface NavItem {
   label: string;
   to: string;
-  hash?: string;
   sublabel?: string;
 }
 
 interface ServiceSubItem {
   name: string;
   sub: string;
-  targetId: string;
+  to: string;
 }
 
 const navLinks: NavItem[] = [
-  { label: 'PROJECTS', to: '/#interior-cards', hash: '#interior-cards', sublabel: 'Visionary Works' },
-  { label: 'SERVICES', to: '/#services', hash: '#services', sublabel: 'Turnkey & Stone' },
+  { label: 'PROJECTS', to: '/projects', sublabel: 'Visionary Works' },
+  { label: 'SERVICES', to: '/interior-design', sublabel: 'Turnkey & Stone' },
   { label: 'ABOUT', to: '/brand-story', sublabel: 'The Space For You' },
-  { label: 'CONTACT', to: '/#contact', hash: '#contact', sublabel: 'Start a Project' },
+  { label: 'CONTACT', to: '/contact', sublabel: 'Start a Project' },
+  { label: 'CAREERS', to: '/careers', sublabel: 'Join The Studio' },
 ];
 
 const serviceSubItems: ServiceSubItem[] = [
-  { name: 'Interior', sub: 'Turnkey Architecture', targetId: 'interior-experience' },
-  { name: 'Marble', sub: 'Rare Stone Monoliths', targetId: 'marble-experience' },
-  { name: 'Sculptures', sub: 'Monumental Art', targetId: 'sculptures-experience' },
+  { name: 'Interior', sub: 'Turnkey Architecture', to: '/the-engawa-line' },
+  { name: 'Marble', sub: 'Rare Stone Monoliths', to: '/marble-stack' },
+  { name: 'Sculptures', sub: 'Monumental Art', to: '/sculptures-carousel' },
 ];
 
 export function Header() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { scrollTo, lenis } = useLenis();
+  const { lenis } = useLenis();
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [servicesOpen, setServicesOpen] = useState(false);
@@ -40,7 +40,33 @@ export function Header() {
 
   const isHome = location.pathname === '/';
 
-  // Track scroll position: hide on first section (hero), show on content, hide on footer in mobile
+  // Detect footer visibility on mobile with high-performance IntersectionObserver (no layout reflows)
+  useEffect(() => {
+    const checkFooter = () => {
+      const isMobile = window.innerWidth < 768;
+      if (!isMobile) {
+        setInFooter(false);
+        return;
+      }
+      const footerEl = document.getElementById('site-footer') || document.querySelector('footer');
+      if (!footerEl) return;
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          setInFooter(entry.isIntersecting);
+        },
+        { rootMargin: '0px 0px -25% 0px' }
+      );
+
+      observer.observe(footerEl);
+      return observer;
+    };
+
+    const observer = checkFooter();
+    return () => observer?.disconnect();
+  }, [location.pathname]);
+
+  // Track scroll position: hide on first section (hero), show on content
   useEffect(() => {
     let ticking = false;
 
@@ -50,21 +76,6 @@ export function Header() {
           const threshold = isHome ? Math.min(300, window.innerHeight * 0.45) : 40;
           const isScrolled = window.scrollY > threshold;
           setScrolled(isScrolled);
-
-          // Hide navbar when user visits the footer section on mobile screens
-          const isMobile = window.innerWidth < 768;
-          if (isMobile) {
-            const footerEl = document.getElementById('site-footer') || document.querySelector('footer');
-            if (footerEl) {
-              const rect = footerEl.getBoundingClientRect();
-              setInFooter(rect.top <= window.innerHeight * 0.7);
-            } else {
-              setInFooter(false);
-            }
-          } else {
-            setInFooter(false);
-          }
-
           ticking = false;
         });
         ticking = true;
@@ -76,7 +87,7 @@ export function Header() {
       lenis.on('scroll', handleScroll);
     }
     window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll);
+    window.addEventListener('resize', handleScroll, { passive: true });
 
     return () => {
       if (lenis) {
@@ -123,87 +134,32 @@ export function Header() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [menuOpen]);
 
-  const handleServiceSubClick = (e: React.MouseEvent, targetId: string) => {
+  const handleServiceSubClick = (e: React.MouseEvent, to: string) => {
     e.preventDefault();
     document.body.style.overflow = '';
     setMenuOpen(false);
     setServicesOpen(false);
-
-    if (location.pathname === '/') {
-      setTimeout(() => {
-        const targetEl = document.getElementById(targetId);
-        if (targetEl) {
-          scrollTo(targetEl, { offset: -20 });
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 80);
+    if (location.pathname === to) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
-      navigate(`/#${targetId}`);
-      setTimeout(() => {
-        const targetEl = document.getElementById(targetId);
-        if (targetEl) {
-          scrollTo(targetEl, { offset: -20 });
-          targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 300);
+      navigate(to);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: NavItem) => {
     document.body.style.overflow = '';
     setMenuOpen(false);
+    setServicesOpen(false);
 
-    if (link.label === 'PROJECTS') {
+    if (link.to) {
       e.preventDefault();
-      sessionStorage.setItem('lunore_interior_stage', '4');
-      window.dispatchEvent(new CustomEvent('open-interior-projects'));
-
-      if (location.pathname === '/') {
-        const targetEl = document.getElementById('interior-experience');
-        if (targetEl) {
-          scrollTo(targetEl);
-        }
+      if (location.pathname === link.to) {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       } else {
-        navigate('/#interior-cards', { state: { returnToCards: true } });
+        navigate(link.to);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
-      return;
-    }
-
-    if (link.label === 'CONTACT') {
-      e.preventDefault();
-      if (location.pathname === '/') {
-        setTimeout(() => {
-          const contactEl = document.getElementById('contact');
-          if (contactEl) {
-            scrollTo(contactEl, { offset: -20 });
-            contactEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 80);
-      } else {
-        navigate('/#contact');
-        setTimeout(() => {
-          const contactEl = document.getElementById('contact');
-          if (contactEl) {
-            scrollTo(contactEl, { offset: -20 });
-            contactEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          }
-        }, 300);
-      }
-      return;
-    }
-
-    if (location.pathname === '/' && link.hash) {
-      const targetEl = document.querySelector(link.hash);
-      if (targetEl) {
-        e.preventDefault();
-        setTimeout(() => {
-          scrollTo(targetEl as HTMLElement);
-        }, 60);
-        return;
-      }
-    } else if (location.pathname !== '/' && link.hash) {
-      e.preventDefault();
-      navigate(`/${link.hash}`);
     }
   };
 
@@ -223,7 +179,7 @@ export function Header() {
         <div className="pointer-events-auto">
           <NavLink
             to="/"
-            onClick={(e) => handleLinkClick(e, { label: 'HOME', to: '/', hash: '#hero' })}
+            onClick={(e) => handleLinkClick(e, { label: 'HOME', to: '/' })}
             className="flex flex-col group cursor-pointer select-none py-1"
             aria-label="LUNORE Luxe Decor Studio"
           >
@@ -371,29 +327,26 @@ export function Header() {
                           }`}
                         >
                           <div className="flex flex-col space-y-1.5 sm:space-y-2 pl-3 sm:pl-5 border-l border-[#b89a62]/25 my-1">
-                            {serviceSubItems.map((sub, sIdx) => (
+                            {serviceSubItems.map((sub) => (
                               <button
                                 key={sub.name}
                                 type="button"
-                                onClick={(e) => handleServiceSubClick(e, sub.targetId)}
-                                className="group/sub flex items-center justify-between py-2 sm:py-2.5 px-3.5 sm:px-4 rounded-xl bg-white/[0.02] hover:bg-[#b89a62]/10 border border-white/5 hover:border-[#b89a62]/30 active:scale-[0.98] transition-all duration-300 text-left w-full cursor-pointer"
+                                onClick={(e) => handleServiceSubClick(e, sub.to)}
+                                className="group/sub flex items-center justify-between py-2 sm:py-2.5 px-3.5 sm:px-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-[#b89a62]/40 active:scale-[0.98] transition-all duration-300 text-left w-full cursor-pointer"
                               >
-                                <div className="flex items-center gap-2.5 sm:gap-3">
-                                  <span className="text-[9px] sm:text-[10px] tracking-[0.2em] text-[#b89a62]/70 font-mono group-hover/sub:text-[#b89a62] transition-colors">
-                                    02.{sIdx + 1}
-                                  </span>
+                                <div className="flex items-center">
                                   <span
-                                    className="text-sm sm:text-base md:text-lg font-light tracking-[0.06em] text-[#e0ded8] group-hover/sub:text-white group-hover/sub:translate-x-1 transition-all duration-200"
-                                    style={{ fontFamily: 'var(--font-display)' }}
+                                    className="text-sm sm:text-base md:text-lg font-light tracking-[0.06em] text-[#f1eee7]"
+                                    style={{ fontFamily: 'var(--font-display)', color: '#f1eee7' }}
                                   >
                                     {sub.name}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-[9px] sm:text-[10px] tracking-[0.16em] uppercase text-[#737069] group-hover/sub:text-[#b89a62] transition-colors hidden sm:inline-block">
+                                  <span className="text-[9px] sm:text-[10px] tracking-[0.16em] uppercase text-[#b9b5ae] hidden sm:inline-block">
                                     {sub.sub}
                                   </span>
-                                  <ArrowRight className="w-3 h-3 text-[#b89a62] opacity-40 group-hover/sub:opacity-100 group-hover/sub:translate-x-1 transition-all duration-200" />
+                                  <ArrowRight className="w-3 h-3 text-[#b89a62] opacity-60 group-hover/sub:opacity-100 group-hover/sub:translate-x-0.5 transition-all duration-200" />
                                 </div>
                               </button>
                             ))}
@@ -401,8 +354,8 @@ export function Header() {
                         </div>
                       </div>
                     ) : (
-                      <a
-                        href={link.hash || link.to}
+                      <NavLink
+                        to={link.to}
                         onClick={(e) => handleLinkClick(e, link)}
                         className="flex items-center justify-between min-h-[48px] py-3 px-4 sm:py-3.5 sm:px-6 rounded-xl sm:rounded-2xl liquid-glass-pill border border-white/10 group-hover:border-[#b89a62]/50 group-hover:bg-white/[0.07] active:scale-[0.98] transition-all duration-300 cursor-pointer"
                       >
@@ -424,7 +377,7 @@ export function Header() {
                           </span>
                           <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b89a62] opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
                         </div>
-                      </a>
+                      </NavLink>
                     )}
                   </div>
                 );

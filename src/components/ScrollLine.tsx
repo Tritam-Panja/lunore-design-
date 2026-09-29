@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useExperience } from './ExperienceContext';
+import { useLenis } from './SmoothScroll';
 
 interface ScrollLineProps {
   /** SVG path d string */
@@ -43,6 +44,7 @@ export function ScrollLine({
   const pathRef = useRef<SVGPathElement>(null);
   const [pathLength, setPathLength] = useState<number>(0);
   const isVisibleRef = useRef<boolean>(false);
+  const { lenis } = useLenis();
 
   useEffect(() => {
     if (pathRef.current) {
@@ -96,17 +98,23 @@ export function ScrollLine({
       }
     };
 
+    if (lenis) {
+      lenis.on('scroll', onScroll);
+    }
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
     updateScrollLine();
 
     return () => {
       observer.disconnect();
+      if (lenis) {
+        lenis.off('scroll', onScroll);
+      }
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener('resize', onScroll);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [pathLength, startOffset, endOffset]);
+  }, [pathLength, startOffset, endOffset, lenis]);
 
   const { isExperienceActive } = useExperience();
 

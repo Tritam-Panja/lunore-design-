@@ -9,6 +9,7 @@ import { BackgroundAudio } from '@/components/BackgroundAudio';
 const Home = lazy(() => import('@/pages/Home').then(m => ({ default: m.Home })));
 const About = lazy(() => import('@/pages/About').then(m => ({ default: m.About })));
 const BrandStory = lazy(() => import('@/pages/BrandStory').then(m => ({ default: m.BrandStory })));
+const Projects = lazy(() => import('@/pages/Projects').then(m => ({ default: m.Projects })));
 const Products = lazy(() => import('@/pages/Products').then(m => ({ default: m.Products })));
 const ProductDetail = lazy(() => import('@/pages/ProductDetail').then(m => ({ default: m.ProductDetail })));
 const Exhibitions = lazy(() => import('@/pages/Exhibitions').then(m => ({ default: m.Exhibitions })));
@@ -23,6 +24,9 @@ const TheSkylineResidence = lazy(() => import('@/pages/TheSkylineResidence').the
 const TheOliveGroveResidence = lazy(() => import('@/pages/TheOliveGroveResidence').then(m => ({ default: m.TheOliveGroveResidence })));
 const ClayAndSage = lazy(() => import('@/pages/ClayAndSage').then(m => ({ default: m.ClayAndSage })));
 const TheCanopyHouse = lazy(() => import('@/pages/TheCanopyHouse').then(m => ({ default: m.TheCanopyHouse })));
+const Careers = lazy(() => import('@/pages/Careers').then(m => ({ default: m.Careers })));
+const MarbleStack = lazy(() => import('@/pages/MarbleStack').then(m => ({ default: m.MarbleStack })));
+const SculpturesCarousel = lazy(() => import('@/pages/SculpturesCarousel').then(m => ({ default: m.SculpturesCarousel })));
 const ComingSoon = lazy(() => import('@/pages/ComingSoon').then(m => ({ default: m.ComingSoon })));
 const NotFound = lazy(() => import('@/pages/NotFound').then(m => ({ default: m.NotFound })));
 
@@ -35,6 +39,7 @@ function App() {
           <Routes>
             <Route element={<Layout />}>
               <Route path="/" element={<Home />} />
+              <Route path="/projects" element={<Projects />} />
               <Route path="/about" element={<About />} />
               <Route path="/brand-story" element={<BrandStory />} />
               <Route path="/products" element={<Products />} />
@@ -43,8 +48,11 @@ function App() {
               <Route path="/dream-project" element={<DreamProject />} />
               <Route path="/interior-design" element={<InteriorDesign />} />
               <Route path="/marble-granite" element={<MarbleGranite />} />
+              <Route path="/marble-stack" element={<MarbleStack />} />
+              <Route path="/sculptures-carousel" element={<SculpturesCarousel />} />
               <Route path="/process" element={<Process />} />
               <Route path="/contact" element={<Contact />} />
+              <Route path="/careers" element={<Careers />} />
               {/* Dedicated Interior Project Pages */}
               <Route path="/the-engawa-line" element={<TheEngawaLine />} />
               <Route path="/amber-and-olive" element={<AmberAndOlive />} />

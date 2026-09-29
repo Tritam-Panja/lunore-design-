@@ -4,6 +4,7 @@ import { supabase, type Product } from '@/lib/supabase';
 import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
 import { Reveal } from '@/components/Reveal';
+import { ReturnToHome } from '@/components/ReturnToHome';
 import { Sparkles, ArrowRight } from 'lucide-react';
 
 const fallbackProducts: Product[] = [
@@ -33,7 +34,10 @@ export function Products() {
       {/* Ambient Glow */}
       <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#b89a62]/8 rounded-full blur-[160px] pointer-events-none" />
 
-      <section className="px-4 sm:px-6 pt-28 sm:pt-36 md:pt-44 pb-12 sm:pb-16 text-center max-w-4xl mx-auto relative z-10">
+      {/* Return to Home Button */}
+      <ReturnToHome />
+
+      <section className="px-4 sm:px-6 pt-4 sm:pt-8 md:pt-10 pb-12 sm:pb-16 text-center max-w-4xl mx-auto relative z-10">
         <Reveal direction="down">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.04] border border-[#b89a62]/30 backdrop-blur-md mb-4">
             <Sparkles className="w-3 h-3 text-[#b89a62]" />

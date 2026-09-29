@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { ArrowRight, ChevronLeft, ChevronRight, Sparkles } from 'lucide-react';
 import { LazyImage } from '@/components/LazyImage';
 import { Reveal } from '@/components/Reveal';
+import { ReturnToHome } from '@/components/ReturnToHome';
 
 interface TeamMember {
   name: string;
@@ -113,8 +114,11 @@ export function About() {
       <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] bg-[#b89a62]/5 rounded-full blur-[160px] pointer-events-none" />
       <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-white/[0.02] rounded-full blur-[140px] pointer-events-none" />
 
+      {/* Return to Home */}
+      <ReturnToHome />
+
       {/* Intro Editorial Section */}
-      <section className="px-4 sm:px-6 pt-28 sm:pt-36 md:pt-44 pb-10 sm:pb-16 text-center max-w-3xl mx-auto relative z-10">
+      <section className="px-4 sm:px-6 pt-4 sm:pt-8 md:pt-10 pb-10 sm:pb-16 text-center max-w-3xl mx-auto relative z-10">
         <Reveal direction="down">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.04] border border-[#b89a62]/30 backdrop-blur-md mb-4">
             <Sparkles className="w-3 h-3 text-[#b89a62]" />

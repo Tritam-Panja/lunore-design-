@@ -24,14 +24,24 @@ export function ScrollProgress() {
   const pathRef = useRef<SVGPathElement>(null);
   const beadRef = useRef<SVGGElement>(null);
   const pathLengthRef = useRef(0);
+  const pointsRef = useRef<{ x: number; y: number }[]>([]);
 
-  // Initialize path length
+  // Initialize path length and pre-sample points table
   useEffect(() => {
     if (pathRef.current) {
       const len = pathRef.current.getTotalLength();
       pathLengthRef.current = len;
       pathRef.current.style.strokeDasharray = `${len}`;
       pathRef.current.style.strokeDashoffset = `${len}`;
+
+      // Pre-sample points along the curve once on mount (eliminates heavy SVG bezier evaluations during scroll)
+      const samples = 250;
+      const pts: { x: number; y: number }[] = [];
+      for (let i = 0; i <= samples; i++) {
+        const pt = pathRef.current.getPointAtLength((len * i) / samples);
+        pts.push({ x: Number(pt.x.toFixed(1)), y: Number(pt.y.toFixed(1)) });
+      }
+      pointsRef.current = pts;
     }
   }, []);
 
@@ -54,8 +64,12 @@ export function ScrollProgress() {
         const offset = totalLen * (1 - p);
         pathRef.current.style.strokeDashoffset = `${offset.toFixed(1)}`;
 
-        if (beadRef.current) {
-          const pt = pathRef.current.getPointAtLength(totalLen * p);
+        if (beadRef.current && pointsRef.current.length > 0) {
+          const idx = Math.min(
+            pointsRef.current.length - 1,
+            Math.max(0, Math.round(p * (pointsRef.current.length - 1)))
+          );
+          const pt = pointsRef.current[idx];
           beadRef.current.setAttribute('transform', `translate(${pt.x}, ${pt.y})`);
         }
       }

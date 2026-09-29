@@ -3,6 +3,7 @@ import { ArrowRight, Check, Layers, Mountain, Gem, Sparkles } from 'lucide-react
 import { images } from '@/lib/images';
 import { Reveal } from '@/components/Reveal';
 import { LazyImage } from '@/components/LazyImage';
+import { ReturnToHome } from '@/components/ReturnToHome';
 
 const supplies = [
   {
@@ -51,7 +52,10 @@ export function MarbleGranite() {
       {/* Ambient Glows */}
       <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-[#b89a62]/8 rounded-full blur-[170px] pointer-events-none" />
 
-      <section className="relative px-4 sm:px-6 pt-28 sm:pt-36 md:pt-44 pb-14 sm:pb-20 text-center max-w-4xl mx-auto overflow-hidden">
+      {/* Return to Home Button */}
+      <ReturnToHome />
+
+      <section className="relative px-4 sm:px-6 pt-4 sm:pt-8 md:pt-10 pb-14 sm:pb-20 text-center max-w-4xl mx-auto overflow-hidden">
         <div className="absolute inset-0 overflow-hidden -z-10">
           <LazyImage
             src={images.marbleHero}

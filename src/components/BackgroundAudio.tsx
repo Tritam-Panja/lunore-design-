@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
-import { VolumeX } from 'lucide-react';
 
 const TARGET_VOLUME = 0.85;
 const FADE_IN_DURATION = 3.2; // Seconds for gentle swell at start of loop
@@ -275,10 +274,10 @@ export function BackgroundAudio() {
         onClick={handleToggle}
         type="button"
         aria-label={isAudible ? 'Mute background audio' : 'Play background audio'}
-        title={isAudible ? 'Click to Mute' : 'Click to Play'}
-        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] left-4 sm:bottom-6 sm:left-6 z-50 group cursor-pointer inline-flex items-center gap-2.5 px-3.5 sm:px-4 py-2 sm:py-2.5 rounded-full bg-black/75 hover:bg-black/90 border border-white/25 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_8px_25px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.95),0_0_25px_rgba(184,154,98,0.4)] transition-all duration-300 backdrop-blur-md select-none"
+        title={isAudible ? 'Sound On (Click to Mute)' : 'Sound Off (Click to Play)'}
+        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] left-4 sm:bottom-6 sm:left-6 z-50 group cursor-pointer inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/75 hover:bg-black/90 border border-white/25 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_8px_25px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.95),0_0_25px_rgba(184,154,98,0.4)] transition-all duration-300 backdrop-blur-md select-none"
       >
-        {/* Animated Equalizer Wave Bars or Sound Off Icon */}
+        {/* Animated Equalizer Wave Bars */}
         <div className="flex items-end gap-[2.5px] h-3.5 w-3.5 justify-center pb-[1px]">
           {isAudible ? (
             <>
@@ -287,13 +286,13 @@ export function BackgroundAudio() {
               <span className="w-[2px] bg-[#b89a62] rounded-full animate-[soundbar-3_1.1s_ease-in-out_infinite]" />
             </>
           ) : (
-            <VolumeX className="w-3.5 h-3.5 text-[#ded9cf]/70 group-hover:text-[#b89a62] transition-colors" />
+            <>
+              <span className="w-[2px] h-[3px] bg-[#b89a62]/40 rounded-full transition-all duration-300" />
+              <span className="w-[2px] h-[5px] bg-[#b89a62]/40 rounded-full transition-all duration-300" />
+              <span className="w-[2px] h-[3px] bg-[#b89a62]/40 rounded-full transition-all duration-300" />
+            </>
           )}
         </div>
-
-        <span className="text-[10px] sm:text-xs tracking-[0.22em] uppercase font-semibold text-[#ded9cf] group-hover:text-[#b89a62] transition-colors">
-          {isAudible ? 'Sound On' : 'Sound Off'}
-        </span>
       </button>
     </>
   );

@@ -63,6 +63,7 @@
     box-sizing: border-box;
     -webkit-text-size-adjust: 100%;
     text-size-adjust: 100%;
+    overscroll-behavior-y: none;
   }
   *, *::before, *::after {
     box-sizing: border-box;
@@ -257,13 +258,24 @@
 }
 
 /* GPU Acceleration for silky 60fps / 120fps motion */
+.liquid-glass-nav,
 .liquid-glass-card,
+.liquid-glass-pill,
 .liquid-glass-btn-primary,
 .liquid-glass-btn-secondary,
-.lunore-brand-letter {
+.lunore-brand-letter,
+.scroll-smooth-layer {
   transform: translateZ(0);
+  -webkit-transform: translateZ(0);
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
+  will-change: transform;
+}
+
+/* Offscreen layout skipping for butter-smooth 120fps scroll */
+.content-visibility-auto {
+  content-visibility: auto;
+  contain-intrinsic-size: 1px 750px;
 }
 
 /* ===== Header Animations ===== */

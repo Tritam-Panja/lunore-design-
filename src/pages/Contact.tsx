@@ -3,6 +3,7 @@ import { MapPin, Phone, Mail, Send, Check, MessageCircle, ArrowUpRight, AlertCir
 import { InstagramIcon, LinkedinIcon } from '@/components/SocialIcons';
 import { sendContactInquiry } from '@/lib/contactService';
 import { Reveal } from '@/components/Reveal';
+import { ReturnToHome } from '@/components/ReturnToHome';
 
 export function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
@@ -35,7 +36,9 @@ export function Contact() {
       {/* Ambient Glow */}
       <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#b89a62]/8 rounded-full blur-[160px] pointer-events-none" />
 
-      <section className="px-4 sm:px-6 pt-28 sm:pt-36 md:pt-48 pb-10 sm:pb-16 text-center max-w-4xl mx-auto relative z-10">
+      <ReturnToHome />
+
+      <section className="px-4 sm:px-6 pt-4 sm:pt-8 md:pt-10 pb-10 sm:pb-16 text-center max-w-4xl mx-auto relative z-10">
         <Reveal direction="down">
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass-pill mb-4 sm:mb-5">
             <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62]">Contact Studio</span>

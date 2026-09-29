@@ -17,6 +17,8 @@ const FULLSCREEN_ROUTES = [
   '/the-olive-grove-residence',
   '/clay-and-sage',
   '/the-canopy-house',
+  '/marble-stack',
+  '/sculptures-carousel',
   '/sanctuary-residences',
   '/skyline-penthouses',
   '/executive-suites',

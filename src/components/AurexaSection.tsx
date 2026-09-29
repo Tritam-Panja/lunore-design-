@@ -398,18 +398,32 @@ export function AurexaSection() {
           )}
         </svg>
 
-        {/* 5. EDITORIAL SUBTITLE */}
+        {/* 5. EDITORIAL SUBTITLE & ACCENT LINE */}
         <div
-          className="mt-4 sm:mt-6 max-w-xl text-center transition-all duration-500 ease-out px-4"
+          className="mt-4 sm:mt-6 max-w-xl text-center transition-all duration-500 ease-out px-4 relative z-30"
           style={{
-            opacity: Math.max(0, (progress - 0.25) * 1.5),
-            transform: `translateY(${Math.max(0, (1 - progress) * 16)}px)`,
+            transform: `translateY(${Math.max(0, (1 - safeProgress) * 10)}px)`,
           }}
         >
-          <p className="text-xs sm:text-sm md:text-base text-[#ded9cf] font-light tracking-[0.24em] uppercase leading-relaxed">
-            Monolithic Quarry Cuts &amp; Rare Haute Slabs
+          <p
+            style={{
+              color: '#ffffff',
+              WebkitTextFillColor: '#ffffff',
+              opacity: 1,
+              textShadow: '0 0 20px rgba(255, 255, 255, 0.9), 0 2px 10px rgba(0, 0, 0, 0.95), 0 0 2px #000000',
+            }}
+            className="text-xs sm:text-sm md:text-base !text-white font-semibold tracking-[0.26em] uppercase leading-relaxed select-none"
+          >
+            Experience the Unforgettable
           </p>
-          <div className="w-14 h-px bg-gradient-to-r from-transparent via-[#b89a62] to-transparent mx-auto mt-3" />
+          <div
+            style={{
+              backgroundColor: '#ffffff',
+              background: 'linear-gradient(90deg, transparent 0%, #ffffff 50%, transparent 100%)',
+              boxShadow: '0 0 14px rgba(255, 255, 255, 1)',
+            }}
+            className="w-24 h-[2px] bg-white mx-auto mt-3"
+          />
         </div>
       </div>
 

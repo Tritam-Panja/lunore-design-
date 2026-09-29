@@ -36,13 +36,13 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const isMobile = window.innerWidth < 768;
 
     const instance = new Lenis({
-      duration: isMobile ? 0.85 : 1.1,
+      duration: isMobile ? 0.9 : 1.2,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      wheelMultiplier: 1.0,
-      touchMultiplier: isMobile ? 1.0 : 1.2,
+      wheelMultiplier: 1.05,
+      touchMultiplier: isMobile ? 1.4 : 1.2,
       syncTouch: false,
       infinite: false,
       autoRaf: false,

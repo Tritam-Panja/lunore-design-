@@ -1,38 +1,33 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Logo } from './Logo';
-import { useLenis } from './SmoothScroll';
 
 interface FooterLink {
   label: string;
   to: string;
-  hash?: string;
 }
 
 const footerLinks: FooterLink[] = [
-  { label: 'Home', to: '/', hash: '#hero' },
-  { label: 'Brand Story', to: '/brand-story', hash: '#brand-story' },
+  { label: 'Home', to: '/' },
+  { label: 'Projects', to: '/projects' },
+  { label: 'Brand Story', to: '/brand-story' },
   { label: 'Interior Design', to: '/interior-design' },
   { label: 'Marble & Granite', to: '/marble-granite' },
   { label: 'Dream Projects', to: '/dream-project' },
-  { label: 'Contact Us', to: '/contact', hash: '#contact' },
+  { label: 'Careers', to: '/careers' },
+  { label: 'Contact Us', to: '/contact' },
 ];
 
 export function Footer() {
   const location = useLocation();
   const navigate = useNavigate();
-  const { scrollTo } = useLenis();
 
   const handleFooterLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: FooterLink) => {
-    if (location.pathname === '/' && link.hash) {
-      const target = document.querySelector(link.hash);
-      if (target) {
-        e.preventDefault();
-        scrollTo(target as HTMLElement);
-        return;
-      }
-    } else if (location.pathname !== '/' && link.hash) {
-      e.preventDefault();
-      navigate(`/${link.hash}`);
+    e.preventDefault();
+    if (location.pathname === link.to) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      navigate(link.to);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 

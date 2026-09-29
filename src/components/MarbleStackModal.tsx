@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { X, ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { X, ArrowRight, ChevronLeft } from 'lucide-react';
 import { ScrollStack, ScrollStackItem } from './ScrollStack';
 
 export interface StoneItem {
@@ -179,6 +180,16 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
       {/* Top Header Bar */}
       <header className="shrink-0 w-full border-b border-white/10 bg-[#070809]/80 backdrop-blur-xl z-50 px-4 sm:px-8 py-3.5 sm:py-4.5 flex items-center justify-between">
         <div className="flex items-center gap-3 sm:gap-4">
+          <Link
+            to="/"
+            onClick={onClose}
+            className="cursor-pointer inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 hover:border-[#b89a62]/80 text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] transition-all group shadow-sm active:scale-95"
+            title="Return to Home"
+          >
+            <ChevronLeft className="w-3.5 h-3.5 text-[#b89a62] group-hover:-translate-x-0.5 transition-transform" />
+            <span>Home</span>
+          </Link>
+          <div className="h-4 w-px bg-white/15 hidden sm:block" />
           <h2
             className="text-sm sm:text-base md:text-lg text-white font-normal tracking-wider leading-tight"
             style={{ fontFamily: 'var(--font-serif)' }}

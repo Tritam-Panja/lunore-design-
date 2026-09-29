@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, RotateCcw, ChevronDown, Maximize2, X } from 'lucide-react';
 import { images } from '@/lib/images';
 
@@ -409,17 +410,33 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
   );
 }
 
-export function SculpturesExperience() {
-  const [experienceState, setExperienceState] = useState<'entrance' | 'statement' | 'carousel'>('entrance');
+export interface SculpturesExperienceProps {
+  initialState?: 'entrance' | 'statement' | 'carousel';
+  isStandalonePage?: boolean;
+}
+
+export function SculpturesExperience({
+  initialState = 'entrance',
+  isStandalonePage = false,
+}: SculpturesExperienceProps = {}) {
+  const location = useLocation();
+  const isDirectCarousel =
+    initialState === 'carousel' ||
+    location.hash === '#sculptures-carousel' ||
+    (location.state as any)?.enterCarousel;
+
+  const [experienceState, setExperienceState] = useState<'entrance' | 'statement' | 'carousel'>(
+    isDirectCarousel ? 'carousel' : initialState
+  );
   
   // Continuous pinch progress: 0.0 (fullscreen landscape) -> 1.0 (docked in 3D portrait carousel)
-  const [pinchProgress, setPinchProgress] = useState<number>(0);
+  const [pinchProgress, setPinchProgress] = useState<number>(isDirectCarousel ? 1 : 0);
   const [rotation, setRotation] = useState<number>(0);
   const [viewport, setViewport] = useState({ w: 1440, h: 900 });
   const [isDragging, setIsDragging] = useState<boolean>(false);
 
-  const targetPinchRef = useRef<number>(0);
-  const currentPinchRef = useRef<number>(0);
+  const targetPinchRef = useRef<number>(isDirectCarousel ? 1 : 0);
+  const currentPinchRef = useRef<number>(isDirectCarousel ? 1 : 0);
 
   const targetRotationRef = useRef<number>(0);
   const currentRotationRef = useRef<number>(0);
@@ -589,6 +606,23 @@ export function SculpturesExperience() {
       isLoopRunningRef.current = false;
     };
   }, []);
+
+  // Auto-trigger carousel mode if hash or state demands it
+  useEffect(() => {
+    if (location.hash === '#sculptures-carousel' || (location.state as any)?.enterCarousel) {
+      setExperienceState('carousel');
+      targetPinchRef.current = 1;
+      currentPinchRef.current = 1;
+      setPinchProgress(1);
+      lastInteractionTimeRef.current = Date.now();
+      triggerPhysicsLoopRef.current();
+
+      const el = document.getElementById('sculptures-experience');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+  }, [location.hash, location.state]);
 
   // Actions
   const handleEnter = useCallback(() => {
@@ -982,7 +1016,18 @@ export function SculpturesExperience() {
             }}
             className="flex items-center justify-between w-full relative z-40 max-w-7xl mx-auto transition-all duration-300 pt-2"
           >
-            <div className="w-24 sm:w-32" />
+            {isStandalonePage ? (
+              <Link
+                to="/"
+                className="cursor-pointer inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border border-white/15 bg-white/5 hover:bg-white/10 hover:border-[#b89a62]/80 text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] transition-all group shadow-sm active:scale-95"
+                title="Return to Home"
+              >
+                <ChevronLeft className="w-3.5 h-3.5 text-[#b89a62] group-hover:-translate-x-0.5 transition-transform" />
+                <span>Home</span>
+              </Link>
+            ) : (
+              <div className="w-24 sm:w-32" />
+            )}
 
             {/* Infinite Sculpture Counter */}
             <div className="liquid-glass-pill px-4 py-1.5 rounded-full text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#f1eee7]/90">
