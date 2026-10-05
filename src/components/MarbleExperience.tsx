@@ -125,8 +125,11 @@ export function MarbleExperience() {
       }
  
       if (!isChanging) {
-        currentTiltRef.current = { ...targetTiltRef.current };
-        currentPosRef.current = { ...targetPosRef.current };
+        currentTiltRef.current.x = targetTiltRef.current.x;
+        currentTiltRef.current.y = targetTiltRef.current.y;
+        currentTiltRef.current.z = targetTiltRef.current.z;
+        currentPosRef.current.x = targetPosRef.current.x;
+        currentPosRef.current.y = targetPosRef.current.y;
         currentFlipRef.current = targetFlipRef.current;
         currentProgressRef.current = targetProgressRef.current;
       }
@@ -165,7 +168,7 @@ export function MarbleExperience() {
       (entries) => {
         entries.forEach((entry) => {
           isVisible = entry.isIntersecting;
-          if (isVisible) {
+          if (isVisible && !document.hidden) {
             triggerPhysicsLoop();
           } else if (animId !== null) {
             cancelAnimationFrame(animId);
@@ -174,15 +177,29 @@ export function MarbleExperience() {
           }
         });
       },
-      { threshold: 0.05 }
+      { rootMargin: '120px 0px 120px 0px', threshold: 0 }
     );
  
     if (containerRef.current) {
       observer.observe(containerRef.current);
     }
+
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (animId !== null) {
+          cancelAnimationFrame(animId);
+          animId = null;
+          isLoopRunningRef.current = false;
+        }
+      } else if (isVisible) {
+        triggerPhysicsLoop();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
  
     return () => {
       observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibility);
       if (animId !== null) cancelAnimationFrame(animId);
       isLoopRunningRef.current = false;
     };
@@ -211,16 +228,12 @@ export function MarbleExperience() {
     const maxMoveX = Math.min(rect.width * 0.36, 420);
     const maxMoveY = Math.min(rect.height * 0.30, 240);
  
-    targetPosRef.current = {
-      x: normX * maxMoveX * 2,
-      y: normY * maxMoveY * 2,
-    };
+    targetPosRef.current.x = normX * maxMoveX * 2;
+    targetPosRef.current.y = normY * maxMoveY * 2;
  
-    targetTiltRef.current = {
-      x: -normY * 28,
-      y: normX * 34,
-      z: normX * 6,
-    };
+    targetTiltRef.current.x = -normY * 28;
+    targetTiltRef.current.y = normX * 34;
+    targetTiltRef.current.z = normX * 6;
  
     triggerPhysicsLoopRef.current();
   }, []);
@@ -230,9 +243,19 @@ export function MarbleExperience() {
       if (window.innerWidth < 768) return;
       updatePointerPosition(e.clientX, e.clientY);
     };
- 
+
+    const handleScrollOrResize = () => {
+      lastRectRef.current = null;
+    };
+
     window.addEventListener('mousemove', handleWindowMouseMove, { passive: true });
-    return () => window.removeEventListener('mousemove', handleWindowMouseMove);
+    window.addEventListener('scroll', handleScrollOrResize, { passive: true });
+    window.addEventListener('resize', handleScrollOrResize, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleWindowMouseMove);
+      window.removeEventListener('scroll', handleScrollOrResize);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
   }, [updatePointerPosition]);
  
   // Touch handlers for mobile with velocity tracking & gesture momentum

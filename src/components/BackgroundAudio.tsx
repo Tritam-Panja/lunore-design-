@@ -103,12 +103,10 @@ export function BackgroundAudio() {
     // Start with volume 0 so it can fade in naturally
     audio.volume = 0;
 
-    // Continuous 60fps volume update loop for organic crossfades
-    const loopVolumeCheck = () => {
-      applySmoothVolume();
-      rafRef.current = requestAnimationFrame(loopVolumeCheck);
-    };
-    rafRef.current = requestAnimationFrame(loopVolumeCheck);
+    // Event-driven volume updates for track crossfades (eliminates permanent 60fps RAF loop)
+    audio.addEventListener('timeupdate', applySmoothVolume);
+    audio.addEventListener('play', applySmoothVolume);
+    audio.addEventListener('pause', applySmoothVolume);
 
     const onVisibilityChange = () => {
       applySmoothVolume();
@@ -196,6 +194,9 @@ export function BackgroundAudio() {
     return () => {
       removeInteractionListeners();
       document.removeEventListener('visibilitychange', onVisibilityChange);
+      audio.removeEventListener('timeupdate', applySmoothVolume);
+      audio.removeEventListener('play', applySmoothVolume);
+      audio.removeEventListener('pause', applySmoothVolume);
       if (rafRef.current) {
         cancelAnimationFrame(rafRef.current);
       }

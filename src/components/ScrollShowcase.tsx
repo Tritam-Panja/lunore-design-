@@ -167,15 +167,58 @@ export const ScrollShowcase: React.FC<ScrollShowcaseProps> = ({
       updateScrollTimeline(e.scroll);
     });
 
-    const raf = (time: number) => {
-      lenis.raf(time);
-      rafIdRef.current = requestAnimationFrame(raf);
+    let isVisible = true;
+    let isTabVisible = !document.hidden;
+
+    const startRaf = () => {
+      if (rafIdRef.current === null && isVisible && isTabVisible) {
+        const raf = (time: number) => {
+          if (!isVisible || !isTabVisible) {
+            rafIdRef.current = null;
+            return;
+          }
+          lenis.raf(time);
+          rafIdRef.current = requestAnimationFrame(raf);
+        };
+        rafIdRef.current = requestAnimationFrame(raf);
+      }
     };
-    rafIdRef.current = requestAnimationFrame(raf);
+
+    const stopRaf = () => {
+      if (rafIdRef.current !== null) {
+        cancelAnimationFrame(rafIdRef.current);
+        rafIdRef.current = null;
+      }
+    };
+
+    startRaf();
     lenisRef.current = lenis;
 
     // Initial render frame
     updateScrollTimeline(scroller.scrollTop || 0);
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isVisible = entry.isIntersecting;
+        if (isVisible) {
+          startRaf();
+        } else {
+          stopRaf();
+        }
+      },
+      { rootMargin: '120px 0px 120px 0px', threshold: 0 }
+    );
+    observer.observe(scroller);
+
+    const onVisibilityChange = () => {
+      isTabVisible = !document.hidden;
+      if (isTabVisible && isVisible) {
+        startRaf();
+      } else {
+        stopRaf();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     const onResize = () => {
       measureLayout();
@@ -184,10 +227,10 @@ export const ScrollShowcase: React.FC<ScrollShowcaseProps> = ({
     window.addEventListener('resize', onResize, { passive: true });
 
     return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       window.removeEventListener('resize', onResize);
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-      }
+      stopRaf();
       lenis.destroy();
       lenisRef.current = null;
     };

@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useLenis } from './SmoothScroll';
 
 interface ScrollColorTextProps {
@@ -26,16 +26,68 @@ export function ScrollColorText({
   once = true,
 }: ScrollColorTextProps) {
   const containerRef = useRef<HTMLElement>(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const wordsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const maxProgressRef = useRef(0);
   const { lenis } = useLenis();
+
+  const words = text.split(' ');
+  const totalWords = words.length;
 
   useEffect(() => {
     let animationFrameId: number;
 
+    const updateWords = (progress: number) => {
+      if (containerRef.current) {
+        containerRef.current.style.setProperty('--scroll-progress', progress.toFixed(4));
+      }
+
+      const spans = wordsRef.current;
+      for (let i = 0; i < totalWords; i++) {
+        const span = spans[i];
+        if (!span) continue;
+
+        const wordStart = (i / totalWords) * 0.86;
+        const wordEnd = Math.min(1, wordStart + 0.14);
+        const wordProgress =
+          progress >= 1
+            ? 1
+            : Math.min(
+                1,
+                Math.max(0, (progress - wordStart) / (wordEnd - wordStart))
+              );
+
+        const isHighlighted = wordProgress > 0.45;
+        const targetColor = isHighlighted ? '#f5ebd2' : 'rgba(241, 238, 231, 0.22)';
+        const targetOpacity = (0.25 + wordProgress * 0.75).toFixed(3);
+        const targetShadow = isHighlighted
+          ? '0 0 16px rgba(230, 203, 151, 0.55), 0 2px 8px rgba(0, 0, 0, 0.8)'
+          : 'none';
+        const targetTransform = `translateY(${((1 - wordProgress) * 2).toFixed(2)}px)`;
+
+        if (span.style.color !== targetColor) span.style.color = targetColor;
+        if (span.style.opacity !== targetOpacity) span.style.opacity = targetOpacity;
+        if (span.style.textShadow !== targetShadow) span.style.textShadow = targetShadow;
+        if (span.style.transform !== targetTransform) span.style.transform = targetTransform;
+      }
+    };
+
+    let isNear = false;
+
+    const removeListener = () => {
+      cancelAnimationFrame(animationFrameId);
+      if (lenis) {
+        lenis.off('scroll', onScroll);
+      } else {
+        window.removeEventListener('scroll', onScroll);
+      }
+    };
+
     const handleScroll = () => {
       if (!containerRef.current) return;
-      if (once && maxProgressRef.current >= 1) return;
+      if (once && maxProgressRef.current >= 1) {
+        removeListener();
+        return;
+      }
 
       const rect = containerRef.current.getBoundingClientRect();
       const windowHeight = window.innerHeight;
@@ -48,17 +100,35 @@ export function ScrollColorText({
       if (once) {
         if (rawProgress > maxProgressRef.current) {
           maxProgressRef.current = rawProgress;
-          setScrollProgress(rawProgress);
+          updateWords(rawProgress);
+          if (maxProgressRef.current >= 1) {
+            removeListener();
+          }
         }
       } else {
-        setScrollProgress(rawProgress);
+        updateWords(rawProgress);
       }
     };
 
     const onScroll = () => {
+      if (!isNear && (!once || maxProgressRef.current < 1)) return;
       cancelAnimationFrame(animationFrameId);
       animationFrameId = requestAnimationFrame(handleScroll);
     };
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isNear = entry.isIntersecting;
+        if (isNear) {
+          handleScroll();
+        }
+      },
+      { rootMargin: '150px 0px 150px 0px' }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
 
     if (lenis) {
       lenis.on('scroll', onScroll);
@@ -69,17 +139,10 @@ export function ScrollColorText({
     handleScroll();
 
     return () => {
-      cancelAnimationFrame(animationFrameId);
-      if (lenis) {
-        lenis.off('scroll', onScroll);
-      } else {
-        window.removeEventListener('scroll', onScroll);
-      }
+      observer.disconnect();
+      removeListener();
     };
-  }, [lenis, scrollDistance, once]);
-
-  const words = text.split(' ');
-  const totalWords = words.length;
+  }, [lenis, scrollDistance, once, totalWords]);
 
   return (
     <Component
@@ -88,32 +151,19 @@ export function ScrollColorText({
       style={style}
     >
       {words.map((word, index) => {
-        // Calculate each word's individual highlight progress across [0, 1]
-        const wordStart = (index / totalWords) * 0.86;
-        const wordEnd = Math.min(1, wordStart + 0.14);
-        const wordProgress =
-          scrollProgress >= 1
-            ? 1
-            : Math.min(
-                1,
-                Math.max(0, (scrollProgress - wordStart) / (wordEnd - wordStart))
-              );
-
-        // Word illumination interpolation
-        const isHighlighted = wordProgress > 0.45;
-
         return (
           <span
             key={`${word}-${index}`}
+            ref={(el) => {
+              wordsRef.current[index] = el;
+            }}
             className="inline-block transition-all duration-300 ease-out will-change-[color,opacity,transform]"
             style={{
               marginRight: '0.26em',
-              color: isHighlighted ? '#f5ebd2' : 'rgba(241, 238, 231, 0.22)',
-              opacity: 0.25 + wordProgress * 0.75,
-              textShadow: isHighlighted
-                ? '0 0 16px rgba(230, 203, 151, 0.55), 0 2px 8px rgba(0, 0, 0, 0.8)'
-                : 'none',
-              transform: `translateY(${(1 - wordProgress) * 2}px)`,
+              color: 'rgba(241, 238, 231, 0.22)',
+              opacity: 0.25,
+              textShadow: 'none',
+              transform: 'translateY(2px)',
             }}
           >
             {word}

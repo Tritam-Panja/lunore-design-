@@ -93,6 +93,10 @@ export function Home() {
   const desktopVideoRef = useRef<HTMLVideoElement>(null);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
+  const activeIndexRef = useRef(0);
+  useEffect(() => {
+    activeIndexRef.current = activeIndex;
+  }, [activeIndex]);
   const [isMobile, setIsMobile] = useState(() => (typeof window !== 'undefined' ? window.innerWidth < 768 : false));
   const [isTablet, setIsTablet] = useState(() => (typeof window !== 'undefined' ? window.innerWidth >= 768 && window.innerWidth < 1024 : false));
 
@@ -176,22 +180,28 @@ export function Home() {
     }
   }, []);
 
-  // Scroll handler for scroll-driven index update (RAF throttled to avoid layout thrashing)
+  // Scroll handler for scroll-driven index update (RAF throttled & IO-gated to avoid layout thrashing)
   useEffect(() => {
     let ticking = false;
+    let isNear = false;
 
     const handleScroll = () => {
+      if (!isNear) return;
       if (!ticking) {
         ticking = true;
         requestAnimationFrame(() => {
-          if (aboutRef.current) {
+          if (aboutRef.current && isNear) {
             const rect = aboutRef.current.getBoundingClientRect();
             const totalHeight = rect.height - window.innerHeight;
             if (totalHeight > 0) {
               const progress = Math.max(0, Math.min(0.999, -rect.top / totalHeight));
               const step = 1 / directors.length;
               const index = Math.floor(progress / step);
-              setActiveIndex(Math.max(0, Math.min(directors.length - 1, index)));
+              const nextIndex = Math.max(0, Math.min(directors.length - 1, index));
+              if (activeIndexRef.current !== nextIndex) {
+                activeIndexRef.current = nextIndex;
+                setActiveIndex(nextIndex);
+              }
             }
           }
           ticking = false;
@@ -199,11 +209,24 @@ export function Home() {
       }
     };
 
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isNear = entry.isIntersecting;
+        if (isNear) handleScroll();
+      },
+      { rootMargin: '200px 0px 200px 0px' }
+    );
+
+    if (aboutRef.current) {
+      observer.observe(aboutRef.current);
+    }
+
     if (lenis) {
       lenis.on('scroll', handleScroll);
     }
     window.addEventListener('scroll', handleScroll, { passive: true });
     return () => {
+      observer.disconnect();
       if (lenis) {
         lenis.off('scroll', handleScroll);
       }
@@ -310,30 +333,30 @@ export function Home() {
             <video
               ref={mobileVideoRef}
               key="hero-mobile-video"
-              src={encodeURI('/assets/images/Lunore hero mobile.mp4')}
+              poster="/assets/images/lunore-hero-mobile-poster.webp"
               autoPlay
               loop
               muted
               playsInline
-              preload="auto"
+              preload="metadata"
               className="h-full w-full object-cover object-center"
             >
-              <source src={encodeURI('/assets/images/Lunore hero mobile.mp4')} type="video/mp4" />
+              <source src="/assets/images/lunore-hero-mobile.mp4" type="video/mp4" />
             </video>
           ) : (
             /* Desktop Video for tablets & desktop screens (>= md) */
             <video
               ref={desktopVideoRef}
               key="hero-desktop-video"
-              src={encodeURI('/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4')}
+              poster="/assets/images/lunore-hero-desktop-poster.webp"
               autoPlay
               loop
               muted
               playsInline
-              preload="auto"
+              preload="metadata"
               className="h-full w-full md:w-auto md:max-w-none md:object-contain object-cover object-right"
             >
-              <source src={encodeURI('/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4')} type="video/mp4" />
+              <source src="/assets/images/lunore-hero-desktop.mp4" type="video/mp4" />
             </video>
           )}
         </div>

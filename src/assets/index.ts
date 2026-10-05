@@ -11,8 +11,10 @@ export const localImages = {
 // Static Public Asset Paths (accessible directly as web URLs)
 export const publicImages = {
   hero: '/assets/images/hero.webp',
-  heroVideo: encodeURI('/assets/images/LUNORE_—_Subtle_Cinematic_Imag (1).mp4'),
-  heroMobileVideo: encodeURI('/assets/images/Lunore hero mobile.mp4'),
+  heroVideo: '/assets/images/lunore-hero-desktop.mp4',
+  heroMobileVideo: '/assets/images/lunore-hero-mobile.mp4',
+  heroDesktopPoster: '/assets/images/lunore-hero-desktop-poster.webp',
+  heroMobilePoster: '/assets/images/lunore-hero-mobile-poster.webp',
   marble: '/assets/images/marble.webp',
   marbleHero: encodeURI('/assets/images/mable hero.webp'),
   sculptureHero: '/assets/images/sculpture hero .webp',

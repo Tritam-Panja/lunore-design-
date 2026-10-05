@@ -584,7 +584,7 @@ export function SculpturesExperience({
       (entries) => {
         entries.forEach((entry) => {
           isVisible = entry.isIntersecting;
-          if (isVisible) {
+          if (isVisible && !document.hidden) {
             triggerPhysicsLoop();
           } else if (animId !== null) {
             cancelAnimationFrame(animId);
@@ -593,15 +593,29 @@ export function SculpturesExperience({
           }
         });
       },
-      { threshold: 0.05 }
+      { rootMargin: '120px 0px 120px 0px', threshold: 0 }
     );
 
     if (containerRef.current) {
       observer.observe(containerRef.current);
     }
 
+    const handleVisibility = () => {
+      if (document.hidden) {
+        if (animId !== null) {
+          cancelAnimationFrame(animId);
+          animId = null;
+          isLoopRunningRef.current = false;
+        }
+      } else if (isVisible) {
+        triggerPhysicsLoop();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     return () => {
       observer.disconnect();
+      document.removeEventListener('visibilitychange', handleVisibility);
       if (animId !== null) cancelAnimationFrame(animId);
       isLoopRunningRef.current = false;
     };

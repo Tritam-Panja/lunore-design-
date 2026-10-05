@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { useExperience } from './ExperienceContext';
 import { useLenis } from './SmoothScroll';
 
@@ -42,14 +42,14 @@ export function ScrollLine({
 }: ScrollLineProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
-  const [pathLength, setPathLength] = useState<number>(0);
+  const pathLengthRef = useRef<number>(0);
   const isVisibleRef = useRef<boolean>(false);
   const { lenis } = useLenis();
 
   useEffect(() => {
     if (pathRef.current) {
       const length = pathRef.current.getTotalLength();
-      setPathLength(length);
+      pathLengthRef.current = length;
       pathRef.current.style.strokeDasharray = `${length}`;
       pathRef.current.style.strokeDashoffset = `${length}`;
     }
@@ -57,7 +57,7 @@ export function ScrollLine({
 
   // Only calculate on scroll when visible in viewport (eliminates layout thrashing)
   useEffect(() => {
-    if (!pathLength || !containerRef.current) return;
+    if (!containerRef.current) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -87,11 +87,12 @@ export function ScrollLine({
       let progress = currentScroll / totalDistance;
       progress = Math.max(0, Math.min(1, progress));
 
-      const drawLength = pathLength * (1 - progress);
+      const drawLength = pathLengthRef.current * (1 - progress);
       pathRef.current.style.strokeDashoffset = `${drawLength.toFixed(1)}`;
     };
 
     const onScroll = () => {
+      if (!isVisibleRef.current) return;
       if (!isTicking) {
         isTicking = true;
         animationFrameId = requestAnimationFrame(updateScrollLine);
@@ -114,7 +115,7 @@ export function ScrollLine({
       window.removeEventListener('resize', onScroll);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [pathLength, startOffset, endOffset, lenis]);
+  }, [startOffset, endOffset, lenis, path]);
 
   const { isExperienceActive } = useExperience();
 

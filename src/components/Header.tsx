@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Sparkles, MapPin, Phone, Mail, ChevronDown } from 'lucide-react';
 import { useLenis } from './SmoothScroll';
@@ -66,6 +66,8 @@ export function Header() {
     return () => observer?.disconnect();
   }, [location.pathname]);
 
+  const scrolledRef = useRef(false);
+
   // Track scroll position: hide on first section (hero), show on content
   useEffect(() => {
     let ticking = false;
@@ -75,7 +77,10 @@ export function Header() {
         window.requestAnimationFrame(() => {
           const threshold = isHome ? Math.min(300, window.innerHeight * 0.45) : 40;
           const isScrolled = window.scrollY > threshold;
-          setScrolled(isScrolled);
+          if (scrolledRef.current !== isScrolled) {
+            scrolledRef.current = isScrolled;
+            setScrolled(isScrolled);
+          }
           ticking = false;
         });
         ticking = true;

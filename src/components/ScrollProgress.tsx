@@ -25,6 +25,7 @@ export function ScrollProgress() {
   const beadRef = useRef<SVGGElement>(null);
   const pathLengthRef = useRef(0);
   const pointsRef = useRef<{ x: number; y: number }[]>([]);
+  const visibleRef = useRef(false);
 
   // Initialize path length and pre-sample points table
   useEffect(() => {
@@ -97,7 +98,11 @@ export function ScrollProgress() {
       if (total > 0) {
         targetProgressRef.current = Math.min(1, Math.max(0, scrollY / total));
       }
-      setVisible(scrollY > 20);
+      const nextVisible = scrollY > 20;
+      if (visibleRef.current !== nextVisible) {
+        visibleRef.current = nextVisible;
+        setVisible(nextVisible);
+      }
       requestTick();
     };
 

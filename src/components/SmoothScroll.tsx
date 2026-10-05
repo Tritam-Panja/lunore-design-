@@ -66,26 +66,46 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     // Apply lenis class to html root on desktop
     document.documentElement.classList.add('lenis', 'lenis-smooth');
 
-    let rafId: number;
-    let isPaused = false;
+    let rafId: number | null = null;
+    let isRunning = false;
+
+    function startRaf() {
+      if (!isRunning && !document.hidden) {
+        isRunning = true;
+        rafId = requestAnimationFrame(raf);
+      }
+    }
+
+    function stopRaf() {
+      if (isRunning) {
+        isRunning = false;
+        if (rafId !== null) {
+          cancelAnimationFrame(rafId);
+          rafId = null;
+        }
+      }
+    }
 
     function raf(time: number) {
-      if (!isPaused) {
-        instance.raf(time);
-      }
+      if (!isRunning) return;
+      instance.raf(time);
       rafId = requestAnimationFrame(raf);
     }
 
-    rafId = requestAnimationFrame(raf);
+    startRaf();
 
-    // Battery / CPU Saver: Pause RAF loop when browser tab is inactive
+    // Battery / CPU Saver: Pause RAF loop completely when browser tab is inactive
     const handleVisibilityChange = () => {
-      isPaused = document.hidden;
+      if (document.hidden) {
+        stopRaf();
+      } else {
+        startRaf();
+      }
     };
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      cancelAnimationFrame(rafId);
+      stopRaf();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       document.documentElement.classList.remove('lenis', 'lenis-smooth');
       instance.destroy();

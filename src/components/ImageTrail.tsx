@@ -34,29 +34,22 @@ class ImageItem {
   };
   public defaultStyle: gsap.TweenVars = { scale: 1, x: 0, y: 0, opacity: 0 };
   public rect: DOMRect | null = null;
-  private resize!: () => void;
 
   constructor(DOM_el: HTMLDivElement) {
     this.DOM.el = DOM_el;
     this.DOM.inner = this.DOM.el.querySelector('.content__img-inner');
-    this.getRect();
-    this.initEvents();
   }
 
-  private initEvents() {
-    this.resize = () => {
-      gsap.set(this.DOM.el, this.defaultStyle);
-      this.getRect();
-    };
-    window.addEventListener('resize', this.resize);
-  }
-
-  private getRect() {
-    this.rect = this.DOM.el.getBoundingClientRect();
+  public getRect(): DOMRect {
+    if (!this.rect && this.DOM.el) {
+      this.rect = this.DOM.el.getBoundingClientRect();
+    }
+    return this.rect || { left: 0, top: 0, width: 0, height: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => {} };
   }
 
   public destroy() {
-    window.removeEventListener('resize', this.resize);
+    if (this.DOM.el) gsap.killTweensOf(this.DOM.el);
+    if (this.DOM.inner) gsap.killTweensOf(this.DOM.inner);
   }
 }
 
@@ -1031,12 +1024,12 @@ class ImageTrailVariant6 {
   }
 }
 
-function getNewPosition(position: number, offset: number, arr: ImageItem[]) {
-  const realOffset = Math.abs(offset) % arr.length;
+function getNewPosition(position: number, offset: number, total: number) {
+  const realOffset = Math.abs(offset) % total;
   if (position - realOffset >= 0) {
     return position - realOffset;
   } else {
-    return arr.length - (realOffset - position);
+    return total - (realOffset - position);
   }
 }
 
@@ -1050,15 +1043,21 @@ class ImageTrailVariant7 {
   private activeImagesCount: number;
   private isIdle: boolean;
   private threshold: number;
-  private mousePos: { x: number; y: number };
-  private lastMousePos: { x: number; y: number };
-  private cacheMousePos: { x: number; y: number };
+  private thresholdSq: number;
+  private mousePos = { x: 0, y: 0 };
+  private lastMousePos = { x: 0, y: 0 };
+  private cacheMousePos = { x: 0, y: 0 };
   private rafId: number | null = null;
   private destroyed = false;
-  private handlePointerMove!: (ev: MouseEvent | TouchEvent) => void;
-  private initRender!: (ev: MouseEvent | TouchEvent) => void;
+  private isPaused = false;
   private visibleImagesCount: number;
   private visibleImagesTotal: number;
+  private renderLoop: () => void;
+
+  // Cached layout dimensions: ZERO layout reads during pointermove / touchmove
+  private containerRect: DOMRect | null = null;
+  private cardHalfWidth = 110;
+  private cardHalfHeight = 100;
 
   constructor(container: HTMLDivElement) {
     this.container = container;
@@ -1070,59 +1069,111 @@ class ImageTrailVariant7 {
     this.activeImagesCount = 0;
     this.isIdle = true;
     this.threshold = 55;
-    this.mousePos = { x: 0, y: 0 };
-    this.lastMousePos = { x: 0, y: 0 };
-    this.cacheMousePos = { x: 0, y: 0 };
+    this.thresholdSq = 55 * 55;
     this.visibleImagesCount = 0;
-    this.visibleImagesTotal = 8;
-    this.visibleImagesTotal = Math.min(this.visibleImagesTotal, this.imagesTotal - 1);
+    this.visibleImagesTotal = Math.min(8, this.imagesTotal - 1);
+    this.renderLoop = () => this.render();
 
-    let lastRect: DOMRect | null = null;
-    let lastRectTime = 0;
+    this.updateDimensions();
 
-    const handlePointerMove = (ev: MouseEvent | TouchEvent) => {
-      const now = performance.now();
-      if (!lastRect || now - lastRectTime > 300) {
-        lastRect = container.getBoundingClientRect();
-        lastRectTime = now;
-      }
-      this.mousePos = getLocalPointerPos(ev, lastRect);
-      if (this.rafId === null && !this.destroyed) {
-        this.rafId = requestAnimationFrame(() => this.render());
-      }
-    };
-    container.addEventListener('mousemove', handlePointerMove, { passive: true } as any);
-    container.addEventListener('touchmove', handlePointerMove, { passive: true } as any);
+    // Passive pointer and touch listeners for instant, non-blocking response on mobile and desktop
+    container.addEventListener('mousemove', this.handlePointerMove, { passive: true });
+    container.addEventListener('touchmove', this.handlePointerMove, { passive: true });
+    container.addEventListener('touchstart', this.handlePointerMove, { passive: true });
 
-    const initRender = (ev: MouseEvent | TouchEvent) => {
-      lastRect = container.getBoundingClientRect();
-      lastRectTime = performance.now();
-      this.mousePos = getLocalPointerPos(ev, lastRect);
-      this.cacheMousePos = { ...this.mousePos };
-      if (this.rafId === null && !this.destroyed) {
-        this.rafId = requestAnimationFrame(() => this.render());
-      }
-      container.removeEventListener('mousemove', initRender as EventListener);
-      container.removeEventListener('touchmove', initRender as EventListener);
-    };
-    container.addEventListener('mousemove', initRender as EventListener, { passive: true } as any);
-    container.addEventListener('touchmove', initRender as EventListener, { passive: true } as any);
-    this.handlePointerMove = handlePointerMove;
-    this.initRender = initRender;
+    // Global scroll and resize listeners to invalidate cached rect without per-event thrashing
+    window.addEventListener('scroll', this.onScrollOrResize, { passive: true });
+    window.addEventListener('resize', this.onResize, { passive: true });
+    window.addEventListener('orientationchange', this.onResize, { passive: true });
   }
+
+  private updateDimensions() {
+    if (this.container) {
+      this.containerRect = this.container.getBoundingClientRect();
+    }
+    if (this.images.length > 0 && this.images[0]?.DOM.el) {
+      const el = this.images[0].DOM.el;
+      const w = el.offsetWidth || (window.innerWidth >= 640 ? 220 : 190);
+      const h = el.offsetHeight || Math.round(w / 1.1);
+      this.cardHalfWidth = w * 0.5;
+      this.cardHalfHeight = h * 0.5;
+    }
+  }
+
+  private onScrollOrResize = () => {
+    this.containerRect = null;
+  };
+
+  private onResize = () => {
+    this.containerRect = null;
+    this.updateDimensions();
+  };
+
+  private getContainerRect(): DOMRect {
+    if (!this.containerRect && this.container) {
+      this.containerRect = this.container.getBoundingClientRect();
+    }
+    return this.containerRect || { left: 0, top: 0, width: 0, height: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => {} };
+  }
+
+  private handlePointerMove = (ev: MouseEvent | TouchEvent) => {
+    if (this.isPaused || this.destroyed) return;
+
+    let clientX = 0;
+    let clientY = 0;
+    if ('touches' in ev && ev.touches.length > 0) {
+      clientX = ev.touches[0].clientX;
+      clientY = ev.touches[0].clientY;
+    } else if ('clientX' in ev) {
+      clientX = (ev as MouseEvent).clientX;
+      clientY = (ev as MouseEvent).clientY;
+    } else {
+      return;
+    }
+
+    const rect = this.getContainerRect();
+    const newX = clientX - rect.left;
+    const newY = clientY - rect.top;
+
+    // Process pointer movement only when the pointer/touch position actually changes by >= 0.5px
+    if (Math.abs(newX - this.mousePos.x) < 0.5 && Math.abs(newY - this.mousePos.y) < 0.5) {
+      return;
+    }
+
+    this.mousePos.x = newX;
+    this.mousePos.y = newY;
+
+    // First interaction initializes coordinates cleanly without jumping from (0,0)
+    if (this.isIdle && this.lastMousePos.x === 0 && this.lastMousePos.y === 0) {
+      this.lastMousePos.x = newX;
+      this.lastMousePos.y = newY;
+      this.cacheMousePos.x = newX;
+      this.cacheMousePos.y = newY;
+    }
+
+    if (this.rafId === null) {
+      this.rafId = requestAnimationFrame(this.renderLoop);
+    }
+  };
 
   private render() {
     if (this.destroyed) return;
 
-    const distance = getMouseDistance(this.mousePos, this.lastMousePos);
-    // Smooth lerp factor for silky fluid trailing
+    // Distance squared check eliminates Math.hypot allocations on every frame
+    const dx = this.mousePos.x - this.lastMousePos.x;
+    const dy = this.mousePos.y - this.lastMousePos.y;
+    const distSq = dx * dx + dy * dy;
+
+    // Smooth lerp factor for fluid trailing
     this.cacheMousePos.x = lerp(this.cacheMousePos.x, this.mousePos.x, 0.12);
     this.cacheMousePos.y = lerp(this.cacheMousePos.y, this.mousePos.y, 0.12);
 
-    if (distance > this.threshold) {
+    if (distSq > this.thresholdSq) {
       this.showNextImage();
-      this.lastMousePos = { ...this.mousePos };
+      this.lastMousePos.x = this.mousePos.x;
+      this.lastMousePos.y = this.mousePos.y;
     }
+
     if (this.isIdle && this.zIndexVal !== 1) this.zIndexVal = 1;
 
     const isMoving =
@@ -1130,8 +1181,8 @@ class ImageTrailVariant7 {
       Math.abs(this.mousePos.y - this.cacheMousePos.y) > 0.2 ||
       !this.isIdle;
 
-    if (isMoving) {
-      this.rafId = requestAnimationFrame(() => this.render());
+    if (isMoving && !this.isPaused) {
+      this.rafId = requestAnimationFrame(this.renderLoop);
     } else {
       this.rafId = null;
     }
@@ -1141,13 +1192,15 @@ class ImageTrailVariant7 {
     ++this.zIndexVal;
     this.imgPosition = this.imgPosition < this.imagesTotal - 1 ? this.imgPosition + 1 : 0;
     const img = this.images[this.imgPosition];
+    if (!img) return;
+
     ++this.visibleImagesCount;
 
     gsap.killTweensOf(img.DOM.el);
     if (img.DOM.inner) gsap.killTweensOf(img.DOM.inner);
 
-    const targetScale = gsap.utils.random(0.85, 1.25);
-    const targetRotation = gsap.utils.random(-4, 4);
+    const targetScale = 0.85 + Math.random() * 0.4;
+    const targetRotation = -4 + Math.random() * 8;
 
     const tl = gsap
       .timeline({
@@ -1161,8 +1214,8 @@ class ImageTrailVariant7 {
           rotationZ: targetRotation * 0.5,
           opacity: 0,
           zIndex: this.zIndexVal,
-          x: this.cacheMousePos.x - (img.rect?.width ?? 0) / 2,
-          y: this.cacheMousePos.y - (img.rect?.height ?? 0) / 2
+          x: this.cacheMousePos.x - this.cardHalfWidth,
+          y: this.cacheMousePos.y - this.cardHalfHeight
         },
         {
           duration: 0.65,
@@ -1170,8 +1223,8 @@ class ImageTrailVariant7 {
           opacity: 1,
           scale: targetScale,
           rotationZ: targetRotation,
-          x: this.mousePos.x - (img.rect?.width ?? 0) / 2,
-          y: this.mousePos.y - (img.rect?.height ?? 0) / 2
+          x: this.mousePos.x - this.cardHalfWidth,
+          y: this.mousePos.y - this.cardHalfHeight
         },
         0
       );
@@ -1190,19 +1243,39 @@ class ImageTrailVariant7 {
     }
 
     if (this.visibleImagesCount >= this.visibleImagesTotal) {
-      const lastInQueue = getNewPosition(this.imgPosition, this.visibleImagesTotal, this.images);
+      const lastInQueue = getNewPosition(this.imgPosition, this.visibleImagesTotal, this.imagesTotal);
       const oldImg = this.images[lastInQueue];
-      gsap.to(oldImg.DOM.el, {
-        duration: 0.7,
-        ease: 'power2.out',
-        opacity: 0,
-        scale: 0.85,
-        onComplete: () => {
-          if (this.activeImagesCount === 0) {
-            this.isIdle = true;
+      if (oldImg) {
+        gsap.to(oldImg.DOM.el, {
+          duration: 0.7,
+          ease: 'power2.out',
+          opacity: 0,
+          scale: 0.85,
+          overwrite: 'auto',
+          onComplete: () => {
+            if (this.activeImagesCount === 0) {
+              this.isIdle = true;
+            }
           }
-        }
-      });
+        });
+      }
+    }
+  }
+
+  public pause() {
+    this.isPaused = true;
+    if (this.rafId !== null) {
+      cancelAnimationFrame(this.rafId);
+      this.rafId = null;
+    }
+  }
+
+  public resume() {
+    if (this.destroyed) return;
+    this.isPaused = false;
+    this.containerRect = null;
+    if (!this.isIdle && this.rafId === null) {
+      this.rafId = requestAnimationFrame(this.renderLoop);
     }
   }
 
@@ -1212,10 +1285,12 @@ class ImageTrailVariant7 {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
-    this.container.removeEventListener('mousemove', this.handlePointerMove as EventListener);
-    this.container.removeEventListener('touchmove', this.handlePointerMove as EventListener);
-    this.container.removeEventListener('mousemove', this.initRender as EventListener);
-    this.container.removeEventListener('touchmove', this.initRender as EventListener);
+    this.container.removeEventListener('mousemove', this.handlePointerMove);
+    this.container.removeEventListener('touchmove', this.handlePointerMove);
+    this.container.removeEventListener('touchstart', this.handlePointerMove);
+    window.removeEventListener('scroll', this.onScrollOrResize);
+    window.removeEventListener('resize', this.onResize);
+    window.removeEventListener('orientationchange', this.onResize);
     this.images.forEach(img => {
       gsap.killTweensOf(img.DOM.el);
       if (img.DOM.inner) gsap.killTweensOf(img.DOM.inner);
@@ -1443,7 +1518,32 @@ export default function ImageTrail({ items = [], variant = 7 }: ImageTrailProps)
     const Cls = variantMap[vKey] || variantMap[7] || variantMap[1];
     const instance = new Cls(containerRef.current);
 
+    let isIntersecting = false;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        isIntersecting = entry.isIntersecting;
+        if (isIntersecting && !document.hidden) {
+          (instance as any).resume?.();
+        } else {
+          (instance as any).pause?.();
+        }
+      },
+      { rootMargin: '120px 0px 120px 0px', threshold: 0 }
+    );
+    observer.observe(containerRef.current);
+
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        (instance as any).pause?.();
+      } else if (isIntersecting) {
+        (instance as any).resume?.();
+      }
+    };
+    document.addEventListener('visibilitychange', onVisibilityChange);
+
     return () => {
+      observer.disconnect();
+      document.removeEventListener('visibilitychange', onVisibilityChange);
       instance.destroy();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
