@@ -141,11 +141,19 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
   );
 
   useEffect(() => {
+    let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 640);
+      const w = window.innerWidth;
+      if (Math.abs(w - lastWidth) < 2) return;
+      lastWidth = w;
+      setIsMobile(w < 640);
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleResize, { passive: true });
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
   }, []);
 
   // Handle ESC key press and lock background page scroll
@@ -188,8 +196,8 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
       {/* Top Specular Gold Edge */}
       <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#b89a62] to-transparent z-50" />
 
-      {/* Top Header Bar */}
-      <header className="shrink-0 w-full border-b border-white/10 bg-[#070809]/80 backdrop-blur-xl z-50 px-4 sm:px-8 py-3.5 sm:py-4.5 flex items-center justify-between">
+      {/* Top Header Bar with Safe-Area Inset */}
+      <header className="shrink-0 w-full border-b border-white/10 bg-[#070809]/80 backdrop-blur-xl z-50 px-4 sm:px-8 pt-[max(0.875rem,calc(env(safe-area-inset-top,0px)+0.5rem))] pb-3 sm:py-4.5 flex items-center justify-between">
         <div className="flex items-center gap-3 sm:gap-4">
           <Link
             to="/"

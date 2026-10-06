@@ -5,115 +5,214 @@ const FADE_IN_DURATION = 3.2; // Seconds for gentle swell at start of loop
 const FADE_OUT_DURATION = 3.6; // Seconds for gentle decrescendo near end of loop
 const END_BUFFER = 0.25; // Reaches silence before track end for zero click/pop
 
+interface InteractionAnimation {
+  startGain: number;
+  targetGain: number;
+  startTime: number;
+  durationMs: number;
+  onComplete?: () => void;
+}
+
 export function BackgroundAudio() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const rafRef = useRef<number | null>(null);
+  const rafIdRef = useRef<number | null>(null);
   const interactionGainRef = useRef<number>(0);
-  const fadeAnimationRef = useRef<number | null>(null);
+  const interactionAnimRef = useRef<InteractionAnimation | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
 
-  // Calculate volume factor based on track position (Fade In & Fade Out)
-  const getTrackFadeFactor = useCallback((currentTime: number, duration: number): number => {
-    if (!duration || isNaN(duration) || duration <= 0) {
-      const progress = Math.max(0, Math.min(1, currentTime / FADE_IN_DURATION));
-      return Math.sin((progress * Math.PI) / 2);
+  // Directly stop the active volume RAF loop
+  const stopVolumeLoop = useCallback(() => {
+    if (rafIdRef.current !== null) {
+      cancelAnimationFrame(rafIdRef.current);
+      rafIdRef.current = null;
     }
-
-    // 1. Gentle fade-in at the start of each loop
-    if (currentTime < FADE_IN_DURATION) {
-      const progress = Math.max(0, Math.min(1, currentTime / FADE_IN_DURATION));
-      return Math.sin((progress * Math.PI) / 2);
-    }
-
-    // 2. Gentle fade-out approaching the end of each loop
-    const fadeOutStart = duration - FADE_OUT_DURATION - END_BUFFER;
-    if (currentTime > fadeOutStart) {
-      const remaining = Math.max(0, duration - END_BUFFER - currentTime);
-      const progress = Math.max(0, Math.min(1, remaining / FADE_OUT_DURATION));
-      return Math.sin((progress * Math.PI) / 2);
-    }
-
-    // 3. Steady playback in the body of the track
-    return 1.0;
   }, []);
 
-  // Update volume smoothly based on both track position and interaction gain
-  const applySmoothVolume = useCallback(() => {
+  // Compute track fade-in/fade-out factor based on currentTime and duration
+  const getTrackFadeFactor = useCallback((currentTime: number, duration: number): { factor: number; isActive: boolean } => {
+    if (!duration || isNaN(duration) || duration <= 0) {
+      if (currentTime < FADE_IN_DURATION) {
+        const progress = Math.max(0, Math.min(1, currentTime / FADE_IN_DURATION));
+        return { factor: Math.sin((progress * Math.PI) / 2), isActive: true };
+      }
+      return { factor: 1.0, isActive: false };
+    }
+
+    // 1. Gentle swell at start of loop
+    if (currentTime < FADE_IN_DURATION) {
+      const progress = Math.max(0, Math.min(1, currentTime / FADE_IN_DURATION));
+      return { factor: Math.sin((progress * Math.PI) / 2), isActive: true };
+    }
+
+    // 2. Gentle decrescendo near end of loop
+    const fadeOutStart = duration - FADE_OUT_DURATION - END_BUFFER;
+    if (currentTime >= fadeOutStart) {
+      const remaining = Math.max(0, duration - END_BUFFER - currentTime);
+      const progress = Math.max(0, Math.min(1, remaining / FADE_OUT_DURATION));
+      return { factor: Math.sin((progress * Math.PI) / 2), isActive: true };
+    }
+
+    // 3. Steady state in the middle section of the track
+    return { factor: 1.0, isActive: false };
+  }, []);
+
+  // Set steady-state volume immediately without running animation frames
+  const applySteadyVolume = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
     if (audio.paused || audio.muted) {
-      if (audio.volume !== 0) {
-        audio.volume = 0;
-      }
+      if (audio.volume !== 0) audio.volume = 0;
       return;
     }
 
-    const trackFactor = getTrackFadeFactor(audio.currentTime, audio.duration);
-    const target = TARGET_VOLUME * trackFactor * interactionGainRef.current;
-    const clamped = Math.max(0, Math.min(1, target));
-
-    // Update volume smoothly
-    if (Math.abs(audio.volume - clamped) > 0.002) {
-      audio.volume = clamped;
+    const { factor } = getTrackFadeFactor(audio.currentTime, audio.duration);
+    const target = Math.max(0, Math.min(1, TARGET_VOLUME * factor * interactionGainRef.current));
+    if (Math.abs(audio.volume - target) > 0.001) {
+      audio.volume = target;
     }
   }, [getTrackFadeFactor]);
 
-  // Smooth ramp for interaction gain (mute/unmute/interaction)
-  const animateInteractionGain = useCallback(
-    (targetGain: number, durationMs: number, onComplete?: () => void) => {
-      if (fadeAnimationRef.current) {
-        cancelAnimationFrame(fadeAnimationRef.current);
-        fadeAnimationRef.current = null;
+  // Active RAF step function: runs ONLY while a volume transition is taking place
+  const stepVolumeTransition = useCallback(
+    (now: number) => {
+      const audio = audioRef.current;
+      if (!audio) {
+        rafIdRef.current = null;
+        return;
       }
 
-      const startGain = interactionGainRef.current;
-      const startTime = performance.now();
+      // Stop immediately if audio is paused, muted, or tab is hidden
+      if (audio.paused || audio.muted || document.hidden) {
+        if (audio.volume !== 0) audio.volume = 0;
+        rafIdRef.current = null;
+        return;
+      }
 
-      const step = (now: number) => {
-        const elapsed = now - startTime;
-        const progress = Math.min(1, Math.max(0, elapsed / durationMs));
-        // Equal power sinusoidal easing
+      // 1. Advance interaction gain animation if active
+      let interactionActive = false;
+      const anim = interactionAnimRef.current;
+      if (anim) {
+        const elapsed = now - anim.startTime;
+        const progress = Math.min(1, Math.max(0, elapsed / anim.durationMs));
         const ease = Math.sin((progress * Math.PI) / 2);
-        interactionGainRef.current = startGain + (targetGain - startGain) * ease;
+        interactionGainRef.current = anim.startGain + (anim.targetGain - anim.startGain) * ease;
 
-        applySmoothVolume();
-
-        if (progress < 1) {
-          fadeAnimationRef.current = requestAnimationFrame(step);
-        } else {
-          interactionGainRef.current = targetGain;
-          applySmoothVolume();
-          fadeAnimationRef.current = null;
+        if (progress >= 1) {
+          interactionGainRef.current = anim.targetGain;
+          const onComplete = anim.onComplete;
+          interactionAnimRef.current = null;
           if (onComplete) onComplete();
+        } else {
+          interactionActive = true;
         }
-      };
+      }
 
-      fadeAnimationRef.current = requestAnimationFrame(step);
+      // 2. Compute track-level fade
+      const { factor, isActive: trackFadeActive } = getTrackFadeFactor(audio.currentTime, audio.duration);
+
+      // 3. Apply volume
+      const targetVol = Math.max(0, Math.min(1, TARGET_VOLUME * factor * interactionGainRef.current));
+      if (Math.abs(audio.volume - targetVol) > 0.001) {
+        audio.volume = targetVol;
+      }
+
+      // 4. Continue RAF ONLY if either interaction or track fade is actively changing volume
+      if (interactionActive || (trackFadeActive && interactionGainRef.current > 0)) {
+        rafIdRef.current = requestAnimationFrame(stepVolumeTransition);
+      } else {
+        // Transition complete: settle volume and STOP RAF loop completely
+        const finalVol = Math.max(0, Math.min(1, TARGET_VOLUME * 1.0 * interactionGainRef.current));
+        if (Math.abs(audio.volume - finalVol) > 0.001) {
+          audio.volume = finalVol;
+        }
+        rafIdRef.current = null;
+      }
     },
-    [applySmoothVolume]
+    [getTrackFadeFactor]
+  );
+
+  // Ensure transient RAF loop is running when a transition starts
+  const ensureVolumeTransition = useCallback(() => {
+    if (document.hidden) return;
+    if (rafIdRef.current === null) {
+      rafIdRef.current = requestAnimationFrame(stepVolumeTransition);
+    }
+  }, [stepVolumeTransition]);
+
+  // Smooth interaction gain ramp (unmute / mute / user gesture)
+  const animateInteractionGain = useCallback(
+    (targetGain: number, durationMs: number, onComplete?: () => void) => {
+      interactionAnimRef.current = {
+        startGain: interactionGainRef.current,
+        targetGain,
+        startTime: performance.now(),
+        durationMs,
+        onComplete,
+      };
+      ensureVolumeTransition();
+    },
+    [ensureVolumeTransition]
   );
 
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Start with volume 0 so it can fade in naturally
+    // Start with volume 0 so it swells gently
     audio.volume = 0;
 
-    // Event-driven volume updates for track crossfades (eliminates permanent 60fps RAF loop)
-    audio.addEventListener('timeupdate', applySmoothVolume);
-    audio.addEventListener('play', applySmoothVolume);
-    audio.addEventListener('pause', applySmoothVolume);
+    // Event-driven check for track fade zones:
+    // Only starts a transient RAF loop when currentTime enters a fade zone (0-3.2s or 53.2-57s).
+    // During steady-state playback (88% of track), this handler is practically zero-cost.
+    const handleTimeUpdate = () => {
+      if (rafIdRef.current !== null || audio.paused || audio.muted || interactionGainRef.current === 0) {
+        return;
+      }
+      const ct = audio.currentTime;
+      const dur = audio.duration;
+      const fadeOutStart = dur && !isNaN(dur) && dur > 0 ? dur - FADE_OUT_DURATION - END_BUFFER : Infinity;
+
+      if (ct < FADE_IN_DURATION || ct >= fadeOutStart) {
+        ensureVolumeTransition();
+      }
+    };
+
+    const handlePlay = () => {
+      if (!audio.muted) {
+        ensureVolumeTransition();
+      }
+    };
+
+    const handlePause = () => {
+      if (!interactionAnimRef.current) {
+        stopVolumeLoop();
+        if (audio.volume !== 0) audio.volume = 0;
+      }
+    };
 
     const onVisibilityChange = () => {
-      applySmoothVolume();
+      if (document.hidden) {
+        stopVolumeLoop();
+      } else if (!audio.paused && !audio.muted) {
+        applySteadyVolume();
+        const ct = audio.currentTime;
+        const dur = audio.duration;
+        const fadeOutStart = dur && !isNaN(dur) && dur > 0 ? dur - FADE_OUT_DURATION - END_BUFFER : Infinity;
+        if (ct < FADE_IN_DURATION || ct >= fadeOutStart || interactionAnimRef.current !== null) {
+          ensureVolumeTransition();
+        }
+      }
     };
+
+    audio.addEventListener('timeupdate', handleTimeUpdate);
+    audio.addEventListener('play', handlePlay);
+    audio.addEventListener('pause', handlePause);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
-    // Function to unmute and smoothly fade in on user gesture
+    // Unmute and fade in on first user gesture (Safari & mobile compliant)
     const unmuteAndPlay = () => {
       if (!audio) return;
       audio.muted = false;
@@ -129,7 +228,7 @@ export function BackgroundAudio() {
             removeInteractionListeners();
           })
           .catch(() => {
-            // Browser still requires direct gesture
+            // Still waiting for direct gesture
             audio.muted = true;
             setIsMuted(true);
           });
@@ -173,13 +272,13 @@ export function BackgroundAudio() {
           animateInteractionGain(1.0, 1400);
         })
         .catch(() => {
-          // Browser requires interaction: start muted so audio track runs immediately
+          // Autoplay restricted: start muted so audio track runs and stays ready
           audio.muted = true;
           setIsMuted(true);
           interactionGainRef.current = 0;
           audio.play().catch(() => {});
 
-          // Attach broad interaction listeners to unmute and fade in on first user action
+          // Attach interaction listeners for user gesture
           window.addEventListener('click', handleInteraction, { passive: true });
           window.addEventListener('pointerup', handleInteraction, { passive: true });
           window.addEventListener('pointerdown', handleInteraction, { passive: true });
@@ -194,17 +293,12 @@ export function BackgroundAudio() {
     return () => {
       removeInteractionListeners();
       document.removeEventListener('visibilitychange', onVisibilityChange);
-      audio.removeEventListener('timeupdate', applySmoothVolume);
-      audio.removeEventListener('play', applySmoothVolume);
-      audio.removeEventListener('pause', applySmoothVolume);
-      if (rafRef.current) {
-        cancelAnimationFrame(rafRef.current);
-      }
-      if (fadeAnimationRef.current) {
-        cancelAnimationFrame(fadeAnimationRef.current);
-      }
+      audio.removeEventListener('timeupdate', handleTimeUpdate);
+      audio.removeEventListener('play', handlePlay);
+      audio.removeEventListener('pause', handlePause);
+      stopVolumeLoop();
     };
-  }, [animateInteractionGain, applySmoothVolume]);
+  }, [animateInteractionGain, applySteadyVolume, ensureVolumeTransition, stopVolumeLoop]);
 
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -249,7 +343,6 @@ export function BackgroundAudio() {
         muted={isMuted}
         preload="auto"
         playsInline
-        onTimeUpdate={applySmoothVolume}
         onPlay={() => {
           if (audioRef.current && !audioRef.current.muted) {
             setIsMuted(false);
@@ -276,7 +369,7 @@ export function BackgroundAudio() {
         type="button"
         aria-label={isAudible ? 'Mute background audio' : 'Play background audio'}
         title={isAudible ? 'Sound On (Click to Mute)' : 'Sound Off (Click to Play)'}
-        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] left-4 sm:bottom-6 sm:left-6 z-50 group cursor-pointer inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/75 hover:bg-black/90 border border-white/25 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_8px_25px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.95),0_0_25px_rgba(184,154,98,0.4)] transition-all duration-300 backdrop-blur-md select-none isolate"
+        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] left-4 sm:bottom-6 sm:left-6 z-50 group cursor-pointer inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/75 hover:bg-black/90 border border-white/25 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_8px_25px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.95),0_0_25px_rgba(184,154,98,0.4)] transition-all duration-300 backdrop-blur-md select-none isolate transform-gpu"
       >
         {/* Animated Equalizer Wave Bars (Composite-only scaleY with bottom origin) */}
         <div className="flex items-end gap-[2.5px] h-3.5 w-3.5 justify-center pb-[1px]">

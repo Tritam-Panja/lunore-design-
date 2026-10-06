@@ -146,15 +146,22 @@ export function Home() {
     };
   }, [isMobile]);
 
-  // Handle responsive detection
+  // Handle responsive detection (resilient to mobile dynamic address bar shifts)
   useEffect(() => {
+    let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-      setIsTablet(window.innerWidth >= 768 && window.innerWidth < 1024);
+      const w = window.innerWidth;
+      if (Math.abs(w - lastWidth) < 2) return;
+      lastWidth = w;
+      setIsMobile(w < 768);
+      setIsTablet(w >= 768 && w < 1024);
     };
-    handleResize();
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleResize, { passive: true });
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
   }, []);
 
 

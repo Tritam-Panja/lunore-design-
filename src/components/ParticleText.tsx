@@ -272,9 +272,8 @@ export const ParticleText = ({
       width = Math.floor(rect.width);
       height = Math.floor(rect.height);
 
-      if (width <= 0 || height <= 0) return;
-
-      dpr = Math.min(window.devicePixelRatio || 1, isMobile ? 1.25 : 1.5);
+      const currentIsMobile = window.innerWidth < 768;
+      dpr = Math.min(window.devicePixelRatio || 1, currentIsMobile ? 1.25 : 1.5);
       canvas.width = Math.max(1, Math.floor(width * dpr));
       canvas.height = Math.max(1, Math.floor(height * dpr));
       canvas.style.width = '100%';
@@ -458,6 +457,7 @@ export const ParticleText = ({
     };
     window.addEventListener('scroll', invalidateCanvasRect, { passive: true });
     window.addEventListener('resize', invalidateCanvasRect, { passive: true });
+    window.addEventListener('orientationchange', queueSample, { passive: true });
 
     const reduceMotionQuery = window.matchMedia?.('(prefers-reduced-motion: reduce)');
     const handleReduceMotionChange = (event: MediaQueryListEvent): void => {
@@ -526,6 +526,7 @@ export const ParticleText = ({
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('scroll', invalidateCanvasRect);
       window.removeEventListener('resize', invalidateCanvasRect);
+      window.removeEventListener('orientationchange', queueSample);
       reduceMotionQuery?.removeEventListener('change', handleReduceMotionChange);
       canvas.removeEventListener('pointerenter', handlePointerEnter);
       canvas.removeEventListener('pointermove', handlePointerMove);

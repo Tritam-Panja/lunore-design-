@@ -153,7 +153,7 @@ export function Header() {
     <>
       {/* MINIMAL TOP BAR: APPEARS WHEN SCROLLED PAST HERO */}
       <header
-        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-14 pt-[max(0.75rem,env(safe-area-inset-top,0.75rem))] pb-3 sm:py-5 md:py-8 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${
+        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-14 pt-[max(0.75rem,env(safe-area-inset-top,0.75rem))] pb-3 sm:py-5 md:py-8 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu ${
           isHeaderVisible
             ? 'opacity-100 translate-y-0'
             : 'opacity-0 -translate-y-8'

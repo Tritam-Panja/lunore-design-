@@ -47,7 +47,7 @@ export function FullScreenImageViewer({
           e.stopPropagation();
           onClose();
         }}
-        className="absolute top-4 sm:top-6 right-4 sm:right-6 w-10 sm:w-12 h-10 sm:h-12 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-10 active:scale-95 shadow-2xl"
+        className="absolute top-[max(1rem,calc(env(safe-area-inset-top,0px)+0.75rem))] right-[max(1rem,calc(env(safe-area-inset-right,0px)+0.75rem))] w-10 sm:w-12 h-10 sm:h-12 rounded-full border border-white/20 bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-all cursor-pointer z-10 active:scale-95 shadow-2xl"
         title="Close (Esc)"
         aria-label="Close Full Screen View"
       >
@@ -56,13 +56,13 @@ export function FullScreenImageViewer({
 
       {/* Pure Image Container */}
       <div
-        className="relative max-w-[96vw] max-h-[92vh] flex items-center justify-center cursor-default"
+        className="relative max-w-[96vw] max-h-[92dvh] flex items-center justify-center cursor-default"
         onClick={(e) => e.stopPropagation()}
       >
         <img
           src={activeUrl}
           alt={activeAlt}
-          className="w-auto h-auto max-w-[96vw] max-h-[92vh] object-contain rounded-xl sm:rounded-2xl shadow-[0_25px_70px_rgba(0,0,0,0.95)] animate-in zoom-in-95 duration-200 select-none"
+          className="w-auto h-auto max-w-[96vw] max-h-[92dvh] object-contain rounded-xl sm:rounded-2xl shadow-[0_25px_70px_rgba(0,0,0,0.95)] animate-in zoom-in-95 duration-200 select-none"
         />
       </div>
     </div>,

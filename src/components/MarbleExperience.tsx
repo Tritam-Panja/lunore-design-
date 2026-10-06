@@ -17,7 +17,31 @@ export function MarbleExperience() {
     width: typeof window !== 'undefined' ? window.innerWidth : 1200,
     height: typeof window !== 'undefined' ? window.innerHeight : 800,
   });
- 
+
+  // Track window resize & orientation without re-rendering on mobile address-bar height shifts
+  useEffect(() => {
+    const handleResize = () => {
+      const newW = window.innerWidth;
+      const newH = window.innerHeight;
+      setWindowSize((prev) => {
+        // Prevent layout jitter and re-render thrashing during mobile address-bar vertical collapse/expansion
+        if (Math.abs(newW - prev.width) < 2 && Math.abs(newH - prev.height) < 80) {
+          return prev;
+        }
+        return { width: newW, height: newH };
+      });
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleResize, { passive: true });
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
+
+  const isMobile = windowSize.width < 640;
+  const isTablet = windowSize.width >= 640 && windowSize.width < 1024;
+
   // Single unified render state to eliminate multiple React re-render thrashing
   const [animState, setAnimState] = useState({
     progress: 0,
@@ -46,18 +70,6 @@ export function MarbleExperience() {
  
   const targetProgressRef = useRef<number>(0);
   const currentProgressRef = useRef<number>(0);
- 
-  // Track window resize
-  useEffect(() => {
-    const handleResize = () => {
-      setWindowSize({ width: window.innerWidth, height: window.innerHeight });
-    };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
- 
-  const isMobile = windowSize.width < 640;
-  const isTablet = windowSize.width >= 640 && windowSize.width < 1024;
  
   // ===========================================================================
   // OPTIMIZATION #1: RAF physics loop throttled to ~30fps on mobile.

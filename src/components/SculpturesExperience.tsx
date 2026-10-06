@@ -469,14 +469,26 @@ export function SculpturesExperience({
   const total = SCULPTURE_CAROUSEL_ITEMS.length;
   const activeIndex = ((Math.round(rotation) % total) + total) % total;
 
-  // Viewport resize tracking
+  // Viewport resize tracking (resilient to mobile dynamic address bar shifts)
   useEffect(() => {
     const updateSize = () => {
-      setViewport({ w: window.innerWidth, h: window.innerHeight });
+      const newW = window.innerWidth;
+      const newH = window.innerHeight;
+      setViewport((prev) => {
+        // Prevent layout jitter and re-render thrashing during mobile address-bar vertical collapse/expansion
+        if (Math.abs(newW - prev.w) < 2 && Math.abs(newH - prev.h) < 80) {
+          return prev;
+        }
+        return { w: newW, h: newH };
+      });
     };
     updateSize();
-    window.addEventListener('resize', updateSize);
-    return () => window.removeEventListener('resize', updateSize);
+    window.addEventListener('resize', updateSize, { passive: true });
+    window.addEventListener('orientationchange', updateSize, { passive: true });
+    return () => {
+      window.removeEventListener('resize', updateSize);
+      window.removeEventListener('orientationchange', updateSize);
+    };
   }, []);
 
   // High-performance 120fps RAF physics engine with dynamic momentum decay

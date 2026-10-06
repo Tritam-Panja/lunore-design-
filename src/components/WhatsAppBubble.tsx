@@ -61,7 +61,7 @@ export function WhatsAppBubble({
 
   return (
     <div
-      className={`fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4 sm:bottom-6 sm:right-6 z-50 flex items-center gap-3 transition-all duration-500 ease-out isolate ${
+      className={`fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4 sm:bottom-6 sm:right-6 z-50 flex items-center gap-3 transition-all duration-500 ease-out isolate transform-gpu ${
         isVisible
           ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
           : 'opacity-0 translate-y-6 pointer-events-none scale-90'

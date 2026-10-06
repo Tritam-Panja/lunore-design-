@@ -328,17 +328,23 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     }
   }, [storyStage, handleCloseStage4]);
 
-  // Clean up timers on unmount
+  // Clean up timers on unmount & track responsive breakpoint
   useEffect(() => {
+    let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
     const handleResize = () => {
-      const mobile = window.innerWidth < 768;
+      const w = window.innerWidth;
+      if (Math.abs(w - lastWidth) < 2) return;
+      lastWidth = w;
+      const mobile = w < 768;
       setIsMobile(mobile);
-      setBeamSize(window.innerWidth < 640 ? 120 : 180);
+      setBeamSize(w < 640 ? 120 : 180);
     };
     handleResize();
-    window.addEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleResize, { passive: true });
     return () => {
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
       if (timerRef.current) clearTimeout(timerRef.current);
       if (glowTimerRef.current) clearTimeout(glowTimerRef.current);
       if (switchTimerRef.current) clearTimeout(switchTimerRef.current);

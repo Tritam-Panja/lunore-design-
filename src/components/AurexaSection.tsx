@@ -82,11 +82,19 @@ export function AurexaSection() {
   }, []);
 
   useEffect(() => {
+    let lastWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
     const handleResize = () => {
-      setIsMobile(window.innerWidth < 1024 || 'ontouchstart' in window || navigator.maxTouchPoints > 0);
+      const w = window.innerWidth;
+      if (Math.abs(w - lastWidth) < 2) return;
+      lastWidth = w;
+      setIsMobile(w < 1024 || 'ontouchstart' in window || navigator.maxTouchPoints > 0);
     };
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleResize, { passive: true });
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
   }, []);
 
   // Helper to safely lock/unlock Lenis outer scroll (Desktop only - NEVER locks on mobile)

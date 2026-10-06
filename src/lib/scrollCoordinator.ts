@@ -24,15 +24,12 @@ class ScrollCoordinator {
 
   private setupResizeListener() {
     if (this.isResizeListening || typeof window === 'undefined') return;
-    this.isResizeListening = true;
-    window.addEventListener(
-      'resize',
-      () => {
-        this.cachedViewportHeight = window.innerHeight;
-        this.cachedViewportWidth = window.innerWidth;
-      },
-      { passive: true }
-    );
+    const updateDimensions = () => {
+      this.cachedViewportHeight = window.innerHeight;
+      this.cachedViewportWidth = window.innerWidth;
+    };
+    window.addEventListener('resize', updateDimensions, { passive: true });
+    window.addEventListener('orientationchange', updateDimensions, { passive: true });
   }
 
   public getViewportHeight(): number {
