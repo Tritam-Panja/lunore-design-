@@ -2,6 +2,9 @@ import { createContext, useContext, useEffect, useRef, useState, type ReactNode 
 import { useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
+import { scrollCoordinator, useScrollSubscriber, type ScrollCallback } from '@/lib/scrollCoordinator';
+
+export { useScrollSubscriber, scrollCoordinator, type ScrollCallback };
 
 interface LenisContextType {
   lenis: Lenis | null;
@@ -44,6 +47,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     if (isTouchOrMobile) {
       document.documentElement.classList.remove('lenis', 'lenis-smooth', 'lenis-stopped');
       document.body.style.overflow = '';
+      scrollCoordinator.setLenis(null);
       return;
     }
 
@@ -62,6 +66,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
 
     lenisRef.current = instance;
     setLenis(instance);
+    scrollCoordinator.setLenis(instance);
 
     // Apply lenis class to html root on desktop
     document.documentElement.classList.add('lenis', 'lenis-smooth');
@@ -111,6 +116,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
       instance.destroy();
       lenisRef.current = null;
       setLenis(null);
+      scrollCoordinator.setLenis(null);
     };
   }, []);
 

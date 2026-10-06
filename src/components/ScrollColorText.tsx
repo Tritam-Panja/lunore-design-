@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { useLenis } from './SmoothScroll';
+import { scrollCoordinator } from '@/lib/scrollCoordinator';
 
 interface ScrollColorTextProps {
   text: string;
@@ -28,7 +28,6 @@ export function ScrollColorText({
   const containerRef = useRef<HTMLElement>(null);
   const wordsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const maxProgressRef = useRef(0);
-  const { lenis } = useLenis();
 
   const words = text.split(' ');
   const totalWords = words.length;
@@ -73,12 +72,13 @@ export function ScrollColorText({
 
     let isNear = false;
 
+    let unsubscribe: (() => void) | null = null;
+
     const removeListener = () => {
       cancelAnimationFrame(animationFrameId);
-      if (lenis) {
-        lenis.off('scroll', onScroll);
-      } else {
-        window.removeEventListener('scroll', onScroll);
+      if (unsubscribe) {
+        unsubscribe();
+        unsubscribe = null;
       }
     };
 
@@ -90,7 +90,7 @@ export function ScrollColorText({
       }
 
       const rect = containerRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+      const windowHeight = scrollCoordinator.getViewportHeight();
 
       // Start illuminating when element enters comfortable view (78% from top)
       const start = windowHeight * 0.78;
@@ -130,11 +130,7 @@ export function ScrollColorText({
       observer.observe(containerRef.current);
     }
 
-    if (lenis) {
-      lenis.on('scroll', onScroll);
-    } else {
-      window.addEventListener('scroll', onScroll, { passive: true });
-    }
+    unsubscribe = scrollCoordinator.subscribe(onScroll);
 
     handleScroll();
 
@@ -142,7 +138,7 @@ export function ScrollColorText({
       observer.disconnect();
       removeListener();
     };
-  }, [lenis, scrollDistance, once, totalWords]);
+  }, [scrollDistance, once, totalWords]);
 
   return (
     <Component
@@ -157,7 +153,7 @@ export function ScrollColorText({
             ref={(el) => {
               wordsRef.current[index] = el;
             }}
-            className="inline-block transition-all duration-300 ease-out will-change-[color,opacity,transform]"
+            className="inline-block transition-all duration-300 ease-out"
             style={{
               marginRight: '0.26em',
               color: 'rgba(241, 238, 231, 0.22)',

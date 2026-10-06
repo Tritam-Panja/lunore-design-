@@ -80,13 +80,13 @@ export const ScrollShowcase: React.FC<ScrollShowcaseProps> = ({
     const viewportHeight = containerHeightRef.current || (typeof window !== 'undefined' ? window.innerHeight : 800);
     const triggerY = scrollOffset + viewportHeight * 0.55;
 
-    // 1. Golden beam height calculation for both mobile and desktop
+    // 1. Golden beam progress calculation for both mobile and desktop (Composite-only scaleY)
     if (beam) {
       const beamStart = isMobile ? 32 : 48;
       const currentBeamHeight = Math.max(0, triggerY - beamStart);
-      const maxBeamHeight = Math.max(0, trackHeightRef.current - 100);
-      const clampedBeamHeight = Math.min(maxBeamHeight, currentBeamHeight);
-      beam.style.height = `${clampedBeamHeight.toFixed(1)}px`;
+      const maxBeamHeight = Math.max(1, trackHeightRef.current - 100);
+      const progress = Math.min(1, Math.max(0, currentBeamHeight / maxBeamHeight));
+      beam.style.transform = `scaleY(${progress.toFixed(4)})`;
     }
 
     // 2. Animate cards & nodes
@@ -260,12 +260,12 @@ export const ScrollShowcase: React.FC<ScrollShowcaseProps> = ({
           className="absolute left-5 sm:left-7 md:left-1/2 -translate-x-1/2 top-8 sm:top-12 bottom-32 w-[2px] bg-white/10 pointer-events-none"
         />
 
-        {/* Active Golden Scroll Beam (Tracks scroll position down the spine) */}
+        {/* Active Golden Scroll Beam (Tracks scroll position down the spine via composite-only scaleY) */}
         <div
           ref={beamRef}
           aria-hidden="true"
-          className="absolute left-5 sm:left-7 md:left-1/2 -translate-x-1/2 top-8 sm:top-12 w-[2px] bg-gradient-to-b from-[#b89a62] via-[#f3dfba] to-[#b89a62] shadow-[0_0_14px_rgba(184,154,98,0.85)] pointer-events-none transition-[height] duration-75 ease-out"
-          style={{ height: '0px' }}
+          className="absolute left-5 sm:left-7 md:left-1/2 -translate-x-1/2 top-8 sm:top-12 bottom-32 w-[2px] bg-gradient-to-b from-[#b89a62] via-[#f3dfba] to-[#b89a62] shadow-[0_0_14px_rgba(184,154,98,0.85)] pointer-events-none origin-top will-change-transform"
+          style={{ transform: 'scaleY(0)' }}
         />
 
         {/* Timeline Items List */}

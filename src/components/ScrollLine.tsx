@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useExperience } from './ExperienceContext';
-import { useLenis } from './SmoothScroll';
+import { scrollCoordinator } from '@/lib/scrollCoordinator';
 
 interface ScrollLineProps {
   /** SVG path d string */
@@ -44,7 +44,6 @@ export function ScrollLine({
   const pathRef = useRef<SVGPathElement>(null);
   const pathLengthRef = useRef<number>(0);
   const isVisibleRef = useRef<boolean>(false);
-  const { lenis } = useLenis();
 
   useEffect(() => {
     if (pathRef.current) {
@@ -76,7 +75,7 @@ export function ScrollLine({
       if (!isVisibleRef.current || !containerRef.current || !pathRef.current) return;
 
       const rect = containerRef.current.getBoundingClientRect();
-      const windowHeight = window.innerHeight;
+      const windowHeight = scrollCoordinator.getViewportHeight();
 
       const startPos = windowHeight * (1 - startOffset);
       const endPos = windowHeight * (1 - endOffset);
@@ -99,23 +98,17 @@ export function ScrollLine({
       }
     };
 
-    if (lenis) {
-      lenis.on('scroll', onScroll);
-    }
-    window.addEventListener('scroll', onScroll, { passive: true });
+    const unsubscribe = scrollCoordinator.subscribe(onScroll);
     window.addEventListener('resize', onScroll, { passive: true });
     updateScrollLine();
 
     return () => {
       observer.disconnect();
-      if (lenis) {
-        lenis.off('scroll', onScroll);
-      }
-      window.removeEventListener('scroll', onScroll);
+      unsubscribe();
       window.removeEventListener('resize', onScroll);
       cancelAnimationFrame(animationFrameId);
     };
-  }, [startOffset, endOffset, lenis, path]);
+  }, [startOffset, endOffset, path]);
 
   const { isExperienceActive } = useExperience();
 

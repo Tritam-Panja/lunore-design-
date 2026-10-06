@@ -276,15 +276,15 @@ export function BackgroundAudio() {
         type="button"
         aria-label={isAudible ? 'Mute background audio' : 'Play background audio'}
         title={isAudible ? 'Sound On (Click to Mute)' : 'Sound Off (Click to Play)'}
-        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] left-4 sm:bottom-6 sm:left-6 z-50 group cursor-pointer inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/75 hover:bg-black/90 border border-white/25 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_8px_25px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.95),0_0_25px_rgba(184,154,98,0.4)] transition-all duration-300 backdrop-blur-md select-none"
+        className="fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] left-4 sm:bottom-6 sm:left-6 z-50 group cursor-pointer inline-flex items-center justify-center w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-black/75 hover:bg-black/90 border border-white/25 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_8px_25px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.25)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.95),0_0_25px_rgba(184,154,98,0.4)] transition-all duration-300 backdrop-blur-md select-none isolate"
       >
-        {/* Animated Equalizer Wave Bars */}
+        {/* Animated Equalizer Wave Bars (Composite-only scaleY with bottom origin) */}
         <div className="flex items-end gap-[2.5px] h-3.5 w-3.5 justify-center pb-[1px]">
           {isAudible ? (
             <>
-              <span className="w-[2px] bg-[#b89a62] rounded-full animate-[soundbar-1_0.9s_ease-in-out_infinite]" />
-              <span className="w-[2px] bg-[#b89a62] rounded-full animate-[soundbar-2_0.7s_ease-in-out_infinite]" />
-              <span className="w-[2px] bg-[#b89a62] rounded-full animate-[soundbar-3_1.1s_ease-in-out_infinite]" />
+              <span className="w-[2px] h-[13px] origin-bottom bg-[#b89a62] rounded-full animate-[soundbar-1_0.9s_ease-in-out_infinite]" />
+              <span className="w-[2px] h-[13px] origin-bottom bg-[#b89a62] rounded-full animate-[soundbar-2_0.7s_ease-in-out_infinite]" />
+              <span className="w-[2px] h-[13px] origin-bottom bg-[#b89a62] rounded-full animate-[soundbar-3_1.1s_ease-in-out_infinite]" />
             </>
           ) : (
             <>

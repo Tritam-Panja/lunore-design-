@@ -694,7 +694,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                 !isFlashlightMode
                   ? 'opacity-100'
                   : isHovered
-                  ? 'opacity-100 will-change-[mask-image]'
+                  ? 'opacity-100'
                   : 'opacity-0'
               }`}
               style={
@@ -755,7 +755,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
             {/* Soft white spotlight halo in dark mode */}
             {isFlashlightMode && isHovered && (
               <div
-                className="absolute inset-0 pointer-events-none transition-opacity duration-400 will-change-transform"
+                className="absolute inset-0 pointer-events-none transition-opacity duration-400"
                 style={{
                   background: 'radial-gradient(circle calc(var(--beam-size) * 1.05) at var(--spotlight-x) var(--spotlight-y), rgba(255, 255, 255, 0.18) 0%, rgba(245, 250, 255, 0.06) 45%, rgba(0, 0, 0, 0) 100%)',
                   mixBlendMode: 'screen',
@@ -1207,7 +1207,7 @@ function DomainDetailModal({ domain, onClose }: DomainDetailModalProps) {
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.12)_0%,transparent_70%)] blur-[120px] pointer-events-none" />
 
       {/* Modal Dialog Card */}
-      <div className="relative w-full max-w-4xl max-h-[92vh] sm:max-h-[88vh] overflow-y-auto rounded-2xl sm:rounded-3xl border border-white/20 bg-[#0d0e0e]/95 backdrop-blur-2xl p-4 sm:p-8 shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(184,154,98,0.2)] overscroll-contain animate-in fade-in zoom-in-95 duration-200 ease-out">
+      <div className="relative w-full max-w-4xl max-h-[92vh] sm:max-h-[88vh] overflow-y-auto rounded-2xl sm:rounded-3xl border border-white/20 bg-[#0d0e0e]/98 p-4 sm:p-8 shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(184,154,98,0.2)] overscroll-contain animate-in fade-in zoom-in-95 duration-200 ease-out">
         {/* Top Specular Edge */}
         <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#b89a62] to-transparent" />
 

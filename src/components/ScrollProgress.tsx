@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useLenis } from './SmoothScroll';
+import { scrollCoordinator } from '@/lib/scrollCoordinator';
 
 // Organic left-margin path with an elegant loop in the center
 const PATH_D = `M 40,0 
@@ -16,7 +16,6 @@ const PATH_D = `M 40,0
  */
 export function ScrollProgress() {
   const [visible, setVisible] = useState(false);
-  const { lenis } = useLenis();
 
   const targetProgressRef = useRef(0);
   const currentProgressRef = useRef(0);
@@ -92,9 +91,9 @@ export function ScrollProgress() {
       }
     };
 
-    const onScroll = () => {
-      const total = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollY = window.scrollY;
+    const onScroll = (scrollY: number) => {
+      if (scrollCoordinator.getViewportWidth() < 640) return;
+      const total = document.documentElement.scrollHeight - scrollCoordinator.getViewportHeight();
       if (total > 0) {
         targetProgressRef.current = Math.min(1, Math.max(0, scrollY / total));
       }
@@ -106,23 +105,13 @@ export function ScrollProgress() {
       requestTick();
     };
 
-    if (lenis) {
-      lenis.on('scroll', onScroll);
-    } else {
-      window.addEventListener('scroll', onScroll, { passive: true });
-    }
-
-    onScroll();
+    const unsubscribe = scrollCoordinator.subscribe(onScroll);
 
     return () => {
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
-      if (lenis) {
-        lenis.off('scroll', onScroll);
-      } else {
-        window.removeEventListener('scroll', onScroll);
-      }
+      unsubscribe();
     };
-  }, [lenis]);
+  }, []);
 
   return (
     <div

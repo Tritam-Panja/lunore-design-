@@ -263,11 +263,7 @@
 }
 
 /* GPU Acceleration for silky 60fps / 120fps motion */
-.liquid-glass-nav,
-.liquid-glass-card,
-.liquid-glass-pill,
-.liquid-glass-btn-primary,
-.liquid-glass-btn-secondary,
+/* Only promote elements that continuously transform or are actively animating */
 .lunore-brand-letter,
 .scroll-smooth-layer {
   transform: translateZ(0);
@@ -275,6 +271,15 @@
   -webkit-backface-visibility: hidden;
   backface-visibility: hidden;
   will-change: transform;
+}
+
+/* Hover-only will-change to avoid idle compositing layer overhead */
+@media (hover: hover) and (pointer: fine) {
+  .liquid-glass-card:hover,
+  .liquid-glass-pill:hover,
+  .liquid-glass-btn-secondary:hover {
+    will-change: transform;
+  }
 }
 
 /* Offscreen layout skipping for butter-smooth 120fps scroll */
@@ -300,7 +305,7 @@
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
+    filter: none;
   }
 }
 
@@ -337,7 +342,7 @@
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
+    filter: none;
   }
 }
 
@@ -352,16 +357,14 @@
   }
 }
 
-/* ===== Full-Screen Stage 4 Page Transitions (Fast & Silky Smooth) ===== */
+/* ===== Full-Screen Stage 4 Page Transitions (Composite-Only) ===== */
 @keyframes fullscreen-overlay-in {
   0% {
     opacity: 0;
-    backdrop-filter: blur(0px);
     transform: scale(0.99);
   }
   100% {
     opacity: 1;
-    backdrop-filter: blur(20px);
     transform: scale(1);
   }
 }
@@ -369,12 +372,10 @@
 @keyframes fullscreen-overlay-out {
   0% {
     opacity: 1;
-    backdrop-filter: blur(20px);
     transform: scale(1);
   }
   100% {
     opacity: 0;
-    backdrop-filter: blur(0px);
     transform: scale(0.99);
   }
 }
@@ -445,7 +446,7 @@
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: blur(0);
+    filter: none;
   }
 }
 
@@ -585,7 +586,7 @@
   content: '';
   position: absolute;
   top: 0;
-  left: -120%;
+  left: 0;
   width: 60%;
   height: 100%;
   background: linear-gradient(
@@ -594,19 +595,20 @@
     rgba(194, 166, 126, 0.35) 50%,
     transparent 100%
   );
-  transform: skewX(-20deg);
+  transform: translate3d(-150%, 0, 0) skewX(-20deg);
   animation: shimmer-sweep 3.5s ease-in-out infinite;
+  pointer-events: none;
 }
 
 @keyframes shimmer-sweep {
   0% {
-    left: -120%;
+    transform: translate3d(-150%, 0, 0) skewX(-20deg);
   }
   55% {
-    left: 140%;
+    transform: translate3d(240%, 0, 0) skewX(-20deg);
   }
   100% {
-    left: 140%;
+    transform: translate3d(240%, 0, 0) skewX(-20deg);
   }
 }
 
@@ -855,7 +857,7 @@ html.lunore-experience-active img {
     opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
     transform 1s cubic-bezier(0.16, 1, 0.3, 1),
     filter 1s cubic-bezier(0.16, 1, 0.3, 1);
-  will-change: opacity, transform, filter;
+  will-change: opacity, transform;
 }
 
 .reveal-up {
@@ -914,7 +916,8 @@ html.lunore-experience-active img {
 .reveal-visible {
   opacity: 1 !important;
   transform: perspective(1200px) translate3d(0, 0, 0) rotateY(0deg) rotateX(0deg) scale(1) !important;
-  filter: blur(0px) !important;
+  filter: none !important;
+  will-change: auto !important;
 }
 
 /* Staggered Word Mask Animation */
@@ -1066,7 +1069,7 @@ html.lunore-experience-active h3 {
   100% {
     opacity: 1;
     transform: translateY(0px) scale(1);
-    filter: blur(0px);
+    filter: none;
   }
 }
 
@@ -1079,7 +1082,7 @@ html.lunore-experience-active h3 {
   100% {
     opacity: 1;
     transform: translateY(0px);
-    filter: blur(0px);
+    filter: none;
   }
 }
 
@@ -1101,18 +1104,6 @@ html.lunore-experience-active h3 {
   /* Smooth touch scrolling */
   * {
     -webkit-tap-highlight-color: transparent;
-  }
-}
-
-@keyframes float-slow {
-  0% {
-    transform: translateY(0px) rotate(-6deg);
-  }
-  50% {
-    transform: translateY(-14px) rotate(4deg);
-  }
-  100% {
-    transform: translateY(-24px) rotate(-4deg);
   }
 }
 
@@ -1155,19 +1146,19 @@ html.lunore-experience-active h3 {
   transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-/* Background Audio Equalizer Soundbar Animations */
+/* Background Audio Equalizer Soundbar Animations (Composite-Only scaleY) */
 @keyframes soundbar-1 {
-  0%, 100% { height: 3px; }
-  50% { height: 13px; }
+  0%, 100% { transform: scaleY(0.23); }
+  50% { transform: scaleY(1); }
 }
 
 @keyframes soundbar-2 {
-  0%, 100% { height: 11px; }
-  50% { height: 4px; }
+  0%, 100% { transform: scaleY(0.85); }
+  50% { transform: scaleY(0.3); }
 }
 
 @keyframes soundbar-3 {
-  0%, 100% { height: 5px; }
-  50% { height: 13px; }
+  0%, 100% { transform: scaleY(0.38); }
+  50% { transform: scaleY(1); }
 }
 

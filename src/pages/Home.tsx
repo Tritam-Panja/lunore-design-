@@ -11,7 +11,6 @@ import { TextReveal } from '@/components/TextReveal';
 import { ScrollColorText } from '@/components/ScrollColorText';
 import { LazyImage } from '@/components/LazyImage';
 import { LazySection } from '@/components/LazySection';
-import { useLenis } from '@/components/SmoothScroll';
 
 // Lazily load heavy interactive 3D and media experiences
 const InteriorExperience = lazy(() => import('@/components/InteriorExperience').then(m => ({ default: m.InteriorExperience })));
@@ -82,13 +81,11 @@ const directors: TeamMember[] = [
 ];
 
 export function Home() {
-  const { lenis } = useLenis();
   const [products, setProducts] = useState(fallbackProducts);
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const aboutRef = useRef<HTMLDivElement>(null);
   const heroRef = useRef<HTMLElement>(null);
   const desktopVideoRef = useRef<HTMLVideoElement>(null);
   const mobileVideoRef = useRef<HTMLVideoElement>(null);
@@ -180,59 +177,7 @@ export function Home() {
     }
   }, []);
 
-  // Scroll handler for scroll-driven index update (RAF throttled & IO-gated to avoid layout thrashing)
-  useEffect(() => {
-    let ticking = false;
-    let isNear = false;
 
-    const handleScroll = () => {
-      if (!isNear) return;
-      if (!ticking) {
-        ticking = true;
-        requestAnimationFrame(() => {
-          if (aboutRef.current && isNear) {
-            const rect = aboutRef.current.getBoundingClientRect();
-            const totalHeight = rect.height - window.innerHeight;
-            if (totalHeight > 0) {
-              const progress = Math.max(0, Math.min(0.999, -rect.top / totalHeight));
-              const step = 1 / directors.length;
-              const index = Math.floor(progress / step);
-              const nextIndex = Math.max(0, Math.min(directors.length - 1, index));
-              if (activeIndexRef.current !== nextIndex) {
-                activeIndexRef.current = nextIndex;
-                setActiveIndex(nextIndex);
-              }
-            }
-          }
-          ticking = false;
-        });
-      }
-    };
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        isNear = entry.isIntersecting;
-        if (isNear) handleScroll();
-      },
-      { rootMargin: '200px 0px 200px 0px' }
-    );
-
-    if (aboutRef.current) {
-      observer.observe(aboutRef.current);
-    }
-
-    if (lenis) {
-      lenis.on('scroll', handleScroll);
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => {
-      observer.disconnect();
-      if (lenis) {
-        lenis.off('scroll', handleScroll);
-      }
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [lenis]);
 
   // Helper to get placement attributes for avatars (Desktop & Tablet)
   const getAvatarStyle = (index: number) => {
@@ -284,7 +229,8 @@ export function Home() {
       }
     }
 
-    return { size, opacity, x };
+    const scale = size / activeSize;
+    return { size, scale, opacity, x, activeSize };
   };
 
   const activeMember = directors[activeIndex];
@@ -642,7 +588,7 @@ export function Home() {
                     {/* Central Parade Orbit */}
                     <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
                       {directors.map((member, idx) => {
-                        const { size, opacity, x } = getAvatarStyle(idx);
+                        const { scale, opacity, x, activeSize } = getAvatarStyle(idx);
                         const isActive = idx === activeIndex;
 
                         return (
@@ -650,10 +596,10 @@ export function Home() {
                             key={member.name}
                             onClick={() => setActiveIndex(idx)}
                             style={{
-                              width: `${size}px`,
-                              height: `${size}px`,
+                              width: `${activeSize}px`,
+                              height: `${activeSize}px`,
                               opacity: opacity,
-                              transform: `translate3d(${x}px, ${isActive ? 10 : 0}px, 0)`,
+                              transform: `translate3d(${x}px, ${isActive ? 10 : 0}px, 0) scale(${scale})`,
                               zIndex: isActive ? 30 : 20 - Math.abs(idx - activeIndex),
                             }}
                             className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 rounded-full overflow-hidden cursor-pointer transition-all ease-[cubic-bezier(0.34,1.56,0.64,1)] duration-700 ${

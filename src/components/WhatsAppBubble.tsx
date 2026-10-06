@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { MessageCircle, ArrowUpRight } from 'lucide-react';
+import { scrollCoordinator } from '@/lib/scrollCoordinator';
 
 interface WhatsAppBubbleProps {
   phoneNumber?: string;
@@ -13,46 +14,54 @@ export function WhatsAppBubble({
 }: WhatsAppBubbleProps) {
   const [isHovered, setIsHovered] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const visibleRef = useRef(false);
   const location = useLocation();
 
   useEffect(() => {
     // If on the dedicated /contact page, always show
     if (location.pathname === '/contact') {
+      visibleRef.current = true;
       setIsVisible(true);
       return;
     }
 
-    const checkVisibility = () => {
-      const contactEl = document.getElementById('contact');
-      if (contactEl) {
-        const rect = contactEl.getBoundingClientRect();
-        // Reveal when the contact section is reached or approaching
-        const inView = rect.top <= window.innerHeight + 100;
-        setIsVisible(inView);
-      } else {
-        // Fallback: check if near bottom of page
-        const total = document.documentElement.scrollHeight - window.innerHeight;
-        if (total > 0) {
-          setIsVisible(window.scrollY / total > 0.85);
+    const contactEl = document.getElementById('contact');
+    if (contactEl && typeof IntersectionObserver !== 'undefined') {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          const inView = entry.isIntersecting;
+          if (visibleRef.current !== inView) {
+            visibleRef.current = inView;
+            setIsVisible(inView);
+          }
+        },
+        { rootMargin: '0px 0px 100px 0px' }
+      );
+      observer.observe(contactEl);
+      return () => observer.disconnect();
+    }
+
+    // Fallback for pages without a #contact section: check near bottom of page
+    // Coalesced through single scrollCoordinator with zero layout reads
+    const unsubscribe = scrollCoordinator.subscribe((scrollY) => {
+      const total = document.documentElement.scrollHeight - scrollCoordinator.getViewportHeight();
+      if (total > 0) {
+        const inView = scrollY / total > 0.85;
+        if (visibleRef.current !== inView) {
+          visibleRef.current = inView;
+          setIsVisible(inView);
         }
       }
-    };
+    });
 
-    window.addEventListener('scroll', checkVisibility, { passive: true });
-    window.addEventListener('resize', checkVisibility);
-    checkVisibility();
-
-    return () => {
-      window.removeEventListener('scroll', checkVisibility);
-      window.removeEventListener('resize', checkVisibility);
-    };
+    return () => unsubscribe();
   }, [location.pathname]);
 
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`;
 
   return (
     <div
-      className={`fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4 sm:bottom-6 sm:right-6 z-50 flex items-center gap-3 transition-all duration-500 ease-out ${
+      className={`fixed bottom-[calc(1rem+env(safe-area-inset-bottom,0px))] right-4 sm:bottom-6 sm:right-6 z-50 flex items-center gap-3 transition-all duration-500 ease-out isolate ${
         isVisible
           ? 'opacity-100 translate-y-0 pointer-events-auto scale-100'
           : 'opacity-0 translate-y-6 pointer-events-none scale-90'

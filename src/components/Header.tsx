@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Sparkles, MapPin, Phone, Mail, ChevronDown } from 'lucide-react';
-import { useLenis } from './SmoothScroll';
+import { useLenis, useScrollSubscriber, scrollCoordinator } from './SmoothScroll';
 
 interface NavItem {
   label: string;
@@ -69,39 +69,18 @@ export function Header() {
   const scrolledRef = useRef(false);
 
   // Track scroll position: hide on first section (hero), show on content
-  useEffect(() => {
-    let ticking = false;
-
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const threshold = isHome ? Math.min(300, window.innerHeight * 0.45) : 40;
-          const isScrolled = window.scrollY > threshold;
-          if (scrolledRef.current !== isScrolled) {
-            scrolledRef.current = isScrolled;
-            setScrolled(isScrolled);
-          }
-          ticking = false;
-        });
-        ticking = true;
+  // Single-source subscription (Lenis on desktop, passive RAF on mobile - zero duplicate listeners)
+  useScrollSubscriber(
+    (scrollY) => {
+      const threshold = isHome ? Math.min(300, scrollCoordinator.getViewportHeight() * 0.45) : 40;
+      const isScrolled = scrollY > threshold;
+      if (scrolledRef.current !== isScrolled) {
+        scrolledRef.current = isScrolled;
+        setScrolled(isScrolled);
       }
-    };
-
-    handleScroll();
-    if (lenis) {
-      lenis.on('scroll', handleScroll);
-    }
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    window.addEventListener('resize', handleScroll, { passive: true });
-
-    return () => {
-      if (lenis) {
-        lenis.off('scroll', handleScroll);
-      }
-      window.removeEventListener('scroll', handleScroll);
-      window.removeEventListener('resize', handleScroll);
-    };
-  }, [isHome, lenis]);
+    },
+    [isHome]
+  );
 
   // Close overlay on route change
   useEffect(() => {
@@ -231,8 +210,8 @@ export function Header() {
       <div
         className={`fixed inset-0 z-40 bg-black/90 backdrop-blur-3xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-y-auto overscroll-contain transform-gpu ${
           menuOpen
-            ? 'opacity-100 pointer-events-auto scale-100'
-            : 'opacity-0 pointer-events-none scale-105'
+            ? 'opacity-100 pointer-events-auto scale-100 visible'
+            : 'opacity-0 pointer-events-none scale-105 invisible'
         }`}
         style={{ WebkitOverflowScrolling: 'touch' }}
         aria-hidden={!menuOpen}

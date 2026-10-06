@@ -195,10 +195,10 @@ export function Projects() {
 
                     {/* Top Tag Badges */}
                     <div className="absolute top-3 left-3 right-3 flex items-center justify-between text-[10px] tracking-wider uppercase">
-                      <span className="px-2.5 py-1 rounded-full bg-black/70 backdrop-blur-md border border-white/15 text-[#b89a62] font-semibold">
+                      <span className="px-2.5 py-1 rounded-full bg-black/80 border border-white/20 text-[#b89a62] font-semibold shadow-sm">
                         Project {project.id || `0${idx + 1}`}
                       </span>
-                      <span className="px-2.5 py-1 rounded-full bg-white/10 backdrop-blur-md text-[#ded9cf] text-[9px]">
+                      <span className="px-2.5 py-1 rounded-full bg-white/15 border border-white/10 text-[#ded9cf] text-[9px] shadow-sm">
                         Turnkey Built
                       </span>
                     </div>
@@ -294,7 +294,7 @@ export function Projects() {
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
                     <div className="absolute top-3 left-3">
-                      <span className="px-2.5 py-1 rounded-full bg-black/75 backdrop-blur-md border border-[#b89a62]/40 text-[#b89a62] text-[9px] tracking-wider uppercase font-semibold">
+                      <span className="px-2.5 py-1 rounded-full bg-black/85 border border-[#b89a62]/40 text-[#b89a62] text-[9px] tracking-wider uppercase font-semibold shadow-sm">
                         {upcoming.status}
                       </span>
                     </div>

@@ -271,7 +271,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         card.style.marginBottom = '64px';
       }
       card.style.zIndex = `${i + 1}`;
-      card.style.willChange = 'transform, filter';
+      card.style.willChange = blurAmount > 0 ? 'transform, filter' : 'transform';
       card.style.transformOrigin = 'top center';
       card.style.backfaceVisibility = 'hidden';
       card.style.transform = 'translateZ(0)';
