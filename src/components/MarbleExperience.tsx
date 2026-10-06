@@ -1,8 +1,11 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
 import { Sparkles, ArrowRight, RotateCcw, ChevronDown } from 'lucide-react';
 import { images } from '@/lib/images';
 import ParticleText from './ParticleText';
-import { MarbleStackModal } from './MarbleStackModal';
+
+const MarbleStackModal = lazy(() =>
+  import('./MarbleStackModal').then((m) => ({ default: m.MarbleStackModal }))
+);
  
 export function MarbleExperience() {
   const [isEntered, setIsEntered] = useState<boolean>(false);
@@ -975,7 +978,9 @@ export function MarbleExperience() {
 
       {/* Fullscreen Marble Stack Modal */}
       {isStackOpen && (
-        <MarbleStackModal onClose={() => setIsStackOpen(false)} />
+        <Suspense fallback={null}>
+          <MarbleStackModal onClose={() => setIsStackOpen(false)} />
+        </Suspense>
       )}
     </section>
   );

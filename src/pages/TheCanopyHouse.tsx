@@ -7,7 +7,7 @@ import FullScreenImageViewer from '@/components/FullScreenImageViewer';
 const CANOPY_HOUSE_IMAGES = [
   {
     id: 1,
-    url: '/assets/THE%20CANOPY%20HOUSE/1.jpg',
+    url: '/assets/THE%20CANOPY%20HOUSE/1.webp',
     title: 'The Forest Pavilion Envelope',
     category: 'Biophilic Architecture',
     tag: 'The Canopy House 01',
@@ -16,7 +16,7 @@ const CANOPY_HOUSE_IMAGES = [
   },
   {
     id: 2,
-    url: '/assets/THE%20CANOPY%20HOUSE/2.jpg',
+    url: '/assets/THE%20CANOPY%20HOUSE/2.webp',
     title: 'Live-Edge Organic Gathering Forum',
     category: 'Natural Tactility',
     tag: 'The Canopy House 02',
@@ -25,7 +25,7 @@ const CANOPY_HOUSE_IMAGES = [
   },
   {
     id: 3,
-    url: '/assets/THE%20CANOPY%20HOUSE/3.jpg',
+    url: '/assets/THE%20CANOPY%20HOUSE/3.webp',
     title: 'Rattan & Sage Reading Haven',
     category: 'Sensory Quiet',
     tag: 'The Canopy House 03',
@@ -34,7 +34,7 @@ const CANOPY_HOUSE_IMAGES = [
   },
   {
     id: 4,
-    url: '/assets/THE%20CANOPY%20HOUSE/4.jpg',
+    url: '/assets/THE%20CANOPY%20HOUSE/4.webp',
     title: 'Canopy Sleep Sanctuary',
     category: 'Forest Immersion',
     tag: 'The Canopy House 04',
@@ -43,7 +43,7 @@ const CANOPY_HOUSE_IMAGES = [
   },
   {
     id: 5,
-    url: '/assets/THE%20CANOPY%20HOUSE/5.jpg',
+    url: '/assets/THE%20CANOPY%20HOUSE/5.webp',
     title: 'Glass Pavilion Living Gallery',
     category: 'Transparent Horizon',
     tag: 'The Canopy House 05',
@@ -52,7 +52,7 @@ const CANOPY_HOUSE_IMAGES = [
   },
   {
     id: 6,
-    url: '/assets/THE%20CANOPY%20HOUSE/6.jpg',
+    url: '/assets/THE%20CANOPY%20HOUSE/6.webp',
     title: 'Curved Lime Plaster Corridors',
     category: 'Monolithic Form',
     tag: 'The Canopy House 06',
@@ -61,7 +61,7 @@ const CANOPY_HOUSE_IMAGES = [
   },
   {
     id: 7,
-    url: '/assets/THE%20CANOPY%20HOUSE/7.jpg',
+    url: '/assets/THE%20CANOPY%20HOUSE/7.webp',
     title: 'Biophilic Bath & Woodland Spa',
     category: 'Nature Hydrotherapy',
     tag: 'The Canopy House 07',
@@ -70,7 +70,7 @@ const CANOPY_HOUSE_IMAGES = [
   },
   {
     id: 8,
-    url: '/assets/THE%20CANOPY%20HOUSE/8.jpg',
+    url: '/assets/THE%20CANOPY%20HOUSE/8.webp',
     title: 'Raw Timber & Linen Bedroom',
     category: 'Gentle Nesting',
     tag: 'The Canopy House 08',
@@ -79,7 +79,7 @@ const CANOPY_HOUSE_IMAGES = [
   },
   {
     id: 9,
-    url: '/assets/THE%20CANOPY%20HOUSE/9.jpg',
+    url: '/assets/THE%20CANOPY%20HOUSE/9.webp',
     title: 'Sun-Dappled Canopy Deck',
     category: 'Verdant Transition',
     tag: 'The Canopy House 09',
@@ -88,7 +88,7 @@ const CANOPY_HOUSE_IMAGES = [
   },
   {
     id: 10,
-    url: '/assets/THE%20CANOPY%20HOUSE/10.jpg',
+    url: '/assets/THE%20CANOPY%20HOUSE/10.webp',
     title: 'Nocturnal Forest Presence',
     category: 'Atmospheric Dusk',
     tag: 'The Canopy House 10',

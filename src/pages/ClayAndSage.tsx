@@ -7,7 +7,7 @@ import FullScreenImageViewer from '@/components/FullScreenImageViewer';
 const CLAY_SAGE_IMAGES = [
   {
     id: 1,
-    url: '/assets/CLAY%20&%20SAGE/1.jpg',
+    url: '/assets/CLAY%20&%20SAGE/1.webp',
     title: 'Terracotta & Glazed Sage Culinary Forum',
     category: 'Kitchen-Garden Soul',
     tag: 'Clay & Sage 01',
@@ -16,7 +16,7 @@ const CLAY_SAGE_IMAGES = [
   },
   {
     id: 2,
-    url: '/assets/CLAY%20&%20SAGE/2.jpg',
+    url: '/assets/CLAY%20&%20SAGE/2.webp',
     title: 'Curved Organic Living Salon',
     category: 'Sculptural Comfort',
     tag: 'Clay & Sage 02',
@@ -25,7 +25,7 @@ const CLAY_SAGE_IMAGES = [
   },
   {
     id: 3,
-    url: '/assets/CLAY%20&%20SAGE/3.jpg',
+    url: '/assets/CLAY%20&%20SAGE/3.webp',
     title: 'Travertine Dressing Gallery',
     category: 'Seamless Transition',
     tag: 'Clay & Sage 03',
@@ -34,7 +34,7 @@ const CLAY_SAGE_IMAGES = [
   },
   {
     id: 4,
-    url: '/assets/CLAY%20&%20SAGE/4.jpg',
+    url: '/assets/CLAY%20&%20SAGE/4.webp',
     title: 'The Coastal Veranda Chamber',
     category: 'Artisanal Elegance',
     tag: 'Clay & Sage 04',
@@ -43,7 +43,7 @@ const CLAY_SAGE_IMAGES = [
   },
   {
     id: 5,
-    url: '/assets/CLAY%20&%20SAGE/5.jpg',
+    url: '/assets/CLAY%20&%20SAGE/5.webp',
     title: 'Hand-Glazed Ceramic Detail',
     category: 'Textured Surface',
     tag: 'Clay & Sage 05',
@@ -52,7 +52,7 @@ const CLAY_SAGE_IMAGES = [
   },
   {
     id: 6,
-    url: '/assets/CLAY%20&%20SAGE/6.jpg',
+    url: '/assets/CLAY%20&%20SAGE/6.webp',
     title: 'Woven Rattan Reading Corner',
     category: 'Gentle Warmth',
     tag: 'Clay & Sage 06',
@@ -61,7 +61,7 @@ const CLAY_SAGE_IMAGES = [
   },
   {
     id: 7,
-    url: '/assets/CLAY%20&%20SAGE/7.jpg',
+    url: '/assets/CLAY%20&%20SAGE/7.webp',
     title: 'Terracotta Dining Niche',
     category: 'Gathered Together',
     tag: 'Clay & Sage 07',
@@ -70,7 +70,7 @@ const CLAY_SAGE_IMAGES = [
   },
   {
     id: 8,
-    url: '/assets/CLAY%20&%20SAGE/8.jpg',
+    url: '/assets/CLAY%20&%20SAGE/8.webp',
     title: 'The Sage Serenity Suite',
     category: 'Quiet Haven',
     tag: 'Clay & Sage 08',

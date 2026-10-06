@@ -7,7 +7,7 @@ import FullScreenImageViewer from '@/components/FullScreenImageViewer';
 const AMBER_OLIVE_IMAGES = [
   {
     id: 1,
-    url: '/assets/AMBER%20&%20OLIVE/1.jpg',
+    url: '/assets/AMBER%20&%20OLIVE/1.webp',
     title: 'The Golden Hour Salon',
     category: 'Atmospheric Light',
     tag: 'Amber & Olive 01',
@@ -16,7 +16,7 @@ const AMBER_OLIVE_IMAGES = [
   },
   {
     id: 2,
-    url: '/assets/AMBER%20&%20OLIVE/2.jpg',
+    url: '/assets/AMBER%20&%20OLIVE/2.webp',
     title: 'Walnut & Brass Living Gallery',
     category: 'Material Texture',
     tag: 'Amber & Olive 02',
@@ -25,7 +25,7 @@ const AMBER_OLIVE_IMAGES = [
   },
   {
     id: 3,
-    url: '/assets/AMBER%20&%20OLIVE/3.jpg',
+    url: '/assets/AMBER%20&%20OLIVE/3.webp',
     title: 'Marble & Timber Dining Panorama',
     category: 'Harmonious Form',
     tag: 'Amber & Olive 03',
@@ -34,7 +34,7 @@ const AMBER_OLIVE_IMAGES = [
   },
   {
     id: 4,
-    url: '/assets/AMBER%20&%20OLIVE/4.jpg',
+    url: '/assets/AMBER%20&%20OLIVE/4.webp',
     title: 'Skyline Master Chamber',
     category: 'Panoramic Sanctuary',
     tag: 'Amber & Olive 04',
@@ -43,7 +43,7 @@ const AMBER_OLIVE_IMAGES = [
   },
   {
     id: 5,
-    url: '/assets/AMBER%20&%20OLIVE/5.jpg',
+    url: '/assets/AMBER%20&%20OLIVE/5.webp',
     title: 'Fluted Boiserie Detail',
     category: 'Artisanal Joinery',
     tag: 'Amber & Olive 05',
@@ -52,7 +52,7 @@ const AMBER_OLIVE_IMAGES = [
   },
   {
     id: 6,
-    url: '/assets/AMBER%20&%20OLIVE/6.jpg',
+    url: '/assets/AMBER%20&%20OLIVE/6.webp',
     title: 'Curated Lounge Alcove',
     category: 'Intimate Gathering',
     tag: 'Amber & Olive 06',
@@ -61,7 +61,7 @@ const AMBER_OLIVE_IMAGES = [
   },
   {
     id: 7,
-    url: '/assets/AMBER%20&%20OLIVE/7.jpg',
+    url: '/assets/AMBER%20&%20OLIVE/7.webp',
     title: 'Dusk Cocktail Bar',
     category: 'Hospitality Stature',
     tag: 'Amber & Olive 07',
@@ -70,7 +70,7 @@ const AMBER_OLIVE_IMAGES = [
   },
   {
     id: 8,
-    url: '/assets/AMBER%20&%20OLIVE/8.jpg',
+    url: '/assets/AMBER%20&%20OLIVE/8.webp',
     title: 'Twilight Vista Horizon',
     category: 'Mumbai Golden Hour',
     tag: 'Amber & Olive 08',

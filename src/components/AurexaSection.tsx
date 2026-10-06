@@ -1,8 +1,9 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useLenis } from './SmoothScroll';
-import ImageTrail from './ImageTrail';
+
+const ImageTrail = lazy(() => import('./ImageTrail'));
 
 const AUREXA_TRAIL_IMAGES = [
   '/assets/images/imagetrail1.webp',
@@ -211,7 +212,9 @@ export function AurexaSection() {
           className="absolute inset-0 z-[5] pointer-events-none sm:pointer-events-auto transition-opacity duration-500"
           style={{ opacity: isUnlocked ? 1 : 0 }}
         >
-          <ImageTrail items={AUREXA_TRAIL_IMAGES} variant={7} />
+          <Suspense fallback={null}>
+            <ImageTrail items={AUREXA_TRAIL_IMAGES} variant={7} />
+          </Suspense>
         </div>
       )}
 

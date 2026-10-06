@@ -12,6 +12,7 @@ export interface StoneItem {
   finish: string;
   idealFor: string;
   image: string;
+  imageSm?: string;
   description: string;
 }
 
@@ -23,7 +24,8 @@ export const MARBLE_COLLECTION_ITEMS: StoneItem[] = [
     origin: 'Bahia, Brazil',
     finish: 'Bookmatched Polish / Leathered',
     idealFor: 'Statement Islands, Master Baths & Feature Elevations',
-    image: encodeURI('/assets/Marbles/Avocado Green.jpeg'),
+    image: encodeURI('/assets/Marbles/Avocado Green.webp'),
+    imageSm: encodeURI('/assets/Marbles/Avocado Green-sm.webp'),
     description: 'Lush olive and pistachio bedrock swept with vivid crystalline quartz veining, emerald ribbons, and rich mineral depth.',
   },
   {
@@ -33,7 +35,8 @@ export const MARBLE_COLLECTION_ITEMS: StoneItem[] = [
     origin: 'Carrara, Italy',
     finish: 'Bookmatched Polish / Honed',
     idealFor: 'Grand Foyers, Bookmatched Slabs & Accent Architecture',
-    image: encodeURI('/assets/Marbles/CIPPO FANTASY.jpeg'),
+    image: encodeURI('/assets/Marbles/CIPPO FANTASY.webp'),
+    imageSm: encodeURI('/assets/Marbles/CIPPO FANTASY-sm.webp'),
     description: 'Sinuous rhythmic currents of warm earth, smoky taupe, and soft ivory ribbons that evoke kinetic natural artistry.',
   },
   {
@@ -43,7 +46,8 @@ export const MARBLE_COLLECTION_ITEMS: StoneItem[] = [
     origin: 'Minas Gerais, Brazil',
     finish: 'High-Lustre Mirror Polish',
     idealFor: 'Executive Suites, Architectural Countertops & Monolithic Cascades',
-    image: encodeURI('/assets/Marbles/COSMIC FANTASY POLISH .jpeg'),
+    image: encodeURI('/assets/Marbles/COSMIC FANTASY POLISH .webp'),
+    imageSm: encodeURI('/assets/Marbles/COSMIC FANTASY POLISH -sm.webp'),
     description: 'A stellar dark nightscape swept with celestial golden magma rivers, shimmering quartz crystals, and deep bronze accents.',
   },
   {
@@ -53,7 +57,8 @@ export const MARBLE_COLLECTION_ITEMS: StoneItem[] = [
     origin: 'Aosta Valley, Italian Alps',
     finish: 'Mirror Polish / Velvet Honed',
     idealFor: 'Boutique Powder Rooms, Private Libraries & Statement Bars',
-    image: encodeURI('/assets/Marbles/EXOTIC GREEN .jpeg'),
+    image: encodeURI('/assets/Marbles/EXOTIC GREEN .webp'),
+    imageSm: encodeURI('/assets/Marbles/EXOTIC GREEN -sm.webp'),
     description: 'Deep forest and emerald greens laced with delicate white calcite ribbons and intricate crystalline mineral formations.',
   },
   {
@@ -63,7 +68,8 @@ export const MARBLE_COLLECTION_ITEMS: StoneItem[] = [
     origin: 'Tuscany, Italy',
     finish: 'Mirror Polish / Backlit LED Ready',
     idealFor: 'Backlit Bar Counters, Luminous Partitions & Monolithic Spas',
-    image: encodeURI('/assets/Marbles/Ice Onyx.jpeg'),
+    image: encodeURI('/assets/Marbles/Ice Onyx.webp'),
+    imageSm: encodeURI('/assets/Marbles/Ice Onyx-sm.webp'),
     description: 'Pristine glacial translucency enriched by subtle frost-like crystalline strata, glowing with breathtaking ethereal radiance when backlit.',
   },
   {
@@ -73,7 +79,8 @@ export const MARBLE_COLLECTION_ITEMS: StoneItem[] = [
     origin: 'Espírito Santo, Brazil',
     finish: 'High Gloss Polish / Satin',
     idealFor: 'Monolithic Kitchen Islands, Fireplace Surrounds & Cladding',
-    image: encodeURI('/assets/Marbles/LAVA BLACK POLISH.jpeg'),
+    image: encodeURI('/assets/Marbles/LAVA BLACK POLISH.webp'),
+    imageSm: encodeURI('/assets/Marbles/LAVA BLACK POLISH-sm.webp'),
     description: 'Volcanic obsidian bedrock electrified by energetic molten gold currents, silver platinum highlights, and deep basalt textures.',
   },
   {
@@ -83,7 +90,8 @@ export const MARBLE_COLLECTION_ITEMS: StoneItem[] = [
     origin: 'Carrara, Italy',
     finish: 'Ultra-High Gloss Polish',
     idealFor: 'Double-Height Atriums, Luxury Dining Tables & Modernist Elevations',
-    image: encodeURI('/assets/Marbles/LUXURY BLACK.jpeg'),
+    image: encodeURI('/assets/Marbles/LUXURY BLACK.webp'),
+    imageSm: encodeURI('/assets/Marbles/LUXURY BLACK-sm.webp'),
     description: 'Deep velvety pitch-black depth defined by crisp, elegant architectural veining and subtle graphite crystallization.',
   },
   {
@@ -93,7 +101,8 @@ export const MARBLE_COLLECTION_ITEMS: StoneItem[] = [
     origin: 'Bahia, Brazil',
     finish: 'Bookmatched Mirror Polish',
     idealFor: 'Double-Height Feature Walls, Monolithic Islands & Signature Vanities',
-    image: encodeURI('/assets/Marbles/Marine Black Patagonia.jpeg'),
+    image: encodeURI('/assets/Marbles/Marine Black Patagonia.webp'),
+    imageSm: encodeURI('/assets/Marbles/Marine Black Patagonia-sm.webp'),
     description: 'A striking geological fusion of dark oceanic pigments, smoky translucent feldspar clusters, and bold architectural fissures.',
   },
   {
@@ -103,7 +112,8 @@ export const MARBLE_COLLECTION_ITEMS: StoneItem[] = [
     origin: 'Rajasthan, India',
     finish: 'Leathered Antique / High Polish',
     idealFor: 'Private Study Cladding, Master Bath Vanities & Gallery Walls',
-    image: encodeURI('/assets/Marbles/RAINFOREST BROWN .jpeg'),
+    image: encodeURI('/assets/Marbles/RAINFOREST BROWN .webp'),
+    imageSm: encodeURI('/assets/Marbles/RAINFOREST BROWN -sm.webp'),
     description: 'An evocative tapestry of rich cocoa and russet tones interwoven with a dramatic labyrinth of dark tree-like veining.',
   },
   {
@@ -113,7 +123,8 @@ export const MARBLE_COLLECTION_ITEMS: StoneItem[] = [
     origin: 'Minas Gerais, Brazil',
     finish: 'Brilliant Diamond Polish',
     idealFor: 'Haute Horlogerie Foyers, Statement Reception Counters & Art Inlays',
-    image: encodeURI('/assets/Marbles/RED JASPER POLISH.jpeg'),
+    image: encodeURI('/assets/Marbles/RED JASPER POLISH.webp'),
+    imageSm: encodeURI('/assets/Marbles/RED JASPER POLISH-sm.webp'),
     description: 'Vibrant terracotta and fiery crimson jasper formations enriched by undulating breccia patterns and warm golden quartz highlights.',
   },
 ];
@@ -295,9 +306,13 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                   <img
                     src={item.image}
+                    srcSet={item.imageSm ? `${item.imageSm} 720w, ${item.image} 1448w` : undefined}
+                    sizes="(max-width: 640px) 100vw, 1024px"
                     alt={item.name}
                     loading={index < 3 ? 'eager' : 'lazy'}
                     decoding="async"
+                    width={1448}
+                    height={1086}
                     className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] sm:group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
                   {/* Lightened, natural gradient solely for bottom text legibility */}

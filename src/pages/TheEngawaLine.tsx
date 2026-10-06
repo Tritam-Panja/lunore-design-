@@ -7,7 +7,7 @@ import FullScreenImageViewer from '@/components/FullScreenImageViewer';
 const ENGAWA_IMAGES = [
   {
     id: 1,
-    url: '/assets/THE%20ENGAWA%20LINE/1.jpg',
+    url: '/assets/THE%20ENGAWA%20LINE/1.webp',
     title: 'The Continuous Birch Datum',
     category: 'Spatial Spine',
     tag: 'The Engawa Line 01',
@@ -16,7 +16,7 @@ const ENGAWA_IMAGES = [
   },
   {
     id: 2,
-    url: '/assets/THE%20ENGAWA%20LINE/2.jpg',
+    url: '/assets/THE%20ENGAWA%20LINE/2.webp',
     title: 'Black Steel Spatial Partition',
     category: 'Threshold Craft',
     tag: 'The Engawa Line 02',
@@ -25,7 +25,7 @@ const ENGAWA_IMAGES = [
   },
   {
     id: 3,
-    url: '/assets/THE%20ENGAWA%20LINE/3.jpg',
+    url: '/assets/THE%20ENGAWA%20LINE/3.webp',
     title: 'Architectural Light & Shadow',
     category: 'Material Dialogue',
     tag: 'The Engawa Line 03',
@@ -34,7 +34,7 @@ const ENGAWA_IMAGES = [
   },
   {
     id: 4,
-    url: '/assets/THE%20ENGAWA%20LINE/4.jpg',
+    url: '/assets/THE%20ENGAWA%20LINE/4.webp',
     title: 'Living Platform & Transition',
     category: 'Elevated Flow',
     tag: 'The Engawa Line 04',
@@ -43,7 +43,7 @@ const ENGAWA_IMAGES = [
   },
   {
     id: 5,
-    url: '/assets/THE%20ENGAWA%20LINE/5.jpg',
+    url: '/assets/THE%20ENGAWA%20LINE/5.webp',
     title: 'Bespoke Joinery Suite',
     category: 'Minimalist Detail',
     tag: 'The Engawa Line 05',
@@ -52,7 +52,7 @@ const ENGAWA_IMAGES = [
   },
   {
     id: 6,
-    url: '/assets/THE%20ENGAWA%20LINE/6.jpg',
+    url: '/assets/THE%20ENGAWA%20LINE/6.webp',
     title: 'The Evening Rest Sanctuary',
     category: 'Quiet Retreat',
     tag: 'The Engawa Line 06',
@@ -61,7 +61,7 @@ const ENGAWA_IMAGES = [
   },
   {
     id: 7,
-    url: '/assets/THE%20ENGAWA%20LINE/7.jpg',
+    url: '/assets/THE%20ENGAWA%20LINE/7.webp',
     title: 'Meditative Living Perspective',
     category: 'Harmonious Synthesis',
     tag: 'The Engawa Line 07',

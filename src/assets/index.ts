@@ -1,11 +1,7 @@
-// Local Image Imports (from src/assets/images)
-import heroLocal from './images/hero.jpg';
-import marbleLocal from './images/marble.jpg';
-
-// Local Asset Exports
+// Local Asset Exports (pointing to optimized WebP assets)
 export const localImages = {
-  hero: heroLocal,
-  marble: marbleLocal,
+  hero: '/assets/images/hero.webp',
+  marble: '/assets/images/marble.webp',
 };
 
 // Static Public Asset Paths (accessible directly as web URLs)

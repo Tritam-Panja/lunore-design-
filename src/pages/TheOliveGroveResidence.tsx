@@ -7,7 +7,7 @@ import FullScreenImageViewer from '@/components/FullScreenImageViewer';
 const OLIVE_GROVE_IMAGES = [
   {
     id: 1,
-    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/1.jpg',
+    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/1.webp',
     title: 'The Olive Courtyard Salon',
     category: 'Biophilic Living',
     tag: 'The Olive Grove 01',
@@ -16,7 +16,7 @@ const OLIVE_GROVE_IMAGES = [
   },
   {
     id: 2,
-    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/2.jpg',
+    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/2.webp',
     title: 'Terracotta & Live-Edge Forum',
     category: 'Organic Earth',
     tag: 'The Olive Grove 02',
@@ -25,7 +25,7 @@ const OLIVE_GROVE_IMAGES = [
   },
   {
     id: 3,
-    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/3.jpg',
+    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/3.webp',
     title: 'Plum Velvet & Stone Lounge',
     category: 'Sensory Warmth',
     tag: 'The Olive Grove 03',
@@ -34,7 +34,7 @@ const OLIVE_GROVE_IMAGES = [
   },
   {
     id: 4,
-    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/4.jpg',
+    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/4.webp',
     title: 'The Courtyard Cloister',
     category: 'Timeless Gathered',
     tag: 'The Olive Grove 04',
@@ -43,7 +43,7 @@ const OLIVE_GROVE_IMAGES = [
   },
   {
     id: 5,
-    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/5.jpg',
+    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/5.webp',
     title: 'Artisanal Terracotta Detail',
     category: 'Handcrafted Heritage',
     tag: 'The Olive Grove 05',
@@ -52,7 +52,7 @@ const OLIVE_GROVE_IMAGES = [
   },
   {
     id: 6,
-    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/6.jpg',
+    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/6.webp',
     title: 'Sunlit Dining Veranda',
     category: 'Al Fresco Transition',
     tag: 'The Olive Grove 06',
@@ -61,7 +61,7 @@ const OLIVE_GROVE_IMAGES = [
   },
   {
     id: 7,
-    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/7.jpg',
+    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/7.webp',
     title: 'Travertine Hearth Pavilion',
     category: 'Earth Hearth',
     tag: 'The Olive Grove 07',
@@ -70,7 +70,7 @@ const OLIVE_GROVE_IMAGES = [
   },
   {
     id: 8,
-    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/8.jpg',
+    url: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/8.webp',
     title: 'Botanical Master Haven',
     category: 'Courtyard Sanctuary',
     tag: 'The Olive Grove 08',

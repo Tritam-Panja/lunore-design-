@@ -7,7 +7,7 @@ import FullScreenImageViewer from '@/components/FullScreenImageViewer';
 const SKYLINE_RESIDENCE_IMAGES = [
   {
     id: 1,
-    url: '/assets/THE%20SKYLINE%20RESIDENCE/1.jpg',
+    url: '/assets/THE%20SKYLINE%20RESIDENCE/1.webp',
     title: 'Horizon Panorama Living',
     category: 'Skyline Architecture',
     tag: 'The Skyline Residence 01',
@@ -16,7 +16,7 @@ const SKYLINE_RESIDENCE_IMAGES = [
   },
   {
     id: 2,
-    url: '/assets/THE%20SKYLINE%20RESIDENCE/2.jpg',
+    url: '/assets/THE%20SKYLINE%20RESIDENCE/2.webp',
     title: 'Fluted Timber & Marble Forum',
     category: 'Material Dialogue',
     tag: 'The Skyline Residence 02',
@@ -25,7 +25,7 @@ const SKYLINE_RESIDENCE_IMAGES = [
   },
   {
     id: 3,
-    url: '/assets/THE%20SKYLINE%20RESIDENCE/3.jpg',
+    url: '/assets/THE%20SKYLINE%20RESIDENCE/3.webp',
     title: 'The Sunset Dining Suite',
     category: 'Atmospheric Gathering',
     tag: 'The Skyline Residence 03',
@@ -34,7 +34,7 @@ const SKYLINE_RESIDENCE_IMAGES = [
   },
   {
     id: 4,
-    url: '/assets/THE%20SKYLINE%20RESIDENCE/4.jpg',
+    url: '/assets/THE%20SKYLINE%20RESIDENCE/4.webp',
     title: 'Skyline Master Pavilion',
     category: 'Quiet Refuge',
     tag: 'The Skyline Residence 04',
@@ -43,7 +43,7 @@ const SKYLINE_RESIDENCE_IMAGES = [
   },
   {
     id: 5,
-    url: '/assets/THE%20SKYLINE%20RESIDENCE/5.jpg',
+    url: '/assets/THE%20SKYLINE%20RESIDENCE/5.webp',
     title: 'Travertine Reception Gallery',
     category: 'Monolithic Stone',
     tag: 'The Skyline Residence 05',
@@ -52,7 +52,7 @@ const SKYLINE_RESIDENCE_IMAGES = [
   },
   {
     id: 6,
-    url: '/assets/THE%20SKYLINE%20RESIDENCE/6.jpg',
+    url: '/assets/THE%20SKYLINE%20RESIDENCE/6.webp',
     title: 'Acoustic Study & Private Forum',
     category: 'Thoughtful Workspaces',
     tag: 'The Skyline Residence 06',
@@ -61,7 +61,7 @@ const SKYLINE_RESIDENCE_IMAGES = [
   },
   {
     id: 7,
-    url: '/assets/THE%20SKYLINE%20RESIDENCE/7.jpg',
+    url: '/assets/THE%20SKYLINE%20RESIDENCE/7.webp',
     title: 'Night Sky Lounge Aperture',
     category: 'City Stature',
     tag: 'The Skyline Residence 07',
@@ -70,7 +70,7 @@ const SKYLINE_RESIDENCE_IMAGES = [
   },
   {
     id: 8,
-    url: '/assets/THE%20SKYLINE%20RESIDENCE/8.jpg',
+    url: '/assets/THE%20SKYLINE%20RESIDENCE/8.webp',
     title: 'The Skyline Master Bath & Spa',
     category: 'Private Wellness',
     tag: 'The Skyline Residence 08',

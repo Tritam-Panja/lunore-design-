@@ -43,7 +43,7 @@ export const INTERIOR_DOMAINS: InteriorDomain[] = [
     subtitle: 'Pale Birch Wood & Seamless Spatial Datum',
     tagline: 'Continuous Raised Platform Architecture',
     title: 'The Engawa Line',
-    image: '/assets/THE%20ENGAWA%20LINE/1.jpg',
+    image: '/assets/THE%20ENGAWA%20LINE/1.webp',
     description:
       'The Engawa Line borrows a single idea from traditional Japanese homes — the raised wooden platform that quietly threads a house together — and lets it become the spine of the entire apartment. Instead of walls carving up living, dining, and rest, one continuous datum of pale birch wood carries you from room to room, broken only by a black steel shelf standing in for a door. It is a home designed around the pause between spaces rather than the spaces themselves: fewer boundaries, more light, and just enough shadow to remind you it is evening.',
     features: ['Continuous Pale Birch Datum', 'Black Steel Spatial Partitions', 'Subtle Evening Shadow Plays'],
@@ -58,7 +58,7 @@ export const INTERIOR_DOMAINS: InteriorDomain[] = [
     subtitle: 'Fluted Timber, Walnut & Brushed Brass',
     tagline: 'Mumbai Golden-Hour Skyline Palette',
     title: 'Amber & Olive',
-    image: '/assets/AMBER%20&%20OLIVE/1.jpg',
+    image: '/assets/AMBER%20&%20OLIVE/1.webp',
     description:
       "Amber & Olive takes its cue from Mumbai's golden-hour light, letting warm walnut, brushed brass, and soft olive tones carry the entire apartment. Rather than a stark, minimal palette, this home leans into warmth and texture — fluted timber, marble, and rattan sitting comfortably together — with the living and dining spaces opening onto a skyline view that stays the real focal point from morning to evening.",
     features: ['Fluted Timber Feature Joinery', 'Brushed Brass Accentuation', 'Warm Circadian Glow'],
@@ -73,7 +73,7 @@ export const INTERIOR_DOMAINS: InteriorDomain[] = [
     subtitle: 'Marble, Rattan & Floor-to-Ceiling Light',
     tagline: 'Skyline Panorama Integration',
     title: 'The Skyline Residence',
-    image: '/assets/THE%20SKYLINE%20RESIDENCE/1.jpg',
+    image: '/assets/THE%20SKYLINE%20RESIDENCE/1.webp',
     description:
       "The Skyline Residence takes its cue from Mumbai's golden-hour light, letting warm walnut, brushed brass, and soft olive tones carry the entire apartment. Rather than a stark, minimal palette, this home leans into warmth and texture — fluted timber, marble, and rattan sitting comfortably together — with the living and dining spaces opening onto a skyline view that stays the real focal point from morning to evening.",
     features: ['Floor-to-Ceiling Vista Frames', 'Rattan & Marble Dialogue', 'Concealed Tech Architecture'],
@@ -88,7 +88,7 @@ export const INTERIOR_DOMAINS: InteriorDomain[] = [
     subtitle: 'Travertine, Terracotta & Plum Velvet',
     tagline: 'Courtyard & Living Synthesis',
     title: 'The Olive Grove Residence',
-    image: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/1.jpg',
+    image: '/assets/THE%20OLIVE%20GROVE%20RESIDENCE/1.webp',
     description:
       "The Olive Grove Residence draws on sun-warmed travertine and hand-thrown terracotta to root the apartment in something ancient and tactile. Deep plum velvet and reclaimed live-edge wood soften the stone against the light, while olive trees planted right through the living spaces blur the line between the interior and the courtyard outside — a home that feels gathered over time rather than designed all at once.",
     features: ['Integrated Indoor Olive Trees', 'Hand-Thrown Terracotta Accents', 'Reclaimed Live-Edge Joinery'],
@@ -103,7 +103,7 @@ export const INTERIOR_DOMAINS: InteriorDomain[] = [
     subtitle: 'Terracotta Cabinetry & Muted Sage Greens',
     tagline: 'Kitchen-Garden & Coastal Elegance',
     title: 'Clay & Sage',
-    image: '/assets/CLAY%20&%20SAGE/1.jpg',
+    image: '/assets/CLAY%20&%20SAGE/1.webp',
     description:
       "Clay & Sage pairs warm terracotta cabinetry and hand-glazed green tile with soft, curved furniture in muted sage — a palette that feels equal parts kitchen-garden and coastal villa. Rattan pendants, woven rugs, and travertine surfaces carry the same warmth from the living room through to the walk-in closet, so every space feels considered without feeling formal.",
     features: ['Warm Terracotta Kitchen Cabinetry', 'Hand-Glazed Sage Green Tiles', 'Curved Organic Furniture'],
@@ -118,7 +118,7 @@ export const INTERIOR_DOMAINS: InteriorDomain[] = [
     subtitle: 'Curved Plaster & Forest Canopy Immersion',
     tagline: 'Dissolving Boundaries with Nature',
     title: 'The Canopy House',
-    image: '/assets/THE%20CANOPY%20HOUSE/1.jpg',
+    image: '/assets/THE%20CANOPY%20HOUSE/1.webp',
     description:
       "The Canopy House was designed around one idea: let the forest do most of the work. Curved plaster walls and floor-to-ceiling glass dissolve the edge between inside and out, while raw live-edge wood, rattan, and soft sage tones keep the interior quiet enough that the view stays the focus in every room.",
     features: ['Seamless Curved Plaster Envelopes', 'Curtain Wall Forest Views', 'Live-Edge Organic Wood Tables'],

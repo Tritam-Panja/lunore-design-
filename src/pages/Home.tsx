@@ -157,26 +157,6 @@ export function Home() {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Idle pre-warm heavy 3D and interactive experiences so code chunks are cached before user scrolls
-  useEffect(() => {
-    const prewarmChunks = () => {
-      import('@/components/InteriorExperience');
-      import('@/components/SculpturesExperience');
-      import('@/components/MarbleExperience');
-      import('@/components/AurexaSection');
-    };
-
-    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
-      const id = (window as unknown as { requestIdleCallback: (cb: () => void, opts: { timeout: number }) => number }).requestIdleCallback(prewarmChunks, { timeout: 1500 });
-      return () => {
-        (window as unknown as { cancelIdleCallback: (id: number) => void }).cancelIdleCallback(id);
-      };
-    } else {
-      const timer = setTimeout(prewarmChunks, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, []);
-
 
 
   // Helper to get placement attributes for avatars (Desktop & Tablet)
@@ -403,7 +383,7 @@ export function Home() {
 
       {/* 3. INTERACTIVE INTERIOR EXPERIENCE SECTION (LAZY MOUNTED) */}
       <div id="interior-experience" className="relative">
-        <LazySection minHeight="600px" rootMargin="1200px">
+        <LazySection minHeight="600px">
           <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0d0e0e]" />}>
             <InteriorExperience />
           </Suspense>
@@ -414,7 +394,7 @@ export function Home() {
 
       {/* 4. FEATURED PROJECTS & SIGNATURE COLLECTION SECTION (LAZY MOUNTED) */}
       <div id="sculptures-experience" className="relative">
-        <LazySection minHeight="680px" rootMargin="1200px">
+        <LazySection minHeight="680px">
           <Suspense fallback={<div className="w-full min-h-[680px] bg-[#0d0e0e]" />}>
             <SculpturesExperience />
           </Suspense>
@@ -425,7 +405,7 @@ export function Home() {
 
       {/* 5. MARBLE EXPERIENCE INTERACTIVE SECTION (LAZY MOUNTED) */}
       <div id="marble-experience" className="relative">
-        <LazySection minHeight="600px" rootMargin="1200px">
+        <LazySection minHeight="600px">
           <Suspense fallback={<div className="w-full min-h-[600px] bg-[#08090a]" />}>
             <MarbleExperience />
           </Suspense>
@@ -435,7 +415,7 @@ export function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
       {/* 6. AUREXA HAUTE STONE SECTION (LAZY MOUNTED WITH GRADUAL BLUR) */}
-      <LazySection minHeight="600px" rootMargin="1200px">
+      <LazySection minHeight="600px">
         <Suspense fallback={<div className="w-full min-h-[600px] bg-[#0a0b0c]" />}>
           <AurexaSection />
         </Suspense>

@@ -13,6 +13,7 @@ export interface SculptureItem {
   year?: string;
   edition?: string;
   image: string;
+  imageSm?: string;
   description?: string;
 }
 
@@ -36,7 +37,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '180 × 180 × 25 cm',
     year: '2026',
     edition: 'Edition of 3',
-    image: '/assets/images/carrousel 1 (1).jpeg',
+    image: '/assets/images/carrousel 1 (1).webp',
+    imageSm: '/assets/images/carrousel 1 (1)-sm.webp',
     description:
       'A faceless, meditative figure sits cross-legged in serene stillness, carved from a cool grey-toned marble with soft, flowing veining that mimics the drape of monastic robes. The smooth, featureless face draws focus entirely to posture and presence rather than expression, evoking calm and quiet introspection.',
   },
@@ -48,7 +50,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '195 × 75 × 70 cm',
     year: '2025',
     edition: 'Masterpiece 1 of 1',
-    image: '/assets/images/carrousel 2 (2).jpeg',
+    image: '/assets/images/carrousel 2 (2).webp',
+    imageSm: '/assets/images/carrousel 2 (2)-sm.webp',
     description:
       'A single wing, carved in pure white Carrara-style marble with fine grey veining, stretches upward in a dramatic sweep of individually detailed feathers. Mounted on a rough-hewn black base, the contrast between the polished, delicate wing and the raw stone anchor gives it a sense of lightness breaking free from weight.',
   },
@@ -60,7 +63,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '210 × 90 × 80 cm',
     year: '2026',
     edition: 'Edition of 2',
-    image: '/assets/images/carrousel 3 (3).jpeg',
+    image: '/assets/images/carrousel 3 (3).webp',
+    imageSm: '/assets/images/carrousel 3 (3)-sm.webp',
     description:
       'Two profiled faces lean toward one another in near-silhouette, carved from deep black marble with striking white veining that traces the contours like light catching in shadow. The negative space between them forms a subtle heart shape, turning the piece into a quiet study of connection and intimacy.',
   },
@@ -72,7 +76,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '240 × 110 × 90 cm',
     year: '2026',
     edition: 'Unique 1 of 1',
-    image: '/assets/images/carrousel 4 (4).jpeg',
+    image: '/assets/images/carrousel 4 (4).webp',
+    imageSm: '/assets/images/carrousel 4 (4)-sm.webp',
     description:
       'A crane stands poised mid-motion on one leg, wings partly raised, carved from a soft white-and-plum marble whose veining mimics natural feather patterning with remarkable precision. Perched on a jagged black rock base, the sculpture balances delicate realism with dramatic natural contrast.',
   },
@@ -84,7 +89,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '260 × 95 × 70 cm',
     year: '2026',
     edition: 'Masterpiece 1 of 1',
-    image: '/assets/images/carrousel 5 (5).jpeg',
+    image: '/assets/images/carrousel 5 (5).webp',
+    imageSm: '/assets/images/carrousel 5 (5)-sm.webp',
     description:
       'An eagle captured mid-launch, wings fully extended and talons gripping a rugged stone base, carved from warm brown marble with intricate gold-and-cream veining running through every feather. The dynamic pose and richly textured stone give the piece a sense of raw power and motion despite being solid marble.',
   },
@@ -96,7 +102,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '185 × 70 × 60 cm',
     year: '2025',
     edition: 'Edition of 2',
-    image: '/assets/images/carrousel 6 (6).jpeg',
+    image: '/assets/images/carrousel 6 (6).webp',
+    imageSm: '/assets/images/carrousel 6 (6)-sm.webp',
     description:
       "A bull's head and shoulders emerge from a rough, unfinished marble base, carved in deep oxblood-red stone with dramatic dark veining across its face and horns. The transition from the polished, defined musculature to the raw, textured base creates a striking sense of strength breaking through rock.",
   },
@@ -108,7 +115,8 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
     dimensions: '190 × 90 × 40 cm',
     year: '2026',
     edition: 'Masterpiece 1 of 1',
-    image: '/assets/images/carrousel 7 (7).jpeg',
+    image: '/assets/images/carrousel 7 (7).webp',
+    imageSm: '/assets/images/carrousel 7 (7)-sm.webp',
     description:
       'Two hands carved in dark emperador marble reach toward each other against a black backdrop, fingertips almost touching in a gesture reminiscent of a timeless creation myth. The rich brown-and-gold veining runs through each finger and knuckle, giving the stone a warm, almost skin-like depth despite its hardness.',
   },
@@ -1245,12 +1253,14 @@ export function SculpturesExperience({
                       
                       <div className="relative w-full h-full rounded-xl border border-white/25 bg-black/40 backdrop-blur-md flex items-center justify-center overflow-hidden">
                         <img
-                          src={item.image}
+                          src={item.imageSm || item.image}
+                          srcSet={item.imageSm ? `${item.imageSm} 520w, ${item.image} 1024w` : undefined}
+                          sizes="(max-width: 640px) 280px, 360px"
                           alt={item.title}
                           loading="lazy"
                           decoding="async"
-                          width={800}
-                          height={1000}
+                          width={520}
+                          height={780}
                           className="w-full h-full object-cover object-center brightness-95 contrast-105 pointer-events-none"
                         />
                         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-white/[0.08] pointer-events-none" />

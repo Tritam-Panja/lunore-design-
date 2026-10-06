@@ -16,20 +16,20 @@ export default defineConfig({
       output: {
         manualChunks(id) {
           if (id.includes('node_modules')) {
-            if (id.includes('three')) {
-              return 'vendor-three';
-            }
-            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
-              return 'vendor-react';
-            }
-            if (id.includes('gsap') || id.includes('lenis')) {
-              return 'vendor-animation';
-            }
             if (id.includes('lucide-react')) {
               return 'vendor-icons';
             }
+            if (id.includes('gsap')) {
+              return 'vendor-gsap';
+            }
+            if (id.includes('lenis')) {
+              return 'vendor-lenis';
+            }
             if (id.includes('@supabase')) {
               return 'vendor-supabase';
+            }
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'vendor-react';
             }
             return 'vendor-libs';
           }
