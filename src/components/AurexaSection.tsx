@@ -214,46 +214,15 @@ export function AurexaSection() {
       id="aurexa"
       className="relative w-full h-[100dvh] min-h-[560px] sm:min-h-[650px] bg-[#070809] overflow-hidden select-none flex flex-col justify-between items-center border-t border-b border-white/[0.06] py-8 sm:py-14 px-4 sm:px-8 touch-pan-y"
     >
-      {/* 1. DESKTOP INTERACTIVE CURSOR IMAGE TRAIL */}
-      {!isMobile && (
-        <div
-          className="absolute inset-0 z-[5] pointer-events-none sm:pointer-events-auto transition-opacity duration-500"
-          style={{ opacity: isUnlocked ? 1 : 0 }}
-        >
-          <Suspense fallback={null}>
-            <ImageTrail items={AUREXA_TRAIL_IMAGES} variant={7} />
-          </Suspense>
-        </div>
-      )}
-
-      {/* 2. MOBILE LIGHTWEIGHT STATIC CURATED SLABS (Zero-lag, 100% smooth GPU layer) */}
-      {isMobile && (
-        <div className="absolute inset-0 z-[5] pointer-events-none overflow-hidden flex items-center justify-center opacity-65">
-          <div className="relative w-full max-w-sm h-56">
-            <img
-              src="/assets/images/imagetrail2.webp"
-              alt="Aurexa Specimen"
-              loading="lazy"
-              decoding="async"
-              className="absolute left-4 top-2 w-28 h-36 rounded-xl object-cover -rotate-6 border border-white/20 shadow-2xl brightness-95"
-            />
-            <img
-              src="/assets/images/imagetrail3.webp"
-              alt="Aurexa Specimen"
-              loading="lazy"
-              decoding="async"
-              className="absolute left-1/2 -translate-x-1/2 top-0 w-32 h-40 rounded-xl object-cover z-10 border border-[#b89a62]/60 shadow-[0_15px_35px_rgba(0,0,0,0.85)] brightness-105"
-            />
-            <img
-              src="/assets/images/imagetrail4.webp"
-              alt="Aurexa Specimen"
-              loading="lazy"
-              decoding="async"
-              className="absolute right-4 top-3 w-28 h-36 rounded-xl object-cover rotate-6 border border-white/20 shadow-2xl brightness-95"
-            />
-          </div>
-        </div>
-      )}
+      {/* 1. INTERACTIVE CURSOR & MOBILE TOUCH IMAGE TRAIL */}
+      <div
+        className="absolute inset-0 z-[5] pointer-events-auto transition-opacity duration-500"
+        style={{ opacity: isUnlocked ? 1 : 0 }}
+      >
+        <Suspense fallback={null}>
+          <ImageTrail items={AUREXA_TRAIL_IMAGES} variant={7} />
+        </Suspense>
+      </div>
 
       {/* 2. AMBIENT GLOWS */}
       <div

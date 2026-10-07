@@ -1056,6 +1056,8 @@ class ImageTrailVariant7 {
 
   // Cached layout dimensions: ZERO layout reads during pointermove / touchmove
   private containerRect: DOMRect | null = null;
+  private containerPageLeft = 0;
+  private containerPageTop = 0;
   private lastRectTime = 0;
   private cardHalfWidth = 110;
   private cardHalfHeight = 100;
@@ -1089,7 +1091,10 @@ class ImageTrailVariant7 {
 
   private updateDimensions() {
     if (this.container) {
-      this.containerRect = this.container.getBoundingClientRect();
+      const rect = this.container.getBoundingClientRect();
+      this.containerRect = rect;
+      this.containerPageLeft = rect.left + (typeof window !== 'undefined' ? window.scrollX : 0);
+      this.containerPageTop = rect.top + (typeof window !== 'undefined' ? window.scrollY : 0);
       this.lastRectTime = performance.now();
     }
     if (this.images.length > 0 && this.images[0]?.DOM.el) {
@@ -1102,18 +1107,13 @@ class ImageTrailVariant7 {
   }
 
   private onResize = () => {
-    this.containerRect = null;
-    this.lastRectTime = 0;
     this.updateDimensions();
   };
 
   private getContainerRect(): DOMRect {
     const now = performance.now();
-    if (!this.containerRect || now - this.lastRectTime > 300) {
-      if (this.container) {
-        this.containerRect = this.container.getBoundingClientRect();
-        this.lastRectTime = now;
-      }
+    if (!this.containerRect || now - this.lastRectTime > 1500) {
+      this.updateDimensions();
     }
     return this.containerRect || { left: 0, top: 0, width: 0, height: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => {} };
   }
@@ -1133,9 +1133,15 @@ class ImageTrailVariant7 {
       return;
     }
 
-    const rect = this.getContainerRect();
-    const newX = clientX - rect.left;
-    const newY = clientY - rect.top;
+    const now = performance.now();
+    if (this.containerPageTop === 0 || now - this.lastRectTime > 1500) {
+      this.updateDimensions();
+    }
+
+    const scrollX = typeof window !== 'undefined' ? window.scrollX : 0;
+    const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+    const newX = clientX + scrollX - this.containerPageLeft;
+    const newY = clientY + scrollY - this.containerPageTop;
 
     // Process pointer movement only when the pointer/touch position actually changes by >= 0.5px
     if (Math.abs(newX - this.mousePos.x) < 0.5 && Math.abs(newY - this.mousePos.y) < 0.5) {
@@ -1275,7 +1281,7 @@ class ImageTrailVariant7 {
   public resume() {
     if (this.destroyed) return;
     this.isPaused = false;
-    this.containerRect = null;
+    this.updateDimensions();
     if (!this.isIdle && this.rafId === null) {
       this.rafId = requestAnimationFrame(this.renderLoop);
     }
