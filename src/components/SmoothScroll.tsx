@@ -36,16 +36,14 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
-    const isMobile = window.innerWidth < 768;
-
     const instance = new Lenis({
-      duration: isMobile ? 0.85 : 1.1,
+      duration: 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
       wheelMultiplier: 1.0,
-      touchMultiplier: isMobile ? 1.0 : 1.2,
+      touchMultiplier: 1,
       syncTouch: false,
       infinite: false,
       autoRaf: false,
@@ -58,47 +56,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     // Apply lenis class to html root
     document.documentElement.classList.add('lenis', 'lenis-smooth');
 
-    let rafId: number | null = null;
-    let isRunning = false;
-
-    function startRaf() {
-      if (!isRunning && !document.hidden) {
-        isRunning = true;
-        rafId = requestAnimationFrame(raf);
-      }
-    }
-
-    function stopRaf() {
-      if (isRunning) {
-        isRunning = false;
-        if (rafId !== null) {
-          cancelAnimationFrame(rafId);
-          rafId = null;
-        }
-      }
-    }
-
-    function raf(time: number) {
-      if (!isRunning) return;
-      instance.raf(time);
-      rafId = requestAnimationFrame(raf);
-    }
-
-    startRaf();
-
-    // Battery / CPU Saver: Pause RAF loop completely when browser tab is inactive
-    const handleVisibilityChange = () => {
-      if (document.hidden) {
-        stopRaf();
-      } else {
-        startRaf();
-      }
-    };
-    document.addEventListener('visibilitychange', handleVisibilityChange);
-
     return () => {
-      stopRaf();
-      document.removeEventListener('visibilitychange', handleVisibilityChange);
       document.documentElement.classList.remove('lenis', 'lenis-smooth');
       instance.destroy();
       lenisRef.current = null;

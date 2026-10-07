@@ -8,6 +8,7 @@ class ScrollCoordinator {
   private lenis: Lenis | null = null;
   private isListeningNative = false;
   private rafId = 0;
+  private isRafRunning = false;
   private cachedScrollY = 0;
   private cachedViewportHeight = typeof window !== 'undefined' ? window.innerHeight : 800;
   private cachedViewportWidth = typeof window !== 'undefined' ? window.innerWidth : 1200;
@@ -19,7 +20,19 @@ class ScrollCoordinator {
       this.cachedViewportHeight = window.innerHeight;
       this.cachedViewportWidth = window.innerWidth;
       this.setupResizeListener();
+      this.setupVisibilityListener();
     }
+  }
+
+  private setupVisibilityListener() {
+    if (typeof document === 'undefined') return;
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        this.stopRaf();
+      } else if (this.lenis) {
+        this.startRaf();
+      }
+    });
   }
 
   private setupResizeListener() {
@@ -54,16 +67,43 @@ class ScrollCoordinator {
     this.lenis = instance;
 
     if (this.lenis) {
-      // Desktop: Lenis is active. Tear down native window listener to prevent duplicate firing
+      // Lenis is active (desktop, iOS, Android). Single RAF path drives lenis.raf
       this.teardownNativeListener();
       this.lenis.on('scroll', this.handleLenisScroll);
+      this.startRaf();
     } else {
-      // Mobile or touch: Lenis is null. Engage native passive listener if subscribers exist
+      this.stopRaf();
+      // Lenis is null. Engage native passive listener if subscribers exist
       if (this.subscribers.size > 0) {
         this.setupNativeListener();
       }
     }
   }
+
+  private startRaf() {
+    if (!this.isRafRunning && typeof window !== 'undefined' && !document.hidden) {
+      this.isRafRunning = true;
+      this.rafId = requestAnimationFrame(this.rafLoop);
+    }
+  }
+
+  private stopRaf() {
+    if (this.isRafRunning) {
+      this.isRafRunning = false;
+      if (this.rafId !== 0) {
+        cancelAnimationFrame(this.rafId);
+        this.rafId = 0;
+      }
+    }
+  }
+
+  private rafLoop = (time: number) => {
+    if (!this.isRafRunning) return;
+    if (this.lenis) {
+      this.lenis.raf(time);
+    }
+    this.rafId = requestAnimationFrame(this.rafLoop);
+  };
 
   private handleLenisScroll = (e: { scroll: number }) => {
     this.cachedScrollY = e.scroll;
@@ -90,7 +130,7 @@ class ScrollCoordinator {
     if (!this.isListeningNative || typeof window === 'undefined') return;
     this.isListeningNative = false;
     window.removeEventListener('scroll', this.handleNativeScroll);
-    if (this.rafId !== 0) {
+    if (!this.lenis && this.rafId !== 0) {
       cancelAnimationFrame(this.rafId);
       this.rafId = 0;
     }
