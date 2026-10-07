@@ -1056,6 +1056,7 @@ class ImageTrailVariant7 {
 
   // Cached layout dimensions: ZERO layout reads during pointermove / touchmove
   private containerRect: DOMRect | null = null;
+  private lastRectTime = 0;
   private cardHalfWidth = 110;
   private cardHalfHeight = 100;
 
@@ -1081,8 +1082,7 @@ class ImageTrailVariant7 {
     container.addEventListener('touchmove', this.handlePointerMove, { passive: true });
     container.addEventListener('touchstart', this.handlePointerMove, { passive: true });
 
-    // Global scroll and resize listeners to invalidate cached rect without per-event thrashing
-    window.addEventListener('scroll', this.onScrollOrResize, { passive: true });
+    // Global resize listeners to invalidate cached rect without per-event thrashing
     window.addEventListener('resize', this.onResize, { passive: true });
     window.addEventListener('orientationchange', this.onResize, { passive: true });
   }
@@ -1090,6 +1090,7 @@ class ImageTrailVariant7 {
   private updateDimensions() {
     if (this.container) {
       this.containerRect = this.container.getBoundingClientRect();
+      this.lastRectTime = performance.now();
     }
     if (this.images.length > 0 && this.images[0]?.DOM.el) {
       const el = this.images[0].DOM.el;
@@ -1100,18 +1101,19 @@ class ImageTrailVariant7 {
     }
   }
 
-  private onScrollOrResize = () => {
-    this.containerRect = null;
-  };
-
   private onResize = () => {
     this.containerRect = null;
+    this.lastRectTime = 0;
     this.updateDimensions();
   };
 
   private getContainerRect(): DOMRect {
-    if (!this.containerRect && this.container) {
-      this.containerRect = this.container.getBoundingClientRect();
+    const now = performance.now();
+    if (!this.containerRect || now - this.lastRectTime > 300) {
+      if (this.container) {
+        this.containerRect = this.container.getBoundingClientRect();
+        this.lastRectTime = now;
+      }
     }
     return this.containerRect || { left: 0, top: 0, width: 0, height: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => {} };
   }
@@ -1288,7 +1290,6 @@ class ImageTrailVariant7 {
     this.container.removeEventListener('mousemove', this.handlePointerMove);
     this.container.removeEventListener('touchmove', this.handlePointerMove);
     this.container.removeEventListener('touchstart', this.handlePointerMove);
-    window.removeEventListener('scroll', this.onScrollOrResize);
     window.removeEventListener('resize', this.onResize);
     window.removeEventListener('orientationchange', this.onResize);
     this.images.forEach(img => {

@@ -282,12 +282,6 @@
   }
 }
 
-/* Offscreen layout skipping for butter-smooth 120fps scroll */
-.content-visibility-auto {
-  content-visibility: auto;
-  contain-intrinsic-size: 1px 750px;
-}
-
 /* ===== Header Animations ===== */
 
 /* Nav links fade in + slide down on page load */

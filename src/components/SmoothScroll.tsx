@@ -36,29 +36,16 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
 
-    // Mobile phones & touchscreens (iOS Safari & Android Chrome) have dedicated hardware-composited
-    // 120Hz/60Hz momentum scrolling. Intercepting touch with JS causes lag and scroll-locking.
-    const isTouchOrMobile = typeof window !== 'undefined' && (
-      'ontouchstart' in window ||
-      navigator.maxTouchPoints > 0 ||
-      window.innerWidth < 1024
-    );
-
-    if (isTouchOrMobile) {
-      document.documentElement.classList.remove('lenis', 'lenis-smooth', 'lenis-stopped');
-      document.body.style.overflow = '';
-      scrollCoordinator.setLenis(null);
-      return;
-    }
+    const isMobile = window.innerWidth < 768;
 
     const instance = new Lenis({
-      duration: 1.2,
+      duration: isMobile ? 0.85 : 1.1,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       orientation: 'vertical',
       gestureOrientation: 'vertical',
       smoothWheel: true,
-      wheelMultiplier: 1.05,
-      touchMultiplier: 1.2,
+      wheelMultiplier: 1.0,
+      touchMultiplier: isMobile ? 1.0 : 1.2,
       syncTouch: false,
       infinite: false,
       autoRaf: false,
@@ -68,7 +55,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
     setLenis(instance);
     scrollCoordinator.setLenis(instance);
 
-    // Apply lenis class to html root on desktop
+    // Apply lenis class to html root
     document.documentElement.classList.add('lenis', 'lenis-smooth');
 
     let rafId: number | null = null;

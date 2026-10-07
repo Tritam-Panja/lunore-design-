@@ -455,7 +455,6 @@ export const ParticleText = ({
     const invalidateCanvasRect = (): void => {
       cachedCanvasRect = null;
     };
-    window.addEventListener('scroll', invalidateCanvasRect, { passive: true });
     window.addEventListener('resize', invalidateCanvasRect, { passive: true });
     window.addEventListener('orientationchange', queueSample, { passive: true });
 
@@ -524,7 +523,6 @@ export const ParticleText = ({
       resizeObserver.disconnect();
       intersectionObserver.disconnect();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
-      window.removeEventListener('scroll', invalidateCanvasRect);
       window.removeEventListener('resize', invalidateCanvasRect);
       window.removeEventListener('orientationchange', queueSample);
       reduceMotionQuery?.removeEventListener('change', handleReduceMotionChange);

@@ -431,7 +431,7 @@ export function Home() {
       <div className="w-full h-px bg-gradient-to-r from-transparent via-[rgba(184,154,98,0.2)] to-transparent" />
 
       {/* 7. DIRECTORS OF LUNORE SECTION (TEAM PARADE) */}
-      <section id="about" className="content-visibility-auto bg-[#0d0e0e] text-[#f1eee7] font-sans selection:bg-white/10 relative overflow-hidden">
+      <section id="about" className="bg-[#0d0e0e] text-[#f1eee7] font-sans selection:bg-white/10 relative overflow-hidden">
         {/* Ambient Radial Glows */}
         <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] bg-[#b89a62]/5 rounded-full blur-[160px] pointer-events-none" />
         <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-white/[0.02] rounded-full blur-[140px] pointer-events-none" />
@@ -657,7 +657,7 @@ export function Home() {
 
 
       {/* 8. CONTACT PREVIEW SECTION */}
-      <section id="contact" className="content-visibility-auto py-24 md:py-36 relative bg-[#0d0e0e]">
+      <section id="contact" className="py-24 md:py-36 relative bg-[#0d0e0e]">
         <div className="max-w-6xl mx-auto px-6">
           <div className="text-center max-w-3xl mx-auto mb-16">
             <Reveal direction="down">
