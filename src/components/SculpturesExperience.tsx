@@ -133,6 +133,47 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
   const item = SCULPTURE_CAROUSEL_ITEMS[currentIndex];
   const total = SCULPTURE_CAROUSEL_ITEMS.length;
 
+  // Render lightweight image first, then asynchronously upgrade to full-resolution once first frame paints
+  const [displaySrc, setDisplaySrc] = useState<string>(item.imageSm || item.image);
+
+  useEffect(() => {
+    const lightSrc = item.imageSm || item.image;
+    const fullSrc = item.image;
+    setDisplaySrc(lightSrc);
+
+    if (!item.imageSm || item.imageSm === item.image) return;
+
+    let isCancelled = false;
+    let timerId: ReturnType<typeof setTimeout> | null = null;
+    let idleId: number | null = null;
+
+    const startUpgrade = () => {
+      const img = new Image();
+      img.src = fullSrc;
+      img.onload = () => {
+        if (!isCancelled) {
+          setDisplaySrc(fullSrc);
+        }
+      };
+    };
+
+    if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+      idleId = (window as any).requestIdleCallback(startUpgrade, { timeout: 1200 });
+    } else {
+      timerId = setTimeout(startUpgrade, 200);
+    }
+
+    return () => {
+      isCancelled = true;
+      if (idleId !== null && typeof window !== 'undefined' && 'cancelIdleCallback' in window) {
+        (window as any).cancelIdleCallback(idleId);
+      }
+      if (timerId !== null) {
+        clearTimeout(timerId);
+      }
+    };
+  }, [currentIndex, item.image, item.imageSm]);
+
   // Lock body scroll while modal is active
   useEffect(() => {
     const originalOverflow = document.body.style.overflow;
@@ -239,7 +280,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
       aria-modal="true"
       aria-label={`${item.title} Full Preview`}
       data-lenis-prevent="true"
-      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-black/92 backdrop-blur-2xl text-[#f1eee7] select-none overflow-hidden h-[100dvh]"
+      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-black/92 md:backdrop-blur-2xl text-[#f1eee7] select-none overflow-hidden h-[100dvh]"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -330,7 +371,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
 
             <div className="relative w-full h-full rounded-xl overflow-hidden bg-black/40 flex items-center justify-center">
               <img
-                src={item.image}
+                src={displaySrc}
                 alt={item.title}
                 decoding="async"
                 fetchPriority="high"
