@@ -470,6 +470,7 @@ export function SculpturesExperience({
 
   // Full-screen image preview state
   const [previewIndex, setPreviewIndex] = useState<number | null>(null);
+  const previewOpenRef = useRef<boolean>(false);
 
   const total = SCULPTURE_CAROUSEL_ITEMS.length;
   const activeIndex = ((Math.round(rotation) % total) + total) % total;
@@ -499,13 +500,28 @@ export function SculpturesExperience({
   // High-performance 120fps RAF physics engine with dynamic momentum decay
   const isLoopRunningRef = useRef<boolean>(false);
   const triggerPhysicsLoopRef = useRef<() => void>(() => {});
+  const cancelPhysicsLoopRef = useRef<() => void>(() => {});
 
   useEffect(() => {
     let animId: number | null = null;
     let isVisible = true;
     let lastFrameTime = performance.now();
 
+    const cancelPhysicsLoop = () => {
+      if (animId !== null) {
+        cancelAnimationFrame(animId);
+        animId = null;
+      }
+      isLoopRunningRef.current = false;
+    };
+    cancelPhysicsLoopRef.current = cancelPhysicsLoop;
+
     const updatePhysics = (frameTime: number) => {
+      if (previewOpenRef.current) {
+        cancelPhysicsLoop();
+        return;
+      }
+
       if (!isVisible) {
         animId = null;
         isLoopRunningRef.current = false;
@@ -595,6 +611,10 @@ export function SculpturesExperience({
     };
 
     const triggerPhysicsLoop = () => {
+      if (previewOpenRef.current) {
+        cancelPhysicsLoop();
+        return;
+      }
       if (!isLoopRunningRef.current && isVisible) {
         isLoopRunningRef.current = true;
         lastFrameTime = performance.now();
@@ -710,9 +730,12 @@ export function SculpturesExperience({
     let stepDiff = (newIndex - currentNorm) % total;
     if (stepDiff > total / 2) stepDiff -= total;
     if (stepDiff < -total / 2) stepDiff += total;
-    targetRotationRef.current = Math.round(targetRotationRef.current) + stepDiff;
+    const newTarget = Math.round(targetRotationRef.current) + stepDiff;
+    targetRotationRef.current = newTarget;
+    currentRotationRef.current = newTarget;
+    setRotation(newTarget);
     lastInteractionTimeRef.current = Date.now();
-    triggerPhysicsLoopRef.current();
+    // Modal is open; underlying carousel RAF stays paused
   }, [total]);
 
   // Click on any card in the carousel to open its full preview
@@ -722,11 +745,22 @@ export function SculpturesExperience({
 
     if (Math.abs(diff) > 0.05) {
       targetRotationRef.current = Math.round(targetRotationRef.current + diff);
-      lastInteractionTimeRef.current = Date.now();
-      triggerPhysicsLoopRef.current();
+      currentRotationRef.current = targetRotationRef.current;
+      setRotation(targetRotationRef.current);
     }
 
+    momentumVelocityRef.current = 0;
+    previewOpenRef.current = true;
+    cancelPhysicsLoopRef.current();
     setPreviewIndex(index);
+  }, []);
+
+  // Dedicated close handler to safely resume carousel physics
+  const handleClosePreview = useCallback(() => {
+    previewOpenRef.current = false;
+    setPreviewIndex(null);
+    lastInteractionTimeRef.current = Date.now();
+    triggerPhysicsLoopRef.current();
   }, []);
 
   const handleNext = useCallback(() => {
@@ -1419,7 +1453,7 @@ export function SculpturesExperience({
       {previewIndex !== null && (
         <SculpturePreviewModal
           currentIndex={previewIndex}
-          onClose={() => setPreviewIndex(null)}
+          onClose={handleClosePreview}
           onNavigate={handlePreviewNavigate}
         />
       )}
