@@ -207,15 +207,12 @@ export function Header() {
       </header>
 
       {/* FULL-SCREEN LIQUID GLASS OVERLAY DRAWER */}
-      <div
-        className={`fixed inset-0 z-40 bg-black/90 backdrop-blur-3xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-y-auto overscroll-contain transform-gpu ${
-          menuOpen
-            ? 'opacity-100 pointer-events-auto scale-100 visible'
-            : 'opacity-0 pointer-events-none scale-105 invisible'
-        }`}
-        style={{ WebkitOverflowScrolling: 'touch' }}
-        aria-hidden={!menuOpen}
-      >
+      {menuOpen && (
+        <div
+          className="fixed inset-0 z-40 bg-black/90 backdrop-blur-3xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-y-auto overscroll-contain transform-gpu opacity-100 pointer-events-auto scale-100 visible"
+          style={{ WebkitOverflowScrolling: 'touch' }}
+          aria-hidden={false}
+        >
         {/* Subtle Ambient Radial Glow */}
         <div className="absolute top-0 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-[#b89a62]/10 rounded-full blur-[100px] sm:blur-[160px] pointer-events-none" />
 
@@ -404,6 +401,7 @@ export function Header() {
           </div>
         </div>
       </div>
+      )}
     </>
   );
 }
