@@ -58,14 +58,10 @@ export function ScrollColorText({
         const isHighlighted = wordProgress > 0.45;
         const targetColor = isHighlighted ? '#f5ebd2' : 'rgba(241, 238, 231, 0.22)';
         const targetOpacity = (0.25 + wordProgress * 0.75).toFixed(3);
-        const targetShadow = isHighlighted
-          ? '0 0 16px rgba(230, 203, 151, 0.55), 0 2px 8px rgba(0, 0, 0, 0.8)'
-          : 'none';
         const targetTransform = `translateY(${((1 - wordProgress) * 2).toFixed(2)}px)`;
 
         if (span.style.color !== targetColor) span.style.color = targetColor;
         if (span.style.opacity !== targetOpacity) span.style.opacity = targetOpacity;
-        if (span.style.textShadow !== targetShadow) span.style.textShadow = targetShadow;
         if (span.style.transform !== targetTransform) span.style.transform = targetTransform;
       }
     };
@@ -153,12 +149,11 @@ export function ScrollColorText({
             ref={(el) => {
               wordsRef.current[index] = el;
             }}
-            className="inline-block transition-all duration-300 ease-out"
+            className="inline-block"
             style={{
               marginRight: '0.26em',
               color: 'rgba(241, 238, 231, 0.22)',
               opacity: 0.25,
-              textShadow: 'none',
               transform: 'translateY(2px)',
             }}
           >
