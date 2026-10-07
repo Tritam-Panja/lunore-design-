@@ -232,7 +232,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         infinite: false,
         wheelMultiplier: 1,
         lerp: 0.1,
-        syncTouch: true,
+        syncTouch: false,
         syncTouchLerp: 0.075,
       });
 

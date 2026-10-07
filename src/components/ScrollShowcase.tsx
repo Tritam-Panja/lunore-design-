@@ -156,7 +156,7 @@ export const ScrollShowcase: React.FC<ScrollShowcaseProps> = ({
       duration: isTouch ? 0.6 : 1.0,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       smoothWheel: true,
-      syncTouch: true,
+      syncTouch: false,
       touchMultiplier: 1.0,
       wheelMultiplier: 1.0,
       gestureOrientation: 'vertical',

@@ -1038,12 +1038,12 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
           }}
         >
           {/* Subtle Ambient Golden Glows */}
-          <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#b89a62]/10 rounded-full blur-[160px] pointer-events-none" />
-          <div className="fixed bottom-0 right-1/4 w-[600px] h-[450px] bg-[#b89a62]/5 rounded-full blur-[180px] pointer-events-none" />
+          <div className="fixed top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[radial-gradient(ellipse_at_center,rgba(184,154,98,0.12)_0%,transparent_70%)] pointer-events-none" />
+          <div className="fixed bottom-0 right-1/4 w-[600px] h-[450px] bg-[radial-gradient(ellipse_at_center,rgba(184,154,98,0.06)_0%,transparent_70%)] pointer-events-none" />
 
           {/* Full Screen Header Navigation Bar */}
           <header
-            className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-3.5 sm:py-4.5 border-b border-white/10 bg-[#070809]/95 backdrop-blur-2xl shrink-0 shadow-2xl"
+            className="sticky top-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-3.5 sm:py-4.5 border-b border-white/10 bg-[#070809]/95 backdrop-blur-md shrink-0 shadow-2xl"
             style={{
               animation: 'fullscreen-header-slide-down 0.24s cubic-bezier(0.16, 1, 0.3, 1) both',
             }}
@@ -1114,7 +1114,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                   onClick={() => {
                     sessionStorage.setItem('lunore_interior_stage', '4');
                   }}
-                  className="group relative flex flex-col md:flex-row items-stretch rounded-2xl md:rounded-3xl border border-white/15 hover:border-[#b89a62]/80 bg-gradient-to-r from-white/[0.08] via-black/75 to-black/90 backdrop-blur-xl p-4 sm:p-5 md:p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.95),0_0_30px_rgba(184,154,98,0.25)] cursor-pointer overflow-hidden select-none gap-5 md:gap-8 will-change-transform transform-gpu no-underline"
+                  className="group relative flex flex-col md:flex-row items-stretch rounded-2xl md:rounded-3xl border border-white/15 hover:border-[#b89a62]/80 bg-gradient-to-r from-white/[0.08] via-black/85 to-[#070809] p-4 sm:p-5 md:p-6 transition-all duration-300 ease-out hover:-translate-y-1 hover:shadow-[0_20px_50px_rgba(0,0,0,0.95),0_0_30px_rgba(184,154,98,0.25)] cursor-pointer overflow-hidden select-none gap-5 md:gap-8 will-change-transform transform-gpu no-underline"
                   style={{
                     animation: 'card-stagger-rise 0.28s cubic-bezier(0.16, 1, 0.3, 1) both',
                     animationDelay: `${0.02 + idx * 0.035}s`,
