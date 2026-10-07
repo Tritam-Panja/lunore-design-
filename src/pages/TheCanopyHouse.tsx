@@ -113,10 +113,10 @@ export function TheCanopyHouse() {
   return (
     <div className="w-full h-full bg-[#090a0b] text-[#f1eee7] overflow-hidden flex flex-col">
       {/* Ambient background glow */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] bg-[#b89a62]/8 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[500px] rounded-full bg-[radial-gradient(ellipse_at_top,rgba(184,154,98,0.12)_0%,rgba(184,154,98,0.03)_40%,transparent_70%)] pointer-events-none" />
 
       {/* Clean Immersive Top Bar */}
-      <header className="relative z-30 flex items-center justify-between px-3 sm:px-8 md:px-12 py-2.5 sm:py-4 border-b border-white/10 bg-[#090a0b]/90 backdrop-blur-2xl shrink-0 shadow-lg gap-2">
+      <header className="relative z-30 flex items-center justify-between px-3 sm:px-8 md:px-12 py-2.5 sm:py-4 border-b border-white/10 bg-[#090a0b]/90 backdrop-blur-xl md:backdrop-blur-2xl shrink-0 shadow-lg gap-2">
         {/* Left: Back Link & Brand Logo */}
         <div className="flex items-center gap-2.5 sm:gap-5 shrink-0">
           <button

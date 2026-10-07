@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect, useCallback, lazy, Suspense } from 
 import { Sparkles, ArrowRight, RotateCcw, ChevronDown } from 'lucide-react';
 import { images } from '@/lib/images';
 import ParticleText from './ParticleText';
+import { scrollCoordinator } from '@/lib/scrollCoordinator';
 
 const MarbleStackModal = lazy(() =>
   import('./MarbleStackModal').then((m) => ({ default: m.MarbleStackModal }))
@@ -264,12 +265,12 @@ export function MarbleExperience() {
     };
 
     window.addEventListener('mousemove', handleWindowMouseMove, { passive: true });
-    window.addEventListener('scroll', handleScrollOrResize, { passive: true });
     window.addEventListener('resize', handleScrollOrResize, { passive: true });
+    const unsubScroll = scrollCoordinator.subscribe(handleScrollOrResize);
     return () => {
       window.removeEventListener('mousemove', handleWindowMouseMove);
-      window.removeEventListener('scroll', handleScrollOrResize);
       window.removeEventListener('resize', handleScrollOrResize);
+      unsubScroll();
     };
   }, [updatePointerPosition]);
  
@@ -567,7 +568,7 @@ export function MarbleExperience() {
             transform: `translate3d(${animState.posX * 0.35}px, ${animState.posY * 0.35}px, 0)`,
             opacity: Math.max(0, 1 - easedP1 * 1.2),
           }}
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[850px] bg-[#b89a62]/[0.05] rounded-full blur-[180px]"
+          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] h-[850px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.06)_0%,rgba(184,154,98,0.02)_40%,transparent_70%)] pointer-events-none"
         />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.02)_0%,transparent_70%)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/60" />

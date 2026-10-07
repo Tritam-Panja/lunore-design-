@@ -118,8 +118,8 @@ export function About() {
   return (
     <div className="bg-[#0d0e0e] text-[#f1eee7] font-sans selection:bg-white/10 min-h-screen relative overflow-hidden">
       {/* Ambient Radial Glows */}
-      <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] bg-[#b89a62]/5 rounded-full blur-[160px] pointer-events-none" />
-      <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] bg-white/[0.02] rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-1/4 left-1/3 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.08)_0%,transparent_70%)] pointer-events-none" />
+      <div className="absolute bottom-10 right-1/4 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.03)_0%,transparent_70%)] pointer-events-none" />
 
       {/* Return to Home */}
       <ReturnToHome />

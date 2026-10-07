@@ -252,7 +252,7 @@ export const ScrollShowcase: React.FC<ScrollShowcaseProps> = ({
         className="relative w-full max-w-6xl mx-auto px-3 sm:px-6 md:px-12 py-8 sm:py-14 md:py-20"
       >
         {/* Subtle Ambient Radial Gold Glow */}
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] bg-[#b89a62]/8 rounded-full blur-[180px] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[600px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(184,154,98,0.1)_0%,rgba(184,154,98,0.03)_45%,transparent_70%)] pointer-events-none" />
 
         {/* Vertical Spine Guide Line (Mobile: left-5, Tablet: left-7, Desktop: center) */}
         <div

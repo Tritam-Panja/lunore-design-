@@ -89,8 +89,8 @@ export function Projects() {
   return (
     <div className="bg-[#0d0e0e] text-[#f1eee7] min-h-screen relative overflow-hidden">
       {/* Subtle Ambient Radial Glows */}
-      <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-[#b89a62]/8 rounded-full blur-[180px] pointer-events-none" />
-      <div className="absolute top-[40%] right-[-10%] w-[500px] h-[500px] bg-[#b89a62]/5 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[800px] h-[800px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.1)_0%,rgba(184,154,98,0.03)_40%,transparent_70%)] pointer-events-none" />
+      <div className="absolute top-[40%] right-[-10%] w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.08)_0%,transparent_70%)] pointer-events-none" />
 
       {/* Return to Home Button */}
       <ReturnToHome />

@@ -610,7 +610,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       className={`relative w-full py-12 sm:py-24 md:py-32 bg-[#0d0e0e] overflow-hidden ${className}`}
     >
       {/* Ambient Glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-[#b89a62]/5 rounded-full blur-[180px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.07)_0%,rgba(184,154,98,0.02)_40%,transparent_70%)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 relative z-10">
         
@@ -1210,7 +1210,7 @@ function DomainDetailModal({ domain, onClose }: DomainDetailModalProps) {
       }}
     >
       {/* Ambient background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.12)_0%,transparent_70%)] blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.12)_0%,rgba(184,154,98,0.03)_40%,transparent_70%)] pointer-events-none" />
 
       {/* Modal Dialog Card */}
       <div className="relative w-full max-w-4xl max-h-[92vh] sm:max-h-[88vh] overflow-y-auto rounded-2xl sm:rounded-3xl border border-white/20 bg-[#0d0e0e]/98 p-4 sm:p-8 shadow-[0_30px_90px_rgba(0,0,0,0.95),0_0_50px_rgba(184,154,98,0.2)] overscroll-contain animate-in fade-in zoom-in-95 duration-200 ease-out">

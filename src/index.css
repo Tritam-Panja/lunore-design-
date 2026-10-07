@@ -282,6 +282,18 @@
   }
 }
 
+/* Mobile Glass Tuning: 14px-16px provides full frosted glass on high-DPI Retina with ~70% fewer convolution passes */
+@media (max-width: 768px) {
+  .liquid-glass-pill {
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+  }
+  .liquid-glass-card {
+    backdrop-filter: blur(16px) saturate(160%);
+    -webkit-backdrop-filter: blur(16px) saturate(160%);
+  }
+}
+
 /* ===== Header Animations ===== */
 
 /* Nav links fade in + slide down on page load */
@@ -294,12 +306,10 @@
   0% {
     opacity: 0;
     transform: translateY(-12px) scale(0.98);
-    filter: blur(4px);
   }
   100% {
     opacity: 1;
     transform: translateY(0) scale(1);
-    filter: none;
   }
 }
 
@@ -849,68 +859,56 @@ html.lunore-experience-active img {
   opacity: 0;
   transition: 
     opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1s cubic-bezier(0.16, 1, 0.3, 1),
-    filter 1s cubic-bezier(0.16, 1, 0.3, 1);
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
   will-change: opacity, transform;
 }
 
 .reveal-up {
   transform: translate3d(0, 42px, 0);
-  filter: blur(8px);
 }
 
 .reveal-down {
   transform: translate3d(0, -42px, 0);
-  filter: blur(8px);
 }
 
 .reveal-left {
   transform: translate3d(-50px, 0, 0);
-  filter: blur(8px);
 }
 
 .reveal-right {
   transform: translate3d(50px, 0, 0);
-  filter: blur(8px);
 }
 
 .reveal-zoom {
   transform: scale(0.9) translate3d(0, 20px, 0);
-  filter: blur(10px);
 }
 
 .reveal-blur {
   transform: translate3d(0, 20px, 0);
-  filter: blur(16px);
 }
 
 /* 3D Card Flip on Scroll Reveal */
 .reveal-flip {
   transform: perspective(1200px) rotateY(-65deg) rotateX(12deg) translateZ(-80px) scale(0.88);
-  filter: blur(8px);
 }
 
 .reveal-flip-y {
   transform: perspective(1400px) rotateY(-80deg) translate3d(-20px, 0, -60px) scale(0.92);
   transform-origin: left center;
-  filter: blur(6px);
 }
 
 .reveal-flip-x {
   transform: perspective(1200px) rotateX(65deg) translateZ(-80px) scale(0.88);
-  filter: blur(10px);
 }
 
 .reveal-flip-right {
   transform: perspective(1400px) rotateY(80deg) translate3d(20px, 0, -60px) scale(0.92);
   transform-origin: right center;
-  filter: blur(6px);
 }
 
 .reveal-visible {
   opacity: 1 !important;
   transform: perspective(1200px) translate3d(0, 0, 0) rotateY(0deg) rotateX(0deg) scale(1) !important;
-  filter: none !important;
   will-change: auto !important;
 }
 
@@ -1058,12 +1056,10 @@ html.lunore-experience-active h3 {
   0% {
     opacity: 0;
     transform: translateY(38px) scale(0.97);
-    filter: blur(8px);
   }
   100% {
     opacity: 1;
     transform: translateY(0px) scale(1);
-    filter: none;
   }
 }
 
@@ -1071,12 +1067,10 @@ html.lunore-experience-active h3 {
   0% {
     opacity: 0;
     transform: translateY(28px);
-    filter: blur(6px);
   }
   100% {
     opacity: 1;
     transform: translateY(0px);
-    filter: none;
   }
 }
 

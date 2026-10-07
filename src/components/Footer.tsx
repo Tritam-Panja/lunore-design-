@@ -1,5 +1,6 @@
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Logo } from './Logo';
+import { useLenis } from './SmoothScroll';
 
 interface FooterLink {
   label: string;
@@ -20,21 +21,25 @@ const footerLinks: FooterLink[] = [
 export function Footer() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { lenis } = useLenis();
 
   const handleFooterLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: FooterLink) => {
     e.preventDefault();
     if (location.pathname === link.to) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (lenis) {
+        lenis.scrollTo(0);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     } else {
       navigate(link.to);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
   return (
     <footer id="site-footer" className="border-t border-white/10 bg-[#0d0e0e]/95 backdrop-blur-2xl mt-16 sm:mt-24 relative overflow-hidden">
       {/* Subtle radial glow in footer */}
-      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-[#b89a62]/5 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] rounded-full bg-[radial-gradient(ellipse_at_bottom,rgba(184,154,98,0.08)_0%,transparent_70%)] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-12 sm:py-16 relative z-10">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8 sm:gap-12">

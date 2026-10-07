@@ -57,6 +57,11 @@ class ScrollCoordinator {
     return this.cachedScrollY;
   }
 
+  public resetScroll(scrollY = 0) {
+    this.cachedScrollY = scrollY;
+    this.notifySubscribers(scrollY);
+  }
+
   public setLenis(instance: Lenis | null) {
     if (this.lenis === instance) return;
 

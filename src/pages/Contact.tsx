@@ -34,7 +34,7 @@ export function Contact() {
   return (
     <div className="bg-[#0d0e0e] text-[#f1eee7] relative overflow-hidden">
       {/* Ambient Glow */}
-      <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[600px] h-[600px] bg-[#b89a62]/8 rounded-full blur-[160px] pointer-events-none" />
+      <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.1)_0%,rgba(184,154,98,0.03)_40%,transparent_70%)] pointer-events-none" />
 
       <ReturnToHome />
 

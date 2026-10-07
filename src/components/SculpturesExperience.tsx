@@ -123,17 +123,30 @@ export const SCULPTURE_CAROUSEL_ITEMS: SculptureItem[] = [
 ];
 
 interface SculpturePreviewModalProps {
-  currentIndex: number;
+  initialIndex: number;
   onClose: () => void;
-  onNavigate: (newIndex: number) => void;
+  onSyncCarouselTarget?: (newIndex: number) => void;
 }
 
-function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculpturePreviewModalProps) {
+const SculpturePreviewModal = React.memo(function SculpturePreviewModal({
+  initialIndex,
+  onClose,
+  onSyncCarouselTarget,
+}: SculpturePreviewModalProps) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [isPureFullscreen, setIsPureFullscreen] = useState(false);
   const item = SCULPTURE_CAROUSEL_ITEMS[currentIndex];
   const total = SCULPTURE_CAROUSEL_ITEMS.length;
 
-  // Render lightweight image first, then asynchronously upgrade to full-resolution once first frame paints
+  const handleNavigate = useCallback(
+    (newIndex: number) => {
+      setCurrentIndex(newIndex);
+      onSyncCarouselTarget?.(newIndex);
+    },
+    [onSyncCarouselTarget]
+  );
+
+  // Render lightweight image first, then asynchronously upgrade to full-resolution once idle/available
   const [displaySrc, setDisplaySrc] = useState<string>(item.imageSm || item.image);
 
   useEffect(() => {
@@ -149,6 +162,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
 
     const startUpgrade = () => {
       const img = new Image();
+      img.decoding = 'async';
       img.src = fullSrc;
       img.onload = () => {
         if (!isCancelled) {
@@ -193,15 +207,14 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
           onClose();
         }
       } else if (e.key === 'ArrowLeft') {
-        onNavigate((currentIndex - 1 + total) % total);
+        handleNavigate((currentIndex - 1 + total) % total);
       } else if (e.key === 'ArrowRight') {
-        onNavigate((currentIndex + 1) % total);
+        handleNavigate((currentIndex + 1) % total);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentIndex, onClose, onNavigate, total, isPureFullscreen]);
-
+  }, [currentIndex, onClose, handleNavigate, total, isPureFullscreen]);
 
   // Pure Full Screen Image View ("thats it nothing other that just image")
   if (isPureFullscreen) {
@@ -219,9 +232,11 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
 
         {/* Pure Fullscreen Image */}
         <img
-          src={item.image}
+          src={displaySrc || item.image}
           alt={item.title}
           decoding="async"
+          width={1200}
+          height={1600}
           className="relative z-10 max-w-[96vw] max-h-[92dvh] sm:max-w-[100vw] sm:max-h-[100vh] w-auto h-auto object-contain object-center drop-shadow-[0_20px_60px_rgba(0,0,0,0.95)] select-none p-2 sm:p-4"
         />
 
@@ -231,7 +246,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
             e.stopPropagation();
             setIsPureFullscreen(false);
           }}
-          className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 cursor-pointer p-2.5 sm:p-3 rounded-full bg-black/50 hover:bg-black/85 border border-white/20 hover:border-[#b89a62] text-[#f1eee7]/80 hover:text-[#b89a62] transition-all backdrop-blur-md group shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
+          className="absolute top-4 right-4 sm:top-6 sm:right-6 z-20 cursor-pointer p-2.5 sm:p-3 rounded-full bg-black/70 hover:bg-black/90 border border-white/20 hover:border-[#b89a62] text-[#f1eee7]/80 hover:text-[#b89a62] transition-all group shadow-[0_4px_24px_rgba(0,0,0,0.9)]"
           title="Exit Fullscreen (Esc or Click anywhere)"
           aria-label="Exit Fullscreen"
         >
@@ -242,9 +257,9 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onNavigate((currentIndex - 1 + total) % total);
+            handleNavigate((currentIndex - 1 + total) % total);
           }}
-          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 cursor-pointer p-3 sm:p-3.5 rounded-full bg-black/40 hover:bg-black/80 border border-white/15 hover:border-[#b89a62] text-[#f1eee7]/70 hover:text-[#b89a62] transition-all backdrop-blur-md opacity-40 hover:opacity-100 active:scale-95 shadow-[0_8px_30px_rgba(0,0,0,0.8)]"
+          className="absolute left-3 sm:left-6 top-1/2 -translate-y-1/2 z-20 cursor-pointer p-3 sm:p-3.5 rounded-full bg-black/60 hover:bg-black/90 border border-white/15 hover:border-[#b89a62] text-[#f1eee7]/70 hover:text-[#b89a62] transition-all opacity-40 hover:opacity-100 active:scale-95 shadow-[0_8px_30px_rgba(0,0,0,0.8)]"
           title="Previous Sculpture (Left Arrow)"
           aria-label="Previous Sculpture"
         >
@@ -254,9 +269,9 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
         <button
           onClick={(e) => {
             e.stopPropagation();
-            onNavigate((currentIndex + 1) % total);
+            handleNavigate((currentIndex + 1) % total);
           }}
-          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 cursor-pointer p-3 sm:p-3.5 rounded-full bg-black/40 hover:bg-black/80 border border-white/15 hover:border-[#b89a62] text-[#f1eee7]/70 hover:text-[#b89a62] transition-all backdrop-blur-md opacity-40 hover:opacity-100 active:scale-95 shadow-[0_8px_30px_rgba(0,0,0,0.8)]"
+          className="absolute right-3 sm:right-6 top-1/2 -translate-y-1/2 z-20 cursor-pointer p-3 sm:p-3.5 rounded-full bg-black/60 hover:bg-black/90 border border-white/15 hover:border-[#b89a62] text-[#f1eee7]/70 hover:text-[#b89a62] transition-all opacity-40 hover:opacity-100 active:scale-95 shadow-[0_8px_30px_rgba(0,0,0,0.8)]"
           title="Next Sculpture (Right Arrow)"
           aria-label="Next Sculpture"
         >
@@ -265,7 +280,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
 
         {/* Discreet Return Hint */}
         <div className="absolute bottom-4 inset-x-0 flex justify-center pointer-events-none opacity-40 hover:opacity-80 transition-opacity">
-          <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#ded9cf]/70 bg-black/60 px-3.5 py-1 rounded-full backdrop-blur-sm border border-white/10">
+          <span className="text-[10px] sm:text-xs tracking-[0.25em] uppercase text-[#ded9cf]/70 bg-black/80 px-3.5 py-1 rounded-full border border-white/10">
             Click anywhere or press Esc to return
           </span>
         </div>
@@ -280,18 +295,18 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
       aria-modal="true"
       aria-label={`${item.title} Full Preview`}
       data-lenis-prevent="true"
-      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-black/92 md:backdrop-blur-2xl text-[#f1eee7] select-none overflow-hidden h-[100dvh]"
+      className="fixed inset-0 z-[9999] flex flex-col justify-between bg-black/95 md:backdrop-blur-md text-[#f1eee7] select-none overflow-hidden h-[100dvh]"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
         }
       }}
     >
-      {/* Ambient background glow */}
+      {/* Ambient background glow: rich radial depth without heavy Gaussian blurs */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[750px] h-[750px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.14)_0%,rgba(184,154,98,0.03)_40%,transparent_70%)] pointer-events-none" />
 
       {/* TOP BAR */}
-      <header className="relative z-20 flex items-center justify-between w-full px-3.5 sm:px-8 py-2.5 sm:py-4 border-b border-white/[0.08] bg-black/75 flex-shrink-0">
+      <header className="relative z-20 flex items-center justify-between w-full px-3.5 sm:px-8 py-2.5 sm:py-4 border-b border-white/[0.08] bg-black/80 flex-shrink-0">
         <div className="flex items-center gap-2 sm:gap-3">
           <span className="text-[11px] sm:text-xs tracking-[0.3em] uppercase text-[#b89a62] font-semibold">
             LUNORE
@@ -306,7 +321,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
         </div>
 
         {/* Counter Badge */}
-        <div className="liquid-glass-pill px-3.5 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#f1eee7]/90 shadow-md">
+        <div className="bg-[#161717]/85 border border-white/15 px-3.5 sm:px-4 py-1.5 rounded-full text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#f1eee7]/90 shadow-[0_4px_16px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.15)]">
           <span className="text-[#b89a62] font-semibold">{item.id}</span>
           <span className="text-[#85817a] mx-2">/</span>
           <span>0{total}</span>
@@ -317,7 +332,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
           {/* Full Screen Toggle Button */}
           <button
             onClick={() => setIsPureFullscreen(true)}
-            className="cursor-pointer liquid-glass-pill hover:border-[#b89a62]/80 hover:text-[#b89a62] px-2.5 sm:px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs tracking-[0.16em] uppercase transition-all"
+            className="cursor-pointer bg-[#161717]/85 hover:bg-[#222424]/90 border border-white/15 hover:border-[#b89a62]/80 hover:text-[#b89a62] px-2.5 sm:px-3.5 py-1.5 rounded-full inline-flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs tracking-[0.16em] uppercase transition-all shadow-[0_4px_16px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.15)]"
             title="View image on full screen"
             aria-label="View full screen image"
           >
@@ -328,7 +343,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
           {/* Close Button */}
           <button
             onClick={onClose}
-            className="cursor-pointer liquid-glass-pill hover:border-[#b89a62]/80 hover:text-[#b89a62] px-3 sm:px-4 py-1.5 rounded-full inline-flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.5)] group"
+            className="cursor-pointer bg-[#161717]/85 hover:bg-[#222424]/90 border border-white/15 hover:border-[#b89a62]/80 hover:text-[#b89a62] px-3 sm:px-4 py-1.5 rounded-full inline-flex items-center gap-1.5 sm:gap-2 text-[10px] sm:text-xs tracking-[0.2em] uppercase text-[#f1eee7] transition-all shadow-[0_4px_20px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.15)] group"
             title="Close Preview (Esc)"
             aria-label="Close Preview"
           >
@@ -342,8 +357,8 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
       <div className="relative flex-1 min-h-0 w-full max-w-7xl mx-auto flex items-center justify-between px-1 sm:px-6 md:px-10 py-1 sm:py-4 overflow-hidden">
         {/* Previous Button */}
         <button
-          onClick={() => onNavigate((currentIndex - 1 + total) % total)}
-          className="cursor-pointer liquid-glass-pill p-2 sm:p-3.5 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all active:scale-95 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.8)] flex-shrink-0"
+          onClick={() => handleNavigate((currentIndex - 1 + total) % total)}
+          className="cursor-pointer bg-[#161717]/85 hover:bg-[#222424]/90 border border-white/15 hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] p-2 sm:p-3.5 rounded-full transition-all active:scale-95 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.8),inset_0_1px_1.5px_rgba(255,255,255,0.15)] flex-shrink-0"
           aria-label="Previous Sculpture"
           title="Previous (Left Arrow)"
         >
@@ -375,12 +390,15 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
                 alt={item.title}
                 decoding="async"
                 fetchPriority="high"
+                width={500}
+                height={600}
+                style={{ aspectRatio: '5/6' }}
                 className="max-h-[38vh] sm:max-h-[54vh] md:max-h-[60vh] w-auto max-w-full object-contain object-center rounded-lg transition-transform duration-500 ease-out select-none group-hover:scale-[1.03] cursor-zoom-in"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-white/[0.06] pointer-events-none" />
               
               {/* Fullscreen hover badge */}
-              <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1.5 rounded-full bg-black/80 border border-white/20 text-[9px] sm:text-[10px] tracking-[0.18em] uppercase text-[#ded9cf] group-hover:text-[#b89a62] group-hover:border-[#b89a62]/80 pointer-events-none opacity-0 group-hover:opacity-100 transition-all flex items-center gap-1.5 shadow-[0_4px_16px_rgba(0,0,0,0.8)] backdrop-blur-sm">
+              <div className="absolute bottom-2.5 right-2.5 px-2.5 py-1.5 rounded-full bg-black/85 border border-white/20 text-[9px] sm:text-[10px] tracking-[0.18em] uppercase text-[#ded9cf] group-hover:text-[#b89a62] group-hover:border-[#b89a62]/80 pointer-events-none opacity-0 group-hover:opacity-100 transition-all flex items-center gap-1.5 shadow-[0_4px_16px_rgba(0,0,0,0.8)]">
                 <Maximize2 className="w-3 h-3 text-[#b89a62]" />
                 <span>Full Screen</span>
               </div>
@@ -419,8 +437,8 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
 
         {/* Next Button */}
         <button
-          onClick={() => onNavigate((currentIndex + 1) % total)}
-          className="cursor-pointer liquid-glass-pill p-2 sm:p-3.5 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all active:scale-95 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.8)] flex-shrink-0"
+          onClick={() => handleNavigate((currentIndex + 1) % total)}
+          className="cursor-pointer bg-[#161717]/85 hover:bg-[#222424]/90 border border-white/15 hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] p-2 sm:p-3.5 rounded-full transition-all active:scale-95 z-30 shadow-[0_8px_30px_rgba(0,0,0,0.8),inset_0_1px_1.5px_rgba(255,255,255,0.15)] flex-shrink-0"
           aria-label="Next Sculpture"
           title="Next (Right Arrow)"
         >
@@ -436,7 +454,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
             return (
               <button
                 key={thumb.id}
-                onClick={() => onNavigate(idx)}
+                onClick={() => handleNavigate(idx)}
                 className={`relative cursor-pointer transition-all duration-300 rounded-lg overflow-hidden flex-shrink-0 w-10 sm:w-12 h-14 sm:h-16 border ${
                   isActive
                     ? 'border-[#b89a62] ring-2 ring-[#b89a62]/60 scale-105 shadow-[0_0_15px_rgba(184,154,98,0.4)]'
@@ -452,6 +470,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
                   decoding="async"
                   width={48}
                   height={64}
+                  style={{ aspectRatio: '3/4' }}
                   className="w-full h-full object-cover object-center"
                 />
               </button>
@@ -462,7 +481,7 @@ function SculpturePreviewModal({ currentIndex, onClose, onNavigate }: SculptureP
     </div>,
     document.body
   );
-}
+});
 
 interface SculptureCarouselProps {
   isStandalonePage: boolean;
@@ -661,7 +680,7 @@ const SculptureCarousel = React.memo(function SculptureCarousel({
                 >
                   <div
                     style={panelStyle}
-                    className="relative w-full h-full overflow-hidden backdrop-blur-2xl border flex flex-col items-center justify-center"
+                    className={`relative w-full h-full overflow-hidden border flex flex-col items-center justify-center ${!isMobile ? 'backdrop-blur-xl' : ''}`}
                   >
                     <div
                       style={{ opacity: heroGlassOpacity }}
@@ -672,7 +691,7 @@ const SculptureCarousel = React.memo(function SculptureCarousel({
                       style={{
                         borderRadius: `${Math.max(0, heroBorderRadius - 4)}px`,
                       }}
-                      className="relative w-full h-full border border-white/25 bg-black/40 backdrop-blur-md flex items-center justify-center overflow-hidden"
+                      className="relative w-full h-full border border-white/25 bg-black/40 flex items-center justify-center overflow-hidden"
                     >
                       <img
                         src={item.image}
@@ -737,10 +756,10 @@ const SculptureCarousel = React.memo(function SculptureCarousel({
                     : 'shadow-[0_16px_40px_rgba(0,0,0,0.7),inset_0_1px_1.5px_rgba(255,255,255,0.25)] border border-white/20 hover:border-white/40'
                 }`}
               >
-                <div className="relative w-full h-full rounded-2xl overflow-hidden backdrop-blur-2xl bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.03)_50%,rgba(255,255,255,0.08)_100%)] p-3 sm:p-4 flex flex-col items-center justify-center">
+                <div className={`relative w-full h-full rounded-2xl overflow-hidden bg-[linear-gradient(135deg,rgba(255,255,255,0.12)_0%,rgba(255,255,255,0.03)_50%,rgba(255,255,255,0.08)_100%)] p-3 sm:p-4 flex flex-col items-center justify-center ${!isMobile ? 'backdrop-blur-xl' : ''}`}>
                   <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent z-10" />
                   
-                  <div className="relative w-full h-full rounded-xl border border-white/25 bg-black/40 backdrop-blur-md flex items-center justify-center overflow-hidden">
+                  <div className="relative w-full h-full rounded-xl border border-white/25 bg-black/40 flex items-center justify-center overflow-hidden">
                     <img
                       src={item.imageSm || item.image}
                       srcSet={item.imageSm ? `${item.imageSm} 520w, ${item.image} 1024w` : undefined}
@@ -1172,9 +1191,8 @@ export function SculpturesExperience({
     triggerPhysicsLoopRef.current();
   }, []);
 
-  // Navigate directly to sculpture (syncing carousel rotation target, without waking RAF or re-rendering carousel)
-  const handlePreviewNavigate = useCallback((newIndex: number) => {
-    setPreviewIndex(newIndex);
+  // Sync carousel rotation target while preview is active without re-rendering SculpturesExperience or waking RAF
+  const handleSyncCarouselTarget = useCallback((newIndex: number) => {
     const currentNorm = ((Math.round(targetRotationRef.current) % total) + total) % total;
     let stepDiff = (newIndex - currentNorm) % total;
     if (stepDiff > total / 2) stepDiff -= total;
@@ -1214,6 +1232,8 @@ export function SculpturesExperience({
   // Dedicated close handler to safely resume carousel physics
   const handleClosePreview = useCallback(() => {
     previewOpenRef.current = false;
+    currentRotationRef.current = targetRotationRef.current;
+    setRotation(targetRotationRef.current);
     setPreviewIndex(null);
     lastInteractionTimeRef.current = Date.now();
     triggerPhysicsLoopRef.current();
@@ -1436,7 +1456,7 @@ export function SculpturesExperience({
     >
       {/* 1. ATMOSPHERIC BACKGROUND RADIAL GLOW */}
       <div className="absolute inset-0 bg-[#070809] flex items-center justify-center pointer-events-none z-0">
-        <div className="absolute w-[900px] h-[900px] rounded-full bg-gradient-to-b from-[#b89a62]/10 via-transparent to-transparent blur-[160px]" />
+        <div className="absolute w-[900px] h-[900px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.12)_0%,rgba(184,154,98,0.03)_40%,transparent_70%)] pointer-events-none" />
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.03)_0%,transparent_70%)]" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-transparent to-black/60" />
       </div>
@@ -1521,9 +1541,9 @@ export function SculpturesExperience({
       {/* Fullscreen Sculpture Artwork Preview Modal */}
       {previewIndex !== null && (
         <SculpturePreviewModal
-          currentIndex={previewIndex}
+          initialIndex={previewIndex}
           onClose={handleClosePreview}
-          onNavigate={handlePreviewNavigate}
+          onSyncCarouselTarget={handleSyncCarouselTarget}
         />
       )}
     </section>

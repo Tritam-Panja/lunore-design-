@@ -124,10 +124,13 @@ export function Header() {
     setMenuOpen(false);
     setServicesOpen(false);
     if (location.pathname === to) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      if (lenis) {
+        lenis.scrollTo(0);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     } else {
       navigate(to);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
 
@@ -139,10 +142,13 @@ export function Header() {
     if (link.to) {
       e.preventDefault();
       if (location.pathname === link.to) {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        if (lenis) {
+          lenis.scrollTo(0);
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
       } else {
         navigate(link.to);
-        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   };
@@ -209,12 +215,12 @@ export function Header() {
       {/* FULL-SCREEN LIQUID GLASS OVERLAY DRAWER */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/90 backdrop-blur-3xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-y-auto overscroll-contain transform-gpu opacity-100 pointer-events-auto scale-100 visible"
+          className="fixed inset-0 z-40 bg-black/90 backdrop-blur-xl md:backdrop-blur-2xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-y-auto overscroll-contain transform-gpu opacity-100 pointer-events-auto scale-100 visible"
           style={{ WebkitOverflowScrolling: 'touch' }}
           aria-hidden={false}
         >
         {/* Subtle Ambient Radial Glow */}
-        <div className="absolute top-0 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] bg-[#b89a62]/10 rounded-full blur-[100px] sm:blur-[160px] pointer-events-none" />
+        <div className="absolute top-0 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] rounded-full bg-[radial-gradient(circle_at_top_right,rgba(184,154,98,0.15)_0%,rgba(184,154,98,0.04)_45%,transparent_70%)] pointer-events-none" />
 
         <div className="min-h-[100dvh] max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-[max(5rem,calc(env(safe-area-inset-top,0px)+4.5rem))] pb-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1.5rem))] flex flex-col justify-between relative z-10">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start my-auto">

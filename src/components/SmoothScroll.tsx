@@ -3,12 +3,14 @@ import { useLocation } from 'react-router-dom';
 import Lenis from 'lenis';
 import 'lenis/dist/lenis.css';
 import { scrollCoordinator, useScrollSubscriber, type ScrollCallback } from '@/lib/scrollCoordinator';
+import { isIOS } from '@/lib/device';
 
 export { useScrollSubscriber, scrollCoordinator, type ScrollCallback };
 
 interface LenisContextType {
   lenis: Lenis | null;
   scrollTo: (target: string | HTMLElement, options?: Record<string, any>) => void;
+  isMounted: boolean;
 }
 
 const defaultScrollTo = (target: string | HTMLElement) => {
@@ -21,6 +23,7 @@ const defaultScrollTo = (target: string | HTMLElement) => {
 const LenisContext = createContext<LenisContextType>({
   lenis: null,
   scrollTo: defaultScrollTo,
+  isMounted: false,
 });
 
 export function useLenis() {
@@ -35,6 +38,9 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
   useEffect(() => {
     const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (prefersReducedMotion) return;
+
+    // iOS uses native browser scrolling; do NOT instantiate the primary Lenis instance
+    if (isIOS()) return;
 
     const instance = new Lenis({
       duration: 1.1,
@@ -108,6 +114,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
         lenisRef.current.scrollTo(0, { immediate: true });
       } else {
         window.scrollTo(0, 0);
+        scrollCoordinator.resetScroll(0);
       }
     }
   }, [location.pathname, location.hash]);
@@ -124,7 +131,7 @@ export function SmoothScroll({ children }: { children: ReactNode }) {
   };
 
   return (
-    <LenisContext.Provider value={{ lenis, scrollTo }}>
+    <LenisContext.Provider value={{ lenis, scrollTo, isMounted: true }}>
       {children}
     </LenisContext.Provider>
   );

@@ -188,8 +188,8 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
     >
       {/* Ambient background glow (optimized for mobile) */}
       <div className="fixed inset-0 pointer-events-none -z-10 overflow-hidden transform-gpu">
-        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] sm:w-[900px] h-[360px] sm:h-[900px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.16)_0%,transparent_70%)] blur-[40px] sm:blur-[150px] pointer-events-none" />
-        <div className="absolute bottom-1/4 right-1/4 w-[300px] sm:w-[700px] h-[300px] sm:h-[700px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.06)_0%,transparent_70%)] blur-[35px] sm:blur-[130px] pointer-events-none" />
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[360px] sm:w-[900px] h-[360px] sm:h-[900px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.14)_0%,rgba(184,154,98,0.04)_45%,transparent_70%)] pointer-events-none" />
+        <div className="absolute bottom-1/4 right-1/4 w-[300px] sm:w-[700px] h-[300px] sm:h-[700px] rounded-full bg-[radial-gradient(circle,rgba(255,255,255,0.05)_0%,rgba(255,255,255,0.01)_45%,transparent_70%)] pointer-events-none" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-black/50 pointer-events-none" />
       </div>
 

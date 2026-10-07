@@ -49,7 +49,7 @@ export function Careers() {
   return (
     <div className="bg-[#0d0e0e] text-[#f1eee7] min-h-screen relative overflow-hidden flex flex-col">
       {/* Ambient Radial Glow */}
-      <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[700px] h-[700px] bg-[#b89a62]/8 rounded-full blur-[170px] pointer-events-none" />
+      <div className="absolute top-24 left-1/2 -translate-x-1/2 w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.1)_0%,rgba(184,154,98,0.03)_40%,transparent_70%)] pointer-events-none" />
 
       {/* Return to Home */}
       <ReturnToHome />
