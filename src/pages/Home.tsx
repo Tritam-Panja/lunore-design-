@@ -305,7 +305,7 @@ export function Home() {
         <div className="sm:hidden absolute inset-0 bg-gradient-to-r from-black/35 via-transparent to-transparent pointer-events-none" />
 
         {/* Subtle Ambient Radial Glow */}
-        <div className="absolute -top-24 left-1/6 w-[600px] h-[600px] bg-[#b89a62]/15 rounded-full blur-[150px] pointer-events-none" />
+        <div className="absolute -top-24 left-1/6 w-[600px] h-[600px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.15)_0%,rgba(184,154,98,0.04)_45%,transparent_70%)] pointer-events-none" />
 
         {/* Left Side LUNORE Branding with Glowing Golden 'N' */}
         <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-12 lg:px-16 flex items-center">
@@ -348,7 +348,7 @@ export function Home() {
       {/* 2. BRAND STORY PREVIEW SECTION */}
       <section id="brand-story" className="py-24 sm:py-32 md:py-44 relative overflow-hidden bg-[#0d0e0e]">
         {/* Ambient Radial Gold Glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] bg-[#b89a62]/10 rounded-full blur-[180px] pointer-events-none" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[700px] rounded-full bg-[radial-gradient(circle,rgba(184,154,98,0.12)_0%,rgba(184,154,98,0.03)_45%,transparent_70%)] pointer-events-none" />
 
         <div className="max-w-5xl mx-auto px-6 relative z-10 text-center">
           {/* Main Headline with Staggered Word Mask */}

@@ -227,12 +227,12 @@ export function AurexaSection() {
       {/* 2. AMBIENT GLOWS */}
       <div
         ref={glow1Ref}
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] sm:w-[1100px] h-[550px] bg-[#b89a62]/[0.09] rounded-full blur-[190px] pointer-events-none transition-opacity duration-500"
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[850px] sm:w-[1100px] h-[550px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(184,154,98,0.14)_0%,rgba(184,154,98,0.04)_45%,transparent_70%)] pointer-events-none transition-opacity duration-500"
         style={{ opacity: 0.2 }}
       />
       <div
         ref={glow2Ref}
-        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[360px] bg-[#f5e0b0]/[0.08] rounded-full blur-[140px] pointer-events-none transition-transform duration-500"
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[360px] rounded-full bg-[radial-gradient(ellipse_at_center,rgba(245,224,176,0.12)_0%,rgba(245,224,176,0.03)_45%,transparent_70%)] pointer-events-none transition-transform duration-500"
         style={{ transform: 'translate(-50%, -50%) scale(1)' }}
       />
 
