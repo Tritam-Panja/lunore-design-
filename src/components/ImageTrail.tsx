@@ -1054,11 +1054,15 @@ class ImageTrailVariant7 {
   private visibleImagesTotal: number;
   private renderLoop: () => void;
 
+  private latestClientX = 0;
+  private latestClientY = 0;
+  private hasNewPointer = false;
+  private observer: IntersectionObserver | null = null;
+
   // Cached layout dimensions: ZERO layout reads during pointermove / touchmove
   private containerRect: DOMRect | null = null;
   private containerPageLeft = 0;
   private containerPageTop = 0;
-  private lastRectTime = 0;
   private cardHalfWidth = 110;
   private cardHalfHeight = 100;
 
@@ -1087,6 +1091,23 @@ class ImageTrailVariant7 {
     // Global resize listeners to invalidate cached rect without per-event thrashing
     window.addEventListener('resize', this.onResize, { passive: true });
     window.addEventListener('orientationchange', this.onResize, { passive: true });
+
+    // Automatically pause processing when section is completely offscreen
+    if (typeof window !== 'undefined' && 'IntersectionObserver' in window) {
+      this.observer = new IntersectionObserver(
+        ([entry]) => {
+          this.isPaused = !entry.isIntersecting;
+          if (entry.isIntersecting) {
+            this.updateDimensions();
+          } else if (this.rafId !== null) {
+            cancelAnimationFrame(this.rafId);
+            this.rafId = null;
+          }
+        },
+        { rootMargin: '100px 0px 100px 0px' }
+      );
+      this.observer.observe(container);
+    }
   }
 
   private updateDimensions() {
@@ -1095,7 +1116,6 @@ class ImageTrailVariant7 {
       this.containerRect = rect;
       this.containerPageLeft = rect.left + (typeof window !== 'undefined' ? window.scrollX : 0);
       this.containerPageTop = rect.top + (typeof window !== 'undefined' ? window.scrollY : 0);
-      this.lastRectTime = performance.now();
     }
     if (this.images.length > 0 && this.images[0]?.DOM.el) {
       const el = this.images[0].DOM.el;
@@ -1110,54 +1130,20 @@ class ImageTrailVariant7 {
     this.updateDimensions();
   };
 
-  private getContainerRect(): DOMRect {
-    const now = performance.now();
-    if (!this.containerRect || now - this.lastRectTime > 1500) {
-      this.updateDimensions();
-    }
-    return this.containerRect || { left: 0, top: 0, width: 0, height: 0, right: 0, bottom: 0, x: 0, y: 0, toJSON: () => {} };
-  }
-
   private handlePointerMove = (ev: MouseEvent | TouchEvent) => {
     if (this.isPaused || this.destroyed) return;
 
-    let clientX = 0;
-    let clientY = 0;
     if ('touches' in ev && ev.touches.length > 0) {
-      clientX = ev.touches[0].clientX;
-      clientY = ev.touches[0].clientY;
+      this.latestClientX = ev.touches[0].clientX;
+      this.latestClientY = ev.touches[0].clientY;
     } else if ('clientX' in ev) {
-      clientX = (ev as MouseEvent).clientX;
-      clientY = (ev as MouseEvent).clientY;
+      this.latestClientX = (ev as MouseEvent).clientX;
+      this.latestClientY = (ev as MouseEvent).clientY;
     } else {
       return;
     }
 
-    const now = performance.now();
-    if (this.containerPageTop === 0 || now - this.lastRectTime > 1500) {
-      this.updateDimensions();
-    }
-
-    const scrollX = typeof window !== 'undefined' ? window.scrollX : 0;
-    const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
-    const newX = clientX + scrollX - this.containerPageLeft;
-    const newY = clientY + scrollY - this.containerPageTop;
-
-    // Process pointer movement only when the pointer/touch position actually changes by >= 0.5px
-    if (Math.abs(newX - this.mousePos.x) < 0.5 && Math.abs(newY - this.mousePos.y) < 0.5) {
-      return;
-    }
-
-    this.mousePos.x = newX;
-    this.mousePos.y = newY;
-
-    // First interaction initializes coordinates cleanly without jumping from (0,0)
-    if (this.isIdle && this.lastMousePos.x === 0 && this.lastMousePos.y === 0) {
-      this.lastMousePos.x = newX;
-      this.lastMousePos.y = newY;
-      this.cacheMousePos.x = newX;
-      this.cacheMousePos.y = newY;
-    }
+    this.hasNewPointer = true;
 
     if (this.rafId === null) {
       this.rafId = requestAnimationFrame(this.renderLoop);
@@ -1165,7 +1151,26 @@ class ImageTrailVariant7 {
   };
 
   private render() {
-    if (this.destroyed) return;
+    if (this.destroyed || this.isPaused) return;
+
+    if (this.hasNewPointer) {
+      this.hasNewPointer = false;
+      const scrollX = typeof window !== 'undefined' ? window.scrollX : 0;
+      const scrollY = typeof window !== 'undefined' ? window.scrollY : 0;
+      const newX = this.latestClientX + scrollX - this.containerPageLeft;
+      const newY = this.latestClientY + scrollY - this.containerPageTop;
+
+      // First interaction initializes coordinates cleanly without jumping from (0,0)
+      if (this.isIdle && this.lastMousePos.x === 0 && this.lastMousePos.y === 0) {
+        this.lastMousePos.x = newX;
+        this.lastMousePos.y = newY;
+        this.cacheMousePos.x = newX;
+        this.cacheMousePos.y = newY;
+      }
+
+      this.mousePos.x = newX;
+      this.mousePos.y = newY;
+    }
 
     // Distance squared check eliminates Math.hypot allocations on every frame
     const dx = this.mousePos.x - this.lastMousePos.x;
@@ -1189,7 +1194,7 @@ class ImageTrailVariant7 {
       Math.abs(this.mousePos.y - this.cacheMousePos.y) > 0.2 ||
       !this.isIdle;
 
-    if (isMoving && !this.isPaused) {
+    if (isMoving && !this.destroyed && !this.isPaused) {
       this.rafId = requestAnimationFrame(this.renderLoop);
     } else {
       this.rafId = null;
@@ -1292,6 +1297,10 @@ class ImageTrailVariant7 {
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
+    }
+    if (this.observer) {
+      this.observer.disconnect();
+      this.observer = null;
     }
     this.container.removeEventListener('mousemove', this.handlePointerMove);
     this.container.removeEventListener('touchmove', this.handlePointerMove);

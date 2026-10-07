@@ -76,7 +76,7 @@ const directors: TeamMember[] = [
     name: "JITANDAR LOHAR ",
     role: "Director — Finance & Administration",
     testimonial: "Jitandar  keeps Lunore running smoothly behind the scenes. He manages finances with precision, handles compliance and statutory requirements, and builds the operational systems that let the team focus on creative work. Jitandar believes that strong administration and clear financial health are the foundation of sustainable growth and he takes pride in creating that foundation.",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=compress&cs=tinysrgb&w=800&q=80"
+    image: "/assets/images/Director JITU.jpeg"
   },
 ];
 

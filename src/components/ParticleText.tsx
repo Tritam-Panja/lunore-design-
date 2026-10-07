@@ -273,7 +273,7 @@ export const ParticleText = ({
       height = Math.floor(rect.height);
 
       const currentIsMobile = window.innerWidth < 768;
-      dpr = Math.min(window.devicePixelRatio || 1, currentIsMobile ? 1.25 : 1.5);
+      dpr = Math.min(window.devicePixelRatio || 1, currentIsMobile ? 1.0 : 1.5);
       canvas.width = Math.max(1, Math.floor(width * dpr));
       canvas.height = Math.max(1, Math.floor(height * dpr));
       canvas.style.width = '100%';

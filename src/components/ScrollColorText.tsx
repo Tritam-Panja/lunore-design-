@@ -33,8 +33,6 @@ export function ScrollColorText({
   const totalWords = words.length;
 
   useEffect(() => {
-    let animationFrameId: number;
-
     const updateWords = (progress: number) => {
       if (containerRef.current) {
         containerRef.current.style.setProperty('--scroll-progress', progress.toFixed(4));
@@ -68,30 +66,40 @@ export function ScrollColorText({
 
     let isNear = false;
 
+    let cachedPageTop = 0;
+
+    const updateCachedGeometry = () => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        cachedPageTop = rect.top + (typeof window !== 'undefined' ? window.scrollY : 0);
+      }
+    };
     let unsubscribe: (() => void) | null = null;
 
     const removeListener = () => {
-      cancelAnimationFrame(animationFrameId);
       if (unsubscribe) {
         unsubscribe();
         unsubscribe = null;
       }
     };
 
-    const handleScroll = () => {
-      if (!containerRef.current) return;
+    const onScroll = (scrollY: number) => {
+      if (!isNear && (!once || maxProgressRef.current < 1)) return;
       if (once && maxProgressRef.current >= 1) {
         removeListener();
         return;
       }
+      if (cachedPageTop === 0) {
+        updateCachedGeometry();
+      }
 
-      const rect = containerRef.current.getBoundingClientRect();
+      const rectTop = cachedPageTop - scrollY;
       const windowHeight = scrollCoordinator.getViewportHeight();
 
       // Start illuminating when element enters comfortable view (78% from top)
       const start = windowHeight * 0.78;
       // Complete illumination within ~2 scrolls (~220px)
-      const rawProgress = Math.min(1, Math.max(0, (start - rect.top) / scrollDistance));
+      const rawProgress = Math.min(1, Math.max(0, (start - rectTop) / scrollDistance));
 
       if (once) {
         if (rawProgress > maxProgressRef.current) {
@@ -106,17 +114,19 @@ export function ScrollColorText({
       }
     };
 
-    const onScroll = () => {
-      if (!isNear && (!once || maxProgressRef.current < 1)) return;
-      cancelAnimationFrame(animationFrameId);
-      animationFrameId = requestAnimationFrame(handleScroll);
+    const onResize = () => {
+      updateCachedGeometry();
+      onScroll(scrollCoordinator.getScrollY());
     };
+    window.addEventListener('resize', onResize, { passive: true });
+    window.addEventListener('orientationchange', onResize, { passive: true });
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         isNear = entry.isIntersecting;
         if (isNear) {
-          handleScroll();
+          if (cachedPageTop === 0) updateCachedGeometry();
+          onScroll(scrollCoordinator.getScrollY());
         }
       },
       { rootMargin: '150px 0px 150px 0px' }
@@ -128,9 +138,11 @@ export function ScrollColorText({
 
     unsubscribe = scrollCoordinator.subscribe(onScroll);
 
-    handleScroll();
+    onScroll(scrollCoordinator.getScrollY());
 
     return () => {
+      window.removeEventListener('resize', onResize);
+      window.removeEventListener('orientationchange', onResize);
       observer.disconnect();
       removeListener();
     };
