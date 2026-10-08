@@ -19,3 +19,23 @@ export function isIOS(): boolean {
 
   return isDirectIOS || isIPadOS;
 }
+
+/**
+ * Robust Android detection recognizing Android phones and tablets.
+ */
+export function isAndroid(): boolean {
+  if (typeof window === 'undefined' || typeof navigator === 'undefined') {
+    return false;
+  }
+  const ua = navigator.userAgent || '';
+  return /Android/i.test(ua);
+}
+
+/**
+ * Checks if the current client is an iOS or Android device (phones & tablets).
+ * Preserves desktop platforms as non-mobile.
+ */
+export function isMobileDevice(): boolean {
+  return isIOS() || isAndroid();
+}
+

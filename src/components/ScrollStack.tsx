@@ -3,6 +3,7 @@
 import React, { useLayoutEffect, useRef, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import Lenis from 'lenis';
+import { isMobileDevice } from '@/lib/device';
 
 export interface ScrollStackItemProps {
   itemClassName?: string;
@@ -71,6 +72,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
   const isUpdatingRef = useRef(false);
   const lastScrollTopRef = useRef<number>(0);
   const settledFramesRef = useRef<number>(0);
+  const isMobileDeviceRef = useRef<boolean>(false);
 
   const calculateProgress = useCallback((scrollTop: number, start: number, end: number) => {
     if (scrollTop < start) return 0;
@@ -114,7 +116,10 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     [useWindowScroll]
   );
 
-  const updateCardTransforms = useCallback(() => {
+  // =========================================================================
+  // DESKTOP: Existing physics & subpixel calculation (100% UNCHANGED)
+  // =========================================================================
+  const updateDesktopMarbles = useCallback(() => {
     if (!cardsRef.current.length || isUpdatingRef.current) return;
 
     isUpdatingRef.current = true;
@@ -251,9 +256,150 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     getElementOffset,
   ]);
 
+  // =========================================================================
+  // iOS + ANDROID: Lightweight Deterministic Target-Position Animation
+  // - Zero continuous collision physics or floating-point velocity noise.
+  // - Overscroll clamped: prevents iOS elastic rubber-band bounce from shaking the stack.
+  // - Deterministic sequential easing into assigned target position.
+  // - Firm resting lock: once reached, cards freeze completely with ZERO micro-movement.
+  // =========================================================================
+  const updateMobileMarbles = useCallback(() => {
+    if (!cardsRef.current.length || isUpdatingRef.current) return;
+
+    isUpdatingRef.current = true;
+
+    const scroller = scrollerRef.current;
+    const rawScrollTop = useWindowScroll ? window.scrollY : (scroller ? scroller.scrollTop : 0);
+    const containerHeight = useWindowScroll ? window.innerHeight : (scroller ? scroller.clientHeight : 0);
+    const scrollContainer = useWindowScroll ? document.documentElement : scroller;
+    const maxScroll = Math.max(0, (scrollContainer ? scrollContainer.scrollHeight - containerHeight : 0));
+
+    // Clamped against iOS and Android elastic bounce: completely stops rubber-band vibration
+    const scrollTop = Math.min(maxScroll, Math.max(0, rawScrollTop));
+
+    const stackPositionPx = parsePercentage(stackPosition, containerHeight);
+    const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight);
+
+    const cardOffsets = cardOffsetsRef.current;
+    const lastCardIndex = cardsRef.current.length - 1;
+    const lastCard = cardsRef.current[lastCardIndex];
+    const lastCardTop = cardOffsets[lastCardIndex] ?? (lastCard ? getElementOffset(lastCard) : 0);
+    const lastCardPinStart = lastCardTop - stackPositionPx - itemStackDistance * lastCardIndex;
+    const pinEnd = lastCardPinStart;
+
+    cardsRef.current.forEach((card, i) => {
+      if (!card) return;
+
+      const cardTop = cardOffsets[i] ?? getElementOffset(card);
+      const targetStackOffset = stackPositionPx + itemStackDistance * i;
+      const triggerStart = cardTop - targetStackOffset;
+      const triggerEnd = cardTop - scaleEndPositionPx;
+      const pinStart = triggerStart;
+      const targetScale = Math.min(1, baseScale + i * itemScale);
+
+      let translateY = 0;
+      let scale = 1;
+
+      // 1. Before Entrance: card is in natural scroll position
+      if (scrollTop < triggerStart) {
+        translateY = 0;
+        scale = 1;
+      }
+      // 2. Sequential/Cinematic Entrance toward assigned target position
+      else if (scrollTop < triggerEnd) {
+        const rawProgress = (scrollTop - triggerStart) / Math.max(1, triggerEnd - triggerStart);
+        const progress = Math.min(1, Math.max(0, rawProgress));
+        // Smooth cubic ease-out for deterministic cinematic feel
+        const easeProgress = 1 - Math.pow(1 - progress, 3);
+        scale = 1.0 - easeProgress * (1.0 - targetScale);
+        translateY = Math.round(scrollTop - cardTop + targetStackOffset);
+      }
+      // 3. Reached Target Position in Stack: firmly locked into target state with zero micro-movement
+      else {
+        scale = targetScale;
+        if (scrollTop <= pinEnd) {
+          translateY = Math.round(scrollTop - cardTop + targetStackOffset);
+        } else {
+          // Beyond stack completion: resting stably at final pinEnd
+          translateY = Math.round(pinEnd - cardTop + targetStackOffset);
+        }
+      }
+
+      let blur = 0;
+      if (blurAmount) {
+        let topCardIndex = 0;
+        for (let j = 0; j < cardsRef.current.length; j++) {
+          const jCardTop = cardOffsets[j] ?? getElementOffset(cardsRef.current[j]);
+          const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j;
+          if (scrollTop >= jTriggerStart) {
+            topCardIndex = j;
+          }
+        }
+        if (i < topCardIndex) {
+          const depthInStack = topCardIndex - i;
+          blur = Math.max(0, depthInStack * blurAmount);
+        }
+      }
+
+      const snapScale = Math.round(scale * 1000) / 1000;
+      const snapBlur = Math.round(blur * 10) / 10;
+      const lastTransform = lastTransformsRef.current.get(i);
+
+      const hasChanged =
+        !lastTransform ||
+        lastTransform.translateY !== translateY ||
+        lastTransform.scale !== snapScale ||
+        lastTransform.blur !== snapBlur;
+
+      if (hasChanged) {
+        const transform = `translate3d(0, ${translateY}px, 0) scale(${snapScale})`;
+        const filter = snapBlur > 0 ? `blur(${snapBlur}px)` : '';
+
+        card.style.transform = transform;
+        if (card.style.filter !== filter) {
+          card.style.filter = filter;
+        }
+
+        lastTransformsRef.current.set(i, {
+          translateY,
+          scale: snapScale,
+          rotation: 0,
+          blur: snapBlur,
+        });
+      }
+
+      if (i === lastCardIndex) {
+        const isInView = scrollTop >= pinStart && scrollTop <= pinEnd;
+        if (isInView && !stackCompletedRef.current) {
+          stackCompletedRef.current = true;
+          onStackComplete?.();
+        } else if (!isInView && stackCompletedRef.current) {
+          stackCompletedRef.current = false;
+        }
+      }
+    });
+
+    isUpdatingRef.current = false;
+  }, [
+    itemScale,
+    itemStackDistance,
+    stackPosition,
+    scaleEndPosition,
+    baseScale,
+    blurAmount,
+    useWindowScroll,
+    onStackComplete,
+    parsePercentage,
+    getElementOffset,
+  ]);
+
   const handleScroll = useCallback(() => {
-    updateCardTransforms();
-  }, [updateCardTransforms]);
+    if (isMobileDeviceRef.current) {
+      updateMobileMarbles();
+    } else {
+      updateDesktopMarbles();
+    }
+  }, [updateMobileMarbles, updateDesktopMarbles]);
 
   const setupLenis = useCallback(() => {
     if (useWindowScroll) {
@@ -287,6 +433,8 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
   }, [handleScroll, useWindowScroll]);
 
   useLayoutEffect(() => {
+    isMobileDeviceRef.current = isMobileDevice();
+
     if (!useWindowScroll && !scrollerRef.current) return;
 
     const cards = Array.from(
@@ -327,7 +475,11 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     }
     window.addEventListener('resize', handleResize, { passive: true });
 
-    updateCardTransforms();
+    if (isMobileDeviceRef.current) {
+      updateMobileMarbles();
+    } else {
+      updateDesktopMarbles();
+    }
 
     return () => {
       if (animationFrameRef.current) {
@@ -360,8 +512,10 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     useWindowScroll,
     onStackComplete,
     setupLenis,
-    updateCardTransforms,
+    updateDesktopMarbles,
+    updateMobileMarbles,
     handleScroll,
+    getElementOffset,
   ]);
 
   return (
