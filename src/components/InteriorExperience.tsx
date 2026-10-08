@@ -218,9 +218,36 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
   // Position physics stored in mutable ref for zero React re-render lag
   const posRef = useRef({
     currentX: 50,
-    currentY: 50,
+    currentY: 45,
     targetX: 50,
-    targetY: 50,
+    targetY: 45,
+  });
+
+  // Key painting and architectural art coordinates visited on mobile auto-wander
+  const PAINTING_WAYPOINTS = [
+    { x: 24, y: 24, linger: 1300 }, // High left vertical marble wall art
+    { x: 20, y: 52, linger: 1100 }, // Illuminated marble staircase steps
+    { x: 32, y: 74, linger: 900 },  // Lower marble floor reflection & planter
+    { x: 50, y: 45, linger: 1500 }, // Central textured master canvas (behind sofa)
+    { x: 52, y: 18, linger: 1100 }, // Upper architectural mezzanine profile
+    { x: 74, y: 48, linger: 1000 }, // Right indoor tropical tree & floor lamp
+    { x: 82, y: 34, linger: 1300 }, // Panoramic sea view glass & island silhouette
+    { x: 58, y: 72, linger: 1100 }, // Sunken lounge marble coffee table & books
+  ];
+
+  const isMobileRef = useRef<boolean>(isMobile);
+  const isInViewRef = useRef<boolean>(true);
+  const isTouchingRef = useRef<boolean>(false);
+  const lastTouchReleaseTimeRef = useRef<number>(0);
+
+  const autoWanderRef = useRef({
+    currentWp: 0,
+    nextWp: 1,
+    phase: 'travel' as 'linger' | 'travel',
+    phaseStartTime: 0,
+    startX: 50,
+    startY: 45,
+    arcDirection: 1,
   });
 
   // Synchronize refs with state
@@ -228,10 +255,14 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     isFlashlightModeRef.current = isFlashlightMode;
     overlayReadyRef.current = overlayReady;
     storyStageRef.current = storyStage;
+    isMobileRef.current = isMobile;
     if (containerRef.current) {
       containerRef.current.style.setProperty('--beam-size', `${beamSize}px`);
     }
-  }, [isFlashlightMode, overlayReady, beamSize, storyStage]);
+    if (isMobile && isFlashlightMode && triggerRenderLoopRef.current) {
+      triggerRenderLoopRef.current();
+    }
+  }, [isFlashlightMode, overlayReady, beamSize, storyStage, isMobile]);
 
   const location = useLocation();
 
@@ -484,33 +515,110 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     }
   }, []);
 
-  // High-performance direct GPU render loop (wakes on interaction, sleeps when settled)
+  // High-performance direct GPU render loop with mobile auto-wander & desktop cursor tracking
   const isLoopRunningRef = useRef<boolean>(false);
   const triggerRenderLoopRef = useRef<() => void>(() => {});
   const lastRectRef = useRef<DOMRect | null>(null);
   const lastRectTimeRef = useRef<number>(0);
 
+  const updateAutoWander = useCallback((time: number) => {
+    const aw = autoWanderRef.current;
+    const p = posRef.current;
+
+    if (aw.phaseStartTime === 0) {
+      aw.phaseStartTime = time;
+      aw.startX = p.currentX;
+      aw.startY = p.currentY;
+    }
+
+    if (aw.phase === 'linger') {
+      const wp = PAINTING_WAYPOINTS[aw.currentWp];
+      // Subtle ambient breathing drift across the painting surface
+      const driftX = Math.sin(time * 0.0016) * 1.8 + Math.cos(time * 0.0031) * 0.8;
+      const driftY = Math.cos(time * 0.0013) * 1.4 + Math.sin(time * 0.0027) * 0.6;
+      p.targetX = wp.x + driftX;
+      p.targetY = wp.y + driftY;
+
+      if (time - aw.phaseStartTime >= wp.linger) {
+        aw.phase = 'travel';
+        aw.phaseStartTime = time;
+        aw.startX = p.currentX;
+        aw.startY = p.currentY;
+        aw.arcDirection = aw.arcDirection === 1 ? -1 : 1;
+      }
+    } else {
+      // Traveling smoothly along a gentle curved arc towards the next painting
+      const wpNext = PAINTING_WAYPOINTS[aw.nextWp];
+      const travelDuration = 2600; // 2.6s luxurious glide
+      const progress = Math.min(1, (time - aw.phaseStartTime) / travelDuration);
+
+      // Quintic smoothstep easing
+      const eased = progress * progress * progress * (progress * (progress * 6 - 15) + 10);
+
+      const dx = wpNext.x - aw.startX;
+      const dy = wpNext.y - aw.startY;
+      const dist = Math.hypot(dx, dy);
+      const arcAmp = Math.min(12, dist * 0.22) * aw.arcDirection;
+      const perpX = dist > 0.01 ? (-dy / dist) * arcAmp : 0;
+      const perpY = dist > 0.01 ? (dx / dist) * arcAmp : 0;
+      const arcSin = Math.sin(progress * Math.PI);
+
+      p.targetX = aw.startX + dx * eased + perpX * arcSin;
+      p.targetY = aw.startY + dy * eased + perpY * arcSin;
+
+      if (progress >= 1) {
+        aw.currentWp = aw.nextWp;
+        aw.nextWp = (aw.nextWp + 1) % PAINTING_WAYPOINTS.length;
+        aw.phase = 'linger';
+        aw.phaseStartTime = time;
+      }
+    }
+  }, [PAINTING_WAYPOINTS]);
+
   useEffect(() => {
     let animationFrameId: number;
 
-    const renderLoop = () => {
-      const p = posRef.current;
-      const isHovered = isHoveredRef.current;
+    const renderLoop = (time: number) => {
       const isFlash = isFlashlightModeRef.current;
+      const isMob = isMobileRef.current;
+      const isHov = isHoveredRef.current;
+      const inView = isInViewRef.current;
 
-      if (!isHovered || !isFlash) {
+      if (!isFlash) {
         isLoopRunningRef.current = false;
         return;
       }
 
+      if (!isMob && !isHov) {
+        isLoopRunningRef.current = false;
+        return;
+      }
+
+      if (!inView) {
+        isLoopRunningRef.current = false;
+        return;
+      }
+
+      const p = posRef.current;
+
+      // On mobile when not touched: auto-wander along traced path across paintings
+      if (isMob && !isTouchingRef.current) {
+        const timeSinceTouch = time - lastTouchReleaseTimeRef.current;
+        if (timeSinceTouch > 1000) {
+          updateAutoWander(time);
+        }
+      }
+
+      // Physics interpolation: snappier when user is actively dragging with touch
+      const lerpSpeed = isMob && isTouchingRef.current ? 0.32 : isMob ? 0.09 : 0.25;
       const diffX = p.targetX - p.currentX;
       const diffY = p.targetY - p.currentY;
-      const isMoving = Math.abs(diffX) > 0.05 || Math.abs(diffY) > 0.05;
+      const isMoving = Math.abs(diffX) > 0.04 || Math.abs(diffY) > 0.04;
 
-      p.currentX += diffX * 0.25;
-      p.currentY += diffY * 0.25;
+      p.currentX += diffX * lerpSpeed;
+      p.currentY += diffY * lerpSpeed;
 
-      if (!isMoving) {
+      if (!isMoving && (!isMob || isTouchingRef.current)) {
         p.currentX = p.targetX;
         p.currentY = p.targetY;
       }
@@ -520,7 +628,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
         containerRef.current.style.setProperty('--spotlight-y', `${p.currentY.toFixed(2)}%`);
       }
 
-      if (isMoving) {
+      if (isMob || isMoving) {
         animationFrameId = requestAnimationFrame(renderLoop);
       } else {
         isLoopRunningRef.current = false;
@@ -528,7 +636,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     };
 
     const triggerRenderLoop = () => {
-      if (!isLoopRunningRef.current && isHoveredRef.current && isFlashlightModeRef.current) {
+      if (!isLoopRunningRef.current && isFlashlightModeRef.current && (isMobileRef.current || isHoveredRef.current)) {
         isLoopRunningRef.current = true;
         animationFrameId = requestAnimationFrame(renderLoop);
       }
@@ -536,11 +644,15 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
 
     triggerRenderLoopRef.current = triggerRenderLoop;
 
+    if (isMobileRef.current && isFlashlightModeRef.current) {
+      triggerRenderLoop();
+    }
+
     return () => {
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       isLoopRunningRef.current = false;
     };
-  }, []);
+  }, [updateAutoWander]);
 
   const getContainerRect = useCallback(() => {
     const el = containerRef.current;
@@ -561,14 +673,31 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     triggerRenderLoopRef.current();
   }, [getContainerRect]);
 
+  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    if (e.touches.length === 0) return;
+    touchStartY.current = e.touches[0].clientY;
+
+    if (isFlashlightMode) {
+      isTouchingRef.current = true;
+      const rect = getContainerRect();
+      if (rect) {
+        const touch = e.touches[0];
+        posRef.current.targetX = Math.max(5, Math.min(95, ((touch.clientX - rect.left) / rect.width) * 100));
+        posRef.current.targetY = Math.max(5, Math.min(95, ((touch.clientY - rect.top) / rect.height) * 100));
+        triggerRenderLoopRef.current();
+      }
+    }
+  }, [isFlashlightMode, getContainerRect]);
+
   const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
     if (e.touches.length === 0) return;
     if (isFlashlightMode) {
+      isTouchingRef.current = true;
       const rect = getContainerRect();
       if (!rect) return;
       const touch = e.touches[0];
-      posRef.current.targetX = Math.max(0, Math.min(100, ((touch.clientX - rect.left) / rect.width) * 100));
-      posRef.current.targetY = Math.max(0, Math.min(100, ((touch.clientY - rect.top) / rect.height) * 100));
+      posRef.current.targetX = Math.max(5, Math.min(95, ((touch.clientX - rect.left) / rect.width) * 100));
+      posRef.current.targetY = Math.max(5, Math.min(95, ((touch.clientY - rect.top) / rect.height) * 100));
       triggerRenderLoopRef.current();
     } else {
       // Mobile swipe navigation for illuminated story stages
@@ -587,11 +716,27 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     }
   }, [isFlashlightMode, getContainerRect, handleNextStage, handlePrevStage]);
 
+  const handleTouchEnd = useCallback(() => {
+    if (isFlashlightMode) {
+      isTouchingRef.current = false;
+      lastTouchReleaseTimeRef.current = performance.now();
+      autoWanderRef.current.startX = posRef.current.currentX;
+      autoWanderRef.current.startY = posRef.current.currentY;
+      autoWanderRef.current.phase = 'travel';
+      autoWanderRef.current.phaseStartTime = performance.now();
+      triggerRenderLoopRef.current();
+    }
+  }, [isFlashlightMode]);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
+        isInViewRef.current = entry.isIntersecting;
         if (entry.isIntersecting) {
           setHasEntered(true);
+          if (isFlashlightModeRef.current && triggerRenderLoopRef.current) {
+            triggerRenderLoopRef.current();
+          }
         }
       },
       { threshold: 0.15 }
@@ -641,26 +786,14 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               setIsHovered(false);
             }
           }}
-          onTouchStart={(e) => {
-            if (e.touches.length > 0) {
-              touchStartY.current = e.touches[0].clientY;
-            }
-            if (isFlashlightMode) {
-              isHoveredRef.current = true;
-              setIsHovered(true);
-            }
-          }}
+          onTouchStart={handleTouchStart}
           onTouchMove={handleTouchMove}
-          onTouchEnd={() => {
-            if (isFlashlightMode) {
-              isHoveredRef.current = false;
-              setIsHovered(false);
-            }
-          }}
+          onTouchEnd={handleTouchEnd}
           style={{
             ['--spotlight-x' as string]: '50%',
             ['--spotlight-y' as string]: '50%',
             ['--beam-size' as string]: `${beamSize}px`,
+            touchAction: isFlashlightMode && isMobile ? 'none' : undefined,
           }}
           className="relative w-full overflow-hidden rounded-2xl sm:rounded-3xl lg:rounded-[2.5rem] border border-white/15 bg-[#030405] shadow-[0_30px_90px_rgba(0,0,0,0.95)] cursor-default select-none group"
         >
@@ -699,7 +832,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               className={`absolute inset-0 overflow-hidden pointer-events-none transition-all duration-[900ms] ease-[cubic-bezier(0.16,1,0.3,1)] ${
                 !isFlashlightMode
                   ? 'opacity-100'
-                  : isHovered
+                  : isMobile || isHovered
                   ? 'opacity-100'
                   : 'opacity-0'
               }`}
@@ -759,7 +892,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
             />
 
             {/* Soft white spotlight halo in dark mode */}
-            {isFlashlightMode && isHovered && (
+            {isFlashlightMode && (isMobile || isHovered) && (
               <div
                 className="absolute inset-0 pointer-events-none transition-opacity duration-400"
                 style={{

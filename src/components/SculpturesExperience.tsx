@@ -1501,7 +1501,7 @@ export function SculpturesExperience({
             </div>
 
             {/* "ENTER" Button */}
-            <div className="w-full flex justify-center mt-auto pb-4 sm:pb-7 z-20">
+            <div className="w-full flex justify-center mt-auto pb-12 sm:pb-7 md:pb-8 z-20">
               <button
                 onClick={handleEnter}
                 className="group relative cursor-pointer inline-flex items-center justify-center gap-3.5 px-7 sm:px-9 py-3 sm:py-3.5 rounded-full bg-white/[0.05] hover:bg-white/[0.12] border border-white/40 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_12px_32px_rgba(0,0,0,0.6),inset_0_1px_2px_rgba(255,255,255,0.4)] hover:shadow-[0_16px_40px_rgba(0,0,0,0.8),0_0_30px_rgba(184,154,98,0.45),inset_0_1.5px_3px_rgba(255,255,255,0.6)] transition-all duration-400 transform hover:scale-[1.04] active:scale-[0.98] backdrop-blur-md"
