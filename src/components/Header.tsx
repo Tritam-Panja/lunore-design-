@@ -17,7 +17,7 @@ interface ServiceSubItem {
 
 const navLinks: NavItem[] = [
   { label: 'PROJECTS', to: '/projects', sublabel: 'Visionary Works' },
-  { label: 'SERVICES', to: '/interior-design', sublabel: 'Turnkey & Stone' },
+  { label: 'SERVICES', to: '/#interior-experience', sublabel: 'Turnkey & Stone' },
   { label: 'ABOUT', to: '/brand-story', sublabel: 'The Space For You' },
   { label: 'CONTACT', to: '/contact', sublabel: 'Start a Project' },
   { label: 'CAREERS', to: '/careers', sublabel: 'Join The Studio' },
@@ -141,6 +141,25 @@ export function Header() {
 
     if (link.to) {
       e.preventDefault();
+      if (link.to.includes('#')) {
+        const [path, hash] = link.to.split('#');
+        const targetPath = path || '/';
+        if (location.pathname === targetPath) {
+          const el = document.getElementById(hash);
+          if (el) {
+            if (lenis) {
+              lenis.scrollTo(el, { offset: 0, duration: 1.2 });
+            } else {
+              el.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+          window.history.replaceState(null, '', `/#${hash}`);
+        } else {
+          navigate(`/#${hash}`);
+        }
+        return;
+      }
+
       if (location.pathname === link.to) {
         if (lenis) {
           lenis.scrollTo(0);

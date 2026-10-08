@@ -296,9 +296,15 @@ export function MarbleExperience() {
       window.scrollBy({ top: window.innerHeight * 0.9, behavior: 'smooth' });
     }
   }, []);
- 
   const handleTouchMove = (e: React.TouchEvent) => {
     if (e.touches.length === 0) return;
+    if (!isEntered) return;
+
+    // Once particle text arrives, allow normal touch scrolling to other sections
+    if (targetProgressRef.current >= 1.0 && currentProgressRef.current >= 0.88) {
+      return;
+    }
+
     const touch = e.touches[0];
     const now = performance.now();
     const dt = Math.max(1, now - lastTouchTimeRef.current);
@@ -306,51 +312,27 @@ export function MarbleExperience() {
     touchVelocityRef.current = deltaY / dt;
     lastTouchYRef.current = touch.clientY;
     lastTouchTimeRef.current = now;
- 
-    if (isEntered) {
-      if (deltaY > 0) {
-        const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
+
+    if (deltaY > 0) {
+      if (targetProgressRef.current < 0.68) {
+        const maxAllowed = isZoomUnlockedRef.current ? 0.68 : 0.44;
         if (targetProgressRef.current < maxAllowed) {
           targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + deltaY * 0.0055);
-          triggerPhysicsLoopRef.current();
-        } else if (isZoomUnlockedRef.current) {
-          overscrollDeltaRef.current += Math.abs(deltaY);
-          if (overscrollDeltaRef.current > (isMobile ? 70 : 140)) {
-            handleNextSection();
-          }
-        }
-      } else if (deltaY < 0 && targetProgressRef.current > 0) {
-        if (!isZoomUnlockedRef.current && targetProgressRef.current < 0.44) {
-          overscrollDeltaRef.current = 0;
-          targetProgressRef.current = Math.max(0, targetProgressRef.current + deltaY * 0.0055);
-          triggerPhysicsLoopRef.current();
-        } else if (isZoomUnlockedRef.current && targetProgressRef.current > 0.68) {
-          overscrollDeltaRef.current = 0;
-          targetProgressRef.current = Math.max(0.68, targetProgressRef.current + deltaY * 0.0055);
           triggerPhysicsLoopRef.current();
         }
       }
     }
   };
- 
+
   const handleTouchEnd = () => {
-    if (!isEntered) return;
+    if (!isEntered || targetProgressRef.current >= 1.0) return;
     const vel = touchVelocityRef.current;
- 
+
     if (vel > 0.45) {
       if (targetProgressRef.current < 0.44 && !isZoomUnlockedRef.current) {
         targetProgressRef.current = 0.44;
-      } else if (isZoomUnlockedRef.current && targetProgressRef.current < 0.68) {
-        targetProgressRef.current = 0.68;
-      } else if (isZoomUnlockedRef.current && targetProgressRef.current >= 0.68) {
-        targetProgressRef.current = 1.0;
-      }
-      triggerPhysicsLoopRef.current();
-    } else if (vel < -0.45) {
-      if (!isZoomUnlockedRef.current && targetProgressRef.current <= 0.44) {
-        targetProgressRef.current = 0;
         triggerPhysicsLoopRef.current();
-      } else if (isZoomUnlockedRef.current && targetProgressRef.current > 0.68) {
+      } else if (isZoomUnlockedRef.current && targetProgressRef.current < 0.68) {
         targetProgressRef.current = 0.68;
         triggerPhysicsLoopRef.current();
       }
@@ -358,54 +340,52 @@ export function MarbleExperience() {
       if (targetProgressRef.current > 0.28 && targetProgressRef.current < 0.44 && !isZoomUnlockedRef.current) {
         targetProgressRef.current = 0.44;
         triggerPhysicsLoopRef.current();
-      } else if (targetProgressRef.current > 0.80 && isZoomUnlockedRef.current) {
-        targetProgressRef.current = 1.0;
-        triggerPhysicsLoopRef.current();
       }
     }
   };
- 
+
   // Wheel scroll handler (desktop — locks page scroll while in the experience)
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
- 
+
     const onWheel = (e: WheelEvent) => {
       if (!isEntered) return;
- 
-      if (e.deltaY > 0) {
-        const maxAllowed = isZoomUnlockedRef.current ? 1.0 : 0.44;
-        if (targetProgressRef.current < maxAllowed) {
-          e.preventDefault();
-          e.stopPropagation();
-          targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + Math.min(e.deltaY * 0.0015, 0.09));
-          triggerPhysicsLoopRef.current();
-        } else if (isZoomUnlockedRef.current) {
-          overscrollDeltaRef.current += Math.abs(e.deltaY);
-          if (overscrollDeltaRef.current > 180) {
-            handleNextSection();
-          }
+
+      // Once particle text arrives (targetProgress >= 1.0):
+      // Completely release wheel scroll so user can freely scroll down to subsequent sections of the website.
+      // Do NOT intercept, do NOT preventDefault, and NEVER reset the animation backwards!
+      if (targetProgressRef.current >= 1.0) {
+        if (currentProgressRef.current >= 0.88) {
+          return; // Allow native / Lenis page scroll down to other sections
         }
-      } else if (e.deltaY < 0) {
-        if (!isZoomUnlockedRef.current && targetProgressRef.current < 0.44 && targetProgressRef.current > 0) {
-          e.preventDefault();
-          e.stopPropagation();
-          overscrollDeltaRef.current = 0;
-          targetProgressRef.current = Math.max(0, targetProgressRef.current + Math.max(e.deltaY * 0.0015, -0.09));
-          triggerPhysicsLoopRef.current();
-        } else if (isZoomUnlockedRef.current && targetProgressRef.current > 0.68) {
-          e.preventDefault();
-          e.stopPropagation();
-          overscrollDeltaRef.current = 0;
-          targetProgressRef.current = Math.max(0.68, targetProgressRef.current + Math.max(e.deltaY * 0.0015, -0.09));
-          triggerPhysicsLoopRef.current();
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
+
+      // Prior stages (before particle text arrives):
+      // Lock page scroll to the experience.
+      e.preventDefault();
+      e.stopPropagation();
+
+      // Only allow forward progression up to 0.44 (first dock) or 0.68 (building view).
+      // Advancing further from 0.68 to 1.0 is strictly reserved for the NEXT PAGE button.
+      // Scrolling will NEVER reset the animation backwards.
+      if (e.deltaY > 0) {
+        if (targetProgressRef.current < 0.68) {
+          const maxAllowed = isZoomUnlockedRef.current ? 0.68 : 0.44;
+          if (targetProgressRef.current < maxAllowed) {
+            targetProgressRef.current = Math.min(maxAllowed, targetProgressRef.current + Math.min(e.deltaY * 0.0015, 0.09));
+            triggerPhysicsLoopRef.current();
+          }
         }
       }
     };
- 
+
     el.addEventListener('wheel', onWheel, { passive: false });
     return () => el.removeEventListener('wheel', onWheel);
-  }, [isEntered, handleNextSection]);
+  }, [isEntered]);
  
   // Click card to flip
   const handleCardClick = () => {
@@ -558,7 +538,7 @@ export function MarbleExperience() {
       // OPTIMIZATION #6: while inside the experience on mobile, fully own the
       // gesture instead of 'pan-y' — letting native scroll run underneath a
       // JS-driven transform at the same time is a common tearing/flicker cause.
-      style={{ touchAction: isEntered ? 'none' : 'pan-y' }}
+      style={{ touchAction: isEntered && targetProgressRef.current < 1.0 ? 'none' : 'pan-y' }}
       className="relative w-full h-[100dvh] min-h-[600px] bg-[#08090a] overflow-hidden select-none flex items-center justify-center"
     >
       {/* 1. INITIAL BLANK VOID CANVAS */}

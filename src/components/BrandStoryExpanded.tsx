@@ -9,7 +9,7 @@ interface BrandStoryExpandedProps {
 
 export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandStoryExpandedProps) {
   return (
-    <article className="relative w-full text-[#f1eee7] pt-4 sm:pt-8 pb-20 sm:pb-32">
+    <article className="relative w-full text-white pt-4 sm:pt-8 pb-20 sm:pb-32">
       {/* Centered Editorial Document Container with refined desktop and mobile spacing */}
       <div className="max-w-4xl lg:max-w-[860px] mx-auto px-5 sm:px-8 md:px-12">
 
@@ -19,7 +19,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
             LUNORE LUXE DECOR STUDIO
           </p>
           <h1 
-            className="text-3xl sm:text-5xl md:text-6xl font-light text-[#f1eee7] tracking-tight leading-[1.12]"
+            className="text-3xl sm:text-5xl md:text-6xl font-light text-white tracking-tight leading-[1.12]"
             style={{ fontFamily: 'var(--font-display)' }}
           >
             Our Brand Story
@@ -38,11 +38,11 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
             Curating Spaces. Creating Statements.
           </h2>
 
-          <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] sm:leading-[1.85] font-light">
+          <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
             In a world of mass production and fleeting trends, true luxury is rare. It is thoughtful. It is personal. It is a space that doesn't just look beautiful, it speaks to who you are.
           </p>
 
-          <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] sm:leading-[1.85] font-light">
+          <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
             Lunore exists for those who understand this. We don't design interiors. We curate experiences. We don't supply materials. We source stories. We don't create sculptures. We commission art that transforms a room into a reflection of your vision.
           </p>
         </section>
@@ -59,11 +59,11 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
             How It Began
           </h2>
 
-          <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] sm:leading-[1.85] font-light">
+          <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
             Every great design studio starts with a founder who sees differently. Ours began with Dinkesh, a designer who believed that luxury interiors should never feel like showrooms. They should feel like home, amplified. Like the space was always meant to be exactly this.
           </p>
 
-          <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] sm:leading-[1.85] font-light">
+          <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
             For years, Dinkesh worked on high-end residential and hospitality projects across India, sourcing premium materials, collaborating with artisans, and learning that the most coveted interiors share one thing in common: <span className="text-[#e6cb97] font-normal">they are intentional</span>. Every surface, every finish, every sculpture tells a story. Nothing is there by accident.
           </p>
 
@@ -89,7 +89,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
             >
               What We Do
             </h2>
-            <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] font-light">
+            <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
               Lunore operates across three interconnected worlds, each one feeding the other:
             </p>
           </div>
@@ -106,11 +106,11 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
               1. Luxury Interior Design
             </h3>
 
-            <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] font-light">
+            <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
               We deliver turnkey interior projects for discerning clients, including homes, villas, commercial spaces, and hospitality venues, where every material, colour, light and object is chosen with precision.
             </p>
 
-            <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] font-light">
+            <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
               From your first consultation to the final styling, we handle concept, design, procurement, execution and handover. We work with architects and builders. We source from our own network of premium suppliers. We oversee every detail on-site. The result is a fully realised space that reflects your taste, your lifestyle, and your investment in beauty.
             </p>
 
@@ -131,11 +131,11 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
               2. Premium Materials & Stone Supply
             </h3>
 
-            <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] font-light">
+            <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
               Luxury interiors demand premium materials. We've built deep relationships with quarries, mills and suppliers across India for marble, granite, exotic stone and architectural finishes.
             </p>
 
-            <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] font-light">
+            <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
               We don't just supply slabs. We curate selections. We negotiate on your behalf. We quality-inspect every piece. We manage logistics to your site. We understand that the right marble isn't just beautiful, it's the foundation of a space that will be admired for decades.
             </p>
 
@@ -156,11 +156,11 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
               3. Stone Sculptures & Art
             </h3>
 
-            <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] font-light">
+            <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
               A room without art is a room without a soul. We commission and curate bespoke stone sculptures and fine art: pieces that become focal points, conversation starters, and investments that hold or grow in value over time.
             </p>
 
-            <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] font-light">
+            <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
               From contemporary sculptors to established artists, we connect collectors with work that moves them. Every piece is considered, authenticated, and positioned to transform a space.
             </p>
           </div>
@@ -185,7 +185,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
             A space tells a story. Make sure it's yours.
           </h3>
 
-          <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] sm:leading-[1.85] font-light">
+          <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
             In 20 years, you won't remember what your interiors cost. You'll remember how they made you feel. You'll remember the conversations that happened in that room. You'll remember the sculpture that stopped visitors in their tracks.
           </p>
 
@@ -195,7 +195,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
             </p>
           </div>
 
-          <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] sm:leading-[1.85] font-light">
+          <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
             We work with clients who understand that luxury is about choice, choosing materials that age beautifully, choosing designs that reflect who you are, choosing art that moves you.
           </p>
 
@@ -216,7 +216,7 @@ export function BrandStoryExpanded({ onClose, showCloseButton = false }: BrandSt
             Let's Curate Your Space
           </h2>
 
-          <p className="text-base sm:text-lg md:text-[1.125rem] text-[#dedbd2] leading-[1.8] sm:leading-[1.85] font-light">
+          <p className="text-base sm:text-lg md:text-xl text-white leading-relaxed font-light">
             Whether you're building a luxury home, a high-end hotel, a flagship retail space, or you're a collector looking for your next sculpture, Lunore is here to help.
           </p>
 

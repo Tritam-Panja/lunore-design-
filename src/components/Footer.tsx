@@ -11,9 +11,8 @@ const footerLinks: FooterLink[] = [
   { label: 'Home', to: '/' },
   { label: 'Projects', to: '/projects' },
   { label: 'Brand Story', to: '/brand-story' },
-  { label: 'Interior Design', to: '/interior-design' },
-  { label: 'Marble & Granite', to: '/marble-granite' },
-  { label: 'Dream Projects', to: '/dream-project' },
+  { label: 'Interior Design', to: '/#interior-experience' },
+  { label: 'Marble & Granite', to: '/#marble-experience' },
   { label: 'Careers', to: '/careers' },
   { label: 'Contact Us', to: '/contact' },
 ];
@@ -25,6 +24,27 @@ export function Footer() {
 
   const handleFooterLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: FooterLink) => {
     e.preventDefault();
+
+    if (link.to.includes('#')) {
+      const [path, hash] = link.to.split('#');
+      const targetPath = path || '/';
+
+      if (location.pathname === targetPath) {
+        const el = document.getElementById(hash);
+        if (el) {
+          if (lenis) {
+            lenis.scrollTo(el, { offset: 0, duration: 1.2 });
+          } else {
+            el.scrollIntoView({ behavior: 'smooth' });
+          }
+        }
+        window.history.replaceState(null, '', `/#${hash}`);
+      } else {
+        navigate(`/#${hash}`);
+      }
+      return;
+    }
+
     if (location.pathname === link.to) {
       if (lenis) {
         lenis.scrollTo(0);

@@ -781,26 +781,48 @@ const SculptureCarousel = React.memo(function SculptureCarousel({
         </div>
       </div>
 
-      {/* Bottom Controls & Free Carousel Navigation */}
+      {/* Floating Side Navigation Arrows (Elevated Upwards to Card Center Level) */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onPrev();
+        }}
+        style={{
+          opacity: controlsOpacity,
+          pointerEvents: isDocked ? 'auto' : 'none',
+        }}
+        className="absolute left-3 sm:left-6 md:left-8 lg:left-12 top-1/2 -translate-y-1/2 z-50 cursor-pointer liquid-glass-pill p-3 sm:p-3.5 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all duration-300 active:scale-95 shadow-[0_8px_30px_rgba(0,0,0,0.7)] group backdrop-blur-md"
+        title="Previous Sculpture"
+        aria-label="Previous Sculpture"
+      >
+        <ChevronLeft className="w-5 h-5 group-hover:-translate-x-0.5 transition-transform" />
+      </button>
+
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onNext();
+        }}
+        style={{
+          opacity: controlsOpacity,
+          pointerEvents: isDocked ? 'auto' : 'none',
+        }}
+        className="absolute right-3 sm:right-6 md:right-8 lg:right-12 top-1/2 -translate-y-1/2 z-50 cursor-pointer liquid-glass-pill p-3 sm:p-3.5 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all duration-300 active:scale-95 shadow-[0_8px_30px_rgba(0,0,0,0.7)] group backdrop-blur-md"
+        title="Next Sculpture"
+        aria-label="Next Sculpture"
+      >
+        <ChevronRight className="w-5 h-5 group-hover:translate-x-0.5 transition-transform" />
+      </button>
+
+      {/* Bottom Controls: Centered Pagination Dots */}
       <div
         style={{
           opacity: controlsOpacity,
           transform: `translate3d(0, ${(1 - controlsOpacity) * 16}px, 0)`,
           pointerEvents: isDocked ? 'auto' : 'none',
         }}
-        className="flex items-center justify-between w-full relative z-40 pt-2 max-w-7xl mx-auto transition-all duration-300"
+        className="flex items-center justify-center w-full relative z-40 pt-2 transition-all duration-300"
       >
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onPrev();
-          }}
-          className="cursor-pointer liquid-glass-pill p-2.5 sm:p-3 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all active:scale-95"
-          aria-label="Previous Sculpture"
-        >
-          <ChevronLeft className="w-4 h-4" />
-        </button>
-
         <div className="flex items-center gap-2">
           {SCULPTURE_CAROUSEL_ITEMS.map((item, idx) => (
             <button
@@ -818,17 +840,6 @@ const SculptureCarousel = React.memo(function SculptureCarousel({
             />
           ))}
         </div>
-
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onNext();
-          }}
-          className="cursor-pointer liquid-glass-pill p-2.5 sm:p-3 rounded-full hover:border-[#b89a62] hover:text-[#b89a62] text-[#f1eee7] transition-all active:scale-95"
-          aria-label="Next Sculpture"
-        >
-          <ChevronRight className="w-4 h-4" />
-        </button>
       </div>
 
       {/* Statement Narrative Text */}
@@ -1029,30 +1040,25 @@ export function SculpturesExperience({
       }
 
       // 3. Magnetic snap when coasting finishes (gentle alignment to nearest card center)
-      if (
-        isDockedNow &&
-        !isDraggingRef.current &&
-        Math.abs(momentumVelocityRef.current) === 0 &&
-        now - lastInteractionTimeRef.current < 2000
-      ) {
-        const snapTarget = Math.round(targetRotationRef.current);
-        const snapDiff = snapTarget - targetRotationRef.current;
-        if (Math.abs(snapDiff) > 0.001) {
-          targetRotationRef.current += snapDiff * Math.min(1, 0.09 * timeScale);
-          isChanging = true;
-        }
-      }
+      // 3. User interaction tracking
+      const isInteracting = isDraggingRef.current || Math.abs(momentumVelocityRef.current) > 0.0001;
+      const timeSinceInteraction = now - lastInteractionTimeRef.current;
 
-      // 4. Idle ambient auto-drift (Smooth endless infinite luxury rotation)
-      if (
-        isDockedNow &&
-        !isDraggingRef.current &&
-        !isHoveredRef.current &&
-        Math.abs(momentumVelocityRef.current) === 0 &&
-        now - lastInteractionTimeRef.current > 2400
-      ) {
-        targetRotationRef.current += 0.003 * timeScale;
-        isChanging = true;
+      // 4. Smooth continuous luxury auto-rotation (rotates slowly itself without user interaction)
+      if (isDockedNow && !isInteracting) {
+        if (timeSinceInteraction > 1000) {
+          // Slow continuous serene rotation (~0.0016 units per frame at 60fps)
+          targetRotationRef.current += 0.0016 * timeScale;
+          isChanging = true;
+        } else {
+          // Brief subtle alignment to nearest card center before ambient auto-rotation resumes
+          const snapTarget = Math.round(targetRotationRef.current);
+          const snapDiff = snapTarget - targetRotationRef.current;
+          if (Math.abs(snapDiff) > 0.001) {
+            targetRotationRef.current += snapDiff * Math.min(1, 0.09 * timeScale);
+            isChanging = true;
+          }
+        }
       }
 
       // 5. Smooth 120fps lerp for 3D carousel rotation
@@ -1070,7 +1076,7 @@ export function SculpturesExperience({
         isChanging = true;
       }
 
-      if (isChanging || (isDockedNow && !isHoveredRef.current)) {
+      if (isChanging || isDockedNow) {
         animId = requestAnimationFrame(updatePhysics);
       } else {
         animId = null;
