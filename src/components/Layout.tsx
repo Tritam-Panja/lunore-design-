@@ -6,10 +6,7 @@ import { SmoothScroll } from './SmoothScroll';
 import { ScrollProgress } from './ScrollProgress';
 import { WhatsAppBubble } from './WhatsAppBubble';
 
-// Only routes featuring scroll-linked scrubbers, flashlight/spotlight masks,
-// and synchronized scroll-progress animations initialize the Lenis RAF loop.
-const SMOOTH_SCROLL_ROUTES = ['/'];
-
+// Content routes initialize smooth scrolling on desktop, preserving native scroll on iOS
 const FULLSCREEN_ROUTES = [
   '/the-engawa-line',
   '/amber-and-olive',
@@ -34,7 +31,7 @@ const FULLSCREEN_ROUTES = [
 export function Layout() {
   const { pathname } = useLocation();
   const isFullScreenRoute = FULLSCREEN_ROUTES.includes(pathname);
-  const needsSmoothScroll = SMOOTH_SCROLL_ROUTES.includes(pathname);
+  const needsSmoothScroll = !isFullScreenRoute;
 
   if (isFullScreenRoute) {
     return (

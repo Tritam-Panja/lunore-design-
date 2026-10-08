@@ -55,8 +55,21 @@
 }
 
 @layer base {
-  html, body {
+  html {
     overflow-x: hidden;
+    overflow-x: clip;
+    overflow-y: auto;
+    width: 100%;
+    max-width: 100vw;
+    position: relative;
+    box-sizing: border-box;
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    -webkit-overflow-scrolling: touch;
+  }
+  body {
+    overflow-x: hidden;
+    overflow-x: clip;
     width: 100%;
     max-width: 100vw;
     position: relative;
@@ -66,7 +79,7 @@
     -webkit-overflow-scrolling: touch;
   }
   @media (hover: hover) and (pointer: fine) {
-    html, body {
+    html {
       overscroll-behavior-y: none;
     }
   }
