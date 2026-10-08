@@ -50,6 +50,7 @@ interface TeamMember {
   role: string;
   testimonial: string;
   image: string;
+  imagePosition?: string;
 }
 
 const directors: TeamMember[] = [
@@ -76,7 +77,8 @@ const directors: TeamMember[] = [
     name: "JITANDAR LOHAR ",
     role: "Director — Finance & Administration",
     testimonial: "Jitandar  keeps Lunore running smoothly behind the scenes. He manages finances with precision, handles compliance and statutory requirements, and builds the operational systems that let the team focus on creative work. Jitandar believes that strong administration and clear financial health are the foundation of sustainable growth and he takes pride in creating that foundation.",
-    image: "/assets/images/Director JITU.jpeg"
+    image: "/assets/images/Director JITU.jpeg",
+    imagePosition: "center 12%"
   },
 ];
 
@@ -495,6 +497,7 @@ export function Home() {
                         alt={activeMember.name}
                         className="w-full h-full rounded-full"
                         imgClassName="w-full h-full object-cover rounded-full"
+                        imgStyle={{ objectPosition: activeMember.imagePosition || 'center center' }}
                       />
                     </div>
 
@@ -600,6 +603,7 @@ export function Home() {
                               alt={member.name}
                               className="w-full h-full rounded-full"
                               imgClassName="w-full h-full object-cover rounded-full select-none"
+                              imgStyle={{ objectPosition: member.imagePosition || 'center center' }}
                             />
                           </div>
                         );

@@ -6,6 +6,7 @@ interface LazyImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   alt?: string;
   className?: string;
   imgClassName?: string;
+  imgStyle?: React.CSSProperties;
   skeletonClassName?: string;
   aspectRatio?: string;
   threshold?: number;
@@ -18,6 +19,7 @@ export function LazyImage({
   alt = '',
   className = '',
   imgClassName = '',
+  imgStyle,
   skeletonClassName = '',
   aspectRatio,
   threshold = 0.01,
@@ -123,6 +125,7 @@ export function LazyImage({
             isLoaded ? 'opacity-100' : 'opacity-0'
           } ${imgClassName}`}
           {...props}
+          style={{ ...props.style, ...imgStyle }}
         />
       )}
     </div>

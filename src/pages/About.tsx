@@ -11,6 +11,7 @@ interface TeamMember {
   quote?: string;
   testimonial: string;
   image: string;
+  imagePosition?: string;
 }
 
 const directors: TeamMember[] = [
@@ -40,7 +41,8 @@ const directors: TeamMember[] = [
     role: "Director — Finance & Administration",
     quote: "Precision and clarity are the foundation of sustainable growth.",
     testimonial: "Jitandar keeps Lunore running smoothly behind the scenes. He manages finances with precision, handles compliance and statutory requirements, and builds the operational systems that let the team focus on creative work. He takes pride in creating a rock-solid foundation for artistic excellence.",
-    image: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=compress&cs=tinysrgb&w=800&q=80"
+    image: "/assets/images/Director JITU.jpeg",
+    imagePosition: "center 12%"
   },
 ];
 
@@ -187,6 +189,7 @@ export function About() {
                       alt={activeMember.name}
                       className="w-full h-full rounded-full"
                       imgClassName="w-full h-full object-cover rounded-full"
+                      imgStyle={{ objectPosition: activeMember.imagePosition || 'center center' }}
                     />
                   </div>
 
@@ -291,6 +294,7 @@ export function About() {
                             alt={member.name}
                             className="w-full h-full rounded-full"
                             imgClassName="w-full h-full object-cover rounded-full select-none"
+                            imgStyle={{ objectPosition: member.imagePosition || 'center center' }}
                           />
                         </div>
                       );

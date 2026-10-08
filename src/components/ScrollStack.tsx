@@ -66,8 +66,11 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
   const animationFrameRef = useRef<number | null>(null);
   const lenisRef = useRef<Lenis | null>(null);
   const cardsRef = useRef<HTMLElement[]>([]);
+  const cardOffsetsRef = useRef<number[]>([]);
   const lastTransformsRef = useRef<Map<number, any>>(new Map());
   const isUpdatingRef = useRef(false);
+  const lastScrollTopRef = useRef<number>(0);
+  const settledFramesRef = useRef<number>(0);
 
   const calculateProgress = useCallback((scrollTop: number, start: number, end: number) => {
     if (scrollTop < start) return 0;
@@ -120,19 +123,32 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     const stackPositionPx = parsePercentage(stackPosition, containerHeight);
     const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight);
 
+    const cardOffsets = cardOffsetsRef.current;
     const lastCardIndex = cardsRef.current.length - 1;
     const lastCard = cardsRef.current[lastCardIndex];
-    const lastCardTop = lastCard ? getElementOffset(lastCard) : 0;
+    const lastCardTop = cardOffsets[lastCardIndex] ?? (lastCard ? getElementOffset(lastCard) : 0);
     const lastCardPinStart = lastCardTop - stackPositionPx - itemStackDistance * lastCardIndex;
     const pinEnd = lastCardPinStart;
+
+    // Track scroll velocity for settling / sleep detection
+    const deltaScroll = Math.abs(scrollTop - lastScrollTopRef.current);
+    lastScrollTopRef.current = scrollTop;
+
+    // Consecutive-frame stability check: low residual velocity (< 0.6px) for 3 consecutive frames
+    if (deltaScroll < 0.6) {
+      settledFramesRef.current = Math.min(10, settledFramesRef.current + 1);
+    } else {
+      settledFramesRef.current = 0;
+    }
+    const isStackSettled = settledFramesRef.current >= 3;
 
     cardsRef.current.forEach((card, i) => {
       if (!card) return;
 
-      const cardTop = getElementOffset(card);
+      const cardTop = cardOffsets[i] ?? getElementOffset(card);
       const triggerStart = cardTop - stackPositionPx - itemStackDistance * i;
       const triggerEnd = cardTop - scaleEndPositionPx;
-      const pinStart = cardTop - stackPositionPx - itemStackDistance * i;
+      const pinStart = triggerStart;
 
       const scaleProgress = calculateProgress(scrollTop, triggerStart, triggerEnd);
       const targetScale = Math.min(1, baseScale + i * itemScale);
@@ -143,7 +159,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       if (blurAmount) {
         let topCardIndex = 0;
         for (let j = 0; j < cardsRef.current.length; j++) {
-          const jCardTop = getElementOffset(cardsRef.current[j]);
+          const jCardTop = cardOffsets[j] ?? getElementOffset(cardsRef.current[j]);
           const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j;
           if (scrollTop >= jTriggerStart) {
             topCardIndex = j;
@@ -165,27 +181,44 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         translateY = pinEnd - cardTop + stackPositionPx + itemStackDistance * i;
       }
 
+      // Stable subpixel precision (snapping to 0.5px grid eliminates edge antialiasing crawl)
+      const snapY = Math.round(translateY * 2) / 2;
+      const snapScale = Math.round(scale * 1000) / 1000;
+      const snapRotation = Math.round(rotation * 100) / 100;
+      const snapBlur = Math.round(blur * 100) / 100;
+
       const newTransform = {
-        translateY: Math.round(translateY * 100) / 100,
-        scale: Math.round(scale * 1000) / 1000,
-        rotation: Math.round(rotation * 100) / 100,
-        blur: Math.round(blur * 100) / 100,
+        translateY: snapY,
+        scale: snapScale,
+        rotation: snapRotation,
+        blur: snapBlur,
       };
 
       const lastTransform = lastTransformsRef.current.get(i);
+      const isCardAtRestInStack = isPinned && scaleProgress >= 0.999;
+
+      // STABILIZATION / SLEEP:
+      // If the stack has settled into a resting position and this card is already resting in the stack,
+      // clamp residual micro-velocity and suppress unnecessary updates to eliminate shivering.
+      if (isStackSettled && isCardAtRestInStack && lastTransform) {
+        return;
+      }
+
       const hasChanged =
         !lastTransform ||
-        Math.abs(lastTransform.translateY - newTransform.translateY) > 0.1 ||
+        Math.abs(lastTransform.translateY - newTransform.translateY) >= 0.5 ||
         Math.abs(lastTransform.scale - newTransform.scale) > 0.001 ||
         Math.abs(lastTransform.rotation - newTransform.rotation) > 0.1 ||
         Math.abs(lastTransform.blur - newTransform.blur) > 0.1;
 
       if (hasChanged) {
-        const transform = `translate3d(0, ${newTransform.translateY}px, 0) scale(${newTransform.scale}) rotate(${newTransform.rotation}deg)`;
+        const transform = `translate3d(0, ${newTransform.translateY}px, 0) scale(${newTransform.scale})${newTransform.rotation ? ` rotate(${newTransform.rotation}deg)` : ''}`;
         const filter = newTransform.blur > 0 ? `blur(${newTransform.blur}px)` : '';
 
         card.style.transform = transform;
-        card.style.filter = filter;
+        if (card.style.filter !== filter) {
+          card.style.filter = filter;
+        }
 
         lastTransformsRef.current.set(i, newTransform);
       }
@@ -262,6 +295,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         : (scrollerRef.current?.querySelectorAll('.scroll-stack-card') ?? [])
     ) as HTMLElement[];
     cardsRef.current = cards;
+    cardOffsetsRef.current = cards.map((card) => getElementOffset(card));
     const transformsCache = lastTransformsRef.current;
 
     cards.forEach((card, i) => {
@@ -282,11 +316,16 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
     setupLenis();
 
+    const handleResize = () => {
+      cardOffsetsRef.current = cardsRef.current.map((card) => getElementOffset(card));
+      handleScroll();
+    };
+
     const scroller = scrollerRef.current;
     if (scroller) {
       scroller.addEventListener('scroll', handleScroll, { passive: true });
     }
-    window.addEventListener('resize', handleScroll, { passive: true });
+    window.addEventListener('resize', handleResize, { passive: true });
 
     updateCardTransforms();
 
@@ -300,9 +339,11 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       if (scroller) {
         scroller.removeEventListener('scroll', handleScroll);
       }
-      window.removeEventListener('resize', handleScroll);
+      window.removeEventListener('resize', handleResize);
       stackCompletedRef.current = false;
       cardsRef.current = [];
+      cardOffsetsRef.current = [];
+      settledFramesRef.current = 0;
       transformsCache.clear();
       isUpdatingRef.current = false;
     };
