@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useLenis } from './SmoothScroll';
+import { isMobileDevice } from '../lib/device';
 
 const ImageTrail = lazy(() => import('./ImageTrail'));
 
@@ -15,14 +16,125 @@ const AUREXA_TRAIL_IMAGES = [
   '/assets/images/imagetrail9.webp',
 ];
 
-interface FloatingCard {
+interface PopCard {
   id: number;
   src: string;
   x: number;
   y: number;
   rotation: number;
-  scale: number;
-  opacity: number;
+  createdAt: number;
+}
+
+const SPAWN_ZONES = [
+  { x: 74, y: 15, rotMin: -5, rotMax: 4 },  // Top right
+  { x: 22, y: 18, rotMin: -6, rotMax: 5 },  // Top left
+  { x: 18, y: 44, rotMin: -7, rotMax: 3 },  // Mid left
+  { x: 78, y: 46, rotMin: -3, rotMax: 7 },  // Mid right
+  { x: 24, y: 72, rotMin: -5, rotMax: 6 },  // Bottom left
+  { x: 76, y: 70, rotMin: -6, rotMax: 4 },  // Bottom right
+  { x: 48, y: 24, rotMin: -4, rotMax: 4 },  // Upper center
+  { x: 50, y: 64, rotMin: -3, rotMax: 5 },  // Lower center
+];
+
+function AurexaMobilePoppingGallery({
+  images,
+  isActive,
+}: {
+  images: string[];
+  isActive: boolean;
+}) {
+  const [cards, setCards] = useState<PopCard[]>([]);
+  const nextIdRef = useRef<number>(1);
+  const lastZoneRef = useRef<number>(-1);
+  const lastImageRef = useRef<number>(-1);
+
+  const spawnCard = useCallback(() => {
+    // Pick zone avoiding immediate repetition
+    let nextZone = Math.floor(Math.random() * SPAWN_ZONES.length);
+    if (nextZone === lastZoneRef.current) {
+      nextZone = (nextZone + 1) % SPAWN_ZONES.length;
+    }
+    lastZoneRef.current = nextZone;
+
+    // Pick image avoiding immediate repetition
+    let nextImg = Math.floor(Math.random() * images.length);
+    if (nextImg === lastImageRef.current) {
+      nextImg = (nextImg + 1) % images.length;
+    }
+    lastImageRef.current = nextImg;
+
+    const zone = SPAWN_ZONES[nextZone];
+    const jitterX = (Math.random() - 0.5) * 8; // +/- 4%
+    const jitterY = (Math.random() - 0.5) * 6; // +/- 3%
+    const rotation = zone.rotMin + Math.random() * (zone.rotMax - zone.rotMin);
+    const now = Date.now();
+
+    const newCard: PopCard = {
+      id: nextIdRef.current++,
+      src: images[nextImg],
+      x: Math.max(12, Math.min(88, zone.x + jitterX)),
+      y: Math.max(12, Math.min(84, zone.y + jitterY)),
+      rotation: Math.round(rotation * 10) / 10,
+      createdAt: now,
+    };
+
+    setCards(prev => {
+      // Retain cards still within their 3.2s animation lifecycle
+      const alive = prev.filter(c => now - c.createdAt < 3300);
+      return [...alive, newCard];
+    });
+  }, [images]);
+
+  useEffect(() => {
+    if (!isActive) {
+      setCards([]);
+      return;
+    }
+
+    // Immediately spawn 2 staggered initial cards when section comes into view
+    spawnCard();
+    const initialTimer = setTimeout(() => {
+      spawnCard();
+    }, 350);
+
+    // Continuous interval: spawn a new card every 800ms
+    const interval = setInterval(() => {
+      spawnCard();
+    }, 800);
+
+    return () => {
+      clearTimeout(initialTimer);
+      clearInterval(interval);
+    };
+  }, [isActive, spawnCard]);
+
+  return (
+    <div className="absolute inset-0 z-[10] pointer-events-none overflow-hidden select-none">
+      {cards.map(card => (
+        <div
+          key={card.id}
+          className="absolute pointer-events-none will-change-transform rounded-2xl overflow-hidden shadow-[0_16px_36px_rgba(0,0,0,0.85)] border border-white/20 bg-[#121314]"
+          style={{
+            left: `${card.x}%`,
+            top: `${card.y}%`,
+            width: 'clamp(120px, 34vw, 155px)',
+            height: 'clamp(155px, 44vw, 200px)',
+            animation: 'aurexa-card-pop 3.2s cubic-bezier(0.22, 1, 0.36, 1) forwards',
+            '--card-rot': `${card.rotation}deg`,
+          } as React.CSSProperties}
+        >
+          <img
+            src={card.src}
+            alt="Lunore Aurexa"
+            className="w-full h-full object-cover select-none"
+            loading="lazy"
+            decoding="async"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-white/10 pointer-events-none" />
+        </div>
+      ))}
+    </div>
+  );
 }
 
 export function AurexaSection() {
@@ -31,9 +143,11 @@ export function AurexaSection() {
 
   const [isUnlocked, setIsUnlocked] = useState<boolean>(false);
   const [hasStarted, setHasStarted] = useState<boolean>(false);
-  const [isMobile, setIsMobile] = useState<boolean>(() => 
-    typeof window !== 'undefined' ? (window.innerWidth < 1024 || 'ontouchstart' in window || navigator.maxTouchPoints > 0) : false
-  );
+  const [isInView, setIsInView] = useState<boolean>(false);
+  const [isMobile, setIsMobile] = useState<boolean>(() => {
+    if (typeof window === 'undefined') return false;
+    return isMobileDevice() || window.innerWidth < 1024;
+  });
 
   const progressRef = useRef<number>(0);
   const isUnlockedRef = useRef<boolean>(false);
@@ -87,7 +201,7 @@ export function AurexaSection() {
       const w = window.innerWidth;
       if (Math.abs(w - lastWidth) < 2) return;
       lastWidth = w;
-      setIsMobile(w < 1024 || 'ontouchstart' in window || navigator.maxTouchPoints > 0);
+      setIsMobile(isMobileDevice() || w < 1024);
     };
     window.addEventListener('resize', handleResize, { passive: true });
     window.addEventListener('orientationchange', handleResize, { passive: true });
@@ -134,6 +248,7 @@ export function AurexaSection() {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
+          setIsInView(entry.isIntersecting);
           if (entry.isIntersecting) {
             setHasStarted(true);
             if (!isMobile && !isUnlockedRef.current) {
@@ -214,15 +329,22 @@ export function AurexaSection() {
       id="aurexa"
       className="relative w-full h-[100dvh] min-h-[560px] sm:min-h-[650px] bg-[#070809] overflow-hidden select-none flex flex-col justify-between items-center border-t border-b border-white/[0.06] py-8 sm:py-14 px-4 sm:px-8 touch-pan-y"
     >
-      {/* 1. INTERACTIVE CURSOR & MOBILE TOUCH IMAGE TRAIL */}
-      <div
-        className="absolute inset-0 z-[5] pointer-events-auto transition-opacity duration-500"
-        style={{ opacity: isUnlocked ? 1 : 0 }}
-      >
-        <Suspense fallback={null}>
-          <ImageTrail items={AUREXA_TRAIL_IMAGES} variant={7} />
-        </Suspense>
-      </div>
+      {/* 1a. INTERACTIVE CURSOR IMAGE TRAIL (DESKTOP ONLY) */}
+      {!isMobile && (
+        <div
+          className="absolute inset-0 z-[5] pointer-events-auto transition-opacity duration-500"
+          style={{ opacity: isUnlocked ? 1 : 0 }}
+        >
+          <Suspense fallback={null}>
+            <ImageTrail items={AUREXA_TRAIL_IMAGES} variant={7} />
+          </Suspense>
+        </div>
+      )}
+
+      {/* 1b. LIGHTWEIGHT AMBIENT POPPING IMAGES (MOBILE ONLY - ZERO GSAP/TOUCH INTERFERENCE) */}
+      {isMobile && isUnlocked && (
+        <AurexaMobilePoppingGallery images={AUREXA_TRAIL_IMAGES} isActive={isInView} />
+      )}
 
       {/* 2. AMBIENT GLOWS */}
       <div

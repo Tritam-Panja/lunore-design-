@@ -223,22 +223,20 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     targetY: 45,
   });
 
-  // Key painting and architectural art coordinates visited on mobile auto-wander
+  // Key painting and architectural art coordinates visited on mobile auto-wander (brisk, engaging pace)
   const PAINTING_WAYPOINTS = [
-    { x: 24, y: 24, linger: 1300 }, // High left vertical marble wall art
-    { x: 20, y: 52, linger: 1100 }, // Illuminated marble staircase steps
-    { x: 32, y: 74, linger: 900 },  // Lower marble floor reflection & planter
-    { x: 50, y: 45, linger: 1500 }, // Central textured master canvas (behind sofa)
-    { x: 52, y: 18, linger: 1100 }, // Upper architectural mezzanine profile
-    { x: 74, y: 48, linger: 1000 }, // Right indoor tropical tree & floor lamp
-    { x: 82, y: 34, linger: 1300 }, // Panoramic sea view glass & island silhouette
-    { x: 58, y: 72, linger: 1100 }, // Sunken lounge marble coffee table & books
+    { x: 24, y: 24, linger: 550 }, // High left vertical marble wall art
+    { x: 20, y: 52, linger: 500 }, // Illuminated marble staircase steps
+    { x: 32, y: 74, linger: 450 }, // Lower marble floor reflection & planter
+    { x: 50, y: 45, linger: 650 }, // Central textured master canvas (behind sofa)
+    { x: 52, y: 18, linger: 500 }, // Upper architectural mezzanine profile
+    { x: 74, y: 48, linger: 480 }, // Right indoor tropical tree & floor lamp
+    { x: 82, y: 34, linger: 580 }, // Panoramic sea view glass & island silhouette
+    { x: 58, y: 72, linger: 500 }, // Sunken lounge marble coffee table & books
   ];
 
   const isMobileRef = useRef<boolean>(isMobile);
   const isInViewRef = useRef<boolean>(true);
-  const isTouchingRef = useRef<boolean>(false);
-  const lastTouchReleaseTimeRef = useRef<number>(0);
 
   const autoWanderRef = useRef({
     currentWp: 0,
@@ -534,8 +532,8 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     if (aw.phase === 'linger') {
       const wp = PAINTING_WAYPOINTS[aw.currentWp];
       // Subtle ambient breathing drift across the painting surface
-      const driftX = Math.sin(time * 0.0016) * 1.8 + Math.cos(time * 0.0031) * 0.8;
-      const driftY = Math.cos(time * 0.0013) * 1.4 + Math.sin(time * 0.0027) * 0.6;
+      const driftX = Math.sin(time * 0.0028) * 1.8 + Math.cos(time * 0.005) * 0.8;
+      const driftY = Math.cos(time * 0.0024) * 1.4 + Math.sin(time * 0.0045) * 0.6;
       p.targetX = wp.x + driftX;
       p.targetY = wp.y + driftY;
 
@@ -547,9 +545,9 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
         aw.arcDirection = aw.arcDirection === 1 ? -1 : 1;
       }
     } else {
-      // Traveling smoothly along a gentle curved arc towards the next painting
+      // Traveling smoothly along a gentle curved arc towards the next painting (crisper, faster pacing)
       const wpNext = PAINTING_WAYPOINTS[aw.nextWp];
-      const travelDuration = 2600; // 2.6s luxurious glide
+      const travelDuration = 1350; // Increased tracing speed (smooth, lively glide)
       const progress = Math.min(1, (time - aw.phaseStartTime) / travelDuration);
 
       // Quintic smoothstep easing
@@ -601,16 +599,13 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
 
       const p = posRef.current;
 
-      // On mobile when not touched: auto-wander along traced path across paintings
-      if (isMob && !isTouchingRef.current) {
-        const timeSinceTouch = time - lastTouchReleaseTimeRef.current;
-        if (timeSinceTouch > 1000) {
-          updateAutoWander(time);
-        }
+      // On mobile: auto-wander continuously along traced path across architectural paintings
+      if (isMob) {
+        updateAutoWander(time);
       }
 
-      // Physics interpolation: snappier when user is actively dragging with touch
-      const lerpSpeed = isMob && isTouchingRef.current ? 0.32 : isMob ? 0.09 : 0.25;
+      // Physics interpolation: smooth and responsive tracking
+      const lerpSpeed = isMob ? 0.20 : 0.25;
       const diffX = p.targetX - p.currentX;
       const diffY = p.targetY - p.currentY;
       const isMoving = Math.abs(diffX) > 0.04 || Math.abs(diffY) > 0.04;
@@ -618,7 +613,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
       p.currentX += diffX * lerpSpeed;
       p.currentY += diffY * lerpSpeed;
 
-      if (!isMoving && (!isMob || isTouchingRef.current)) {
+      if (!isMoving && !isMob) {
         p.currentX = p.targetX;
         p.currentY = p.targetY;
       }
@@ -676,30 +671,11 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
   const handleTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
     if (e.touches.length === 0) return;
     touchStartY.current = e.touches[0].clientY;
-
-    if (isFlashlightMode) {
-      isTouchingRef.current = true;
-      const rect = getContainerRect();
-      if (rect) {
-        const touch = e.touches[0];
-        posRef.current.targetX = Math.max(5, Math.min(95, ((touch.clientX - rect.left) / rect.width) * 100));
-        posRef.current.targetY = Math.max(5, Math.min(95, ((touch.clientY - rect.top) / rect.height) * 100));
-        triggerRenderLoopRef.current();
-      }
-    }
-  }, [isFlashlightMode, getContainerRect]);
+  }, []);
 
   const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
     if (e.touches.length === 0) return;
-    if (isFlashlightMode) {
-      isTouchingRef.current = true;
-      const rect = getContainerRect();
-      if (!rect) return;
-      const touch = e.touches[0];
-      posRef.current.targetX = Math.max(5, Math.min(95, ((touch.clientX - rect.left) / rect.width) * 100));
-      posRef.current.targetY = Math.max(5, Math.min(95, ((touch.clientY - rect.top) / rect.height) * 100));
-      triggerRenderLoopRef.current();
-    } else {
+    if (!isFlashlightMode) {
       // Mobile swipe navigation for illuminated story stages
       const currentY = e.touches[0].clientY;
       const diffY = touchStartY.current - currentY;
@@ -714,19 +690,12 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
         lastScrollTime.current = now;
       }
     }
-  }, [isFlashlightMode, getContainerRect, handleNextStage, handlePrevStage]);
+  }, [isFlashlightMode, handleNextStage, handlePrevStage]);
 
   const handleTouchEnd = useCallback(() => {
-    if (isFlashlightMode) {
-      isTouchingRef.current = false;
-      lastTouchReleaseTimeRef.current = performance.now();
-      autoWanderRef.current.startX = posRef.current.currentX;
-      autoWanderRef.current.startY = posRef.current.currentY;
-      autoWanderRef.current.phase = 'travel';
-      autoWanderRef.current.phaseStartTime = performance.now();
-      triggerRenderLoopRef.current();
-    }
-  }, [isFlashlightMode]);
+    // Touch interaction completely removed for mobile flashlight mode;
+    // user touches purely scroll the page while auto-wander traces continuously
+  }, []);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -793,7 +762,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
             ['--spotlight-x' as string]: '50%',
             ['--spotlight-y' as string]: '50%',
             ['--beam-size' as string]: `${beamSize}px`,
-            touchAction: isFlashlightMode && isMobile ? 'none' : undefined,
+            touchAction: 'pan-y',
           }}
           className="relative w-full overflow-hidden rounded-2xl sm:rounded-3xl lg:rounded-[2.5rem] border border-white/15 bg-[#030405] shadow-[0_30px_90px_rgba(0,0,0,0.95)] cursor-default select-none group"
         >
