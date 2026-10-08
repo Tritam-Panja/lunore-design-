@@ -288,16 +288,16 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         // Smooth cubic ease-out for deterministic cinematic feel
         const easeProgress = 1 - Math.pow(1 - progress, 3);
         scale = 1.0 - easeProgress * (1.0 - targetScale);
-        translateY = Math.round(scrollTop - cardTop + targetStackOffset);
+        translateY = scrollTop - cardTop + targetStackOffset;
       }
       // 3. Reached Target Position in Stack: firmly locked into target state with zero micro-movement
       else {
         scale = targetScale;
         if (scrollTop <= pinEnd) {
-          translateY = Math.round(scrollTop - cardTop + targetStackOffset);
+          translateY = scrollTop - cardTop + targetStackOffset;
         } else {
           // Beyond stack completion: resting stably at final pinEnd
-          translateY = Math.round(pinEnd - cardTop + targetStackOffset);
+          translateY = pinEnd - cardTop + targetStackOffset;
         }
       }
 
@@ -317,18 +317,20 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         }
       }
 
+      // Stable subpixel precision (0.01px resolution eliminates 1px integer rounding jitter while matching GPU compositing)
+      const subpixelY = Math.round(translateY * 100) / 100;
       const snapScale = Math.round(scale * 1000) / 1000;
       const snapBlur = Math.round(blur * 10) / 10;
       const lastTransform = lastTransformsRef.current.get(i);
 
       const hasChanged =
         !lastTransform ||
-        lastTransform.translateY !== translateY ||
-        lastTransform.scale !== snapScale ||
-        lastTransform.blur !== snapBlur;
+        Math.abs(lastTransform.translateY - subpixelY) >= 0.01 ||
+        Math.abs(lastTransform.scale - snapScale) >= 0.0005 ||
+        Math.abs(lastTransform.blur - snapBlur) >= 0.05;
 
       if (hasChanged) {
-        const transform = `translate3d(0, ${translateY}px, 0) scale(${snapScale})`;
+        const transform = `translate3d(0, ${subpixelY}px, 0) scale(${snapScale})`;
         const filter = snapBlur > 0 ? `blur(${snapBlur}px)` : '';
 
         card.style.transform = transform;
@@ -337,7 +339,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         }
 
         lastTransformsRef.current.set(i, {
-          translateY,
+          translateY: subpixelY,
           scale: snapScale,
           rotation: 0,
           blur: snapBlur,
