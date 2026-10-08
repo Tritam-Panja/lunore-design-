@@ -233,150 +233,10 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     getScrollData,
   ]);
 
-  // =========================================================================
-  // iOS + ANDROID: Lightweight Deterministic Target-Position Animation
-  // - Zero continuous collision physics or floating-point velocity noise.
-  // - Overscroll clamped: prevents iOS elastic rubber-band bounce from shaking the stack.
-  // - Deterministic sequential easing into assigned target position.
-  // - Firm resting lock: once reached, cards freeze completely with ZERO micro-movement.
-  // =========================================================================
-  const updateMobileMarbles = useCallback(() => {
-    if (!cardsRef.current.length || isUpdatingRef.current) return;
-
-    isUpdatingRef.current = true;
-
-    const scroller = scrollerRef.current;
-    const rawScrollTop = useWindowScroll ? window.scrollY : (scroller ? scroller.scrollTop : 0);
-    const containerHeight = useWindowScroll ? window.innerHeight : (scroller ? scroller.clientHeight : 0);
-    const scrollContainer = useWindowScroll ? document.documentElement : scroller;
-    const maxScroll = Math.max(0, (scrollContainer ? scrollContainer.scrollHeight - containerHeight : 0));
-
-    // Clamped against iOS and Android elastic bounce: completely stops rubber-band vibration
-    const scrollTop = Math.min(maxScroll, Math.max(0, rawScrollTop));
-
-    const stackPositionPx = parsePercentage(stackPosition, containerHeight);
-    const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight);
-
-    const cardOffsets = cardOffsetsRef.current;
-    const lastCardIndex = cardsRef.current.length - 1;
-    const lastCardTop = cardOffsets[lastCardIndex] ?? 0;
-    const lastCardPinStart = lastCardTop - stackPositionPx - itemStackDistance * lastCardIndex;
-    const pinEnd = lastCardPinStart;
-
-    cardsRef.current.forEach((card, i) => {
-      if (!card) return;
-
-      const cardTop = cardOffsets[i] ?? 0;
-      const targetStackOffset = stackPositionPx + itemStackDistance * i;
-      const triggerStart = cardTop - targetStackOffset;
-      const triggerEnd = cardTop - scaleEndPositionPx;
-      const pinStart = triggerStart;
-      const targetScale = Math.min(1, baseScale + i * itemScale);
-
-      let translateY = 0;
-      let scale = 1;
-
-      // 1. Before Entrance: card is in natural scroll position
-      if (scrollTop < triggerStart) {
-        translateY = 0;
-        scale = 1;
-      }
-      // 2. Sequential/Cinematic Entrance toward assigned target position
-      else if (scrollTop < triggerEnd) {
-        const rawProgress = (scrollTop - triggerStart) / Math.max(1, triggerEnd - triggerStart);
-        const progress = Math.min(1, Math.max(0, rawProgress));
-        // Smooth cubic ease-out for deterministic cinematic feel
-        const easeProgress = 1 - Math.pow(1 - progress, 3);
-        scale = 1.0 - easeProgress * (1.0 - targetScale);
-        translateY = scrollTop - cardTop + targetStackOffset;
-      }
-      // 3. Reached Target Position in Stack: firmly locked into target state with zero micro-movement
-      else {
-        scale = targetScale;
-        if (scrollTop <= pinEnd) {
-          translateY = scrollTop - cardTop + targetStackOffset;
-        } else {
-          // Beyond stack completion: resting stably at final pinEnd
-          translateY = pinEnd - cardTop + targetStackOffset;
-        }
-      }
-
-      let blur = 0;
-      if (blurAmount) {
-        let topCardIndex = 0;
-        for (let j = 0; j < cardsRef.current.length; j++) {
-          const jCardTop = cardOffsets[j] ?? 0;
-          const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j;
-          if (scrollTop >= jTriggerStart) {
-            topCardIndex = j;
-          }
-        }
-        if (i < topCardIndex) {
-          const depthInStack = topCardIndex - i;
-          blur = Math.max(0, depthInStack * blurAmount);
-        }
-      }
-
-      // Stable subpixel precision (0.01px resolution eliminates 1px integer rounding jitter while matching GPU compositing)
-      const subpixelY = Math.round(translateY * 100) / 100;
-      const snapScale = Math.round(scale * 1000) / 1000;
-      const snapBlur = Math.round(blur * 10) / 10;
-      const lastTransform = lastTransformsRef.current.get(i);
-
-      const hasChanged =
-        !lastTransform ||
-        Math.abs(lastTransform.translateY - subpixelY) >= 0.01 ||
-        Math.abs(lastTransform.scale - snapScale) >= 0.0005 ||
-        Math.abs(lastTransform.blur - snapBlur) >= 0.05;
-
-      if (hasChanged) {
-        const transform = `translate3d(0, ${subpixelY}px, 0) scale(${snapScale})`;
-        const filter = snapBlur > 0 ? `blur(${snapBlur}px)` : '';
-
-        card.style.transform = transform;
-        if (card.style.filter !== filter) {
-          card.style.filter = filter;
-        }
-
-        lastTransformsRef.current.set(i, {
-          translateY: subpixelY,
-          scale: snapScale,
-          rotation: 0,
-          blur: snapBlur,
-        });
-      }
-
-      if (i === lastCardIndex) {
-        const isInView = scrollTop >= pinStart && scrollTop <= pinEnd;
-        if (isInView && !stackCompletedRef.current) {
-          stackCompletedRef.current = true;
-          onStackComplete?.();
-        } else if (!isInView && stackCompletedRef.current) {
-          stackCompletedRef.current = false;
-        }
-      }
-    });
-
-    isUpdatingRef.current = false;
-  }, [
-    itemScale,
-    itemStackDistance,
-    stackPosition,
-    scaleEndPosition,
-    baseScale,
-    blurAmount,
-    useWindowScroll,
-    onStackComplete,
-    parsePercentage,
-  ]);
-
   const handleScroll = useCallback(() => {
-    if (isMobileDeviceRef.current) {
-      updateMobileMarbles();
-    } else {
-      updateDesktopMarbles();
-    }
-  }, [updateMobileMarbles, updateDesktopMarbles]);
+    if (isMobileDeviceRef.current) return;
+    updateDesktopMarbles();
+  }, [updateDesktopMarbles]);
 
   // LOCAL SCROLLSTACK SINGLE-FRAME UPDATE SCHEDULER
   // Collapses multiple scroll events within the same frame into ONE calculation.
@@ -421,7 +281,8 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
   }, [scheduleStackUpdate, useWindowScroll]);
 
   useLayoutEffect(() => {
-    isMobileDeviceRef.current = isMobileDevice();
+    const isMobile = isMobileDevice();
+    isMobileDeviceRef.current = isMobile;
 
     if (!useWindowScroll && !scrollerRef.current) return;
 
@@ -430,7 +291,91 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         ? document.querySelectorAll('.scroll-stack-card')
         : (scrollerRef.current?.querySelectorAll('.scroll-stack-card') ?? [])
     ) as HTMLElement[];
+
+    if (!cards.length) return;
     cardsRef.current = cards;
+
+    // =========================================================================
+    // MOBILE BRANCH: Lightweight Document-Flow IntersectionObserver Reveal
+    // - Native browser scrolling with normal document-flow cards
+    // - NO continuous scroll-linked transform calculations
+    // - NO pinning or forced repositioning
+    // - NO scroll event listeners or RAF loops
+    // - Stable one-time CSS transition when entering viewport
+    // =========================================================================
+    if (isMobile) {
+      const prefersReducedMotion =
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+      const lastCard = cards[cards.length - 1];
+
+      // Prepare cards in normal document flow
+      cards.forEach((card, i) => {
+        card.style.marginBottom = i < cards.length - 1 ? `${itemDistance}px` : '48px';
+        card.style.zIndex = `${i + 1}`;
+        card.style.willChange = 'transform, opacity';
+        card.style.backfaceVisibility = 'hidden';
+        card.style.transformOrigin = 'center top';
+        card.style.perspective = 'none';
+        (card.style as any).webkitPerspective = 'none';
+
+        if (prefersReducedMotion) {
+          card.style.opacity = '1';
+          card.style.transform = 'none';
+          card.style.transition = 'none';
+        } else {
+          card.style.opacity = '0';
+          card.style.transform = 'translateY(24px) scale(0.985)';
+          card.style.transition = 'opacity 550ms cubic-bezier(0.22, 1, 0.36, 1), transform 550ms cubic-bezier(0.22, 1, 0.36, 1)';
+        }
+      });
+
+      if (prefersReducedMotion) {
+        stackCompletedRef.current = true;
+        onStackComplete?.();
+        return () => {
+          cardsRef.current = [];
+        };
+      }
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const target = entry.target as HTMLElement;
+              target.style.opacity = '1';
+              target.style.transform = 'translateY(0) scale(1)';
+              observer.unobserve(target);
+
+              if (target === lastCard && !stackCompletedRef.current) {
+                stackCompletedRef.current = true;
+                onStackComplete?.();
+              }
+            }
+          });
+        },
+        {
+          root: useWindowScroll ? null : scrollerRef.current,
+          threshold: 0.12,
+          rootMargin: '0px 0px -8% 0px',
+        }
+      );
+
+      cards.forEach((card) => {
+        observer.observe(card);
+      });
+
+      return () => {
+        observer.disconnect();
+        stackCompletedRef.current = false;
+        cardsRef.current = [];
+      };
+    }
+
+    // =========================================================================
+    // DESKTOP BRANCH: Existing Desktop ScrollStack Implementation (LOCKED)
+    // =========================================================================
     cardOffsetsRef.current = cards.map((card) => getElementOffset(card));
     const transformsCache = lastTransformsRef.current;
 
@@ -500,6 +445,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     handleScroll,
     scheduleStackUpdate,
     getElementOffset,
+    onStackComplete,
   ]);
 
   return (
