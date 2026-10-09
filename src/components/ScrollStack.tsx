@@ -175,14 +175,14 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         translateY = pinEnd - cardTop + stackPositionPx + itemStackDistance * i;
       }
 
-      // Stable subpixel precision (snapping to 0.5px grid eliminates edge antialiasing crawl)
-      const snapY = Math.round(translateY * 2) / 2;
-      const snapScale = Math.round(scale * 1000) / 1000;
-      const snapRotation = Math.round(rotation * 100) / 100;
-      const snapBlur = Math.round(blur * 100) / 100;
+      // Smooth continuous subpixel precision (0.01px resolution eliminates 0.5px stair-stepping without jitter)
+      const subpixelY = Math.round(translateY * 100) / 100;
+      const snapScale = Math.round(scale * 10000) / 10000;
+      const snapRotation = rotationAmount ? Math.round(rotation * 100) / 100 : 0;
+      const snapBlur = blurAmount ? Math.round(blur * 100) / 100 : 0;
 
       const newTransform = {
-        translateY: snapY,
+        translateY: subpixelY,
         scale: snapScale,
         rotation: snapRotation,
         blur: snapBlur,
@@ -192,10 +192,10 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
       const hasChanged =
         !lastTransform ||
-        Math.abs(lastTransform.translateY - newTransform.translateY) >= 0.5 ||
-        Math.abs(lastTransform.scale - newTransform.scale) > 0.001 ||
-        Math.abs(lastTransform.rotation - newTransform.rotation) > 0.1 ||
-        Math.abs(lastTransform.blur - newTransform.blur) > 0.1;
+        Math.abs(lastTransform.translateY - newTransform.translateY) > 0.005 ||
+        Math.abs(lastTransform.scale - newTransform.scale) > 0.0001 ||
+        Math.abs(lastTransform.rotation - newTransform.rotation) > 0.05 ||
+        Math.abs(lastTransform.blur - newTransform.blur) > 0.05;
 
       if (hasChanged) {
         const transform = `translate3d(0, ${newTransform.translateY}px, 0) scale(${newTransform.scale})${newTransform.rotation ? ` rotate(${newTransform.rotation}deg)` : ''}`;
@@ -241,14 +241,9 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
   }, [updateDesktopMarbles]);
 
   // LOCAL SCROLLSTACK SINGLE-FRAME UPDATE SCHEDULER
-  // Collapses multiple scroll events within the same frame into ONE calculation.
+  // Synchronous scroll-linked calculation guarantees zero frame latency between native scroll and card transforms.
   const scheduleStackUpdate = useCallback(() => {
-    if (scrollRafRef.current !== null) return;
-
-    scrollRafRef.current = requestAnimationFrame(() => {
-      scrollRafRef.current = null;
-      handleScroll();
-    });
+    handleScroll();
   }, [handleScroll]);
 
   const setupLenis = useCallback(() => {
@@ -381,7 +376,6 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     // =========================================================================
     // DESKTOP BRANCH: Existing Desktop ScrollStack Implementation (LOCKED)
     // =========================================================================
-    cardOffsetsRef.current = cards.map((card) => getElementOffset(card));
     const transformsCache = lastTransformsRef.current;
 
     cards.forEach((card, i) => {
@@ -399,6 +393,9 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       card.style.perspective = '1000px';
       card.style.webkitPerspective = '1000px';
     });
+
+    // Compute card offsets AFTER applying layout margins so offsets accurately reflect the layout
+    cardOffsetsRef.current = cards.map((card) => getElementOffset(card));
 
     setupLenis();
 
