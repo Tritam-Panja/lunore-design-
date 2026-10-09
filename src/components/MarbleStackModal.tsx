@@ -319,11 +319,11 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
                     srcSet={!isAndroidDevice && item.imageSm ? `${item.imageSm} 720w, ${item.image} 1448w` : undefined}
                     sizes={!isAndroidDevice ? "(max-width: 640px) 100vw, 1024px" : undefined}
                     alt={item.name}
-                    loading={index < (isAndroidDevice ? 4 : 3) ? 'eager' : 'lazy'}
-                    decoding="async"
+                    loading={index < (isAndroidDevice ? 6 : 3) ? 'eager' : 'lazy'}
+                    decoding={isAndroidDevice ? 'auto' : 'async'}
                     width={1448}
                     height={1086}
-                    className="w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] sm:group-hover:scale-105 transition-transform duration-700 ease-out"
+                    className={`w-full h-full object-cover object-center brightness-[1.05] contrast-[1.02] ${isAndroidDevice ? '' : 'sm:group-hover:scale-105 transition-transform duration-700 ease-out'}`}
                   />
                   {/* Lightened, natural gradient solely for bottom text legibility */}
                   <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-black/15 to-transparent pointer-events-none" />

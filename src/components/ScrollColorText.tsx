@@ -46,8 +46,8 @@ export function ScrollColorText({
         for (let i = 0; i < totalWords; i++) {
           const span = spans[i];
           if (!span) continue;
-          const groupDelay = Math.min(0.42, (i / totalWords) * 0.38);
-          span.style.transition = `color 0.45s ease-out ${groupDelay}s, opacity 0.45s ease-out ${groupDelay}s, transform 0.45s ease-out ${groupDelay}s`;
+          const groupDelay = Math.min(0.35, Math.floor(i / 4) * 0.045);
+          span.style.transition = `color 0.48s ease ${groupDelay}s, opacity 0.48s ease ${groupDelay}s, transform 0.48s cubic-bezier(0.22, 1, 0.36, 1) ${groupDelay}s`;
           span.style.color = '#f5ebd2';
           span.style.opacity = '1';
           span.style.transform = 'translateY(0px)';

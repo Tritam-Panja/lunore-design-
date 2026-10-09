@@ -566,17 +566,16 @@ export function MarbleExperience() {
         <div
           style={{
             opacity: zoomedBgOpacity,
-            visibility: isAndroidDevice && zoomedBgOpacity < 0.001 ? 'hidden' : 'visible',
             transform: `scale(${zoomedBgScale})`,
             transformOrigin: '50% 50%',
           }}
-          className="absolute inset-0 z-10 overflow-hidden pointer-events-none will-change-transform"
+          className={`absolute inset-0 z-10 overflow-hidden pointer-events-none ${isAndroidDevice ? '' : 'will-change-transform'}`}
         >
           <img
             src={images.marbleZoomed}
             alt="Lunore Balcony Marble Facade Zoomed"
             loading={isAndroidDevice ? 'eager' : 'lazy'}
-            decoding={isAndroidDevice ? 'sync' : 'async'}
+            decoding={isAndroidDevice ? 'auto' : 'async'}
             width={1600}
             height={755}
             className="w-full h-full object-cover object-center brightness-100 contrast-105"
@@ -594,17 +593,16 @@ export function MarbleExperience() {
         <div
           style={{
             opacity: heroBgOpacity,
-            visibility: isAndroidDevice && heroBgOpacity < 0.001 ? 'hidden' : 'visible',
             transform: `scale(${heroBgScale})`,
             transformOrigin: '50% 38%',
           }}
-          className="absolute inset-0 z-15 overflow-hidden pointer-events-none will-change-transform"
+          className={`absolute inset-0 z-15 overflow-hidden pointer-events-none ${isAndroidDevice ? '' : 'will-change-transform'}`}
         >
           <img
             src={images.marbleHero}
             alt="Lunore Monumental Marble Building Architecture"
             loading={isAndroidDevice ? 'eager' : 'lazy'}
-            decoding={isAndroidDevice ? 'sync' : 'async'}
+            decoding={isAndroidDevice ? 'auto' : 'async'}
             width={1600}
             height={900}
             className="w-full h-full object-cover object-center brightness-[1.02] contrast-[1.03]"
@@ -634,7 +632,7 @@ export function MarbleExperience() {
       {/* 4. MARBLE CUTOUT: GPU TRANSFORMED DOCKING PANEL                           */}
       {/* Bezel glass/shadow simplified on mobile — see useStoneFilter / isMobile   */}
       {/* ========================================================================= */}
-      {cardDissolveOpacity > 0.005 && (
+      {(cardDissolveOpacity > 0.005 || isAndroidDevice) && (
         <div
           className="absolute inset-0 z-30 flex items-center justify-center pointer-events-none"
         >
@@ -644,24 +642,22 @@ export function MarbleExperience() {
             style={{
               width: `${baseCardWidth}px`,
               height: `${baseCardHeight}px`,
-              perspective: '1400px',
-              transform: `perspective(1400px) translate3d(${transX}px, ${transY}px, 0px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) scale(${finalScaleX}, ${finalScaleY})`,
-              transformStyle: 'preserve-3d',
+              perspective: isAndroidDevice ? 'none' : '1400px',
+              transform: isAndroidDevice
+                ? `translate3d(0px, ${transY}px, 0px) scale(${finalScaleX}, ${finalScaleY})`
+                : `perspective(1400px) translate3d(${transX}px, ${transY}px, 0px) rotateX(${rotX}deg) rotateY(${rotY}deg) rotateZ(${rotZ}deg) scale(${finalScaleX}, ${finalScaleY})`,
+              transformStyle: isAndroidDevice ? 'flat' : 'preserve-3d',
               opacity: cardDissolveOpacity,
               pointerEvents: isFullyRevealed ? 'none' : 'auto',
-              // OPTIMIZATION #5: will-change trimmed to just this outer wrapper —
-              // the previous version tagged multiple nested children too, which
-              // can exceed a mobile GPU's compositor-layer budget and cause
-              // layers to be evicted/repainted (visible as flicker).
-              willChange: 'transform, opacity',
+              willChange: isAndroidDevice ? 'auto' : 'transform, opacity',
             }}
             className="relative cursor-pointer group select-none flex items-center justify-center"
           >
             {/* CARD FRONT: Glass Bezel & Stone Texture */}
             <div
               style={{
-                backfaceVisibility: 'hidden',
-                WebkitBackfaceVisibility: 'hidden',
+                backfaceVisibility: isAndroidDevice ? 'visible' : 'hidden',
+                WebkitBackfaceVisibility: isAndroidDevice ? 'visible' : 'hidden',
                 borderRadius: `${outerRadius}px`,
                 padding: `${bezelPadding}px`,
                 backgroundColor: `rgba(255, 255, 255, ${0.08 * bezelGlassOpacity})`,
@@ -682,7 +678,7 @@ export function MarbleExperience() {
                   className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-white/90 to-transparent z-10 pointer-events-none"
                 />
               )}
- 
+
               <div
                 style={{
                   borderRadius: `${innerRadius}px`,
@@ -694,7 +690,7 @@ export function MarbleExperience() {
                   src={images.marbleCutout}
                   alt="Lunore Architectural Marble Cutout"
                   loading={isAndroidDevice ? 'eager' : 'lazy'}
-                  decoding={isAndroidDevice ? 'sync' : 'async'}
+                  decoding={isAndroidDevice ? 'auto' : 'async'}
                   width={1847}
                   height={851}
                   style={
@@ -772,10 +768,10 @@ export function MarbleExperience() {
                   className="inline-block text-[#f1eee7]"
                   style={{
                     animation: isAndroidDevice
-                      ? 'lunore-letter-reveal-android 0.48s cubic-bezier(0.16, 1, 0.3, 1) both'
+                      ? 'lunore-letter-reveal-android 0.54s cubic-bezier(0.22, 1, 0.36, 1) both'
                       : 'lunore-letter-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both',
                     animationDelay: isAndroidDevice
-                      ? `${0.03 + wIdx * 0.03}s`
+                      ? `${0.04 + wIdx * 0.04}s`
                       : `${0.12 + wIdx * 0.08}s`,
                     textShadow: isAndroidDevice
                       ? '0 2px 14px rgba(0,0,0,0.95)'

@@ -27,8 +27,10 @@ export function TextReveal({
 
   const words = useMemo(() => text.split(' '), [text]);
 
-  const effectiveDelay = isAndroidDevice ? Math.min(delay, 0.04) : delay;
-  const effectiveStagger = isAndroidDevice ? Math.min(stagger * 0.35, 0.015) : stagger;
+  const effectiveDelay = isAndroidDevice ? Math.min(delay, 0.03) : delay;
+  // On Android, use a smoothly clamped micro-stagger with a 0.52s fluid cubic ease to eliminate word stutter and trailing pauses
+  const getWordDelay = (idx: number) =>
+    isAndroidDevice ? effectiveDelay + Math.min(idx * 0.018, 0.16) : delay + idx * stagger;
 
   return (
     <Component
@@ -40,10 +42,10 @@ export function TextReveal({
           <span
             className={`word-mask-inner ${wordClassName}`}
             style={{
-              transitionDelay: `${effectiveDelay + idx * effectiveStagger}s`,
+              transitionDelay: `${getWordDelay(idx)}s`,
               ...(isAndroidDevice
                 ? {
-                    transition: 'transform 0.48s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out',
+                    transition: 'transform 0.52s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.46s ease-out',
                     willChange: 'auto',
                   }
                 : {}),

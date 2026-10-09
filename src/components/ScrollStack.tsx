@@ -11,6 +11,7 @@ export interface ScrollStackItemProps {
 }
 
 export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({ children, itemClassName = '' }) => {
+  const isAndroidDevice = isAndroid();
   const hasHeight = itemClassName.includes('h-');
   const hasPadding = itemClassName.includes('p-');
   const hasMargin = itemClassName.includes('my-') || itemClassName.includes('m-');
@@ -18,10 +19,10 @@ export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({ children, item
 
   return (
     <div
-      className={`scroll-stack-card relative w-full ${!hasHeight ? 'h-80' : ''} ${!hasMargin ? 'my-8' : ''} ${!hasPadding ? 'p-12' : ''} ${!hasRadius ? 'rounded-[40px]' : ''} shadow-[0_0_30px_rgba(0,0,0,0.1)] box-border origin-top will-change-transform ${itemClassName}`.trim()}
+      className={`scroll-stack-card relative w-full ${!hasHeight ? 'h-80' : ''} ${!hasMargin ? 'my-8' : ''} ${!hasPadding ? 'p-12' : ''} ${!hasRadius ? 'rounded-[40px]' : ''} ${isAndroidDevice ? '' : 'shadow-[0_0_30px_rgba(0,0,0,0.1)] will-change-transform'} box-border origin-top ${itemClassName}`.trim()}
       style={{
-        backfaceVisibility: 'hidden',
-        transformStyle: 'preserve-3d',
+        backfaceVisibility: isAndroidDevice ? 'visible' : 'hidden',
+        transformStyle: isAndroidDevice ? 'flat' : 'preserve-3d',
       }}
     >
       {children}
@@ -62,6 +63,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
   onStackComplete,
   footer,
 }) => {
+  const isAndroidDevice = isAndroid();
   const scrollerRef = useRef<HTMLDivElement>(null);
   const stackCompletedRef = useRef(false);
   const animationFrameRef = useRef<number | null>(null);
@@ -318,25 +320,23 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         if (!isAndroidDevice) {
           card.style.willChange = 'transform, opacity';
         }
-        card.style.backfaceVisibility = 'hidden';
+        card.style.backfaceVisibility = isAndroidDevice ? 'visible' : 'hidden';
         card.style.transformOrigin = 'center top';
         card.style.perspective = 'none';
         (card.style as any).webkitPerspective = 'none';
 
-        if (prefersReducedMotion) {
+        if (prefersReducedMotion || isAndroidDevice) {
           card.style.opacity = '1';
           card.style.transform = 'none';
           card.style.transition = 'none';
         } else {
           card.style.opacity = '0';
           card.style.transform = 'translateY(24px) scale(0.985)';
-          card.style.transition = isAndroidDevice
-            ? 'opacity 350ms cubic-bezier(0.22, 1, 0.36, 1), transform 350ms cubic-bezier(0.22, 1, 0.36, 1)'
-            : 'opacity 550ms cubic-bezier(0.22, 1, 0.36, 1), transform 550ms cubic-bezier(0.22, 1, 0.36, 1)';
+          card.style.transition = 'opacity 550ms cubic-bezier(0.22, 1, 0.36, 1), transform 550ms cubic-bezier(0.22, 1, 0.36, 1)';
         }
       });
 
-      if (prefersReducedMotion) {
+      if (prefersReducedMotion || isAndroidDevice) {
         stackCompletedRef.current = true;
         onStackComplete?.();
         return () => {
@@ -461,8 +461,8 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         overscrollBehavior: 'contain',
         WebkitOverflowScrolling: 'touch',
         scrollBehavior: 'auto',
-        WebkitTransform: 'translateZ(0)',
-        transform: 'translateZ(0)',
+        WebkitTransform: isAndroidDevice ? 'none' : 'translateZ(0)',
+        transform: isAndroidDevice ? 'none' : 'translateZ(0)',
       }}
     >
       <div className="scroll-stack-inner pt-[6vh] sm:pt-[10vh] px-3 sm:px-10 md:px-20 pb-[45vh] min-h-screen">
