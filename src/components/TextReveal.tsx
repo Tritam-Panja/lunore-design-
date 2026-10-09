@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useReveal } from '@/lib/useReveal';
+import { isAndroid } from '@/lib/device';
 
 interface TextRevealProps {
   text: string;
@@ -21,9 +22,13 @@ export function TextReveal({
   delay = 0,
   stagger = 0.035,
 }: TextRevealProps) {
+  const isAndroidDevice = isAndroid();
   const { ref, visible } = useReveal({ threshold: 0.1, once: true });
 
   const words = useMemo(() => text.split(' '), [text]);
+
+  const effectiveDelay = isAndroidDevice ? Math.min(delay, 0.04) : delay;
+  const effectiveStagger = isAndroidDevice ? Math.min(stagger * 0.35, 0.015) : stagger;
 
   return (
     <Component
@@ -35,7 +40,13 @@ export function TextReveal({
           <span
             className={`word-mask-inner ${wordClassName}`}
             style={{
-              transitionDelay: `${delay + idx * stagger}s`,
+              transitionDelay: `${effectiveDelay + idx * effectiveStagger}s`,
+              ...(isAndroidDevice
+                ? {
+                    transition: 'transform 0.48s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease-out',
+                    willChange: 'auto',
+                  }
+                : {}),
             }}
           >
             {word}

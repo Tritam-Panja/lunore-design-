@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { scrollCoordinator } from '@/lib/scrollCoordinator';
+import { isAndroid } from '@/lib/device';
 
 interface ScrollColorTextProps {
   text: string;
@@ -33,6 +34,40 @@ export function ScrollColorText({
   const totalWords = words.length;
 
   useEffect(() => {
+    // ANDROID-ONLY LIGHTWEIGHT PATH:
+    // Eliminates 117 per-scroll synchronous inline-style DOM writes that stall the main thread.
+    // Instead uses a single IntersectionObserver with a hardware-accelerated CSS cascade reveal.
+    if (isAndroid()) {
+      const el = containerRef.current;
+      if (!el) return;
+
+      const spans = wordsRef.current;
+      const revealWords = () => {
+        for (let i = 0; i < totalWords; i++) {
+          const span = spans[i];
+          if (!span) continue;
+          const groupDelay = Math.min(0.42, (i / totalWords) * 0.38);
+          span.style.transition = `color 0.45s ease-out ${groupDelay}s, opacity 0.45s ease-out ${groupDelay}s, transform 0.45s ease-out ${groupDelay}s`;
+          span.style.color = '#f5ebd2';
+          span.style.opacity = '1';
+          span.style.transform = 'translateY(0px)';
+        }
+      };
+
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            revealWords();
+            observer.disconnect();
+          }
+        },
+        { threshold: 0.1, rootMargin: '50px 0px 50px 0px' }
+      );
+
+      observer.observe(el);
+      return () => observer.disconnect();
+    }
+
     const updateWords = (progress: number) => {
       if (containerRef.current) {
         containerRef.current.style.setProperty('--scroll-progress', progress.toFixed(4));

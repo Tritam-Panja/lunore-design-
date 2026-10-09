@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { X, ArrowRight, ChevronLeft } from 'lucide-react';
 import { ScrollStack, ScrollStackItem } from './ScrollStack';
+import { isAndroid } from '@/lib/device';
 
 export interface StoneItem {
   id: string;
@@ -134,6 +135,7 @@ interface MarbleStackModalProps {
 }
 
 export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
+  const isAndroidDevice = isAndroid();
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   const [isMobile, setIsMobile] = useState(
@@ -313,11 +315,11 @@ export function MarbleStackModal({ onClose }: MarbleStackModalProps) {
                 {/* Background Full-Bleed Image (lightened up) */}
                 <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
                   <img
-                    src={item.image}
-                    srcSet={item.imageSm ? `${item.imageSm} 720w, ${item.image} 1448w` : undefined}
-                    sizes="(max-width: 640px) 100vw, 1024px"
+                    src={isAndroidDevice ? (item.imageSm || item.image) : item.image}
+                    srcSet={!isAndroidDevice && item.imageSm ? `${item.imageSm} 720w, ${item.image} 1448w` : undefined}
+                    sizes={!isAndroidDevice ? "(max-width: 640px) 100vw, 1024px" : undefined}
                     alt={item.name}
-                    loading={index < 3 ? 'eager' : 'lazy'}
+                    loading={index < (isAndroidDevice ? 4 : 3) ? 'eager' : 'lazy'}
                     decoding="async"
                     width={1448}
                     height={1086}

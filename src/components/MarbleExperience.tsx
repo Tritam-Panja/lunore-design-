@@ -3,6 +3,7 @@ import { Sparkles, ArrowRight, RotateCcw, ChevronDown } from 'lucide-react';
 import { images } from '@/lib/images';
 import ParticleText from './ParticleText';
 import { scrollCoordinator } from '@/lib/scrollCoordinator';
+import { isAndroid } from '@/lib/device';
 
 const MarbleStackModal = lazy(() =>
   import('./MarbleStackModal').then((m) => ({ default: m.MarbleStackModal }))
@@ -461,9 +462,12 @@ export function MarbleExperience() {
   // Desktop keeps both mounted (crossfade quality preserved where GPU can
   // handle it); mobile only ever pays the paint cost of one image at a time.
   // ===========================================================================
+  const isAndroidDevice = isAndroid();
   const MOBILE_LAYER_THRESHOLD = 0.03;
-  const showZoomedLayer = !isMobile || zoomedBgOpacity > MOBILE_LAYER_THRESHOLD;
-  const showHeroLayer = !isMobile || heroBgOpacity > MOBILE_LAYER_THRESHOLD;
+  // On Android, keep layers permanently mounted to prevent Chromium GPU decode eviction / blank flicker.
+  // Desktop already keeps both mounted. iOS keeps its existing mobile threshold branch.
+  const showZoomedLayer = isAndroidDevice ? true : (!isMobile || zoomedBgOpacity > MOBILE_LAYER_THRESHOLD);
+  const showHeroLayer = isAndroidDevice ? true : (!isMobile || heroBgOpacity > MOBILE_LAYER_THRESHOLD);
  
   const baseCardWidth = isMobile ? Math.min(265, windowSize.width * 0.72) : isTablet ? 340 : 390;
   const baseCardHeight = isMobile ? Math.min(345, windowSize.height * 0.46) : isTablet ? 440 : 490;
@@ -562,6 +566,7 @@ export function MarbleExperience() {
         <div
           style={{
             opacity: zoomedBgOpacity,
+            visibility: isAndroidDevice && zoomedBgOpacity < 0.001 ? 'hidden' : 'visible',
             transform: `scale(${zoomedBgScale})`,
             transformOrigin: '50% 50%',
           }}
@@ -570,8 +575,8 @@ export function MarbleExperience() {
           <img
             src={images.marbleZoomed}
             alt="Lunore Balcony Marble Facade Zoomed"
-            loading="lazy"
-            decoding="async"
+            loading={isAndroidDevice ? 'eager' : 'lazy'}
+            decoding={isAndroidDevice ? 'sync' : 'async'}
             width={1600}
             height={755}
             className="w-full h-full object-cover object-center brightness-100 contrast-105"
@@ -589,6 +594,7 @@ export function MarbleExperience() {
         <div
           style={{
             opacity: heroBgOpacity,
+            visibility: isAndroidDevice && heroBgOpacity < 0.001 ? 'hidden' : 'visible',
             transform: `scale(${heroBgScale})`,
             transformOrigin: '50% 38%',
           }}
@@ -597,8 +603,8 @@ export function MarbleExperience() {
           <img
             src={images.marbleHero}
             alt="Lunore Monumental Marble Building Architecture"
-            loading="lazy"
-            decoding="async"
+            loading={isAndroidDevice ? 'eager' : 'lazy'}
+            decoding={isAndroidDevice ? 'sync' : 'async'}
             width={1600}
             height={900}
             className="w-full h-full object-cover object-center brightness-[1.02] contrast-[1.03]"
@@ -687,8 +693,8 @@ export function MarbleExperience() {
                 <img
                   src={images.marbleCutout}
                   alt="Lunore Architectural Marble Cutout"
-                  loading="lazy"
-                  decoding="async"
+                  loading={isAndroidDevice ? 'eager' : 'lazy'}
+                  decoding={isAndroidDevice ? 'sync' : 'async'}
                   width={1847}
                   height={851}
                   style={
@@ -743,17 +749,19 @@ export function MarbleExperience() {
           className="absolute inset-x-0 top-1/2 -translate-y-1/2 z-40 flex flex-col items-center justify-center text-center px-4 pointer-events-auto select-none"
         >
           <div className="absolute w-[500px] h-[180px] bg-[#b89a62]/20 rounded-full blur-[90px] pointer-events-none -z-10 animate-pulse" />
- 
+
           <span
             style={{
-              animation: 'lunore-letter-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both',
-              animationDelay: '0.05s',
+              animation: isAndroidDevice
+                ? 'lunore-letter-reveal-android 0.45s cubic-bezier(0.16, 1, 0.3, 1) both'
+                : 'lunore-letter-reveal 0.75s cubic-bezier(0.16, 1, 0.3, 1) both',
+              animationDelay: isAndroidDevice ? '0.02s' : '0.05s',
             }}
             className="text-[10px] sm:text-xs tracking-[0.38em] uppercase text-[#b89a62] font-semibold drop-shadow-[0_2px_12px_rgba(0,0,0,0.95)] mb-2 inline-block"
           >
             Integrated Living &amp; Craft
           </span>
- 
+
           <h3
             className="text-[clamp(1.45rem,6.5vw,2.25rem)] sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-wide drop-shadow-[0_4px_30px_rgba(0,0,0,0.98)] max-w-2xl px-2"
             style={{ fontFamily: 'var(--font-serif)' }}
@@ -763,9 +771,15 @@ export function MarbleExperience() {
                 <span
                   className="inline-block text-[#f1eee7]"
                   style={{
-                    animation: 'lunore-letter-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both',
-                    animationDelay: `${0.12 + wIdx * 0.08}s`,
-                    textShadow: '0 4px 30px rgba(0,0,0,0.98), 0 0 25px rgba(184,154,98,0.35)',
+                    animation: isAndroidDevice
+                      ? 'lunore-letter-reveal-android 0.48s cubic-bezier(0.16, 1, 0.3, 1) both'
+                      : 'lunore-letter-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both',
+                    animationDelay: isAndroidDevice
+                      ? `${0.03 + wIdx * 0.03}s`
+                      : `${0.12 + wIdx * 0.08}s`,
+                    textShadow: isAndroidDevice
+                      ? '0 2px 14px rgba(0,0,0,0.95)'
+                      : '0 4px 30px rgba(0,0,0,0.98), 0 0 25px rgba(184,154,98,0.35)',
                   }}
                 >
                   {word}
@@ -864,7 +878,9 @@ export function MarbleExperience() {
             style={{
               color: '#FFFFF0',
               fontFamily: 'var(--font-serif)',
-              textShadow: '0 2px 18px rgba(0,0,0,1), 0 4px 30px rgba(0,0,0,0.95)',
+              textShadow: isAndroidDevice
+                ? '0 2px 12px rgba(0,0,0,0.95)'
+                : '0 2px 18px rgba(0,0,0,1), 0 4px 30px rgba(0,0,0,0.95)',
             }}
           >
             At Lunore, we deal in a wide range of premium marble and granite, offering carefully selected materials for every design requirement. What truly sets us apart, however, is not just the stone we supply, but the service and assurance behind every order. Every piece is thoroughly inspected by our marble experts before delivery to ensure the right quality, finish, size, and consistency, so you receive your marble exactly as it should be, with no compromises, surprises, or mistakes. With Lunore, every stone is checked, trusted, and delivered with confidence.

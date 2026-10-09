@@ -3,7 +3,7 @@
 import React, { useLayoutEffect, useRef, useCallback } from 'react';
 import type { ReactNode } from 'react';
 import Lenis from 'lenis';
-import { isMobileDevice } from '@/lib/device';
+import { isMobileDevice, isAndroid } from '@/lib/device';
 
 export interface ScrollStackItemProps {
   itemClassName?: string;
@@ -282,6 +282,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
 
   useLayoutEffect(() => {
     const isMobile = isMobileDevice();
+    const isAndroidDevice = isAndroid();
     isMobileDeviceRef.current = isMobile;
 
     if (!useWindowScroll && !scrollerRef.current) return;
@@ -314,7 +315,9 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       cards.forEach((card, i) => {
         card.style.marginBottom = i < cards.length - 1 ? `${itemDistance}px` : '48px';
         card.style.zIndex = `${i + 1}`;
-        card.style.willChange = 'transform, opacity';
+        if (!isAndroidDevice) {
+          card.style.willChange = 'transform, opacity';
+        }
         card.style.backfaceVisibility = 'hidden';
         card.style.transformOrigin = 'center top';
         card.style.perspective = 'none';
@@ -327,7 +330,9 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         } else {
           card.style.opacity = '0';
           card.style.transform = 'translateY(24px) scale(0.985)';
-          card.style.transition = 'opacity 550ms cubic-bezier(0.22, 1, 0.36, 1), transform 550ms cubic-bezier(0.22, 1, 0.36, 1)';
+          card.style.transition = isAndroidDevice
+            ? 'opacity 350ms cubic-bezier(0.22, 1, 0.36, 1), transform 350ms cubic-bezier(0.22, 1, 0.36, 1)'
+            : 'opacity 550ms cubic-bezier(0.22, 1, 0.36, 1), transform 550ms cubic-bezier(0.22, 1, 0.36, 1)';
         }
       });
 
@@ -357,8 +362,8 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         },
         {
           root: useWindowScroll ? null : scrollerRef.current,
-          threshold: 0.12,
-          rootMargin: '0px 0px -8% 0px',
+          threshold: isAndroidDevice ? 0.02 : 0.12,
+          rootMargin: isAndroidDevice ? '120px 0px 60px 0px' : '0px 0px -8% 0px',
         }
       );
 
