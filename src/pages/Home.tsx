@@ -67,19 +67,6 @@ const directors: TeamMember[] = [
     testimonial: "Suchitra is passionate about building a team where talented people do their best work. She leads recruitment, shapes HR policies, and nurtures a workplace culture grounded in respect, growth and collaboration. As Lunore expands, Suchitra ensures that our people feel valued, supported and connected to our shared mission: creating extraordinary spaces and experiences.",
     image: "/assets/images/Director Suchitra .webp"
   },
-  {
-    name: "CHIRAG GODSE",
-    role: "Director — Marketing, Business Development & Aurexa",
-    testimonial: "Every touchpoint tells a story. Chirag oversees Lunore's brand strategy, digital presence and business development with an eye toward creating memorable experiences. Through Aurexa, his passion project of luxury art events and auctions, Chirag has opened a direct channel to high-net-worth collectors and design influencers. He believes that authentic brands are built on genuine expertise and meaningful relationships , principles that guide everything from social media content to high-stakes client meetings.",
-    image: "/assets/images/Director Chirag.webp"
-  },
-  {
-    name: "JITANDAR LOHAR ",
-    role: "Director — Finance & Administration",
-    testimonial: "Jitandar  keeps Lunore running smoothly behind the scenes. He manages finances with precision, handles compliance and statutory requirements, and builds the operational systems that let the team focus on creative work. Jitandar believes that strong administration and clear financial health are the foundation of sustainable growth and he takes pride in creating that foundation.",
-    image: "/assets/images/Director JITU.jpeg",
-    imagePosition: "center 12%"
-  },
 ];
 
 export function Home() {
