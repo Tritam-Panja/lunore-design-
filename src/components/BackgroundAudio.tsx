@@ -13,6 +13,15 @@ interface InteractionAnimation {
   onComplete?: () => void;
 }
 
+// Development and verification diagnostics
+const logAudioDiag = (msg: string, details?: any) => {
+  if (typeof window !== 'undefined') {
+    (window as any).__LUNORE_AUDIO_LOGS__ = (window as any).__LUNORE_AUDIO_LOGS__ || [];
+    (window as any).__LUNORE_AUDIO_LOGS__.push({ time: Date.now(), msg, details });
+  }
+  console.log(`[LUNORE_AUDIO_DIAG] ${msg}`, details !== undefined ? details : '');
+};
+
 export function BackgroundAudio() {
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const rafIdRef = useRef<number | null>(null);
@@ -216,38 +225,60 @@ export function BackgroundAudio() {
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     // Unmute and fade in on first user gesture (Safari & mobile compliant)
-    const unmuteAndPlay = () => {
+    const unmuteAndPlay = (e?: Event) => {
+      const audio = audioRef.current;
+      logAudioDiag('unmuteAndPlay called', {
+        eventType: e?.type,
+        audioExists: !!audio,
+        audioReadyState: audio?.readyState,
+        audioPaused: audio?.paused,
+        audioMuted: audio?.muted,
+        audioCurrentTime: audio?.currentTime,
+        isActivated: isActivatedRef.current,
+        isActivating: isActivatingRef.current,
+      });
+
       if (!audio) return;
-      if (isActivatedRef.current || isActivatingRef.current) return;
+      if (isActivatedRef.current) return;
 
       isActivatingRef.current = true;
       audio.muted = false;
+      audio.volume = 0;
+      interactionGainRef.current = 0;
+      setIsMuted(false);
 
+      logAudioDiag('Issuing audio.play() request from gesture');
       const promise = audio.play();
       if (promise !== undefined) {
         promise
           .then(() => {
+            logAudioDiag('audio.play() promise RESOLVED successfully from gesture!');
             isActivatedRef.current = true;
             isActivatingRef.current = false;
             audio.muted = false;
             setIsMuted(false);
             setIsPlaying(true);
-            animateInteractionGain(1.0, 1400);
+            animateInteractionGain(1.0, 600);
             removeInteractionListeners();
           })
-          .catch(() => {
-            // Still waiting for direct gesture: reset activating lock and safely re-mute
+          .catch((err: any) => {
+            logAudioDiag('audio.play() promise REJECTED from gesture', {
+              name: err?.name,
+              message: err?.message,
+              eventType: e?.type,
+            });
             isActivatingRef.current = false;
             audio.muted = true;
             setIsMuted(true);
           });
       } else {
+        logAudioDiag('audio.play() returned non-promise, assuming playback started');
         isActivatedRef.current = true;
         isActivatingRef.current = false;
         audio.muted = false;
         setIsMuted(false);
         setIsPlaying(true);
-        animateInteractionGain(1.0, 1400);
+        animateInteractionGain(1.0, 600);
         removeInteractionListeners();
       }
     };
@@ -280,39 +311,33 @@ export function BackgroundAudio() {
     };
 
     const handleInteraction = (e: Event) => {
-      if (isActivatedRef.current || isActivatingRef.current) {
+      logAudioDiag('Global handler received interaction event', {
+        type: e.type,
+        target: (e.target as HTMLElement)?.tagName,
+        audioExists: !!audioRef.current,
+        audioPaused: audioRef.current?.paused,
+        isActivated: isActivatedRef.current,
+      });
+
+      if (isActivatedRef.current) {
         return;
       }
       const target = e.target as HTMLElement | null;
       if (target && target.closest('#sound-toggle-btn')) {
         return; // Handled directly by toggle button
       }
-      unmuteAndPlay();
+      unmuteAndPlay(e);
     };
 
-    // 1. Try immediate unmuted play on mount
-    audio.muted = false;
-    const initialPlay = audio.play();
-    if (initialPlay !== undefined) {
-      initialPlay
-        .then(() => {
-          isActivatedRef.current = true;
-          audio.muted = false;
-          setIsMuted(false);
-          setIsPlaying(true);
-          animateInteractionGain(1.0, 1400);
-        })
-        .catch(() => {
-          // Autoplay restricted: start muted so audio track runs and stays ready
-          audio.muted = true;
-          setIsMuted(true);
-          interactionGainRef.current = 0;
-          audio.play().catch(() => {});
+    // 1. Immediately register global interaction listeners on mount so first tap is never missed
+    attachInteractionListeners();
+    logAudioDiag('Global interaction listeners registered on mount');
 
-          // Attach interaction listeners for user gesture
-          attachInteractionListeners();
-        });
-    }
+    // 2. Preload and start audio track muted so buffer is primed and loops ready
+    audio.muted = true;
+    setIsMuted(true);
+    interactionGainRef.current = 0;
+    audio.play().catch(() => {});
 
     return () => {
       removeInteractionListeners();
@@ -328,6 +353,13 @@ export function BackgroundAudio() {
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+
+    logAudioDiag('Dedicated music icon handleToggle invoked', {
+      audioExists: !!audioRef.current,
+      audioPaused: audioRef.current?.paused,
+      audioMuted: audioRef.current?.muted,
+      isMutedState: isMuted,
+    });
 
     // User explicitly interacted with dedicated audio controls: disarm global tap listener
     if (removeListenersRef.current) {
@@ -355,10 +387,16 @@ export function BackgroundAudio() {
       audio
         .play()
         .then(() => {
+          logAudioDiag('Dedicated music icon audio.play() RESOLVED');
           setIsPlaying(true);
           animateInteractionGain(1.0, 600);
         })
-        .catch(() => {});
+        .catch((err: any) => {
+          logAudioDiag('Dedicated music icon audio.play() REJECTED', {
+            name: err?.name,
+            message: err?.message,
+          });
+        });
     }
   };
 
