@@ -18,6 +18,9 @@ export function BackgroundAudio() {
   const rafIdRef = useRef<number | null>(null);
   const interactionGainRef = useRef<number>(0);
   const interactionAnimRef = useRef<InteractionAnimation | null>(null);
+  const isActivatingRef = useRef<boolean>(false);
+  const isActivatedRef = useRef<boolean>(false);
+  const removeListenersRef = useRef<(() => void) | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -215,12 +218,17 @@ export function BackgroundAudio() {
     // Unmute and fade in on first user gesture (Safari & mobile compliant)
     const unmuteAndPlay = () => {
       if (!audio) return;
+      if (isActivatedRef.current || isActivatingRef.current) return;
+
+      isActivatingRef.current = true;
       audio.muted = false;
 
       const promise = audio.play();
       if (promise !== undefined) {
         promise
           .then(() => {
+            isActivatedRef.current = true;
+            isActivatingRef.current = false;
             audio.muted = false;
             setIsMuted(false);
             setIsPlaying(true);
@@ -228,11 +236,14 @@ export function BackgroundAudio() {
             removeInteractionListeners();
           })
           .catch(() => {
-            // Still waiting for direct gesture
+            // Still waiting for direct gesture: reset activating lock and safely re-mute
+            isActivatingRef.current = false;
             audio.muted = true;
             setIsMuted(true);
           });
       } else {
+        isActivatedRef.current = true;
+        isActivatingRef.current = false;
         audio.muted = false;
         setIsMuted(false);
         setIsPlaying(true);
@@ -242,17 +253,36 @@ export function BackgroundAudio() {
     };
 
     const removeInteractionListeners = () => {
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('pointerup', handleInteraction);
-      window.removeEventListener('pointerdown', handleInteraction);
-      window.removeEventListener('touchend', handleInteraction);
-      window.removeEventListener('touchstart', handleInteraction);
-      window.removeEventListener('wheel', handleInteraction);
-      window.removeEventListener('scroll', handleInteraction);
-      window.removeEventListener('keydown', handleInteraction);
+      window.removeEventListener('click', handleInteraction, true);
+      window.removeEventListener('touchend', handleInteraction, true);
+      window.removeEventListener('pointerup', handleInteraction, true);
+      window.removeEventListener('keydown', handleInteraction, true);
+
+      document.removeEventListener('click', handleInteraction, true);
+      document.removeEventListener('touchend', handleInteraction, true);
+      document.removeEventListener('pointerup', handleInteraction, true);
+      document.removeEventListener('keydown', handleInteraction, true);
+    };
+
+    removeListenersRef.current = removeInteractionListeners;
+
+    const attachInteractionListeners = () => {
+      const opts: AddEventListenerOptions = { capture: true, passive: true };
+      window.addEventListener('click', handleInteraction, opts);
+      window.addEventListener('touchend', handleInteraction, opts);
+      window.addEventListener('pointerup', handleInteraction, opts);
+      window.addEventListener('keydown', handleInteraction, opts);
+
+      document.addEventListener('click', handleInteraction, opts);
+      document.addEventListener('touchend', handleInteraction, opts);
+      document.addEventListener('pointerup', handleInteraction, opts);
+      document.addEventListener('keydown', handleInteraction, opts);
     };
 
     const handleInteraction = (e: Event) => {
+      if (isActivatedRef.current || isActivatingRef.current) {
+        return;
+      }
       const target = e.target as HTMLElement | null;
       if (target && target.closest('#sound-toggle-btn')) {
         return; // Handled directly by toggle button
@@ -266,6 +296,7 @@ export function BackgroundAudio() {
     if (initialPlay !== undefined) {
       initialPlay
         .then(() => {
+          isActivatedRef.current = true;
           audio.muted = false;
           setIsMuted(false);
           setIsPlaying(true);
@@ -279,19 +310,13 @@ export function BackgroundAudio() {
           audio.play().catch(() => {});
 
           // Attach interaction listeners for user gesture
-          window.addEventListener('click', handleInteraction, { passive: true });
-          window.addEventListener('pointerup', handleInteraction, { passive: true });
-          window.addEventListener('pointerdown', handleInteraction, { passive: true });
-          window.addEventListener('touchend', handleInteraction, { passive: true });
-          window.addEventListener('touchstart', handleInteraction, { passive: true });
-          window.addEventListener('wheel', handleInteraction, { passive: true });
-          window.addEventListener('scroll', handleInteraction, { passive: true });
-          window.addEventListener('keydown', handleInteraction, { passive: true });
+          attachInteractionListeners();
         });
     }
 
     return () => {
       removeInteractionListeners();
+      removeListenersRef.current = null;
       document.removeEventListener('visibilitychange', onVisibilityChange);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('play', handlePlay);
@@ -303,6 +328,12 @@ export function BackgroundAudio() {
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
+
+    // User explicitly interacted with dedicated audio controls: disarm global tap listener
+    if (removeListenersRef.current) {
+      removeListenersRef.current();
+    }
+    isActivatedRef.current = true;
 
     const audio = audioRef.current;
     if (!audio) return;
