@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useCallback, lazy, Suspense } from 'react';
-import { Sparkles, ArrowRight, RotateCcw, ChevronDown } from 'lucide-react';
+import { ArrowRight, RotateCcw, ChevronDown } from 'lucide-react';
 import { images } from '@/lib/images';
 import ParticleText from './ParticleText';
 import { scrollCoordinator } from '@/lib/scrollCoordinator';
@@ -806,7 +806,6 @@ export function MarbleExperience() {
               <span className="absolute inset-x-4 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent" />
               <span className="absolute inset-0 rounded-full border border-[#b89a62]/40 animate-ping opacity-25 pointer-events-none" />
  
-              <Sparkles className="w-3.5 h-3.5 text-[#b89a62] group-hover:rotate-45 transition-transform duration-400" />
               <span className="text-[10px] sm:text-xs tracking-[0.28em] uppercase font-semibold">
                 Enter
               </span>
@@ -910,10 +909,6 @@ export function MarbleExperience() {
             >
               <span className="absolute inset-x-5 top-0 h-[1.2px] bg-gradient-to-r from-transparent via-white/80 to-transparent" />
               <span className="absolute inset-0 rounded-full border border-[#b89a62]/30 animate-ping opacity-20 pointer-events-none" />
- 
-              <div className="w-6 h-6 rounded-full bg-white/[0.08] border border-white/30 group-hover:border-[#b89a62]/80 flex items-center justify-center text-[#b89a62] group-hover:rotate-45 transition-transform duration-500 shadow-[0_0_12px_rgba(184,154,98,0.3)]">
-                <Sparkles className="w-3.5 h-3.5" />
-              </div>
  
               <span className="text-xs sm:text-sm tracking-[0.32em] uppercase font-semibold text-[#f1eee7] group-hover:text-[#b89a62] transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
                 Enter

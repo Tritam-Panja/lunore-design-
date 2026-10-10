@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Sparkles } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 
 export function ComingSoon() {
   return (
@@ -50,8 +50,7 @@ export function ComingSoon() {
       {/* 3. CENTER HERO: ROTATING HOURGLASS & COMING SOON */}
       <main className="relative z-20 flex flex-col items-center justify-center my-auto text-center max-w-2xl px-4">
         {/* Pill Tag */}
-        <div className="inline-flex items-center gap-2.5 px-4 py-1.5 rounded-full bg-white/[0.04] border border-[#b89a62]/35 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.5)] mb-8 sm:mb-10">
-          <Sparkles className="w-3.5 h-3.5 text-[#b89a62]" />
+        <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-white/[0.04] border border-[#b89a62]/35 backdrop-blur-md shadow-[0_4px_20px_rgba(0,0,0,0.5)] mb-8 sm:mb-10">
           <span className="text-[10px] sm:text-xs tracking-[0.32em] uppercase text-[#ded9cf] font-medium">
             The Haute Stone Pavilion
           </span>

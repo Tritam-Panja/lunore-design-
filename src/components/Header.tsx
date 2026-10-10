@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, Sparkles, MapPin, Phone, Mail, ChevronDown } from 'lucide-react';
+import { ArrowRight, MessageCircle, MapPin, Phone, Mail, ChevronDown } from 'lucide-react';
 import { useLenis, useScrollSubscriber, scrollCoordinator } from './SmoothScroll';
 
 interface NavItem {
@@ -247,7 +247,6 @@ export function Header() {
             <div className="lg:col-span-5 hidden lg:flex flex-col justify-between h-full liquid-glass-card p-8 md:p-10 rounded-3xl">
               <div>
                 <div className="flex items-center gap-2 mb-4">
-                  <Sparkles className="w-4 h-4 text-[#b89a62]" />
                   <p className="text-xs tracking-[0.35em] uppercase text-[#b89a62] font-light">
                     Luxe Decor Studio
                   </p>
@@ -404,7 +403,7 @@ export function Header() {
                   rel="noopener noreferrer"
                   className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 text-xs text-[#25D366] active:scale-95 transition-all"
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#25D366]" />
+                  <MessageCircle className="w-3.5 h-3.5 text-[#25D366] fill-current" />
                   <span>WhatsApp</span>
                 </a>
               </div>

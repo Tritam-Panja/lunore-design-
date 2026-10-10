@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation } from 'react-router-dom';
-import { ChevronLeft, ChevronRight, Sparkles, ArrowRight, RotateCcw, ChevronDown, Maximize2, X } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight, RotateCcw, ChevronDown, Maximize2, X } from 'lucide-react';
 import { images } from '@/lib/images';
 
 export interface SculptureItem {
@@ -1508,10 +1508,6 @@ export function SculpturesExperience({
               >
                 <span className="absolute inset-x-5 top-0 h-[1.2px] bg-gradient-to-r from-transparent via-white/80 to-transparent" />
                 <span className="absolute inset-0 rounded-full border border-[#b89a62]/30 animate-ping opacity-20 pointer-events-none" />
-
-                <div className="w-6 sm:w-7 h-6 sm:h-7 rounded-full bg-white/[0.08] border border-white/30 group-hover:border-[#b89a62]/80 flex items-center justify-center text-[#b89a62] group-hover:rotate-45 transition-transform duration-500 shadow-[0_0_12px_rgba(184,154,98,0.3)]">
-                  <Sparkles className="w-3.5 h-3.5" />
-                </div>
 
                 <span className="text-xs sm:text-sm tracking-[0.32em] uppercase font-semibold text-[#f1eee7] group-hover:text-[#b89a62] transition-colors drop-shadow-[0_2px_10px_rgba(0,0,0,0.9)]">
                   Enter

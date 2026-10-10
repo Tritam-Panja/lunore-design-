@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Sparkles, X } from 'lucide-react';
+import { ArrowLeft, X } from 'lucide-react';
 import ScrollShowcase from '@/components/ScrollShowcase';
 import FullScreenImageViewer from '@/components/FullScreenImageViewer';
 
@@ -140,8 +140,7 @@ export function ClayAndSage() {
 
         {/* Right: Scroll Cue & Close Button */}
         <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <div className="hidden sm:flex items-center gap-2 text-[10px] sm:text-xs tracking-[0.22em] uppercase text-[#ded9cf]/70">
-            <Sparkles className="w-3.5 h-3.5 text-[#b89a62] animate-pulse" />
+          <div className="hidden sm:flex items-center text-[10px] sm:text-xs tracking-[0.22em] uppercase text-[#ded9cf]/70">
             <span>Scroll to explore stack</span>
           </div>
           <button

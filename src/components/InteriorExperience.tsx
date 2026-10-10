@@ -7,7 +7,6 @@ import {
   ChevronRight,
   ArrowRight,
   X,
-  Sparkles,
   ArrowUpRight,
   CheckCircle2,
   Clock,

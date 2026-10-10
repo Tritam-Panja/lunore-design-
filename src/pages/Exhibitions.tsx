@@ -4,7 +4,7 @@ import { images } from '@/lib/images';
 import { Placeholder } from '@/components/Placeholder';
 import { Reveal } from '@/components/Reveal';
 import { ReturnToHome } from '@/components/ReturnToHome';
-import { Sparkles, Calendar } from 'lucide-react';
+import { Calendar } from 'lucide-react';
 
 const fallback: Exhibition[] = [
   {
@@ -54,8 +54,7 @@ export function Exhibitions() {
 
       <section className="px-4 sm:px-6 pt-4 sm:pt-8 md:pt-10 pb-12 sm:pb-16 text-center max-w-4xl mx-auto relative z-10">
         <Reveal direction="down">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full bg-white/[0.04] border border-[#b89a62]/30 backdrop-blur-md mb-4">
-            <Sparkles className="w-3 h-3 text-[#b89a62]" />
+          <div className="inline-flex items-center px-3.5 py-1 rounded-full bg-white/[0.04] border border-[#b89a62]/30 backdrop-blur-md mb-4">
             <span className="text-[10px] tracking-[0.35em] uppercase text-[#ded9cf] font-light">
               Exhibitions
             </span>

@@ -1,6 +1,5 @@
 import React from 'react';
 import { useExperience } from './ExperienceContext';
-import { Sparkles } from 'lucide-react';
 
 interface ExperienceToggleProps {
   className?: string;
@@ -39,11 +38,10 @@ export function ExperienceToggle({ className = '', variant = 'header' }: Experie
             : 'bg-white/10 text-[#b89a62] group-hover:text-white group-hover:bg-[#b89a62]/30'
         }`}
       >
-        <Sparkles
-          className={`w-3 h-3 transition-transform duration-300 ${
-            isExperienceActive ? 'scale-100' : 'scale-90 opacity-90'
+        <span
+          className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+            isExperienceActive ? 'bg-white scale-110' : 'bg-[#b89a62] scale-90'
           }`}
-          strokeWidth={1.75}
         />
       </span>
 

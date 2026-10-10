@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Sparkles, Clock } from 'lucide-react';
+import { ArrowRight, Clock } from 'lucide-react';
 import { Reveal } from '@/components/Reveal';
 import { ReturnToHome } from '@/components/ReturnToHome';
 import { INTERIOR_DOMAINS } from '@/components/InteriorExperience';
@@ -98,8 +98,7 @@ export function Projects() {
       {/* Main Page Hero */}
       <section className="px-4 sm:px-6 pt-4 sm:pt-8 md:pt-10 pb-10 sm:pb-16 text-center max-w-5xl mx-auto relative z-10">
         <Reveal direction="down">
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full liquid-glass-pill mb-4 sm:mb-5">
-            <Sparkles className="w-3.5 h-3.5 text-[#b89a62]" />
+          <div className="inline-flex items-center px-4 py-1.5 rounded-full liquid-glass-pill mb-4 sm:mb-5">
             <span className="text-[10px] tracking-[0.3em] uppercase text-[#b89a62]">Portfolio Archive</span>
           </div>
           <h1

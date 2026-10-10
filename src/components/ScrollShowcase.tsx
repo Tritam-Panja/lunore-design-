@@ -1,7 +1,7 @@
 import React, { useLayoutEffect, useRef, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import Lenis from 'lenis';
-import { Eye, ArrowRight, RotateCcw, Sparkles } from 'lucide-react';
+import { Eye, ArrowRight, RotateCcw } from 'lucide-react';
 
 export interface ShowcaseItem {
   id: number | string;
@@ -372,8 +372,7 @@ export const ScrollShowcase: React.FC<ScrollShowcaseProps> = ({
         {/* Section Release Anchor & Next Project Link */}
         <div className="relative z-20 w-full mt-16 sm:mt-24 md:mt-32 pt-12 sm:pt-16 border-t border-white/10 text-center">
           <div className="max-w-2xl mx-auto flex flex-col items-center px-2">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-[#b89a62]/40 bg-[#b89a62]/10 text-[9px] sm:text-xs tracking-[0.26em] uppercase text-[#b89a62] font-semibold mb-3 sm:mb-4">
-              <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+            <div className="inline-flex items-center px-3 py-1 rounded-full border border-[#b89a62]/40 bg-[#b89a62]/10 text-[9px] sm:text-xs tracking-[0.26em] uppercase text-[#b89a62] font-semibold mb-3 sm:mb-4">
               <span>{projectTag}</span>
             </div>
 
