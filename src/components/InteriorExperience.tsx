@@ -315,10 +315,20 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     return () => window.removeEventListener('open-interior-projects', handleCustomOpen);
   }, [location]);
 
-  // Immediate smooth open transition when clicking "EXPLORE MORE"
+  const previousStageRef = useRef<number>(0);
+
+  // Immediate smooth open transition when clicking "EXPLORE MORE" or "EXPLORE DESIGNS"
   const handleOpenStage4 = useCallback(() => {
+    previousStageRef.current = storyStageRef.current;
+    sessionStorage.setItem('lunore_interior_stage', '4');
+    setIsFlashlightMode(false);
+    isFlashlightModeRef.current = false;
+    setOverlayReady(true);
+    overlayReadyRef.current = true;
     setStoryStage(4);
     storyStageRef.current = 4;
+    setHasBeenTapped(true);
+    setIsSwitchToggled(true);
   }, []);
 
   // Fast smooth close transition when returning to overview
@@ -326,8 +336,9 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     setIsExitingStage4(true);
     setTimeout(() => {
       sessionStorage.removeItem('lunore_interior_stage');
-      setStoryStage(3);
-      storyStageRef.current = 3;
+      const returnStage = previousStageRef.current === 0 ? 0 : 3;
+      setStoryStage(returnStage);
+      storyStageRef.current = returnStage;
       setIsExitingStage4(false);
       const section = document.getElementById('interior-experience');
       if (section) {
@@ -964,14 +975,23 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
                           ))}
                         </h3>
 
-                        {/* Tap / Scroll Cue Button */}
-                        <div className="mt-6 sm:mt-8 flex items-center gap-3">
+                        {/* Action Buttons: Explore Story & Direct Explore Designs */}
+                        <div className="mt-6 sm:mt-8 flex flex-wrap items-center gap-3">
                           <button
                             type="button"
                             onClick={handleNextStage}
                             className="pointer-events-auto cursor-pointer inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full liquid-glass-pill text-[11px] sm:text-xs tracking-[0.22em] uppercase text-[#f1eee7] hover:text-white border border-[#b89a62]/60 hover:border-[#b89a62] bg-black/60 shadow-[0_0_15px_rgba(184,154,98,0.25)] active:scale-95 transition-all"
                           >
                             <span>Explore Story</span>
+                            <ArrowRight className="w-3.5 h-3.5 text-[#b89a62]" />
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={handleOpenStage4}
+                            className="pointer-events-auto cursor-pointer inline-flex items-center gap-2 px-4 sm:px-5 py-2 rounded-full liquid-glass-pill text-[11px] sm:text-xs tracking-[0.22em] uppercase text-[#f1eee7] hover:text-white border border-[#b89a62] hover:border-[#d4af37] bg-[#b89a62]/20 hover:bg-[#b89a62]/35 shadow-[0_0_20px_rgba(184,154,98,0.3)] hover:shadow-[0_0_25px_rgba(184,154,98,0.45)] active:scale-95 transition-all font-medium"
+                          >
+                            <span>Explore Designs</span>
                             <ArrowRight className="w-3.5 h-3.5 text-[#b89a62]" />
                           </button>
                         </div>
