@@ -96,9 +96,21 @@ export function BackgroundAudio() {
         return;
       }
 
-      // Stop immediately if tab is hidden, or if stopped/muted without an active gain animation
-      if (document.hidden || (!interactionAnimRef.current && (audio.paused || audio.muted))) {
-        if (audio.volume !== 0 && !interactionAnimRef.current) audio.volume = 0;
+      // Stop immediately if tab is hidden
+      if (document.hidden) {
+        rafIdRef.current = null;
+        return;
+      }
+
+      // If muted without an active gain animation, silence and stop loop
+      if (audio.muted && !interactionAnimRef.current) {
+        if (audio.volume !== 0) audio.volume = 0;
+        rafIdRef.current = null;
+        return;
+      }
+
+      // If paused without an active gain animation, pause loop without zeroing volume
+      if (audio.paused && !interactionAnimRef.current) {
         rafIdRef.current = null;
         return;
       }
@@ -200,7 +212,6 @@ export function BackgroundAudio() {
     const handlePause = () => {
       if (!interactionAnimRef.current) {
         stopVolumeLoop();
-        if (audio.volume !== 0) audio.volume = 0;
       }
     };
 
@@ -269,6 +280,7 @@ export function BackgroundAudio() {
             // Re-mute so next tap can retry
             el.muted = true;
             setIsMuted(true);
+            isActivatedRef.current = false;
           });
       } else {
         logAudioDiag(`audio.play() non-promise resolved from ${triggerSource}`);
@@ -307,13 +319,13 @@ export function BackgroundAudio() {
 
     const attachGlobalListeners = () => {
       const opts: AddEventListenerOptions = { capture: true, passive: true };
-      window.addEventListener('pointerdown', handleGlobalInteraction, opts);
+      window.addEventListener('touchend', handleGlobalInteraction, opts);
       window.addEventListener('click', handleGlobalInteraction, opts);
       window.addEventListener('keydown', handleGlobalInteraction, opts);
     };
 
     const removeGlobalListeners = () => {
-      window.removeEventListener('pointerdown', handleGlobalInteraction, true);
+      window.removeEventListener('touchend', handleGlobalInteraction, true);
       window.removeEventListener('click', handleGlobalInteraction, true);
       window.removeEventListener('keydown', handleGlobalInteraction, true);
     };
@@ -349,6 +361,7 @@ export function BackgroundAudio() {
       audioPaused: audio?.paused,
       audioMuted: audio?.muted,
       isMutedState: isMuted,
+      isPlayingState: isPlaying,
     });
 
     if (removeListenersRef.current) {
@@ -358,17 +371,49 @@ export function BackgroundAudio() {
 
     if (!audio) return;
 
-    if (!audio.paused && !isMuted) {
+    if (isPlaying && !isMuted) {
       // Smooth fade-out before pausing
       setIsMuted(true);
       animateInteractionGain(0.0, 320, () => {
         if (audioRef.current) {
           audioRef.current.pause();
+          audioRef.current.muted = true;
           setIsPlaying(false);
         }
       });
     } else {
-      startPlaybackRef.current?.('dedicated_button');
+      // Direct synchronous unmute & play inside the click user gesture
+      audio.muted = false;
+      setIsMuted(false);
+
+      const { factor } = getTrackFadeFactor(audio.currentTime, audio.duration);
+      interactionGainRef.current = 1.0;
+      audio.volume = Math.max(0, Math.min(1, TARGET_VOLUME * factor));
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => {
+            logAudioDiag('Dedicated button play resolved', {
+              volume: audio.volume,
+              currentTime: audio.currentTime,
+            });
+            setIsPlaying(true);
+            ensureVolumeTransition();
+          })
+          .catch((err: any) => {
+            logAudioDiag('Dedicated button play rejected', {
+              name: err?.name,
+              message: err?.message,
+            });
+            audio.muted = true;
+            setIsMuted(true);
+            setIsPlaying(false);
+          });
+      } else {
+        setIsPlaying(true);
+        ensureVolumeTransition();
+      }
     }
   };
 
