@@ -28,8 +28,8 @@ export function BackgroundAudio() {
   const interactionGainRef = useRef<number>(0);
   const interactionAnimRef = useRef<InteractionAnimation | null>(null);
   const isActivatedRef = useRef<boolean>(false);
+  const userExplicitlyMutedRef = useRef<boolean>(false);
   const removeListenersRef = useRef<(() => void) | null>(null);
-  const startPlaybackRef = useRef<((source: string) => void) | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -181,13 +181,76 @@ export function BackgroundAudio() {
     [ensureVolumeTransition]
   );
 
+  // Unified reliable playback execution used for immediate mount autoplay, global fallback, and the dedicated icon
+  const requestPlayback = useCallback(
+    (source: string): Promise<boolean> => {
+      const audio = audioRef.current;
+      if (!audio) {
+        logAudioDiag('Playback aborted: audio element unavailable', { source });
+        return Promise.resolve(false);
+      }
+
+      logAudioDiag(`Executing requestPlayback from ${source}`, {
+        audioSrc: audio.src,
+        audioPaused: audio.paused,
+        audioMuted: audio.muted,
+      });
+
+      // Synchronously set audio element properties within the execution call stack
+      audio.muted = false;
+
+      // Set target volume directly so audio is immediately audible without delay
+      const { factor } = getTrackFadeFactor(audio.currentTime, audio.duration);
+      interactionGainRef.current = 1.0;
+      audio.volume = Math.max(0, Math.min(1, TARGET_VOLUME * factor));
+
+      const playPromise = audio.play();
+      if (playPromise !== undefined) {
+        return playPromise
+          .then(() => {
+            logAudioDiag(`audio.play() promise RESOLVED from ${source}`, {
+              volume: audio.volume,
+              currentTime: audio.currentTime,
+            });
+            isActivatedRef.current = true;
+            setIsMuted(false);
+            setIsPlaying(true);
+            if (removeListenersRef.current) {
+              removeListenersRef.current();
+            }
+            ensureVolumeTransition();
+            return true;
+          })
+          .catch((err: any) => {
+            logAudioDiag(`audio.play() promise REJECTED from ${source}`, {
+              name: err?.name,
+              message: err?.message,
+            });
+            // Autoplay blocked by browser policy or error: gracefully reset state for safe fallback
+            audio.muted = true;
+            setIsMuted(true);
+            setIsPlaying(false);
+            isActivatedRef.current = false;
+            return false;
+          });
+      } else {
+        logAudioDiag(`audio.play() non-promise resolved from ${source}`);
+        isActivatedRef.current = true;
+        setIsMuted(false);
+        setIsPlaying(true);
+        if (removeListenersRef.current) {
+          removeListenersRef.current();
+        }
+        ensureVolumeTransition();
+        return Promise.resolve(true);
+      }
+    },
+    [ensureVolumeTransition, getTrackFadeFactor]
+  );
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
-
-    // Start with volume 0 and muted
-    audio.volume = 0;
-    audio.muted = true;
 
     // Event-driven check for track fade zones:
     const handleTimeUpdate = () => {
@@ -234,79 +297,18 @@ export function BackgroundAudio() {
     audio.addEventListener('pause', handlePause);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
-    // Shared playback activation routine used by both global tap and dedicated icon
-    const startPlayback = (triggerSource: string) => {
-      const el = audioRef.current;
-      if (!el) {
-        logAudioDiag('startPlayback aborted: audio element unavailable', { triggerSource });
-        return;
-      }
-      if (isActivatedRef.current) return;
-
-      logAudioDiag(`Executing startPlayback from ${triggerSource}`, {
-        audioSrc: el.src,
-        audioReadyState: el.readyState,
-        audioPaused: el.paused,
-        audioMuted: el.muted,
-      });
-
-      // Synchronously set audio element properties within the trusted user-event call stack
-      el.muted = false;
-      setIsMuted(false);
-
-      // Set target volume directly so audio is immediately audible without delay
-      const { factor } = getTrackFadeFactor(el.currentTime, el.duration);
-      interactionGainRef.current = 1.0;
-      el.volume = Math.max(0, Math.min(1, TARGET_VOLUME * factor));
-
-      const playPromise = el.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            logAudioDiag(`audio.play() promise RESOLVED from ${triggerSource}`, {
-              volume: el.volume,
-              currentTime: el.currentTime,
-            });
-            isActivatedRef.current = true;
-            setIsPlaying(true);
-            removeGlobalListeners();
-            ensureVolumeTransition();
-          })
-          .catch((err: any) => {
-            logAudioDiag(`audio.play() promise REJECTED from ${triggerSource}`, {
-              name: err?.name,
-              message: err?.message,
-            });
-            // Re-mute so next tap can retry
-            el.muted = true;
-            setIsMuted(true);
-            isActivatedRef.current = false;
-          });
-      } else {
-        logAudioDiag(`audio.play() non-promise resolved from ${triggerSource}`);
-        isActivatedRef.current = true;
-        setIsPlaying(true);
-        removeGlobalListeners();
-        ensureVolumeTransition();
-      }
-    };
-
-    startPlaybackRef.current = startPlayback;
-
-    // Global interaction listener for first-tap activation
+    // Global interaction listener fallback for devices where immediate autoplay was restricted
     const handleGlobalInteraction = (e: Event) => {
-      if (isActivatedRef.current) {
-        logAudioDiag('Global interaction skipped: already activated', { eventType: e.type });
+      if (isActivatedRef.current || userExplicitlyMutedRef.current) {
         return;
       }
 
       const target = e.target as HTMLElement | null;
       if (target && target.closest('#sound-toggle-btn')) {
-        logAudioDiag('Global interaction skipped: targeted sound toggle button', { eventType: e.type });
         return; // Handled directly by toggle button
       }
 
-      logAudioDiag('Global interaction received', {
+      logAudioDiag('Global interaction fallback received', {
         eventType: e.type,
         targetTag: target?.tagName,
         audioExists: !!audioRef.current,
@@ -314,42 +316,42 @@ export function BackgroundAudio() {
         audioMuted: audioRef.current?.muted,
       });
 
-      startPlayback(`global_${e.type}`);
+      requestPlayback(`global_${e.type}`);
     };
 
     const attachGlobalListeners = () => {
       const opts: AddEventListenerOptions = { capture: true, passive: true };
-      window.addEventListener('touchend', handleGlobalInteraction, opts);
+      window.addEventListener('pointerdown', handleGlobalInteraction, opts);
       window.addEventListener('click', handleGlobalInteraction, opts);
       window.addEventListener('keydown', handleGlobalInteraction, opts);
     };
 
     const removeGlobalListeners = () => {
-      window.removeEventListener('touchend', handleGlobalInteraction, true);
+      window.removeEventListener('pointerdown', handleGlobalInteraction, true);
       window.removeEventListener('click', handleGlobalInteraction, true);
       window.removeEventListener('keydown', handleGlobalInteraction, true);
     };
 
     removeListenersRef.current = removeGlobalListeners;
-
-    // 1. Immediately attach early global gesture listeners on window
     attachGlobalListeners();
-    logAudioDiag('Global interaction listeners registered on mount');
+    logAudioDiag('Global interaction fallback listeners registered on mount');
 
-    // 2. Preload and start audio track muted so buffer is primed and loops ready
-    audio.play().catch(() => {});
+    // Immediate unmuted autoplay attempt upon component mount
+    if (!userExplicitlyMutedRef.current) {
+      logAudioDiag('Initiating immediate unmuted autoplay on mount');
+      requestPlayback('mount_autoplay');
+    }
 
     return () => {
       removeGlobalListeners();
       removeListenersRef.current = null;
-      startPlaybackRef.current = null;
       document.removeEventListener('visibilitychange', onVisibilityChange);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
       stopVolumeLoop();
     };
-  }, [animateInteractionGain, applySteadyVolume, ensureVolumeTransition, getTrackFadeFactor, stopVolumeLoop]);
+  }, [applySteadyVolume, ensureVolumeTransition, requestPlayback, stopVolumeLoop]);
 
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -364,15 +366,11 @@ export function BackgroundAudio() {
       isPlayingState: isPlaying,
     });
 
-    if (removeListenersRef.current) {
-      removeListenersRef.current();
-    }
-    isActivatedRef.current = true;
-
     if (!audio) return;
 
     if (isPlaying && !isMuted) {
-      // Smooth fade-out before pausing
+      // User explicitly mutes
+      userExplicitlyMutedRef.current = true;
       setIsMuted(true);
       animateInteractionGain(0.0, 320, () => {
         if (audioRef.current) {
@@ -382,38 +380,9 @@ export function BackgroundAudio() {
         }
       });
     } else {
-      // Direct synchronous unmute & play inside the click user gesture
-      audio.muted = false;
-      setIsMuted(false);
-
-      const { factor } = getTrackFadeFactor(audio.currentTime, audio.duration);
-      interactionGainRef.current = 1.0;
-      audio.volume = Math.max(0, Math.min(1, TARGET_VOLUME * factor));
-
-      const playPromise = audio.play();
-      if (playPromise !== undefined) {
-        playPromise
-          .then(() => {
-            logAudioDiag('Dedicated button play resolved', {
-              volume: audio.volume,
-              currentTime: audio.currentTime,
-            });
-            setIsPlaying(true);
-            ensureVolumeTransition();
-          })
-          .catch((err: any) => {
-            logAudioDiag('Dedicated button play rejected', {
-              name: err?.name,
-              message: err?.message,
-            });
-            audio.muted = true;
-            setIsMuted(true);
-            setIsPlaying(false);
-          });
-      } else {
-        setIsPlaying(true);
-        ensureVolumeTransition();
-      }
+      // User explicitly unmutes / starts playback
+      userExplicitlyMutedRef.current = false;
+      requestPlayback('dedicated_button');
     }
   };
 
