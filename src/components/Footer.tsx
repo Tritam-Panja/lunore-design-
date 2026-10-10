@@ -66,7 +66,7 @@ export function Footer() {
           <div>
             <Logo />
             <p className="mt-4 sm:mt-5 text-xs sm:text-sm text-[#b9b5ae] leading-relaxed max-w-xs font-light">
-              Luxury stone sculpture, interior design, and marble &amp; granite supply —
+              Luxury stone sculpture, interior design, and marble &amp; granite supply 
               based in Mumbai, India.
             </p>
           </div>
@@ -111,7 +111,7 @@ export function Footer() {
 
         <div className="mt-10 sm:mt-12 pt-6 border-t border-white/10 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
           <p className="text-[11px] sm:text-xs text-[#85817a]">
-            © {new Date().getFullYear()} LUNORE Luxe Decor Studio. All rights reserved.
+            © {new Date().getFullYear()} LUNORE Luxe Decor Studio Pvt.Ltd. All rights reserved.
           </p>
           <p className="text-[11px] sm:text-xs text-[#85817a]">Mumbai, India</p>
         </div>

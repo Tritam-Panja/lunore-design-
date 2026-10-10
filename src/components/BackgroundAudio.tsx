@@ -27,9 +27,9 @@ export function BackgroundAudio() {
   const rafIdRef = useRef<number | null>(null);
   const interactionGainRef = useRef<number>(0);
   const interactionAnimRef = useRef<InteractionAnimation | null>(null);
-  const isActivatingRef = useRef<boolean>(false);
   const isActivatedRef = useRef<boolean>(false);
   const removeListenersRef = useRef<(() => void) | null>(null);
+  const startPlaybackRef = useRef<((source: string) => void) | null>(null);
 
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -75,7 +75,7 @@ export function BackgroundAudio() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    if (audio.paused || audio.muted) {
+    if (audio.muted || audio.paused) {
       if (audio.volume !== 0) audio.volume = 0;
       return;
     }
@@ -96,9 +96,9 @@ export function BackgroundAudio() {
         return;
       }
 
-      // Stop immediately if audio is paused, muted, or tab is hidden
-      if (audio.paused || audio.muted || document.hidden) {
-        if (audio.volume !== 0) audio.volume = 0;
+      // Stop immediately if tab is hidden, or if stopped/muted without an active gain animation
+      if (document.hidden || (!interactionAnimRef.current && (audio.paused || audio.muted))) {
+        if (audio.volume !== 0 && !interactionAnimRef.current) audio.volume = 0;
         rafIdRef.current = null;
         return;
       }
@@ -173,12 +173,11 @@ export function BackgroundAudio() {
     const audio = audioRef.current;
     if (!audio) return;
 
-    // Start with volume 0 so it swells gently
+    // Start with volume 0 and muted
     audio.volume = 0;
+    audio.muted = true;
 
     // Event-driven check for track fade zones:
-    // Only starts a transient RAF loop when currentTime enters a fade zone (0-3.2s or 53.2-57s).
-    // During steady-state playback (88% of track), this handler is practically zero-cost.
     const handleTimeUpdate = () => {
       if (rafIdRef.current !== null || audio.paused || audio.muted || interactionGainRef.current === 0) {
         return;
@@ -224,150 +223,139 @@ export function BackgroundAudio() {
     audio.addEventListener('pause', handlePause);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
-    // Unmute and fade in on first user gesture (Safari & mobile compliant)
-    const unmuteAndPlay = (e?: Event) => {
-      const audio = audioRef.current;
-      logAudioDiag('unmuteAndPlay called', {
-        eventType: e?.type,
-        audioExists: !!audio,
-        audioReadyState: audio?.readyState,
-        audioPaused: audio?.paused,
-        audioMuted: audio?.muted,
-        audioCurrentTime: audio?.currentTime,
-        isActivated: isActivatedRef.current,
-        isActivating: isActivatingRef.current,
-      });
-
-      if (!audio) return;
+    // Shared playback activation routine used by both global tap and dedicated icon
+    const startPlayback = (triggerSource: string) => {
+      const el = audioRef.current;
+      if (!el) {
+        logAudioDiag('startPlayback aborted: audio element unavailable', { triggerSource });
+        return;
+      }
       if (isActivatedRef.current) return;
 
-      isActivatingRef.current = true;
-      audio.muted = false;
-      audio.volume = 0;
-      interactionGainRef.current = 0;
+      logAudioDiag(`Executing startPlayback from ${triggerSource}`, {
+        audioSrc: el.src,
+        audioReadyState: el.readyState,
+        audioPaused: el.paused,
+        audioMuted: el.muted,
+      });
+
+      // Synchronously set audio element properties within the trusted user-event call stack
+      el.muted = false;
       setIsMuted(false);
 
-      logAudioDiag('Issuing audio.play() request from gesture');
-      const promise = audio.play();
-      if (promise !== undefined) {
-        promise
+      // Set target volume directly so audio is immediately audible without delay
+      const { factor } = getTrackFadeFactor(el.currentTime, el.duration);
+      interactionGainRef.current = 1.0;
+      el.volume = Math.max(0, Math.min(1, TARGET_VOLUME * factor));
+
+      const playPromise = el.play();
+      if (playPromise !== undefined) {
+        playPromise
           .then(() => {
-            logAudioDiag('audio.play() promise RESOLVED successfully from gesture!');
+            logAudioDiag(`audio.play() promise RESOLVED from ${triggerSource}`, {
+              volume: el.volume,
+              currentTime: el.currentTime,
+            });
             isActivatedRef.current = true;
-            isActivatingRef.current = false;
-            audio.muted = false;
-            setIsMuted(false);
             setIsPlaying(true);
-            animateInteractionGain(1.0, 600);
-            removeInteractionListeners();
+            removeGlobalListeners();
+            ensureVolumeTransition();
           })
           .catch((err: any) => {
-            logAudioDiag('audio.play() promise REJECTED from gesture', {
+            logAudioDiag(`audio.play() promise REJECTED from ${triggerSource}`, {
               name: err?.name,
               message: err?.message,
-              eventType: e?.type,
             });
-            isActivatingRef.current = false;
-            audio.muted = true;
+            // Re-mute so next tap can retry
+            el.muted = true;
             setIsMuted(true);
           });
       } else {
-        logAudioDiag('audio.play() returned non-promise, assuming playback started');
+        logAudioDiag(`audio.play() non-promise resolved from ${triggerSource}`);
         isActivatedRef.current = true;
-        isActivatingRef.current = false;
-        audio.muted = false;
-        setIsMuted(false);
         setIsPlaying(true);
-        animateInteractionGain(1.0, 600);
-        removeInteractionListeners();
+        removeGlobalListeners();
+        ensureVolumeTransition();
       }
     };
 
-    const removeInteractionListeners = () => {
-      window.removeEventListener('click', handleInteraction, true);
-      window.removeEventListener('touchend', handleInteraction, true);
-      window.removeEventListener('pointerup', handleInteraction, true);
-      window.removeEventListener('keydown', handleInteraction, true);
+    startPlaybackRef.current = startPlayback;
 
-      document.removeEventListener('click', handleInteraction, true);
-      document.removeEventListener('touchend', handleInteraction, true);
-      document.removeEventListener('pointerup', handleInteraction, true);
-      document.removeEventListener('keydown', handleInteraction, true);
-    };
-
-    removeListenersRef.current = removeInteractionListeners;
-
-    const attachInteractionListeners = () => {
-      const opts: AddEventListenerOptions = { capture: true, passive: true };
-      window.addEventListener('click', handleInteraction, opts);
-      window.addEventListener('touchend', handleInteraction, opts);
-      window.addEventListener('pointerup', handleInteraction, opts);
-      window.addEventListener('keydown', handleInteraction, opts);
-
-      document.addEventListener('click', handleInteraction, opts);
-      document.addEventListener('touchend', handleInteraction, opts);
-      document.addEventListener('pointerup', handleInteraction, opts);
-      document.addEventListener('keydown', handleInteraction, opts);
-    };
-
-    const handleInteraction = (e: Event) => {
-      logAudioDiag('Global handler received interaction event', {
-        type: e.type,
-        target: (e.target as HTMLElement)?.tagName,
-        audioExists: !!audioRef.current,
-        audioPaused: audioRef.current?.paused,
-        isActivated: isActivatedRef.current,
-      });
-
+    // Global interaction listener for first-tap activation
+    const handleGlobalInteraction = (e: Event) => {
       if (isActivatedRef.current) {
+        logAudioDiag('Global interaction skipped: already activated', { eventType: e.type });
         return;
       }
+
       const target = e.target as HTMLElement | null;
       if (target && target.closest('#sound-toggle-btn')) {
+        logAudioDiag('Global interaction skipped: targeted sound toggle button', { eventType: e.type });
         return; // Handled directly by toggle button
       }
-      unmuteAndPlay(e);
+
+      logAudioDiag('Global interaction received', {
+        eventType: e.type,
+        targetTag: target?.tagName,
+        audioExists: !!audioRef.current,
+        audioPaused: audioRef.current?.paused,
+        audioMuted: audioRef.current?.muted,
+      });
+
+      startPlayback(`global_${e.type}`);
     };
 
-    // 1. Immediately register global interaction listeners on mount so first tap is never missed
-    attachInteractionListeners();
+    const attachGlobalListeners = () => {
+      const opts: AddEventListenerOptions = { capture: true, passive: true };
+      window.addEventListener('pointerdown', handleGlobalInteraction, opts);
+      window.addEventListener('click', handleGlobalInteraction, opts);
+      window.addEventListener('keydown', handleGlobalInteraction, opts);
+    };
+
+    const removeGlobalListeners = () => {
+      window.removeEventListener('pointerdown', handleGlobalInteraction, true);
+      window.removeEventListener('click', handleGlobalInteraction, true);
+      window.removeEventListener('keydown', handleGlobalInteraction, true);
+    };
+
+    removeListenersRef.current = removeGlobalListeners;
+
+    // 1. Immediately attach early global gesture listeners on window
+    attachGlobalListeners();
     logAudioDiag('Global interaction listeners registered on mount');
 
     // 2. Preload and start audio track muted so buffer is primed and loops ready
-    audio.muted = true;
-    setIsMuted(true);
-    interactionGainRef.current = 0;
     audio.play().catch(() => {});
 
     return () => {
-      removeInteractionListeners();
+      removeGlobalListeners();
       removeListenersRef.current = null;
+      startPlaybackRef.current = null;
       document.removeEventListener('visibilitychange', onVisibilityChange);
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
       stopVolumeLoop();
     };
-  }, [animateInteractionGain, applySteadyVolume, ensureVolumeTransition, stopVolumeLoop]);
+  }, [animateInteractionGain, applySteadyVolume, ensureVolumeTransition, getTrackFadeFactor, stopVolumeLoop]);
 
   const handleToggle = (e: React.MouseEvent) => {
     e.stopPropagation();
     e.preventDefault();
 
-    logAudioDiag('Dedicated music icon handleToggle invoked', {
-      audioExists: !!audioRef.current,
-      audioPaused: audioRef.current?.paused,
-      audioMuted: audioRef.current?.muted,
+    const audio = audioRef.current;
+    logAudioDiag('Dedicated music icon handleToggle clicked', {
+      audioExists: !!audio,
+      audioPaused: audio?.paused,
+      audioMuted: audio?.muted,
       isMutedState: isMuted,
     });
 
-    // User explicitly interacted with dedicated audio controls: disarm global tap listener
     if (removeListenersRef.current) {
       removeListenersRef.current();
     }
     isActivatedRef.current = true;
 
-    const audio = audioRef.current;
     if (!audio) return;
 
     if (!audio.paused && !isMuted) {
@@ -380,23 +368,7 @@ export function BackgroundAudio() {
         }
       });
     } else {
-      audio.muted = false;
-      audio.volume = 0;
-      interactionGainRef.current = 0;
-      setIsMuted(false);
-      audio
-        .play()
-        .then(() => {
-          logAudioDiag('Dedicated music icon audio.play() RESOLVED');
-          setIsPlaying(true);
-          animateInteractionGain(1.0, 600);
-        })
-        .catch((err: any) => {
-          logAudioDiag('Dedicated music icon audio.play() REJECTED', {
-            name: err?.name,
-            message: err?.message,
-          });
-        });
+      startPlaybackRef.current?.('dedicated_button');
     }
   };
 
@@ -409,7 +381,6 @@ export function BackgroundAudio() {
         src="/audio/LUNORE.mp3"
         autoPlay
         loop
-        muted={isMuted}
         preload="auto"
         playsInline
         onPlay={() => {
