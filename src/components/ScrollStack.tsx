@@ -22,7 +22,7 @@ export const ScrollStackItem: React.FC<ScrollStackItemProps> = ({ children, item
       className={`scroll-stack-card relative w-full ${!hasHeight ? 'h-80' : ''} ${!hasMargin ? 'my-8' : ''} ${!hasPadding ? 'p-12' : ''} ${!hasRadius ? 'rounded-[40px]' : ''} ${isAndroidDevice ? '' : 'shadow-[0_0_30px_rgba(0,0,0,0.1)] will-change-transform'} box-border origin-top ${itemClassName}`.trim()}
       style={{
         backfaceVisibility: isAndroidDevice ? 'visible' : 'hidden',
-        transformStyle: isAndroidDevice ? 'flat' : 'preserve-3d',
+        transformStyle: 'flat',
       }}
     >
       {children}
@@ -71,11 +71,21 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
   const lenisRef = useRef<Lenis | null>(null);
   const cardsRef = useRef<HTMLElement[]>([]);
   const cardOffsetsRef = useRef<number[]>([]);
-  const lastTransformsRef = useRef<Map<number, any>>(new Map());
+  const layoutMetricsRef = useRef<{
+    containerHeight: number;
+    stackPositionPx: number;
+    scaleEndPositionPx: number;
+  }>({
+    containerHeight: 0,
+    stackPositionPx: 0,
+    scaleEndPositionPx: 0,
+  });
+  const lastTransformsRef = useRef<Map<number, { y: number; scale: number; rotation: number; blur: number }>>(new Map());
   const isUpdatingRef = useRef(false);
   const isMobileDeviceRef = useRef<boolean>(false);
 
   const calculateProgress = useCallback((scrollTop: number, start: number, end: number) => {
+    if (end <= start) return scrollTop >= start ? 1 : 0;
     if (scrollTop < start) return 0;
     if (scrollTop > end) return 1;
     return (scrollTop - start) / (end - start);
@@ -118,18 +128,16 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
   );
 
   // =========================================================================
-  // =========================================================================
-  // DESKTOP: Continuous scroll-following stack calculation
+  // DESKTOP: Deterministic continuous scroll-following stack calculation
+  // Uses pre-cached geometry metrics to avoid layout reads in the per-frame loop.
   // =========================================================================
   const updateDesktopMarbles = useCallback(() => {
     if (!cardsRef.current.length || isUpdatingRef.current) return;
 
     isUpdatingRef.current = true;
 
-    const { scrollTop, containerHeight } = getScrollData();
-    const stackPositionPx = parsePercentage(stackPosition, containerHeight);
-    const scaleEndPositionPx = parsePercentage(scaleEndPosition, containerHeight);
-
+    const { scrollTop } = getScrollData();
+    const { stackPositionPx, scaleEndPositionPx } = layoutMetricsRef.current;
     const cardOffsets = cardOffsetsRef.current;
     const lastCardIndex = cardsRef.current.length - 1;
     const lastCardTop = cardOffsets[lastCardIndex] ?? 0;
@@ -140,9 +148,9 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       if (!card) return;
 
       const cardTop = cardOffsets[i] ?? 0;
-      const triggerStart = cardTop - stackPositionPx - itemStackDistance * i;
+      const pinStart = cardTop - stackPositionPx - itemStackDistance * i;
+      const triggerStart = pinStart;
       const triggerEnd = cardTop - scaleEndPositionPx;
-      const pinStart = triggerStart;
 
       const scaleProgress = calculateProgress(scrollTop, triggerStart, triggerEnd);
       const targetScale = Math.min(1, baseScale + i * itemScale);
@@ -154,8 +162,8 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         let topCardIndex = 0;
         for (let j = 0; j < cardsRef.current.length; j++) {
           const jCardTop = cardOffsets[j] ?? 0;
-          const jTriggerStart = jCardTop - stackPositionPx - itemStackDistance * j;
-          if (scrollTop >= jTriggerStart) {
+          const jPinStart = jCardTop - stackPositionPx - itemStackDistance * j;
+          if (scrollTop >= jPinStart) {
             topCardIndex = j;
           }
         }
@@ -167,49 +175,44 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       }
 
       let translateY = 0;
-      const isPinned = scrollTop >= pinStart && scrollTop <= pinEnd;
-
-      if (isPinned) {
-        translateY = scrollTop - cardTop + stackPositionPx + itemStackDistance * i;
+      if (scrollTop >= pinStart && scrollTop <= pinEnd) {
+        translateY = scrollTop - pinStart;
       } else if (scrollTop > pinEnd) {
-        translateY = pinEnd - cardTop + stackPositionPx + itemStackDistance * i;
+        translateY = pinEnd - pinStart;
       }
 
-      // Smooth continuous subpixel precision (0.01px resolution eliminates 0.5px stair-stepping without jitter)
+      // Smooth continuous subpixel precision without stair-stepping or threshold suppression jumps
       const subpixelY = Math.round(translateY * 100) / 100;
       const snapScale = Math.round(scale * 10000) / 10000;
       const snapRotation = rotationAmount ? Math.round(rotation * 100) / 100 : 0;
       const snapBlur = blurAmount ? Math.round(blur * 100) / 100 : 0;
 
-      const newTransform = {
-        translateY: subpixelY,
-        scale: snapScale,
-        rotation: snapRotation,
-        blur: snapBlur,
-      };
-
       const lastTransform = lastTransformsRef.current.get(i);
-
       const hasChanged =
         !lastTransform ||
-        Math.abs(lastTransform.translateY - newTransform.translateY) > 0.005 ||
-        Math.abs(lastTransform.scale - newTransform.scale) > 0.0001 ||
-        Math.abs(lastTransform.rotation - newTransform.rotation) > 0.05 ||
-        Math.abs(lastTransform.blur - newTransform.blur) > 0.05;
+        lastTransform.y !== subpixelY ||
+        lastTransform.scale !== snapScale ||
+        lastTransform.rotation !== snapRotation ||
+        lastTransform.blur !== snapBlur;
 
       if (hasChanged) {
-        const transform = `translate3d(0, ${newTransform.translateY}px, 0) scale(${newTransform.scale})${newTransform.rotation ? ` rotate(${newTransform.rotation}deg)` : ''}`;
-        const filter = newTransform.blur > 0 ? `blur(${newTransform.blur}px)` : '';
-
+        const transform = `translate3d(0, ${subpixelY}px, 0) scale(${snapScale})${snapRotation ? ` rotate(${snapRotation}deg)` : ''}`;
         card.style.transform = transform;
-        if (card.style.filter !== filter) {
+
+        if (blurAmount) {
+          const filter = snapBlur > 0 ? `blur(${snapBlur}px)` : '';
           card.style.filter = filter;
         }
 
-        lastTransformsRef.current.set(i, newTransform);
+        lastTransformsRef.current.set(i, {
+          y: subpixelY,
+          scale: snapScale,
+          rotation: snapRotation,
+          blur: snapBlur,
+        });
       }
 
-      if (i === cardsRef.current.length - 1) {
+      if (i === lastCardIndex) {
         const isInView = scrollTop >= pinStart && scrollTop <= pinEnd;
         if (isInView && !stackCompletedRef.current) {
           stackCompletedRef.current = true;
@@ -224,27 +227,25 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
   }, [
     itemScale,
     itemStackDistance,
-    stackPosition,
-    scaleEndPosition,
     baseScale,
     rotationAmount,
     blurAmount,
     onStackComplete,
     calculateProgress,
-    parsePercentage,
     getScrollData,
   ]);
 
-  const handleScroll = useCallback(() => {
-    if (isMobileDeviceRef.current) return;
-    updateDesktopMarbles();
-  }, [updateDesktopMarbles]);
-
-  // LOCAL SCROLLSTACK SINGLE-FRAME UPDATE SCHEDULER
-  // Synchronous scroll-linked calculation guarantees zero frame latency between native scroll and card transforms.
+  // LOCAL SCROLLSTACK RAF-COALESCED FRAME UPDATE SCHEDULER
+  // Coalesces multiple scroll events within the same frame into ONE single calculation before paint.
   const scheduleStackUpdate = useCallback(() => {
-    handleScroll();
-  }, [handleScroll]);
+    if (scrollRafRef.current !== null) return;
+    scrollRafRef.current = requestAnimationFrame(() => {
+      scrollRafRef.current = null;
+      if (!isMobileDeviceRef.current) {
+        updateDesktopMarbles();
+      }
+    });
+  }, [updateDesktopMarbles]);
 
   const setupLenis = useCallback(() => {
     if (useWindowScroll) {
@@ -374,36 +375,63 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     }
 
     // =========================================================================
-    // DESKTOP BRANCH: Existing Desktop ScrollStack Implementation (LOCKED)
+    // DESKTOP BRANCH: Stable Hardware-Synced Desktop ScrollStack
+    // - Continuous subpixel transform tracking without layout reads per frame
+    // - Proactive offset refresh on resize, image load, font settle, and layout shifts
+    // - Coalesced RAF scheduling eliminating frame tearing and compositor shiver
     // =========================================================================
-    const transformsCache = lastTransformsRef.current;
+    const updateCardMetrics = () => {
+      const { containerHeight } = getScrollData();
+      layoutMetricsRef.current = {
+        containerHeight,
+        stackPositionPx: parsePercentage(stackPosition, containerHeight),
+        scaleEndPositionPx: parsePercentage(scaleEndPosition, containerHeight),
+      };
+      cardOffsetsRef.current = cards.map((card) => getElementOffset(card));
+    };
 
     cards.forEach((card, i) => {
-      if (i < cards.length - 1) {
-        card.style.marginBottom = `${itemDistance}px`;
-      } else {
-        card.style.marginBottom = '64px';
-      }
+      card.style.marginBottom = i < cards.length - 1 ? `${itemDistance}px` : '64px';
       card.style.zIndex = `${i + 1}`;
       card.style.willChange = blurAmount > 0 ? 'transform, filter' : 'transform';
       card.style.transformOrigin = 'top center';
       card.style.backfaceVisibility = 'hidden';
-      card.style.transform = 'translateZ(0)';
-      card.style.webkitTransform = 'translateZ(0)';
-      card.style.perspective = '1000px';
-      card.style.webkitPerspective = '1000px';
+      card.style.transform = 'translate3d(0, 0px, 0) scale(1)';
     });
 
-    // Compute card offsets AFTER applying layout margins so offsets accurately reflect the layout
-    cardOffsetsRef.current = cards.map((card) => getElementOffset(card));
+    updateCardMetrics();
 
     setupLenis();
 
     const handleResize = () => {
       isMobileDeviceRef.current = isMobileDevice();
-      cardOffsetsRef.current = cardsRef.current.map((card) => getElementOffset(card));
-      handleScroll();
+      updateCardMetrics();
+      scheduleStackUpdate();
     };
+
+    let resizeObserver: ResizeObserver | null = null;
+    if (typeof ResizeObserver !== 'undefined') {
+      resizeObserver = new ResizeObserver(() => {
+        updateCardMetrics();
+        scheduleStackUpdate();
+      });
+      if (scrollerRef.current) {
+        resizeObserver.observe(scrollerRef.current);
+      }
+      const inner = scrollerRef.current?.querySelector('.scroll-stack-inner');
+      if (inner) {
+        resizeObserver.observe(inner);
+      }
+    }
+
+    if (typeof document !== 'undefined' && document.fonts && document.fonts.ready) {
+      document.fonts.ready
+        .then(() => {
+          updateCardMetrics();
+          scheduleStackUpdate();
+        })
+        .catch(() => {});
+    }
 
     const scroller = scrollerRef.current;
     if (scroller) {
@@ -413,9 +441,12 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     window.addEventListener('orientationchange', handleResize, { passive: true });
 
     // Initial render
-    handleScroll();
+    updateDesktopMarbles();
 
     return () => {
+      if (resizeObserver) {
+        resizeObserver.disconnect();
+      }
       if (scrollRafRef.current !== null) {
         cancelAnimationFrame(scrollRafRef.current);
         scrollRafRef.current = null;
@@ -436,17 +467,25 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
       stackCompletedRef.current = false;
       cardsRef.current = [];
       cardOffsetsRef.current = [];
-      transformsCache.clear();
+      lastTransformsRef.current.clear();
       isUpdatingRef.current = false;
     };
   }, [
     itemDistance,
+    itemScale,
+    itemStackDistance,
+    stackPosition,
+    scaleEndPosition,
+    baseScale,
+    rotationAmount,
     blurAmount,
     useWindowScroll,
     setupLenis,
-    handleScroll,
+    updateDesktopMarbles,
     scheduleStackUpdate,
     getElementOffset,
+    getScrollData,
+    parsePercentage,
     onStackComplete,
   ]);
 
@@ -458,8 +497,6 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
         overscrollBehavior: 'contain',
         WebkitOverflowScrolling: 'touch',
         scrollBehavior: 'auto',
-        WebkitTransform: isAndroidDevice ? 'none' : 'translateZ(0)',
-        transform: isAndroidDevice ? 'none' : 'translateZ(0)',
       }}
     >
       <div className="scroll-stack-inner pt-[6vh] sm:pt-[10vh] px-3 sm:px-10 md:px-20 pb-[45vh] min-h-screen">
