@@ -226,8 +226,9 @@ export function BackgroundAudio() {
               name: err?.name,
               message: err?.message,
             });
-            // Autoplay blocked by browser policy or error: gracefully reset state for safe fallback
+            // Autoplay blocked by browser policy: keep buffer primed by playing muted in the background
             audio.muted = true;
+            audio.play().catch(() => {});
             setIsMuted(true);
             setIsPlaying(false);
             isActivatedRef.current = false;
@@ -321,15 +322,19 @@ export function BackgroundAudio() {
 
     const attachGlobalListeners = () => {
       const opts: AddEventListenerOptions = { capture: true, passive: true };
+      window.addEventListener('touchstart', handleGlobalInteraction, opts);
       window.addEventListener('pointerdown', handleGlobalInteraction, opts);
       window.addEventListener('click', handleGlobalInteraction, opts);
       window.addEventListener('keydown', handleGlobalInteraction, opts);
+      window.addEventListener('wheel', handleGlobalInteraction, opts);
     };
 
     const removeGlobalListeners = () => {
+      window.removeEventListener('touchstart', handleGlobalInteraction, true);
       window.removeEventListener('pointerdown', handleGlobalInteraction, true);
       window.removeEventListener('click', handleGlobalInteraction, true);
       window.removeEventListener('keydown', handleGlobalInteraction, true);
+      window.removeEventListener('wheel', handleGlobalInteraction, true);
     };
 
     removeListenersRef.current = removeGlobalListeners;
