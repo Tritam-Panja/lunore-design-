@@ -272,7 +272,7 @@ export function Header() {
                   </div>
                   <div className="flex items-center gap-2 text-[#b9b5ae]">
                     <Mail className="w-4 h-4 text-[#b89a62]" />
-                    <span className="truncate">support@lunoreluxedecorstudio.com</span>
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=support@lunoreluxedecorstudio.com" target="_blank" rel="noopener noreferrer" className="truncate hover:text-[#f3e5ab] transition-colors">support@lunoreluxedecorstudio.com</a>
                   </div>
                 </div>
               </div>

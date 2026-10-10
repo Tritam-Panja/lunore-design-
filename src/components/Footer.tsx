@@ -104,7 +104,7 @@ export function Footer() {
               <a href="tel:+919769708628" className="hover:text-[#f3e5ab] transition-colors">+91 97697 08628</a>
             </p>
             <p className="text-xs sm:text-sm text-[#cfcac0] font-sans font-light truncate">
-              <a href="mailto:support@lunoreluxedecorstudio.com" className="hover:text-[#f3e5ab] transition-colors">support@lunoreluxedecorstudio.com</a>
+              <a href="https://mail.google.com/mail/?view=cm&fs=1&to=support@lunoreluxedecorstudio.com" target="_blank" rel="noopener noreferrer" className="hover:text-[#f3e5ab] transition-colors">support@lunoreluxedecorstudio.com</a>
             </p>
           </div>
         </div>
