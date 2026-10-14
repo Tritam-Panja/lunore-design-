@@ -26,7 +26,7 @@ const UPCOMING_PROJECTS: UpcomingProject[] = [
     category: 'Coastal Architectural Sanctuary',
     location: 'Alibaug, Maharashtra',
     tagline: 'Rough-Hewn Basalt & Sea Cantilever',
-    image: '/assets/images/imagetrail1.webp',
+    image: 'https://images.pexels.com/photos/31788830/pexels-photo-31788830.jpeg?auto=compress&cs=tinysrgb&w=1200',
     status: 'Breaking Ground Q4 2026',
     description:
       'A sea-facing monolithic sanctuary sculpted from raw black basalt and marine-grade brushed bronze. Expansive structural cantilevers suspend private terraces directly over coastal rock pools, housing dedicated subterranean stone art galleries and reflection water basins.',
@@ -40,7 +40,7 @@ const UPCOMING_PROJECTS: UpcomingProject[] = [
     category: 'Panoramic Skyline Horizon',
     location: 'Worli, Mumbai',
     tagline: 'Vein-Matched Statuario & Kinetic Glass',
-    image: '/assets/images/imagetrail3.webp',
+    image: 'https://images.pexels.com/photos/1571453/pexels-photo-1571453.jpeg?auto=compress&cs=tinysrgb&w=1200',
     status: 'Architectural Detailing',
     description:
       'A double-height sky residence commanding 360-degree Arabian Sea vistas. Designed around acoustic tranquility high above the metropolis, featuring book-matched Italian Statuario walls, sound-isolated private study suites, and circadian golden-hour lighting automation.',
@@ -54,7 +54,7 @@ const UPCOMING_PROJECTS: UpcomingProject[] = [
     category: 'Biophilic Stone & Concrete Estate',
     location: 'Lonavala, Maharashtra',
     tagline: 'Board-Formed Concrete & Rare Quartzite',
-    image: '/assets/images/imagetrail4.webp',
+    image: 'https://images.pexels.com/photos/1115804/pexels-photo-1115804.jpeg?auto=compress&cs=tinysrgb&w=1200',
     status: 'In Concept & Spatial Planning',
     description:
       'An expansive hillside retreat nestled among mature banyan trees. Juxtaposes raw board-formed architectural concrete with illuminated green quartzite feature monoliths, allowing mist and natural rainfall to interact with tactile, enduring stone textures.',
@@ -68,7 +68,7 @@ const UPCOMING_PROJECTS: UpcomingProject[] = [
     category: 'Heritage Stone Interpretation',
     location: 'Jodhpur, Rajasthan',
     tagline: 'Chiseled Sandstone & Courtyard Water Datum',
-    image: '/assets/images/imagetrail5.webp',
+    image: 'https://images.pexels.com/photos/33681487/pexels-photo-33681487.jpeg?auto=compress&cs=tinysrgb&w=1200',
     status: 'Material Curation Phase',
     description:
       'A contemporary reimagining of desert palatial architecture. Hand-chiseled local golden sandstone forms thermal-mass envelopes around quiet courtyard pools, providing passive geothermal cooling and dramatic interplay between deep shadow and intense sun.',

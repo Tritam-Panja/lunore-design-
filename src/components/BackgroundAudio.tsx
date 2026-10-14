@@ -158,6 +158,24 @@ export function BackgroundAudio() {
     [getTrackFadeFactor]
   );
 
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const unlockAudioContext = useCallback(() => {
+    try {
+      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      if (AudioContextClass) {
+        if (!audioCtxRef.current) {
+          audioCtxRef.current = new AudioContextClass();
+        }
+        if (audioCtxRef.current.state === 'suspended') {
+          audioCtxRef.current.resume().catch(() => {});
+        }
+      }
+    } catch {
+      // Graceful no-op for environments without Web Audio API support
+    }
+  }, []);
+
   // Ensure transient RAF loop is running when a transition starts
   const ensureVolumeTransition = useCallback(() => {
     if (document.hidden) return;
@@ -194,15 +212,23 @@ export function BackgroundAudio() {
         audioSrc: audio.src,
         audioPaused: audio.paused,
         audioMuted: audio.muted,
+        readyState: audio.readyState,
       });
+
+      unlockAudioContext();
 
       // Synchronously set audio element properties within the execution call stack
       audio.muted = false;
 
-      // Set target volume directly so audio is immediately audible without delay
-      const { factor } = getTrackFadeFactor(audio.currentTime, audio.duration);
-      interactionGainRef.current = 1.0;
-      audio.volume = Math.max(0, Math.min(1, TARGET_VOLUME * factor));
+      // Start with a gentle volume and swell smoothly into full presence
+      if (source.startsWith('global_') || source === 'mount_autoplay' || source === 'audio_canplay') {
+        interactionGainRef.current = 0.05;
+        audio.volume = 0.05;
+      } else {
+        const { factor } = getTrackFadeFactor(audio.currentTime, audio.duration);
+        interactionGainRef.current = 1.0;
+        audio.volume = Math.max(0, Math.min(1, TARGET_VOLUME * factor));
+      }
 
       const playPromise = audio.play();
       if (playPromise !== undefined) {
@@ -218,7 +244,7 @@ export function BackgroundAudio() {
             if (removeListenersRef.current) {
               removeListenersRef.current();
             }
-            ensureVolumeTransition();
+            animateInteractionGain(1.0, 1400);
             return true;
           })
           .catch((err: any) => {
@@ -242,11 +268,11 @@ export function BackgroundAudio() {
         if (removeListenersRef.current) {
           removeListenersRef.current();
         }
-        ensureVolumeTransition();
+        animateInteractionGain(1.0, 1400);
         return Promise.resolve(true);
       }
     },
-    [ensureVolumeTransition, getTrackFadeFactor]
+    [animateInteractionGain, ensureVolumeTransition, getTrackFadeFactor, unlockAudioContext]
   );
 
   useEffect(() => {
@@ -293,9 +319,18 @@ export function BackgroundAudio() {
       }
     };
 
+    const handleCanPlay = () => {
+      if (!isActivatedRef.current && !userExplicitlyMutedRef.current) {
+        logAudioDiag('audio readyState primed (canplay), triggering playback attempt');
+        requestPlayback('audio_canplay');
+      }
+    };
+
     audio.addEventListener('timeupdate', handleTimeUpdate);
     audio.addEventListener('play', handlePlay);
     audio.addEventListener('pause', handlePause);
+    audio.addEventListener('canplay', handleCanPlay);
+    audio.addEventListener('loadeddata', handleCanPlay);
     document.addEventListener('visibilitychange', onVisibilityChange);
 
     // Global interaction listener fallback for devices where immediate autoplay was restricted
@@ -320,21 +355,35 @@ export function BackgroundAudio() {
       requestPlayback(`global_${e.type}`);
     };
 
+    const INTERACTION_EVENTS = [
+      'touchstart',
+      'touchend',
+      'touchmove',
+      'pointerdown',
+      'pointerup',
+      'pointermove',
+      'mousedown',
+      'mouseup',
+      'click',
+      'keydown',
+      'wheel',
+      'scroll',
+      'focus',
+    ];
+
     const attachGlobalListeners = () => {
       const opts: AddEventListenerOptions = { capture: true, passive: true };
-      window.addEventListener('touchstart', handleGlobalInteraction, opts);
-      window.addEventListener('pointerdown', handleGlobalInteraction, opts);
-      window.addEventListener('click', handleGlobalInteraction, opts);
-      window.addEventListener('keydown', handleGlobalInteraction, opts);
-      window.addEventListener('wheel', handleGlobalInteraction, opts);
+      INTERACTION_EVENTS.forEach((evt) => {
+        window.addEventListener(evt, handleGlobalInteraction, opts);
+        document.addEventListener(evt, handleGlobalInteraction, opts);
+      });
     };
 
     const removeGlobalListeners = () => {
-      window.removeEventListener('touchstart', handleGlobalInteraction, true);
-      window.removeEventListener('pointerdown', handleGlobalInteraction, true);
-      window.removeEventListener('click', handleGlobalInteraction, true);
-      window.removeEventListener('keydown', handleGlobalInteraction, true);
-      window.removeEventListener('wheel', handleGlobalInteraction, true);
+      INTERACTION_EVENTS.forEach((evt) => {
+        window.removeEventListener(evt, handleGlobalInteraction, true);
+        document.removeEventListener(evt, handleGlobalInteraction, true);
+      });
     };
 
     removeListenersRef.current = removeGlobalListeners;
@@ -354,6 +403,8 @@ export function BackgroundAudio() {
       audio.removeEventListener('timeupdate', handleTimeUpdate);
       audio.removeEventListener('play', handlePlay);
       audio.removeEventListener('pause', handlePause);
+      audio.removeEventListener('canplay', handleCanPlay);
+      audio.removeEventListener('loadeddata', handleCanPlay);
       stopVolumeLoop();
     };
   }, [applySteadyVolume, ensureVolumeTransition, requestPlayback, stopVolumeLoop]);

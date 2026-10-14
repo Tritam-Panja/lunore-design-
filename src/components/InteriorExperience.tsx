@@ -208,8 +208,6 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
   const isFlashlightModeRef = useRef<boolean>(true);
   const overlayReadyRef = useRef<boolean>(false);
   const storyStageRef = useRef<number>(0);
-  const lastScrollTime = useRef<number>(0);
-  const touchStartY = useRef<number>(0);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const glowTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const switchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -390,7 +388,7 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     };
   }, []);
 
-  // Handle Full Illumination switch: animate toggle knob -> soft white light -> wait in pure image until user scrolls to reveal text
+  // Handle Full Illumination switch: animate toggle knob -> soft white light -> reveal story overlay with action buttons
   const handleToggleClick = () => {
     if (isSwitchToggled) return;
     if (!hasBeenTapped) {
@@ -404,8 +402,8 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     if (switchTimerRef.current) clearTimeout(switchTimerRef.current);
     switchTimerRef.current = setTimeout(() => {
       setIsFlashlightMode(false);
-      setOverlayReady(false);
-      overlayReadyRef.current = false;
+      setOverlayReady(true);
+      overlayReadyRef.current = true;
       setStoryStage(0);
       storyStageRef.current = 0;
 
@@ -426,75 +424,6 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     }, 380);
   };
 
-  // Window-level capture listener: strictly locks outside window scroll until narrative is explored
-  useEffect(() => {
-    const onWindowWheel = (e: WheelEvent) => {
-      if (isFlashlightModeRef.current) return;
-
-      const el = containerRef.current;
-      if (!el) return;
-
-      const rect = el.getBoundingClientRect();
-      const isInView = rect.top < window.innerHeight * 0.8 && rect.bottom > window.innerHeight * 0.2;
-      if (!isInView) return;
-
-      const isReady = overlayReadyRef.current;
-      const currentStage = storyStageRef.current;
-      const now = Date.now();
-
-      if (e.deltaY > 5) {
-        // Scrolling DOWN
-        if (!isReady) {
-          // First scroll while in pure illuminated image -> reveal overlay & stage 0
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 180) {
-            setOverlayReady(true);
-            overlayReadyRef.current = true;
-            setStoryStage(0);
-            storyStageRef.current = 0;
-            lastScrollTime.current = now;
-          }
-        } else if (currentStage < 3) {
-          // Scrolling through stages 0 -> 1 -> 2 -> 3
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setStoryStage((prev) => {
-              const next = Math.min(3, prev + 1);
-              storyStageRef.current = next;
-              return next;
-            });
-            lastScrollTime.current = now;
-          }
-        }
-      } else if (e.deltaY < -5) {
-        // Scrolling UP: Only allow light stage adjustment if still on the very first text stages (0 or 1), never once the journey is reached
-        if (isReady && currentStage === 1 && rect.top >= -80 && rect.top <= window.innerHeight * 0.45) {
-          e.preventDefault();
-          e.stopPropagation();
-          e.stopImmediatePropagation();
-
-          if (now - lastScrollTime.current > 220) {
-            setStoryStage(0);
-            storyStageRef.current = 0;
-            lastScrollTime.current = now;
-          }
-        }
-      }
-    };
-
-    window.addEventListener('wheel', onWindowWheel, { passive: false, capture: true });
-
-    return () => {
-      window.removeEventListener('wheel', onWindowWheel, { capture: true } as any);
-    };
-  }, []);
-
   const handleNextStage = useCallback(() => {
     if (!overlayReadyRef.current) {
       setOverlayReady(true);
@@ -511,16 +440,11 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
   }, []);
 
   const handlePrevStage = useCallback(() => {
-    if (storyStageRef.current === 0) {
-      setOverlayReady(false);
-      overlayReadyRef.current = false;
-    } else {
-      setStoryStage((prev) => {
-        const next = Math.max(0, prev - 1);
-        storyStageRef.current = next;
-        return next;
-      });
-    }
+    setStoryStage((prev) => {
+      const next = Math.max(0, prev - 1);
+      storyStageRef.current = next;
+      return next;
+    });
   }, []);
 
   // High-performance direct GPU render loop with mobile auto-wander & desktop cursor tracking
@@ -678,35 +602,6 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     triggerRenderLoopRef.current();
   }, [getContainerRect]);
 
-  const handleTouchStart = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches.length === 0) return;
-    touchStartY.current = e.touches[0].clientY;
-  }, []);
-
-  const handleTouchMove = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
-    if (e.touches.length === 0) return;
-    if (!isFlashlightMode) {
-      // Mobile swipe navigation for illuminated story stages
-      const currentY = e.touches[0].clientY;
-      const diffY = touchStartY.current - currentY;
-      const now = Date.now();
-      if (Math.abs(diffY) > 45 && now - lastScrollTime.current > 300) {
-        if (diffY > 45) {
-          handleNextStage();
-        } else if (diffY < -45 && storyStageRef.current > 0) {
-          handlePrevStage();
-        }
-        touchStartY.current = currentY;
-        lastScrollTime.current = now;
-      }
-    }
-  }, [isFlashlightMode, handleNextStage, handlePrevStage]);
-
-  const handleTouchEnd = useCallback(() => {
-    // Touch interaction completely removed for mobile flashlight mode;
-    // user touches purely scroll the page while auto-wander traces continuously
-  }, []);
-
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -751,7 +646,6 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
         {/* Main Stage Container */}
         <div
           ref={containerRef}
-          data-lenis-prevent={!isFlashlightMode && storyStage < 3 ? 'true' : undefined}
           onMouseMove={handleMouseMove}
           onMouseEnter={() => {
             if (isFlashlightMode) {
@@ -765,9 +659,6 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
               setIsHovered(false);
             }
           }}
-          onTouchStart={handleTouchStart}
-          onTouchMove={handleTouchMove}
-          onTouchEnd={handleTouchEnd}
           style={{
             ['--spotlight-x' as string]: '50%',
             ['--spotlight-y' as string]: '50%',
