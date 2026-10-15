@@ -759,27 +759,26 @@ export function MarbleExperience() {
           </span>
 
           <h3
-            className="text-[clamp(1.45rem,6.5vw,2.25rem)] sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-wide drop-shadow-[0_4px_30px_rgba(0,0,0,0.98)] max-w-2xl px-2"
+            className="text-[clamp(1.45rem,6.5vw,2.25rem)] sm:text-4xl md:text-5xl lg:text-6xl text-[#f1eee7] font-normal tracking-wide leading-normal sm:leading-tight drop-shadow-[0_4px_30px_rgba(0,0,0,0.98)] max-w-2xl px-2"
             style={{ fontFamily: 'var(--font-serif)' }}
           >
             {['All', 'Stop', 'Solution', 'is', 'Here'].map((word, wIdx) => (
-              <span key={wIdx} className="inline-block overflow-hidden mr-[0.28em] last:mr-0 align-bottom">
-                <span
-                  className="inline-block text-[#f1eee7]"
-                  style={{
-                    animation: isAndroidDevice
-                      ? 'lunore-letter-reveal-android 0.54s cubic-bezier(0.22, 1, 0.36, 1) both'
-                      : 'lunore-letter-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both',
-                    animationDelay: isAndroidDevice
-                      ? `${0.04 + wIdx * 0.04}s`
-                      : `${0.12 + wIdx * 0.08}s`,
-                    textShadow: isAndroidDevice
-                      ? '0 2px 14px rgba(0,0,0,0.95)'
-                      : '0 4px 30px rgba(0,0,0,0.98), 0 0 25px rgba(184,154,98,0.35)',
-                  }}
-                >
-                  {word}
-                </span>
+              <span
+                key={wIdx}
+                className="inline-block text-[#f1eee7] mr-[0.28em] last:mr-0 align-baseline"
+                style={{
+                  animation: isAndroidDevice
+                    ? 'lunore-letter-reveal-android 0.54s cubic-bezier(0.22, 1, 0.36, 1) both'
+                    : 'lunore-letter-reveal 0.9s cubic-bezier(0.16, 1, 0.3, 1) both',
+                  animationDelay: isAndroidDevice
+                    ? `${0.04 + wIdx * 0.04}s`
+                    : `${0.12 + wIdx * 0.08}s`,
+                  textShadow: isAndroidDevice
+                    ? '0 2px 14px rgba(0,0,0,0.95)'
+                    : '0 4px 30px rgba(0,0,0,0.98), 0 0 25px rgba(184,154,98,0.35)',
+                }}
+              >
+                {word}
               </span>
             ))}
           </h3>

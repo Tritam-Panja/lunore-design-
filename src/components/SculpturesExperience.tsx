@@ -889,12 +889,20 @@ const SculptureCarousel = React.memo(function SculptureCarousel({
               statement that is not only seen, but remembered.
             </p>
 
-            <div className="mt-8 sm:mt-10 flex flex-col items-center gap-1.5 opacity-75 hover:opacity-100 transition-opacity">
-              <span className="text-[10px] sm:text-xs tracking-[0.24em] uppercase text-[#b89a62]">
-                Tap or Scroll to Enter Carousel
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onTriggerCarousel();
+              }}
+              className="group/btn mt-8 sm:mt-10 cursor-pointer inline-flex items-center justify-center gap-2.5 px-6 sm:px-8 py-2.5 sm:py-3 rounded-full bg-white/[0.06] hover:bg-white/[0.14] border border-[#b89a62]/50 hover:border-[#b89a62] text-[#f1eee7] shadow-[0_8px_24px_rgba(0,0,0,0.6),inset_0_1px_2px_rgba(255,255,255,0.3)] hover:shadow-[0_12px_32px_rgba(0,0,0,0.8),0_0_25px_rgba(184,154,98,0.4)] transition-all duration-300 transform hover:scale-[1.03] active:scale-[0.97] backdrop-blur-md"
+              aria-label="Tap to enter carousel"
+            >
+              <span className="text-[10px] sm:text-xs tracking-[0.26em] uppercase font-medium text-[#b89a62] group-hover/btn:text-[#f1eee7] transition-colors">
+                Tap to Enter Carousel
               </span>
-              <ChevronDown className="w-4 h-4 text-[#b89a62] animate-bounce" />
-            </div>
+              <ChevronDown className="w-3.5 h-3.5 text-[#b89a62] group-hover/btn:text-[#f1eee7] transition-transform duration-300 group-hover/btn:translate-y-0.5 animate-bounce" />
+            </button>
           </div>
         </div>
       )}
@@ -1172,6 +1180,7 @@ export function SculpturesExperience({
 
   // Direct trigger to smoothly morph into the docked carousel
   const handleTriggerCarousel = useCallback(() => {
+    if (hasMovedRef.current) return;
     targetPinchRef.current = 1;
     lastInteractionTimeRef.current = Date.now();
     triggerPhysicsLoopRef.current();
@@ -1252,21 +1261,13 @@ export function SculpturesExperience({
     triggerPhysicsLoopRef.current();
   }, []);
 
-  // Wheel scroll handler:
+  // Wheel scroll handler (only active when docked in carousel for horizontal card scrubbing)
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
 
     const onWheel = (e: WheelEvent) => {
-      if (experienceState !== 'entrance' && currentPinchRef.current < 0.95) {
-        if (e.deltaY > 0) {
-          e.preventDefault();
-          e.stopPropagation();
-          targetPinchRef.current = Math.min(1, targetPinchRef.current + Math.min(e.deltaY * 0.0035, 0.45));
-          lastInteractionTimeRef.current = Date.now();
-          triggerPhysicsLoopRef.current();
-        }
-      } else if (currentPinchRef.current >= 0.90) {
+      if (currentPinchRef.current >= 0.90) {
         // When docked in carousel, horizontal wheel or Shift+Scroll infinitely rotates carousel
         if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 3) {
           momentumVelocityRef.current = 0;
@@ -1346,7 +1347,9 @@ export function SculpturesExperience({
   const handleTouchStart = (e: React.TouchEvent) => {
     if (experienceState === 'entrance' || e.touches.length === 0) return;
     hasMovedRef.current = false;
-    isDraggingRef.current = true;
+    if (currentPinchRef.current >= 0.90) {
+      isDraggingRef.current = true;
+    }
     momentumVelocityRef.current = 0;
     touchStartRef.current = {
       x: e.touches[0].clientX,
@@ -1373,13 +1376,7 @@ export function SculpturesExperience({
     const now = performance.now();
     const dt = Math.max(1, now - lastDragTimeRef.current);
 
-    if (currentPinchRef.current < 0.90) {
-      // Swiping up in statement view transitions into carousel
-      if (totalDiffY > 20 && Math.abs(totalDiffY) > Math.abs(totalDiffX)) {
-        targetPinchRef.current = Math.min(1, targetPinchRef.current + (totalDiffY - 20) * 0.005);
-        triggerPhysicsLoopRef.current();
-      }
-    } else {
+    if (currentPinchRef.current >= 0.90) {
       // Infinite horizontal swipe rotation when docked in carousel (ensuring vertical page scroll is never trapped)
       if (Math.abs(totalDiffX) > Math.abs(totalDiffY) * 1.25 && Math.abs(totalDiffX) > 6) {
         const diffFromLast = lastDragXRef.current - currentX;
