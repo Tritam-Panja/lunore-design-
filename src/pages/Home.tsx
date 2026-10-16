@@ -823,11 +823,13 @@ export function Home() {
 
                   {/* Direct Email Card Button */}
                   <a
-                    href="https://mail.google.com/mail/?view=cm&fs=1&to=support@lunoreluxedecorstudio.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={isMobile || (typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent))
+                      ? "mailto:support@lunoreluxedecorstudio.com"
+                      : "https://mail.google.com/mail/?view=cm&fs=1&to=support@lunoreluxedecorstudio.com"}
+                    target={isMobile || (typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) ? undefined : "_blank"}
+                    rel={isMobile || (typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) ? undefined : "noopener noreferrer"}
                     className="group/mail cursor-pointer relative overflow-hidden inline-flex items-center justify-center gap-3.5 w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-[#b89a62]/20 via-[#b89a62]/10 to-[#8c7343]/20 hover:from-[#b89a62]/30 hover:to-[#8c7343]/30 border border-[#b89a62]/40 hover:border-[#b89a62] text-white shadow-[0_4px_20px_rgba(184,154,98,0.15)] hover:shadow-[0_6px_28px_rgba(184,154,98,0.3)] transition-all duration-300"
-                    title="Send Email via Gmail"
+                    title={isMobile || (typeof navigator !== 'undefined' && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) ? "Contact via Email" : "Send Email via Gmail"}
                   >
                     <div className="w-9 h-9 rounded-full bg-[#b89a62]/25 flex items-center justify-center text-[#f3e5ab] group-hover/mail:scale-110 transition-transform flex-shrink-0">
                       <Mail className="w-4.5 h-4.5" />

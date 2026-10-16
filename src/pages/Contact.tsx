@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Phone, Mail, Send, Check, MessageCircle, ArrowUpRight, AlertCircle } from 'lucide-react';
 import { InstagramIcon, LinkedinIcon } from '@/components/SocialIcons';
 import { sendContactInquiry } from '@/lib/contactService';
@@ -9,6 +9,24 @@ export function Contact() {
   const [form, setForm] = useState({ name: '', email: '', subject: '', message: '' });
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
+
+  const [isMobile, setIsMobile] = useState(() => (
+    typeof window !== 'undefined'
+      ? /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768
+      : false
+  ));
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(/Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || window.innerWidth < 768);
+    };
+    window.addEventListener('resize', handleResize, { passive: true });
+    window.addEventListener('orientationchange', handleResize, { passive: true });
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('orientationchange', handleResize);
+    };
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -210,11 +228,11 @@ export function Contact() {
 
                   {/* Direct Email Card Button */}
                   <a
-                    href="https://mail.google.com/mail/?view=cm&fs=1&to=support@lunoreluxedecorstudio.com"
-                    target="_blank"
-                    rel="noopener noreferrer"
+                    href={isMobile ? "mailto:support@lunoreluxedecorstudio.com" : "https://mail.google.com/mail/?view=cm&fs=1&to=support@lunoreluxedecorstudio.com"}
+                    target={isMobile ? undefined : "_blank"}
+                    rel={isMobile ? undefined : "noopener noreferrer"}
                     className="group/mail cursor-pointer relative overflow-hidden inline-flex items-center justify-center gap-3.5 w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-[#b89a62]/20 via-[#b89a62]/10 to-[#8c7343]/20 hover:from-[#b89a62]/30 hover:to-[#8c7343]/30 border border-[#b89a62]/40 hover:border-[#b89a62] text-white shadow-[0_4px_20px_rgba(184,154,98,0.15)] hover:shadow-[0_6px_28px_rgba(184,154,98,0.3)] transition-all duration-300"
-                    title="Send Email via Gmail"
+                    title={isMobile ? "Contact via Email" : "Send Email via Gmail"}
                   >
                     <div className="w-9 h-9 rounded-full bg-[#b89a62]/25 flex items-center justify-center text-[#f3e5ab] group-hover/mail:scale-110 transition-transform flex-shrink-0">
                       <Mail className="w-4.5 h-4.5" />
