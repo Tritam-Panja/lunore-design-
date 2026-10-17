@@ -493,10 +493,10 @@ export function AurexaSection() {
       {/* 6. BOTTOM ACTION: Click Here to Aurexa Website */}
       <div className="relative z-40 flex flex-col items-center gap-3 pointer-events-auto">
         <Link
-          to="/coming-soon"
+          to="/aurexa"
           className="group cursor-pointer px-8 py-3.5 rounded-full bg-[#b89a62]/20 hover:bg-[#b89a62]/35 border border-[#b89a62]/60 hover:border-[#b89a62] text-[#f8f0dc] text-xs uppercase tracking-[0.25em] font-medium inline-flex items-center gap-3 shadow-[0_4px_25px_rgba(184,154,98,0.25)] hover:shadow-[0_4px_35px_rgba(184,154,98,0.45)] transition-all duration-300 active:scale-95"
         >
-          <span>Click Here</span>
+          <span>Explore Aurexa Pavilion</span>
           <ArrowUpRight className="w-4 h-4 text-[#b89a62] group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
         </Link>
       </div>

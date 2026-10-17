@@ -34,6 +34,15 @@ export function Layout() {
   const needsSmoothScroll = !isFullScreenRoute;
 
   if (isFullScreenRoute) {
+    const isAurexa = pathname === '/aurexa' || pathname === '/coming-soon';
+    if (isAurexa) {
+      return (
+        <div className="w-full min-h-screen bg-[#040810] text-[#f1eee7]">
+          <ScrollToTop />
+          <Outlet />
+        </div>
+      );
+    }
     return (
       <div className="w-full h-[100dvh] overflow-hidden bg-[#090a0b] text-[#f1eee7]">
         <ScrollToTop />
