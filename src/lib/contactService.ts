@@ -81,7 +81,7 @@ export async function sendContactInquiry(formData: ContactFormData): Promise<Sen
     };
   }
 
-  // If neither key is configured yet, provide clear instruction
+  // If neitherinstruction key is configured yet, provide clear 
   if (!web3FormsKey || web3FormsKey === 'YOUR_WEB3FORMS_ACCESS_KEY') {
     return {
       success: false,

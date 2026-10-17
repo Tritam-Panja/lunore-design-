@@ -143,12 +143,12 @@ export function Contact() {
                     <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0 mt-0.5" />
                     <span>{errorMessage || 'Something went wrong. Please try again or reach out via WhatsApp/Phone.'}</span>
                   </div>
-                )}
+                )} 
                 <button
                   type="submit"
                   disabled={status === 'sending'}
                   className="liquid-glass-btn-primary w-full py-4 text-xs tracking-[0.25em] uppercase font-semibold text-[#0d0e0e] inline-flex items-center justify-center gap-2 disabled:opacity-50 shadow-lg cursor-pointer"
-                >
+                > 
                   {status === 'sending' ? 'Sending…' : 'Send Inquiry'}
                   {status !== 'sending' && <Send className="w-4 h-4" />}
                 </button>
@@ -177,7 +177,7 @@ export function Contact() {
                 <h3 className="text-xs tracking-[0.3em] uppercase text-[#b89a62] mb-5">
                   Direct Inquiries
                 </h3>
-                <div className="flex items-center gap-4 mb-5">
+                <div className="flex items-center gap-4 mb-5">   
                   <Phone className="w-5 h-5 text-[#b89a62] flex-shrink-0" strokeWidth={1} />
                   <a
                     href="tel:+919769708628"
