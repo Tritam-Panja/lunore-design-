@@ -1197,3 +1197,106 @@ html.lunore-experience-active h3 {
     transform: translate(-50%, -50%) scale(0.92) translateY(-14px) rotate(var(--card-rot, 0deg));
   }
 }
+
+/* ===== Aurexa Editorial Smooth Animation System ===== */
+
+/* Ambient slow breathing zoom for hero and luxury fabrics */
+@keyframes aurexa-fabric-drift {
+  0% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+  50% {
+    transform: scale(1.04) translate3d(-0.6%, -0.6%, 0);
+  }
+  100% {
+    transform: scale(1) translate3d(0, 0, 0);
+  }
+}
+
+.aurexa-ambient-fabric {
+  animation: aurexa-fabric-drift 24s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Hero Grand Title Entry */
+@keyframes aurexa-title-enter {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 28px, 0) scale(0.96);
+    letter-spacing: 0.28em;
+    filter: blur(10px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0) scale(1);
+    letter-spacing: 0.42em;
+    filter: blur(0px);
+  }
+}
+
+.aurexa-hero-title-reveal {
+  animation: aurexa-title-enter 1.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Hero Subtitle Entry */
+@keyframes aurexa-fade-glide-up {
+  0% {
+    opacity: 0;
+    transform: translate3d(0, 22px, 0);
+    filter: blur(6px);
+  }
+  100% {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+    filter: blur(0px);
+  }
+}
+
+.aurexa-glide-up-1 {
+  animation: aurexa-fade-glide-up 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.35s both;
+}
+
+.aurexa-glide-up-2 {
+  animation: aurexa-fade-glide-up 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.65s both;
+}
+
+.aurexa-glide-up-3 {
+  animation: aurexa-fade-glide-up 1.4s cubic-bezier(0.16, 1, 0.3, 1) 0.95s both;
+}
+
+/* Subtle Floating Scroll Mouse Indicator */
+@keyframes aurexa-float-indicator {
+  0%, 100% {
+    transform: translate3d(0, 0, 0);
+    opacity: 0.75;
+  }
+  50% {
+    transform: translate3d(0, 8px, 0);
+    opacity: 1;
+  }
+}
+
+.aurexa-float-anim {
+  animation: aurexa-float-indicator 2.6s ease-in-out infinite;
+}
+
+/* Luxury Card Hover Micro-interactions */
+.aurexa-card-hover {
+  transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.4s ease;
+}
+
+.aurexa-card-hover:hover {
+  transform: translate3d(0, -6px, 0);
+}
+
+/* Image Zoom Hover with Smooth Cubic-Bezier */
+.aurexa-img-zoom {
+  transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+}
+
+.group:hover .aurexa-img-zoom {
+  transform: scale(1.06);
+}
+

@@ -7,22 +7,17 @@ import {
   Calendar,
   Clock,
   MapPin,
-  Sparkles,
   ShieldCheck,
-  Gem,
   Check,
   Send,
   Phone,
   Mail,
-  Eye,
   X,
   Menu,
-  ChevronDown,
-  Layers,
-  Award,
-  Crown
+  ChevronDown
 } from 'lucide-react';
 import { sendContactInquiry } from '@/lib/contactService';
+import { Reveal } from '@/components/Reveal';
 
 // --- DATA STRUCTURES ---
 
@@ -295,43 +290,31 @@ export function ComingSoon() {
   return (
     <div className="w-full min-h-screen bg-[#040810] text-[#f7f4ee] font-sans relative selection:bg-[#c5a363]/40 selection:text-white">
       {/* =========================================================================
-          1. LUXURY FLOATING HEADER (HIDDEN ON FIRST PAGE/HERO, REVEALED ON SCROLL)
+          1. LUXURY FLOATING HEADER (TRANSPARENT, REVEALED ON SCROLL)
       ========================================================================= */}
       <header
-        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 py-3.5 sm:py-4 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu ${
+        className={`fixed top-0 inset-x-0 z-50 flex items-center justify-between px-4 sm:px-8 md:px-12 pt-[max(0.75rem,env(safe-area-inset-top,0.75rem))] pb-3 sm:py-5 md:py-6 pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] transform-gpu ${
           scrolled || menuOpen
-            ? 'opacity-100 translate-y-0 pointer-events-auto bg-[#040810]/85 backdrop-blur-xl border-b border-[#c5a363]/25 shadow-[0_10px_35px_rgba(0,0,0,0.7)]'
-            : 'opacity-0 -translate-y-8 pointer-events-none'
+            ? 'opacity-100 translate-y-0'
+            : 'opacity-0 -translate-y-8'
         }`}
       >
-        {/* Left: Return to Home / Lunore Studio */}
-        <div className="pointer-events-auto">
-          <Link
-            to="/"
-            className="group inline-flex items-center gap-2.5 text-xs uppercase tracking-[0.22em] text-[#d6c7ab] hover:text-[#f3e5c8] transition-colors py-2 font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]"
-          >
-            <ArrowLeft className="w-4 h-4 text-[#c5a363] transition-transform duration-300 group-hover:-translate-x-1" />
-            <span className="hidden sm:inline">Lunore Studio</span>
-            <span className="sm:hidden">Studio</span>
-          </Link>
-        </div>
-
-        {/* Center: Brand Wordmark */}
+        {/* Brand Wordmark (Top Left) */}
         <div className="pointer-events-auto">
           <button
             onClick={() => scrollTo('hero')}
-            className="flex flex-col items-center group cursor-pointer focus:outline-none"
+            className="flex flex-col items-start group cursor-pointer focus:outline-none select-none text-left"
+            aria-label="Aurexa - Return to Hero"
           >
-            <div className="flex items-center gap-2">
-              <Crown className="w-3.5 h-3.5 text-[#c5a363] opacity-80 group-hover:opacity-100 transition-opacity" />
+            <div className="flex items-center">
               <span
-                className="text-lg sm:text-2xl tracking-[0.38em] text-[#ffffff] font-light group-hover:text-[#f3e5c8] transition-colors leading-none"
+                className="text-lg sm:text-2xl tracking-[0.38em] text-[#ffffff] font-light group-hover:text-[#f3e5c8] transition-colors leading-none drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
                 AUREXA
               </span>
             </div>
-            <span className="text-[7px] sm:text-[8px] tracking-[0.45em] text-[#c5a363] uppercase font-semibold mt-1">
+            <span className="text-[7px] sm:text-[8px] tracking-[0.45em] text-[#c5a363] uppercase font-semibold mt-1 group-hover:text-[#d4b574] transition-colors drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
               The Haute Stone Pavilion
             </span>
           </button>
@@ -372,8 +355,7 @@ export function ComingSoon() {
         <div className="fixed inset-0 z-50 bg-[#040810]/95 backdrop-blur-2xl transition-all duration-500 overflow-y-auto p-6 sm:p-12 flex flex-col justify-between animate-in fade-in zoom-in-95">
           {/* Top Bar inside Overlay */}
           <div className="max-w-7xl mx-auto w-full flex items-center justify-between pb-8 border-b border-[#c5a363]/25">
-            <div className="flex items-center gap-2.5">
-              <Crown className="w-5 h-5 text-[#c5a363]" />
+            <div className="flex items-center">
               <span
                 className="text-2xl tracking-[0.38em] text-white font-light"
                 style={{ fontFamily: 'var(--font-serif)' }}
@@ -397,7 +379,7 @@ export function ComingSoon() {
             <nav className="lg:col-span-7 flex flex-col gap-6">
               {[
                 { id: 'hero', num: '01', label: 'The Pavilion Hero', sub: 'Arrival & Grand Monolith' },
-                { id: 'about', num: '02', label: 'About Us', sub: 'The Philosophy & Curatorial Vision' },
+                { id: 'about', num: '02', label: 'What Is Aurexa', sub: 'An Invitation to Experience Art Differently' },
                 { id: 'glimpses', num: '03', label: 'The Glimpses', sub: 'Curated Exhibition Gallery' },
                 { id: 'event', num: '04', label: 'Event Details', sub: '05 April 2026 Programme & Schedule' },
                 { id: 'collection', num: '05', label: 'The Collection', sub: 'Haute Stone Curations & Sculptures' },
@@ -478,12 +460,12 @@ export function ComingSoon() {
         id="hero"
         className="relative w-full h-[100dvh] flex items-center justify-center text-center px-6 overflow-hidden"
       >
-        {/* Full-bleed Hero Photo - Clean & Clear without dark overlays */}
+        {/* Full-bleed Hero Photo - Clean & Clear with subtle ambient breathing drift */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <img
             src="/assets/AUREXA-HERO.jpg"
             alt="Aurexa Pavilion Hero"
-            className="w-full h-full object-cover object-center select-none"
+            className="w-full h-full object-cover object-center select-none aurexa-ambient-fabric scale-[1.02]"
           />
         </div>
 
@@ -493,7 +475,7 @@ export function ComingSoon() {
         {/* Content Container - Pure Grand AUREXA Title (Shifted slightly upwards to true center) */}
         <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center -translate-y-8 sm:-translate-y-12">
           <h1
-            className="text-6xl sm:text-8xl md:text-9xl lg:text-[11rem] text-white font-light tracking-[0.25em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.85)]"
+            className="text-6xl sm:text-8xl md:text-9xl lg:text-[11rem] text-white font-light tracking-[0.25em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.85)] aurexa-hero-title-reveal"
             style={{
               fontFamily: 'var(--font-serif)',
               textShadow: '0 4px 35px rgba(0, 0, 0, 0.8), 0 0 45px rgba(197, 163, 99, 0.4)',
@@ -503,188 +485,225 @@ export function ComingSoon() {
           </h1>
 
           {/* Gold Metallic Accent Line */}
-          <div className="w-32 sm:w-56 h-[2px] bg-gradient-to-r from-transparent via-[#c5a363] to-transparent mx-auto mt-4 shadow-[0_0_15px_rgba(197,163,99,0.9)]" />
+          <div className="w-32 sm:w-56 h-[2px] bg-gradient-to-r from-transparent via-[#c5a363] to-transparent mx-auto mt-4 shadow-[0_0_15px_rgba(197,163,99,0.9)] aurexa-glide-up-1" />
+        </div>
+
+        {/* Subtle Luxury Scroll Down Indicator */}
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2 pointer-events-none aurexa-float-anim aurexa-glide-up-3">
+          <span className="text-[9px] uppercase tracking-[0.3em] text-[#dcd2be] font-medium drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+            Explore Pavilion
+          </span>
+          <ChevronDown className="w-4 h-4 text-[#c5a363] opacity-80" />
         </div>
       </section>
 
       {/* =========================================================================
-          SECTION 2: ABOUT US (THE AUREXA PHILOSOPHY & VISION) - BEIGE SILK
+          SECTION 2: WHAT IS AUREXA? - BEIGE SILK
       ========================================================================= */}
       <section id="about" className="relative py-24 sm:py-32 px-6 overflow-hidden text-[#1c1917] border-t border-[#bfae94]/40">
-        {/* Champagne Beige Silk Background - Clean & Clear */}
+        {/* Champagne Beige Silk Background - Clean & Clear with subtle ambient drift */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <img
             src="/assets/images/aurexa-beige-silk.jpg"
             alt="Lunore Haute Champagne Silk"
-            className="w-full h-full object-cover object-center select-none"
+            className="w-full h-full object-cover object-center select-none aurexa-ambient-fabric scale-[1.02]"
           />
           <div className="absolute inset-0 bg-[#F1ECE1]/20 pointer-events-none" />
         </div>
 
         <div className="relative z-10 max-w-6xl mx-auto">
           {/* Header */}
-          <div className="text-center max-w-3xl mx-auto mb-20">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#e3d9c7]/85 border border-[#a88d59]/40 mb-4 backdrop-blur-md">
-              <Gem className="w-3.5 h-3.5 text-[#8f6d2f]" />
-              <span className="text-[10px] uppercase tracking-[0.35em] text-[#4a3b22] font-semibold">
-                The Philosophy
+          <div className="text-center max-w-5xl mx-auto mb-16 sm:mb-20">
+            <Reveal direction="down">
+              <span className="inline-block text-[11px] sm:text-xs uppercase tracking-[0.38em] text-[#8f6d2f] font-semibold mb-4">
+                What is Aurexa?
               </span>
-            </div>
-            <h2
-              className="text-3xl sm:text-5xl text-[#171411] font-light tracking-[0.16em] uppercase mb-6"
-              style={{ fontFamily: 'var(--font-serif)' }}
+            </Reveal>
+            <Reveal direction="up" delay={0.1}>
+              <h2
+                className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-[2.85rem] text-[#171411] font-light tracking-[0.02em] leading-tight mb-6 whitespace-nowrap"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                An Invitation to Experience Art Differently.
+              </h2>
+            </Reveal>
+            <Reveal direction="zoom" delay={0.15}>
+              <div className="w-24 h-[1.5px] bg-[#a8884d] mx-auto mb-8" />
+            </Reveal>
+            <Reveal direction="up" delay={0.2}>
+              <div className="space-y-4 max-w-3xl mx-auto text-sm sm:text-base md:text-lg text-[#473f35] font-normal tracking-[0.02em] leading-relaxed">
+                <p>
+                  Aurexa is an exclusive, invitation-only art experience created for a select circle of HNIs, collectors, artists and art lovers. It brings together exceptional works of art, creative minds and like-minded individuals in an intimate setting designed to encourage discovery, connection and appreciation.
+                </p>
+                <p>
+                  From paintings and sculptures to conversations, celebrations and a live auction, Aurexa is more than an exhibition — it is an experience built around the way art makes us feel, connect and see differently.
+                </p>
+              </div>
+            </Reveal>
+          </div>
+
+          {/* 4 Highlight Word Pillars */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-14 sm:mb-16">
+            {[
+              {
+                word: 'ART',
+                num: '01',
+                sub: 'Exceptional Works & Sculptures',
+              },
+              {
+                word: 'PEOPLE',
+                num: '02',
+                sub: 'HNIs, Collectors & Artists',
+              },
+              {
+                word: 'EXPRESSION',
+                num: '03',
+                sub: 'Conversations & Live Auction',
+              },
+              {
+                word: 'CONNECTION',
+                num: '04',
+                sub: 'Shared Discovery & Passion',
+              },
+            ].map((pillar, idx) => (
+              <Reveal key={pillar.word} direction="up" delay={idx * 0.1}>
+                <div className="h-full p-6 sm:p-8 rounded-3xl bg-white/90 border border-[#d8cbbb] shadow-[0_12px_40px_rgba(60,45,25,0.06)] hover:border-[#a8884d] hover:shadow-[0_20px_50px_rgba(60,45,25,0.14)] aurexa-card-hover group backdrop-blur-sm flex flex-col items-center text-center cursor-default">
+                  <span className="text-xs sm:text-sm font-mono text-[#8f6d2f] tracking-widest uppercase mb-2 font-medium">
+                    {pillar.num}
+                  </span>
+                  <h3
+                    className="text-xl sm:text-2xl font-light tracking-[0.2em] text-[#171411] uppercase mb-2 group-hover:text-[#8f6d2f] transition-colors"
+                    style={{ fontFamily: 'var(--font-serif)' }}
+                  >
+                    {pillar.word}
+                  </h3>
+                  <p className="text-[11px] sm:text-xs text-[#544a3d] leading-relaxed font-normal">
+                    {pillar.sub}
+                  </p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* Discover The Experience CTA Button */}
+          <Reveal direction="up" delay={0.3} className="flex justify-center">
+            <button
+              onClick={() => scrollTo('glimpses')}
+              className="group inline-flex items-center gap-3.5 px-8 sm:px-12 py-4 sm:py-4.5 rounded-full bg-[#171411] hover:bg-[#28221b] text-[#f7f4ee] hover:text-[#f3e5c8] border border-[#a8884d]/60 shadow-[0_12px_35px_rgba(23,20,17,0.3)] hover:shadow-[0_18px_50px_rgba(168,136,77,0.4)] transition-all duration-300 transform hover:scale-[1.02] active:scale-98 cursor-pointer"
             >
-              The Vision Behind Aurexa
-            </h2>
-            <div className="w-24 h-[1.5px] bg-[#a8884d] mx-auto mb-6" />
-            <p className="text-sm sm:text-base text-[#473f35] font-normal tracking-[0.04em] leading-relaxed">
-              Curated under the directorial vision of Chirag Panja at Lunore, AUREXA redefines how monumental stone is
-              experienced, collected, and celebrated. An exclusive salon bringing together high-net-worth collectors,
-              visionary architects, and master artisans under one refined architectural setting.
-            </p>
-          </div>
-
-          {/* 3 Core Pillars */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-            <div className="p-8 sm:p-10 rounded-3xl bg-white/90 border border-[#d8cbbb] shadow-[0_12px_40px_rgba(60,45,25,0.06)] hover:border-[#a8884d] hover:shadow-[0_16px_50px_rgba(60,45,25,0.12)] transition-all group backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-2xl bg-[#ede2d1] border border-[#a8884d]/40 flex items-center justify-center text-[#8f6d2f] mb-6 group-hover:scale-110 transition-transform">
-                <Layers className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-serif tracking-[0.15em] text-[#171411] uppercase mb-3">
-                Geological Provenance
-              </h3>
-              <p className="text-xs sm:text-sm text-[#544a3d] leading-relaxed font-normal">
-                Every stone block is hand-selected from heritage quarries in Carrara, Thassos, and Persia. Each work
-                carries a documented geological certificate certifying millions of years of subterranean mineral formation.
-              </p>
-            </div>
-
-            <div className="p-8 sm:p-10 rounded-3xl bg-white/90 border border-[#d8cbbb] shadow-[0_12px_40px_rgba(60,45,25,0.06)] hover:border-[#a8884d] hover:shadow-[0_16px_50px_rgba(60,45,25,0.12)] transition-all group backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-2xl bg-[#ede2d1] border border-[#a8884d]/40 flex items-center justify-center text-[#8f6d2f] mb-6 group-hover:scale-110 transition-transform">
-                <Award className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-serif tracking-[0.15em] text-[#171411] uppercase mb-3">
-                Haute Artistry
-              </h3>
-              <p className="text-xs sm:text-sm text-[#544a3d] leading-relaxed font-normal">
-                Bridging age-old Italian chiseling techniques with aerospace waterjet engineering, our sculptors transform
-                heavy, monolithic masses into gravity-defying curved silhouettes and translucent light columns.
-              </p>
-            </div>
-
-            <div className="p-8 sm:p-10 rounded-3xl bg-white/90 border border-[#d8cbbb] shadow-[0_12px_40px_rgba(60,45,25,0.06)] hover:border-[#a8884d] hover:shadow-[0_16px_50px_rgba(60,45,25,0.12)] transition-all group backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-2xl bg-[#ede2d1] border border-[#a8884d]/40 flex items-center justify-center text-[#8f6d2f] mb-6 group-hover:scale-110 transition-transform">
-                <Crown className="w-6 h-6" />
-              </div>
-              <h3 className="text-lg font-serif tracking-[0.15em] text-[#171411] uppercase mb-3">
-                Private Salon Society
-              </h3>
-              <p className="text-xs sm:text-sm text-[#544a3d] leading-relaxed font-normal">
-                An intimate networking enclave free from commercial noise. Guests enjoy private preview auctions,
-                direct access to studio curators, and confidential architectural commission consultations.
-              </p>
-            </div>
-          </div>
-
-          {/* Director Quote Banner */}
-          <div className="relative rounded-3xl overflow-hidden p-8 sm:p-12 bg-gradient-to-r from-[#e7dfcf] via-[#efe8da] to-[#e7dfcf] border border-[#c2b299] shadow-[0_15px_40px_rgba(60,45,25,0.08)]">
-            <div className="max-w-3xl mx-auto text-center">
-              <p className="text-base sm:text-xl text-[#1a1713] font-serif italic tracking-[0.04em] leading-relaxed mb-6">
-                &ldquo;Every touchpoint tells a story. Through Aurexa, we open a direct sanctuary for collectors and
-                design visionaries to witness stone not as a material, but as a living monument of art.&rdquo;
-              </p>
-              <div className="text-xs uppercase tracking-[0.3em] text-[#8f6d2f] font-semibold">
-                Chirag Panja &bull; Director of Marketing, Business Development & Aurexa
-              </div>
-            </div>
-          </div>
+              <span className="text-xs sm:text-sm uppercase tracking-[0.28em] font-medium">
+                Discover the Experience
+              </span>
+              <ArrowRight className="w-4 h-4 text-[#c5a363] transition-transform duration-300 group-hover:translate-x-1.5" />
+            </button>
+          </Reveal>
         </div>
       </section>
 
       {/* =========================================================================
-          SECTION 3: THE GLIMPSES (CURATED EXHIBITION GALLERY) - #012059
+          SECTION 3: THE GLIMPSES (CURATED EXHIBITION GALLERY) - ROYAL BLUE VELVET
       ========================================================================= */}
-      <section id="glimpses" className="relative py-24 sm:py-32 px-6 bg-[#012059] text-[#f7f4ee] border-t border-[#c5a363]/30">
-        <div className="max-w-7xl mx-auto">
+      <section id="glimpses" className="relative py-24 sm:py-32 px-6 overflow-hidden text-[#f7f4ee] border-t border-[#c5a363]/30">
+        {/* Royal Blue Velvet Fabric Background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <img
+            src="/assets/images/aurexa-blue-velvet.jpg"
+            alt="Lunore Aurexa Royal Blue Velvet"
+            className="w-full h-full object-cover object-center select-none aurexa-ambient-fabric scale-[1.02]"
+          />
+          <div className="absolute inset-0 bg-[#011438]/20 pointer-events-none" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center max-w-3xl mx-auto mb-12">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#c5a363]/15 border border-[#c5a363]/40 mb-4 backdrop-blur-md">
-              <Eye className="w-3.5 h-3.5 text-[#c5a363]" />
-              <span className="text-[10px] uppercase tracking-[0.35em] text-[#d9cbb2] font-semibold">
-                Exhibition Gallery
-              </span>
-            </div>
-            <h2
-              className="text-3xl sm:text-5xl text-white font-light tracking-[0.16em] uppercase mb-6"
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              The Glimpses
-            </h2>
-            <div className="w-24 h-[1.5px] bg-[#c5a363] mx-auto mb-6" />
-            <p className="text-sm sm:text-base text-[#d1c6b2] font-light tracking-[0.06em]">
-              Capturing moments of light, texture, and monumental scale from our private salons and pavilion installations.
-            </p>
+            <Reveal direction="down">
+              <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#c5a363]/15 border border-[#c5a363]/40 mb-4 backdrop-blur-md">
+                <span className="text-[10px] uppercase tracking-[0.35em] text-[#d9cbb2] font-semibold">
+                  Exhibition Gallery
+                </span>
+              </div>
+            </Reveal>
+            <Reveal direction="up" delay={0.1}>
+              <h2
+                className="text-3xl sm:text-5xl text-white font-light tracking-[0.16em] uppercase mb-6"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                The Glimpses
+              </h2>
+            </Reveal>
+            <Reveal direction="zoom" delay={0.15}>
+              <div className="w-24 h-[1.5px] bg-[#c5a363] mx-auto mb-6" />
+            </Reveal>
+            <Reveal direction="up" delay={0.2}>
+              <p className="text-sm sm:text-base text-[#d1c6b2] font-light tracking-[0.06em]">
+                Capturing moments of light, texture, and monumental scale from our private salons and pavilion installations.
+              </p>
+            </Reveal>
           </div>
 
           {/* Category Filter Tabs */}
-          <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 mb-14">
-            {[
-              { id: 'all', label: 'All Works' },
-              { id: 'monoliths', label: 'Monoliths' },
-              { id: 'ambient', label: 'Ambient Salons' },
-              { id: 'sculpture', label: 'Sculptures' },
-              { id: 'details', label: 'Artisan Details' },
-            ].map((tab) => (
-              <button
-                key={tab.id}
-                onClick={() => setGlimpseFilter(tab.id as typeof glimpseFilter)}
-                className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium transition-all cursor-pointer ${
-                  glimpseFilter === tab.id
-                    ? 'bg-[#c5a363] text-[#050b14] font-semibold shadow-[0_0_20px_rgba(197,163,99,0.5)]'
-                    : 'bg-[#081528]/60 text-[#d4c9b5] hover:bg-[#0c2242] border border-[#c5a363]/30'
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
+          <Reveal direction="up" delay={0.15}>
+            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 mb-14">
+              {[
+                { id: 'all', label: 'All Works' },
+                { id: 'monoliths', label: 'Monoliths' },
+                { id: 'ambient', label: 'Ambient Salons' },
+                { id: 'sculpture', label: 'Sculptures' },
+                { id: 'details', label: 'Artisan Details' },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  onClick={() => setGlimpseFilter(tab.id as typeof glimpseFilter)}
+                  className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium transition-all cursor-pointer ${
+                    glimpseFilter === tab.id
+                      ? 'bg-[#c5a363] text-[#050b14] font-semibold shadow-[0_0_20px_rgba(197,163,99,0.5)] scale-105'
+                      : 'bg-[#081528]/60 text-[#d4c9b5] hover:bg-[#0c2242] border border-[#c5a363]/30 hover:scale-102'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+          </Reveal>
 
           {/* Glimpse Image Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredGlimpses.map((item) => (
-              <div
-                key={item.id}
-                onClick={() => setSelectedGlimpse(item)}
-                className="group relative rounded-2xl overflow-hidden aspect-[4/5] bg-[#071324] border border-[#c5a363]/30 hover:border-[#c5a363] shadow-[0_10px_30px_rgba(0,0,0,0.6)] cursor-pointer transition-all duration-300 transform hover:-translate-y-1.5"
-              >
-                <img
-                  src={item.image}
-                  alt={item.title}
-                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-108"
-                />
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-[#040810] via-[#040810]/40 to-transparent opacity-85 group-hover:opacity-95 transition-opacity" />
+            {filteredGlimpses.map((item, idx) => (
+              <Reveal key={item.id} direction="up" delay={(idx % 4) * 0.1}>
+                <div
+                  onClick={() => setSelectedGlimpse(item)}
+                  className="group relative rounded-2xl overflow-hidden aspect-[4/5] bg-[#071324] border border-[#c5a363]/30 hover:border-[#c5a363] shadow-[0_10px_30px_rgba(0,0,0,0.6)] cursor-pointer aurexa-card-hover"
+                >
+                  <img
+                    src={item.image}
+                    alt={item.title}
+                    className="w-full h-full object-cover aurexa-img-zoom"
+                  />
+                  {/* Gradient Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#040810] via-[#040810]/40 to-transparent opacity-85 group-hover:opacity-95 transition-opacity duration-500" />
 
-                {/* Content info bottom */}
-                <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col">
-                  <span className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363] font-semibold mb-1">
-                    {item.category}
-                  </span>
-                  <h4
-                    className="text-base text-white font-medium tracking-[0.1em] group-hover:text-[#f7e6c4] transition-colors mb-1.5"
-                    style={{ fontFamily: 'var(--font-serif)' }}
-                  >
-                    {item.title}
-                  </h4>
-                  <p className="text-[11px] text-[#b5a995] line-clamp-2 font-light">
-                    {item.medium}
-                  </p>
-                  <div className="mt-3 flex items-center gap-1.5 text-[10px] text-[#c5a363] tracking-[0.18em] uppercase font-semibold">
-                    <span>View Detail</span>
-                    <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+                  {/* Content info bottom */}
+                  <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col transform group-hover:-translate-y-1 transition-transform duration-500">
+                    <span className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363] font-semibold mb-1">
+                      {item.category}
+                    </span>
+                    <h4
+                      className="text-base text-white font-medium tracking-[0.1em] group-hover:text-[#f7e6c4] transition-colors mb-1.5"
+                      style={{ fontFamily: 'var(--font-serif)' }}
+                    >
+                      {item.title}
+                    </h4>
+                    <p className="text-[11px] text-[#b5a995] line-clamp-2 font-light">
+                      {item.medium}
+                    </p>
+                    <div className="mt-3 flex items-center gap-1.5 text-[10px] text-[#c5a363] tracking-[0.18em] uppercase font-semibold">
+                      <span>View Detail</span>
+                      <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
+                    </div>
                   </div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
@@ -694,12 +713,12 @@ export function ComingSoon() {
           SECTION 4: THE EVENT DETAILS (DATE, TIMELINE & VENUE) - BEIGE SILK
       ========================================================================= */}
       <section id="event" className="relative py-24 sm:py-32 px-6 overflow-hidden text-[#1c1917] border-t border-[#bfae94]/40">
-        {/* Champagne Beige Silk Background - Clean & Clear */}
+        {/* Champagne Beige Silk Background - Clean & Clear with subtle ambient drift */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <img
             src="/assets/images/aurexa-beige-silk.jpg"
             alt="Lunore Haute Champagne Silk"
-            className="w-full h-full object-cover object-center select-none"
+            className="w-full h-full object-cover object-center select-none aurexa-ambient-fabric scale-[1.02]"
           />
           <div className="absolute inset-0 bg-[#F1ECE1]/20 pointer-events-none" />
         </div>
@@ -707,241 +726,291 @@ export function ComingSoon() {
         <div className="relative z-10 max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#e3d9c7]/85 border border-[#a88d59]/40 mb-4 backdrop-blur-md">
-              <Calendar className="w-3.5 h-3.5 text-[#8f6d2f]" />
-              <span className="text-[10px] uppercase tracking-[0.35em] text-[#4a3b22] font-semibold">
-                Event Architecture
-              </span>
-            </div>
-            <h2
-              className="text-3xl sm:text-5xl text-[#171411] font-light tracking-[0.16em] uppercase mb-6"
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              Exhibition Details & Schedule
-            </h2>
-            <div className="w-24 h-[1.5px] bg-[#a8884d] mx-auto mb-6" />
-            <p className="text-sm sm:text-base text-[#473f35] font-normal tracking-[0.04em]">
-              An exclusive single-evening private pavilion reserved strictly for accredited patrons and invitation holders.
-            </p>
+            <Reveal direction="down">
+              <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#e3d9c7]/85 border border-[#a88d59]/40 mb-4 backdrop-blur-md">
+                <span className="text-[10px] uppercase tracking-[0.35em] text-[#4a3b22] font-semibold">
+                  Event Architecture
+                </span>
+              </div>
+            </Reveal>
+            <Reveal direction="up" delay={0.1}>
+              <h2
+                className="text-3xl sm:text-5xl text-[#171411] font-light tracking-[0.16em] uppercase mb-6"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                Exhibition Details & Schedule
+              </h2>
+            </Reveal>
+            <Reveal direction="zoom" delay={0.15}>
+              <div className="w-24 h-[1.5px] bg-[#a8884d] mx-auto mb-6" />
+            </Reveal>
+            <Reveal direction="up" delay={0.2}>
+              <p className="text-sm sm:text-base text-[#473f35] font-normal tracking-[0.04em]">
+                An exclusive single-evening private pavilion reserved strictly for accredited patrons and invitation holders.
+              </p>
+            </Reveal>
           </div>
 
           {/* Key Metrics Bento */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-16">
-            <div className="p-6 rounded-3xl bg-white/90 border border-[#d8cbbb] shadow-[0_10px_35px_rgba(60,45,25,0.06)] hover:border-[#a8884d] transition-colors">
-              <Calendar className="w-6 h-6 text-[#8f6d2f] mb-4" />
-              <div className="text-[10px] uppercase tracking-[0.25em] text-[#8f6d2f] font-semibold mb-1">
-                Date & Season
-              </div>
-              <div className="text-lg font-serif text-[#171411] tracking-[0.08em]">Sunday, 05 April 2026</div>
-              <div className="text-xs text-[#6e6352] mt-1 font-medium">Spring Vernissage</div>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-white/90 border border-[#d8cbbb] shadow-[0_10px_35px_rgba(60,45,25,0.06)] hover:border-[#a8884d] transition-colors">
-              <Clock className="w-6 h-6 text-[#8f6d2f] mb-4" />
-              <div className="text-[10px] uppercase tracking-[0.25em] text-[#8f6d2f] font-semibold mb-1">
-                Hours & Timing
-              </div>
-              <div className="text-lg font-serif text-[#171411] tracking-[0.08em]">18:00 &ndash; 23:00 IST</div>
-              <div className="text-xs text-[#6e6352] mt-1 font-medium">Evening Gala & Salon</div>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-white/90 border border-[#d8cbbb] shadow-[0_10px_35px_rgba(60,45,25,0.06)] hover:border-[#a8884d] transition-colors">
-              <MapPin className="w-6 h-6 text-[#8f6d2f] mb-4" />
-              <div className="text-[10px] uppercase tracking-[0.25em] text-[#8f6d2f] font-semibold mb-1">
-                Pavilion Venue
-              </div>
-              <div className="text-lg font-serif text-[#171411] tracking-[0.08em]">The Haute Stone Pavilion</div>
-              <div className="text-xs text-[#6e6352] mt-1 font-medium">Lunore Studio Grand Atrium</div>
-            </div>
-
-            <div className="p-6 rounded-3xl bg-white/90 border border-[#d8cbbb] shadow-[0_10px_35px_rgba(60,45,25,0.06)] hover:border-[#a8884d] transition-colors">
-              <ShieldCheck className="w-6 h-6 text-[#8f6d2f] mb-4" />
-              <div className="text-[10px] uppercase tracking-[0.25em] text-[#8f6d2f] font-semibold mb-1">
-                Guest Protocol
-              </div>
-              <div className="text-lg font-serif text-[#171411] tracking-[0.08em]">Strictly Invite-Only</div>
-              <div className="text-xs text-[#6e6352] mt-1 font-medium">Black-Tie / High Formal</div>
-            </div>
+            {[
+              {
+                icon: Calendar,
+                label: 'Date & Season',
+                val: 'Sunday, 05 April 2026',
+                sub: 'Spring Vernissage',
+              },
+              {
+                icon: Clock,
+                label: 'Hours & Timing',
+                val: '18:00 – 23:00 IST',
+                sub: 'Evening Gala & Salon',
+              },
+              {
+                icon: MapPin,
+                label: 'Pavilion Venue',
+                val: 'The Haute Stone Pavilion',
+                sub: 'Lunore Studio Grand Atrium',
+              },
+              {
+                icon: ShieldCheck,
+                label: 'Guest Protocol',
+                val: 'Strictly Invite-Only',
+                sub: 'Black-Tie / High Formal',
+              },
+            ].map((metric, idx) => {
+              const IconComp = metric.icon;
+              return (
+                <Reveal key={metric.label} direction="up" delay={idx * 0.1}>
+                  <div className="h-full p-6 rounded-3xl bg-white/90 border border-[#d8cbbb] shadow-[0_10px_35px_rgba(60,45,25,0.06)] hover:border-[#a8884d] transition-colors aurexa-card-hover flex flex-col justify-between">
+                    <div>
+                      <IconComp className="w-6 h-6 text-[#8f6d2f] mb-4" />
+                      <div className="text-[10px] uppercase tracking-[0.25em] text-[#8f6d2f] font-semibold mb-1">
+                        {metric.label}
+                      </div>
+                      <div className="text-lg font-serif text-[#171411] tracking-[0.08em]">{metric.val}</div>
+                    </div>
+                    <div className="text-xs text-[#6e6352] mt-3 font-medium">{metric.sub}</div>
+                  </div>
+                </Reveal>
+              );
+            })}
           </div>
 
           {/* Detailed Timeline Schedule */}
-          <div className="rounded-3xl bg-white/85 border border-[#c9bba6] p-8 sm:p-12 shadow-[0_15px_45px_rgba(60,45,25,0.08)] backdrop-blur-sm">
-            <h3
-              className="text-xl sm:text-2xl text-[#171411] font-light tracking-[0.14em] uppercase mb-8 text-center"
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              The Evening Programme
-            </h3>
+          <Reveal direction="up" delay={0.2}>
+            <div className="rounded-3xl bg-white/85 border border-[#c9bba6] p-8 sm:p-12 shadow-[0_15px_45px_rgba(60,45,25,0.08)] backdrop-blur-sm">
+              <h3
+                className="text-xl sm:text-2xl text-[#171411] font-light tracking-[0.14em] uppercase mb-8 text-center"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                The Evening Programme
+              </h3>
 
-            <div className="space-y-6 max-w-3xl mx-auto">
-              {[
-                {
-                  time: '18:00 — 19:00',
-                  title: 'Private Champagne Reception & Red Carpet Arrival',
-                  detail: 'Valet reception, welcome champagne, ambient acoustic harpist, and initial private salon walkthrough.',
-                },
-                {
-                  time: '19:00 — 20:15',
-                  title: 'Unveiling of the 2026 Haute Stone Monoliths',
-                  detail: 'Curated architectural lighting sequence unveiling monumental marble centerpieces and illuminated onyx works.',
-                },
-                {
-                  time: '20:15 — 21:00',
-                  title: 'Curator’s Keynote Address by Chirag Panja',
-                  detail: 'An exploration of rare geological provenance and the future intersection of monolithic stone in luxury architecture.',
-                },
-                {
-                  time: '21:00 — 23:00',
-                  title: 'Private Salon Networking, Gourmet Tasting & Commissions Lounge',
-                  detail: 'Direct private meetings with master sculptors, confidential acquisition bids, and bespoke residential design bookings.',
-                },
-              ].map((slot, idx) => (
-                <div
-                  key={idx}
-                  className="flex flex-col sm:flex-row sm:items-start gap-4 p-5 rounded-2xl bg-[#f8f5ee] border border-[#dfd4c3] hover:border-[#a8884d]/60 transition-colors"
-                >
-                  <div className="sm:w-44 text-xs font-semibold tracking-[0.22em] text-[#8f6d2f] uppercase shrink-0 pt-0.5">
-                    {slot.time}
-                  </div>
-                  <div>
-                    <h4 className="text-base text-[#171411] font-medium tracking-[0.08em] mb-1 font-serif">
-                      {slot.title}
-                    </h4>
-                    <p className="text-xs sm:text-sm text-[#544a3d] font-normal leading-relaxed">
-                      {slot.detail}
-                    </p>
-                  </div>
-                </div>
-              ))}
+              <div className="space-y-6 max-w-3xl mx-auto">
+                {[
+                  {
+                    time: '18:00 — 19:00',
+                    title: 'Private Champagne Reception & Red Carpet Arrival',
+                    detail: 'Valet reception, welcome champagne, ambient acoustic harpist, and initial private salon walkthrough.',
+                  },
+                  {
+                    time: '19:00 — 20:15',
+                    title: 'Unveiling of the 2026 Haute Stone Monoliths',
+                    detail: 'Curated architectural lighting sequence unveiling monumental marble centerpieces and illuminated onyx works.',
+                  },
+                  {
+                    time: '20:15 — 21:00',
+                    title: 'Curator’s Keynote Address by Chirag Panja',
+                    detail: 'An exploration of rare geological provenance and the future intersection of monolithic stone in luxury architecture.',
+                  },
+                  {
+                    time: '21:00 — 23:00',
+                    title: 'Private Salon Networking, Gourmet Tasting & Commissions Lounge',
+                    detail: 'Direct private meetings with master sculptors, confidential acquisition bids, and bespoke residential design bookings.',
+                  },
+                ].map((slot, idx) => (
+                  <Reveal key={idx} direction="left" delay={idx * 0.08}>
+                    <div className="flex flex-col sm:flex-row sm:items-start gap-4 p-5 rounded-2xl bg-[#f8f5ee] border border-[#dfd4c3] hover:border-[#a8884d]/60 transition-colors aurexa-card-hover">
+                      <div className="sm:w-44 text-xs font-semibold tracking-[0.22em] text-[#8f6d2f] uppercase shrink-0 pt-0.5">
+                        {slot.time}
+                      </div>
+                      <div>
+                        <h4 className="text-base text-[#171411] font-medium tracking-[0.08em] mb-1 font-serif">
+                          {slot.title}
+                        </h4>
+                        <p className="text-xs sm:text-sm text-[#544a3d] font-normal leading-relaxed">
+                          {slot.detail}
+                        </p>
+                      </div>
+                    </div>
+                  </Reveal>
+                ))}
+              </div>
             </div>
-          </div>
+          </Reveal>
         </div>
       </section>
 
       {/* =========================================================================
-          SECTION 5: THE COLLECTION (FEATURED HAUTE STONE CURATIONS) - #012059
+          SECTION 5: THE COLLECTION (FEATURED HAUTE STONE CURATIONS) - ROYAL BLUE VELVET
       ========================================================================= */}
-      <section id="collection" className="relative py-24 sm:py-32 px-6 bg-[#012059] text-[#f7f4ee] border-t border-[#c5a363]/30">
-        <div className="max-w-7xl mx-auto">
+      <section id="collection" className="relative py-24 sm:py-32 px-6 overflow-hidden text-[#f7f4ee] border-t border-[#c5a363]/30">
+        {/* Royal Blue Velvet Fabric Background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <img
+            src="/assets/images/aurexa-blue-velvet.jpg"
+            alt="Lunore Aurexa Royal Blue Velvet"
+            className="w-full h-full object-cover object-center select-none aurexa-ambient-fabric scale-[1.02]"
+          />
+          <div className="absolute inset-0 bg-[#011438]/20 pointer-events-none" />
+        </div>
+
+        <div className="relative z-10 max-w-7xl mx-auto">
           {/* Header */}
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#c5a363]/15 border border-[#c5a363]/40 mb-4 backdrop-blur-md">
-              <Crown className="w-3.5 h-3.5 text-[#c5a363]" />
-              <span className="text-[10px] uppercase tracking-[0.35em] text-[#d9cbb2] font-semibold">
-                Haute Curations
-              </span>
-            </div>
-            <h2
-              className="text-3xl sm:text-5xl text-white font-light tracking-[0.16em] uppercase mb-6"
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              The Collection
-            </h2>
-            <div className="w-24 h-[1.5px] bg-[#c5a363] mx-auto mb-6" />
-            <p className="text-sm sm:text-base text-[#d1c6b2] font-light tracking-[0.06em]">
-              Signature monumental sculptures and bespoke architectural pieces debuting at the Aurexa Pavilion.
-            </p>
+            <Reveal direction="down">
+              <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#c5a363]/15 border border-[#c5a363]/40 mb-4 backdrop-blur-md">
+                <span className="text-[10px] uppercase tracking-[0.35em] text-[#d9cbb2] font-semibold">
+                  Haute Curations
+                </span>
+              </div>
+            </Reveal>
+            <Reveal direction="up" delay={0.1}>
+              <h2
+                className="text-3xl sm:text-5xl text-white font-light tracking-[0.16em] uppercase mb-6"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                The Collection
+              </h2>
+            </Reveal>
+            <Reveal direction="zoom" delay={0.15}>
+              <div className="w-24 h-[1.5px] bg-[#c5a363] mx-auto mb-6" />
+            </Reveal>
+            <Reveal direction="up" delay={0.2}>
+              <p className="text-sm sm:text-base text-[#d1c6b2] font-light tracking-[0.06em]">
+                Signature monumental sculptures and bespoke architectural pieces debuting at the Aurexa Pavilion.
+              </p>
+            </Reveal>
           </div>
 
           {/* Collection Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-            {COLLECTION.map((piece) => (
-              <div
-                key={piece.id}
-                className="group rounded-3xl overflow-hidden bg-gradient-to-b from-[#081528] to-[#040c17] border border-[#c5a363]/35 hover:border-[#c5a363] shadow-[0_15px_45px_rgba(0,0,0,0.7)] transition-all duration-300 flex flex-col"
-              >
-                {/* Image Frame */}
-                <div className="relative aspect-[16/10] overflow-hidden bg-[#02050a]">
-                  <img
-                    src={piece.image}
-                    alt={piece.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-106"
-                  />
-                  <div className="absolute top-4 left-4">
-                    <span className="px-3.5 py-1 rounded-full bg-[#040810]/80 backdrop-blur-md border border-[#c5a363]/60 text-[10px] uppercase tracking-[0.22em] text-[#c5a363] font-semibold">
-                      {piece.status}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Body Details */}
-                <div className="p-8 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h3
-                      className="text-2xl text-white font-normal tracking-[0.12em] mb-2 font-serif group-hover:text-[#f7e6c4] transition-colors"
-                    >
-                      {piece.title}
-                    </h3>
-                    <p className="text-xs sm:text-sm text-[#b8af9d] font-light leading-relaxed mb-6">
-                      {piece.description}
-                    </p>
-
-                    {/* Specs Table */}
-                    <div className="grid grid-cols-2 gap-3 text-xs mb-8 p-4 rounded-2xl bg-[#0a1a33]/60 border border-[#c5a363]/25">
-                      <div>
-                        <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Material</div>
-                        <div className="text-[#f1eee7] font-medium mt-0.5">{piece.material}</div>
-                      </div>
-                      <div>
-                        <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Dimensions</div>
-                        <div className="text-[#f1eee7] font-medium mt-0.5">{piece.dimensions}</div>
-                      </div>
-                      <div>
-                        <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Origin</div>
-                        <div className="text-[#f1eee7] font-medium mt-0.5">{piece.origin}</div>
-                      </div>
-                      <div>
-                        <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Edition</div>
-                        <div className="text-[#f1eee7] font-medium mt-0.5">{piece.edition}</div>
-                      </div>
+            {COLLECTION.map((piece, idx) => (
+              <Reveal key={piece.id} direction="up" delay={idx * 0.15}>
+                <div
+                  className="group rounded-3xl overflow-hidden bg-gradient-to-b from-[#081528] to-[#040c17] border border-[#c5a363]/35 hover:border-[#c5a363] shadow-[0_15px_45px_rgba(0,0,0,0.7)] transition-all duration-500 flex flex-col h-full aurexa-card-hover"
+                >
+                  {/* Image Frame */}
+                  <div className="relative aspect-[16/10] overflow-hidden bg-[#02050a]">
+                    <img
+                      src={piece.image}
+                      alt={piece.title}
+                      className="w-full h-full object-cover aurexa-img-zoom"
+                    />
+                    <div className="absolute top-4 left-4">
+                      <span className="px-3.5 py-1 rounded-full bg-[#040810]/80 backdrop-blur-md border border-[#c5a363]/60 text-[10px] uppercase tracking-[0.22em] text-[#c5a363] font-semibold">
+                        {piece.status}
+                      </span>
                     </div>
                   </div>
 
-                  {/* Inquiry CTA */}
-                  <button
-                    onClick={() => handleInquiryForPiece(piece)}
-                    className="w-full py-3.5 rounded-full bg-[#c5a363]/15 hover:bg-[#c5a363]/30 border border-[#c5a363] text-[#f7f2e7] text-xs uppercase tracking-[0.22em] font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer group-hover:shadow-[0_0_20px_rgba(197,163,99,0.3)]"
-                  >
-                    <span>Inquire About This Piece</span>
-                    <ArrowRight className="w-4 h-4 text-[#c5a363] transition-transform group-hover:translate-x-1" />
-                  </button>
+                  {/* Body Details */}
+                  <div className="p-8 flex-1 flex flex-col justify-between">
+                    <div>
+                      <h3
+                        className="text-2xl text-white font-normal tracking-[0.12em] mb-2 font-serif group-hover:text-[#f7e6c4] transition-colors"
+                      >
+                        {piece.title}
+                      </h3>
+                      <p className="text-xs sm:text-sm text-[#b8af9d] font-light leading-relaxed mb-6">
+                        {piece.description}
+                      </p>
+
+                      {/* Specs Table */}
+                      <div className="grid grid-cols-2 gap-3 text-xs mb-8 p-4 rounded-2xl bg-[#0a1a33]/60 border border-[#c5a363]/25">
+                        <div>
+                          <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Material</div>
+                          <div className="text-[#f1eee7] font-medium mt-0.5">{piece.material}</div>
+                        </div>
+                        <div>
+                          <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Dimensions</div>
+                          <div className="text-[#f1eee7] font-medium mt-0.5">{piece.dimensions}</div>
+                        </div>
+                        <div>
+                          <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Origin</div>
+                          <div className="text-[#f1eee7] font-medium mt-0.5">{piece.origin}</div>
+                        </div>
+                        <div>
+                          <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Edition</div>
+                          <div className="text-[#f1eee7] font-medium mt-0.5">{piece.edition}</div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Inquiry CTA */}
+                    <button
+                      onClick={() => handleInquiryForPiece(piece)}
+                      className="w-full py-3.5 rounded-full bg-[#c5a363]/15 hover:bg-[#c5a363]/30 border border-[#c5a363] text-[#f7f2e7] text-xs uppercase tracking-[0.22em] font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer group-hover:shadow-[0_0_20px_rgba(197,163,99,0.3)] hover:scale-[1.01]"
+                    >
+                      <span>Inquire About This Piece</span>
+                      <ArrowRight className="w-4 h-4 text-[#c5a363] transition-transform group-hover:translate-x-1" />
+                    </button>
+                  </div>
                 </div>
-              </div>
+              </Reveal>
             ))}
           </div>
         </div>
       </section>
 
       {/* =========================================================================
-          SECTION 6: THE CONTACT (VIP INVITATION & CONCIERGE ACCESS) - #012059
+          SECTION 6: THE CONTACT (VIP INVITATION & CONCIERGE ACCESS) - ROYAL BLUE VELVET
       ========================================================================= */}
-      <section id="contact" className="relative py-24 sm:py-32 px-6 bg-[#012059] text-[#f7f4ee] border-t border-[#c5a363]/30">
-        <div className="max-w-6xl mx-auto">
+      <section id="contact" className="relative py-24 sm:py-32 px-6 overflow-hidden text-[#f7f4ee] border-t border-[#c5a363]/30">
+        {/* Royal Blue Velvet Fabric Background */}
+        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+          <img
+            src="/assets/images/aurexa-blue-velvet.jpg"
+            alt="Lunore Aurexa Royal Blue Velvet"
+            className="w-full h-full object-cover object-center select-none aurexa-ambient-fabric scale-[1.02]"
+          />
+          <div className="absolute inset-0 bg-[#011438]/20 pointer-events-none" />
+        </div>
+
+        <div className="relative z-10 max-w-6xl mx-auto">
           {/* Header */}
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#c5a363]/15 border border-[#c5a363]/40 mb-4 backdrop-blur-md">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#c5a363]" />
-              <span className="text-[10px] uppercase tracking-[0.35em] text-[#d9cbb2] font-semibold">
-                Accreditation & Inquiries
-              </span>
-            </div>
-            <h2
-              className="text-3xl sm:text-5xl text-white font-light tracking-[0.16em] uppercase mb-6"
-              style={{ fontFamily: 'var(--font-serif)' }}
-            >
-              Request VIP Access
-            </h2>
-            <div className="w-24 h-[1.5px] bg-[#c5a363] mx-auto mb-6" />
-            <p className="text-sm sm:text-base text-[#d1c6b2] font-light tracking-[0.06em]">
-              Attendance at Aurexa is strictly accredited to maintain an intimate salon atmosphere. Please submit
-              your details to receive your formal pass and private catalog.
-            </p>
+            <Reveal direction="down">
+              <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#c5a363]/15 border border-[#c5a363]/40 mb-4 backdrop-blur-md">
+                <span className="text-[10px] uppercase tracking-[0.35em] text-[#d9cbb2] font-semibold">
+                  Accreditation & Inquiries
+                </span>
+              </div>
+            </Reveal>
+            <Reveal direction="up" delay={0.1}>
+              <h2
+                className="text-3xl sm:text-5xl text-white font-light tracking-[0.16em] uppercase mb-6"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                Request VIP Access
+              </h2>
+            </Reveal>
+            <Reveal direction="zoom" delay={0.15}>
+              <div className="w-24 h-[1.5px] bg-[#c5a363] mx-auto mb-6" />
+            </Reveal>
+            <Reveal direction="up" delay={0.2}>
+              <p className="text-sm sm:text-base text-[#d1c6b2] font-light tracking-[0.06em]">
+                Attendance at Aurexa is strictly accredited to maintain an intimate salon atmosphere. Please submit
+                your details to receive your formal pass and private catalog.
+              </p>
+            </Reveal>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
             {/* Left Column: Direct Concierge & Event Notes */}
-            <div className="lg:col-span-5 space-y-6">
-              <div className="p-8 rounded-3xl bg-gradient-to-b from-[#081528] to-[#050e1a] border border-[#c5a363]/35 backdrop-blur-xl shadow-[0_15px_45px_rgba(0,0,0,0.6)]">
+            <Reveal direction="left" delay={0.15} className="lg:col-span-5 space-y-6">
+              <div className="p-8 rounded-3xl bg-gradient-to-b from-[#081528] to-[#050e1a] border border-[#c5a363]/35 backdrop-blur-xl shadow-[0_15px_45px_rgba(0,0,0,0.6)] aurexa-card-hover">
                 <h3 className="text-xl font-serif tracking-[0.12em] text-white uppercase mb-6">
                   VIP Concierge Desk
                 </h3>
@@ -994,11 +1063,11 @@ export function ComingSoon() {
                   </p>
                 </div>
               </div>
-            </div>
+            </Reveal>
 
             {/* Right Column: Interactive VIP Pass Request Form */}
-            <div className="lg:col-span-7">
-              <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-b from-[#081528] to-[#050e1a] border border-[#c5a363]/40 shadow-[0_15px_45px_rgba(0,0,0,0.7)] backdrop-blur-xl">
+            <Reveal direction="right" delay={0.2} className="lg:col-span-7">
+              <div className="p-8 sm:p-10 rounded-3xl bg-gradient-to-b from-[#081528] to-[#050e1a] border border-[#c5a363]/40 shadow-[0_15px_45px_rgba(0,0,0,0.7)] backdrop-blur-xl aurexa-card-hover">
                 {submitSuccess ? (
                   <div className="text-center py-8">
                     <div className="w-16 h-16 rounded-full bg-[#c5a363]/20 border border-[#c5a363] text-[#c5a363] flex items-center justify-center mx-auto mb-6">
@@ -1158,7 +1227,7 @@ export function ComingSoon() {
                   </form>
                 )}
               </div>
-            </div>
+            </Reveal>
           </div>
         </div>
       </section>
@@ -1238,8 +1307,7 @@ export function ComingSoon() {
       <footer className="relative z-20 py-16 px-6 bg-[#02050c] border-t border-[#c5a363]/30 text-center">
         <div className="max-w-4xl mx-auto flex flex-col items-center">
           {/* Brand mark */}
-          <div className="flex items-center gap-2 mb-3">
-            <Crown className="w-4 h-4 text-[#c5a363]" />
+          <div className="flex items-center mb-3">
             <span
               className="text-2xl tracking-[0.38em] text-[#ffffff] font-light"
               style={{ fontFamily: 'var(--font-serif)' }}
@@ -1257,7 +1325,7 @@ export function ComingSoon() {
               Hero
             </button>
             <button onClick={() => scrollTo('about')} className="hover:text-white transition-colors cursor-pointer">
-              About Us
+              What Is Aurexa
             </button>
             <button onClick={() => scrollTo('glimpses')} className="hover:text-white transition-colors cursor-pointer">
               The Glimpses
