@@ -1222,14 +1222,14 @@ html.lunore-experience-active h3 {
 @keyframes aurexa-title-enter {
   0% {
     opacity: 0;
-    transform: translate3d(0, 28px, 0) scale(0.96);
-    letter-spacing: 0.28em;
-    filter: blur(10px);
+    transform: translate3d(0, 20px, 0) scale(0.98);
+    letter-spacing: 0.02em;
+    filter: blur(8px);
   }
   100% {
     opacity: 1;
     transform: translate3d(0, 0, 0) scale(1);
-    letter-spacing: 0.42em;
+    letter-spacing: 0.05em;
     filter: blur(0px);
   }
 }

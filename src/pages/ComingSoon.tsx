@@ -104,7 +104,7 @@ const GLIMPSES: GlimpseItem[] = [
     title: 'The Haute Stone Lounge',
     category: 'ambient',
     medium: 'Salon Experience Atmosphere',
-    image: '/assets/images/carrousel 1 (1).webp',
+    image: '/assets/images/imagetrail8.webp',
     description: 'Intimate private viewing lounges where architectural visionaries align on custom commissions and private acquisitions.',
   },
 ];
@@ -379,7 +379,7 @@ export function ComingSoon() {
             <nav className="lg:col-span-7 flex flex-col gap-6">
               {[
                 { id: 'hero', num: '01', label: 'The Pavilion Hero', sub: 'Arrival & Grand Monolith' },
-                { id: 'about', num: '02', label: 'What Is Aurexa', sub: 'An Invitation to Experience Art Differently' },
+                { id: 'about', num: '02', label: 'Story & Vision', sub: 'Where Art Meets the Art of Living' },
                 { id: 'glimpses', num: '03', label: 'The Glimpses', sub: 'Curated Exhibition Gallery' },
                 { id: 'event', num: '04', label: 'Event Details', sub: '05 April 2026 Programme & Schedule' },
                 { id: 'collection', num: '05', label: 'The Collection', sub: 'Haute Stone Curations & Sculptures' },
@@ -473,9 +473,9 @@ export function ComingSoon() {
         <div className="absolute inset-x-0 top-0 h-[1.5px] bg-gradient-to-r from-transparent via-[#c5a363] to-transparent opacity-80" />
 
         {/* Content Container - Pure Grand AUREXA Title (Shifted slightly upwards to true center) */}
-        <div className="relative z-10 max-w-4xl mx-auto flex flex-col items-center -translate-y-8 sm:-translate-y-12">
+        <div className="relative z-10 max-w-5xl mx-auto flex flex-col items-center -translate-y-8 sm:-translate-y-12">
           <h1
-            className="text-6xl sm:text-8xl md:text-9xl lg:text-[11rem] text-white font-light tracking-[0.25em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.85)] aurexa-hero-title-reveal"
+            className="text-6xl sm:text-8xl md:text-9xl lg:text-[11rem] text-white font-light tracking-[0.05em] uppercase drop-shadow-[0_4px_30px_rgba(0,0,0,0.85)] aurexa-hero-title-reveal"
             style={{
               fontFamily: 'var(--font-serif)',
               textShadow: '0 4px 35px rgba(0, 0, 0, 0.8), 0 0 45px rgba(197, 163, 99, 0.4)',
@@ -485,7 +485,7 @@ export function ComingSoon() {
           </h1>
 
           {/* Gold Metallic Accent Line */}
-          <div className="w-32 sm:w-56 h-[2px] bg-gradient-to-r from-transparent via-[#c5a363] to-transparent mx-auto mt-4 shadow-[0_0_15px_rgba(197,163,99,0.9)] aurexa-glide-up-1" />
+          <div className="w-24 sm:w-36 h-[2px] bg-gradient-to-r from-transparent via-[#c5a363] to-transparent mx-auto mt-4 shadow-[0_0_15px_rgba(197,163,99,0.9)] aurexa-glide-up-1" />
         </div>
 
         {/* Subtle Luxury Scroll Down Indicator */}
@@ -521,28 +521,102 @@ export function ComingSoon() {
           {/* Header */}
           <div className="text-center max-w-5xl mx-auto mb-16 sm:mb-20">
             <Reveal direction="down">
-              <span className="inline-block text-[11px] sm:text-xs uppercase tracking-[0.38em] text-[#8f6d2f] font-semibold mb-4">
-                What is Aurexa?
+              <span className="inline-block text-[11px] sm:text-xs uppercase tracking-[0.38em] text-[#8f6d2f] font-semibold mb-3">
+                Our Story
               </span>
             </Reveal>
             <Reveal direction="up" delay={0.1}>
-              <h2
-                className="text-lg sm:text-2xl md:text-3xl lg:text-4xl xl:text-[2.85rem] text-[#171411] font-light tracking-[0.02em] leading-tight mb-6 whitespace-nowrap"
+              <div
+                className="text-xs sm:text-sm uppercase tracking-[0.32em] text-[#a8884d] font-medium mb-3"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
-                An Invitation to Experience Art Differently.
+                AUREXA
+              </div>
+              <h2
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#171411] font-light tracking-[0.02em] leading-tight mb-6"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                Where Art Meets the Art of Living.
               </h2>
             </Reveal>
             <Reveal direction="zoom" delay={0.15}>
               <div className="w-24 h-[1.5px] bg-[#a8884d] mx-auto mb-8" />
             </Reveal>
             <Reveal direction="up" delay={0.2}>
-              <div className="space-y-4 max-w-3xl mx-auto text-sm sm:text-base md:text-lg text-[#473f35] font-normal tracking-[0.02em] leading-relaxed">
+              <div className="space-y-5 max-w-3xl mx-auto text-sm sm:text-base md:text-lg text-[#473f35] font-normal tracking-[0.015em] leading-relaxed">
                 <p>
-                  Aurexa is an exclusive, invitation-only art experience created for a select circle of HNIs, collectors, artists and art lovers. It brings together exceptional works of art, creative minds and like-minded individuals in an intimate setting designed to encourage discovery, connection and appreciation.
+                  AUREXA was born from a belief that luxury is not merely something we own, but something we experience, feel, and remember.
                 </p>
                 <p>
-                  From paintings and sculptures to conversations, celebrations and a live auction, Aurexa is more than an exhibition — it is an experience built around the way art makes us feel, connect and see differently.
+                  Initiated by Lunore Luxe Decor Studio, AUREXA began with a desire to take our passion for art, design, and craftsmanship beyond the spaces we create and bring it into an experience that connects people through creativity and culture.
+                </p>
+                <p>
+                  We imagined a space where extraordinary artworks, sculptures, jewellery, and collectible pieces could find their audience—not simply as objects of admiration, but as expressions of stories, emotions, and individuality.
+                </p>
+                <p>
+                  What began as an idea evolved into a vision: to bring art, luxury, and meaningful connections together under one roof.
+                </p>
+                <p className="font-serif italic text-base sm:text-lg md:text-xl text-[#171411] pt-2">
+                  AUREXA is our way of turning that vision into an experience.
+                </p>
+              </div>
+            </Reveal>
+          </div>
+
+          {/* Subtle Luxury Divider between Story & Vision */}
+          <div className="flex items-center justify-center my-14 sm:my-20">
+            <div className="h-[1px] w-20 sm:w-36 bg-gradient-to-r from-transparent via-[#a8884d]/40 to-transparent" />
+            <div className="mx-4 text-[#a8884d] text-xs font-serif italic tracking-widest">✦</div>
+            <div className="h-[1px] w-20 sm:w-36 bg-gradient-to-r from-transparent via-[#a8884d]/40 to-transparent" />
+          </div>
+
+          {/* OUR VISION Block */}
+          <div className="text-center max-w-5xl mx-auto mb-16 sm:mb-20">
+            <Reveal direction="down">
+              <span className="inline-block text-[11px] sm:text-xs uppercase tracking-[0.38em] text-[#8f6d2f] font-semibold mb-3">
+                Our Vision
+              </span>
+            </Reveal>
+            <Reveal direction="up" delay={0.1}>
+              <div
+                className="text-xs sm:text-sm uppercase tracking-[0.32em] text-[#a8884d] font-medium mb-3"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                More Than an Exhibition.
+              </div>
+              <h2
+                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#171411] font-light tracking-[0.02em] leading-tight mb-6"
+                style={{ fontFamily: 'var(--font-serif)' }}
+              >
+                A World of Possibilities.
+              </h2>
+            </Reveal>
+            <Reveal direction="zoom" delay={0.15}>
+              <div className="w-24 h-[1.5px] bg-[#a8884d] mx-auto mb-8" />
+            </Reveal>
+            <Reveal direction="up" delay={0.2}>
+              <div className="space-y-5 max-w-3xl mx-auto text-sm sm:text-base md:text-lg text-[#473f35] font-normal tracking-[0.015em] leading-relaxed">
+                <p>
+                  We envision AUREXA as a distinguished luxury platform where artists, collectors, entrepreneurs, and premium brands come together through thoughtfully curated experiences.
+                </p>
+                <p>
+                  Our ambition goes beyond a single exhibition. Through art showcases, live auctions, exclusive previews, and meaningful collaborations, we aim to create an environment where creativity meets opportunity and every interaction has the potential to become something lasting.
+                </p>
+                <p>
+                  For us, exclusivity is not about keeping people out. It is about bringing the right people, ideas, and experiences together with intention.
+                </p>
+                <p>
+                  As AUREXA evolves, our goal is to build a platform recognised for its curation, its character, and the connections it creates.
+                </p>
+              </div>
+
+              {/* Highlight Quote Card */}
+              <div className="mt-8 sm:mt-10 p-6 sm:p-8 rounded-2xl bg-white/80 border border-[#a8884d]/30 shadow-[0_12px_35px_rgba(60,45,25,0.06)] backdrop-blur-sm max-w-2xl mx-auto">
+                <p
+                  className="text-base sm:text-lg md:text-xl text-[#171411] font-light italic tracking-[0.02em] leading-relaxed"
+                  style={{ fontFamily: 'var(--font-serif)' }}
+                >
+                  “Because the finest experiences are not measured by what you see, but by what stays with you.”
                 </p>
               </div>
             </Reveal>
