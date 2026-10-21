@@ -495,12 +495,15 @@ export function ComingSoon() {
           </span>
           <ChevronDown className="w-4 h-4 text-[#c5a363] opacity-80" />
         </div>
+
+        {/* Seamless Blend into What is Aurexa (Champagne Beige) */}
+        <div className="absolute inset-x-0 bottom-0 h-32 sm:h-44 bg-gradient-to-b from-transparent via-[#F1ECE1]/50 to-[#F1ECE1] pointer-events-none z-[5]" />
       </section>
 
       {/* =========================================================================
           SECTION 2: WHAT IS AUREXA? - BEIGE SILK
       ========================================================================= */}
-      <section id="about" className="relative py-24 sm:py-32 px-6 overflow-hidden text-[#1c1917] border-t border-[#bfae94]/40">
+      <section id="about" className="relative py-28 sm:py-36 px-6 overflow-hidden text-[#1c1917]">
         {/* Champagne Beige Silk Background - Clean & Clear with subtle ambient drift */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <img
@@ -510,6 +513,9 @@ export function ComingSoon() {
           />
           <div className="absolute inset-0 bg-[#F1ECE1]/20 pointer-events-none" />
         </div>
+
+        {/* Seamless Blend from Hero */}
+        <div className="absolute inset-x-0 top-0 h-32 sm:h-44 bg-gradient-to-b from-[#F1ECE1] via-[#F1ECE1]/70 to-transparent pointer-events-none z-[2]" />
 
         <div className="relative z-10 max-w-6xl mx-auto">
           {/* Header */}
@@ -598,12 +604,18 @@ export function ComingSoon() {
             </button>
           </Reveal>
         </div>
+
+        {/* Seamless Blend into Next Section (Royal Blue Velvet) */}
+        <div className="absolute inset-x-0 bottom-0 h-40 sm:h-56 bg-gradient-to-b from-transparent via-[#011438]/50 to-[#011438] pointer-events-none z-[2]" />
+        <div className="absolute inset-x-0 bottom-0 flex items-center justify-center pointer-events-none z-[3]">
+          <div className="w-2/3 max-w-2xl h-[1px] bg-gradient-to-r from-transparent via-[#c5a363]/30 to-transparent blur-[0.5px]" />
+        </div>
       </section>
 
       {/* =========================================================================
           SECTION 3: THE GLIMPSES (CURATED EXHIBITION GALLERY) - ROYAL BLUE VELVET
       ========================================================================= */}
-      <section id="glimpses" className="relative py-24 sm:py-32 px-6 overflow-hidden text-[#f7f4ee] border-t border-[#c5a363]/30">
+      <section id="glimpses" className="relative py-28 sm:py-36 px-6 overflow-hidden text-[#f7f4ee]">
         {/* Royal Blue Velvet Fabric Background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <img
@@ -613,6 +625,9 @@ export function ComingSoon() {
           />
           <div className="absolute inset-0 bg-[#011438]/20 pointer-events-none" />
         </div>
+
+        {/* Seamless Blend from Previous Section (Royal Blue) */}
+        <div className="absolute inset-x-0 top-0 h-40 sm:h-56 bg-gradient-to-b from-[#011438] via-[#011438]/70 to-transparent pointer-events-none z-[2]" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
           {/* Header */}
@@ -707,12 +722,18 @@ export function ComingSoon() {
             ))}
           </div>
         </div>
+
+        {/* Seamless Blend into Next Section (Champagne Beige) */}
+        <div className="absolute inset-x-0 bottom-0 h-40 sm:h-56 bg-gradient-to-b from-transparent via-[#F1ECE1]/50 to-[#F1ECE1] pointer-events-none z-[2]" />
+        <div className="absolute inset-x-0 bottom-0 flex items-center justify-center pointer-events-none z-[3]">
+          <div className="w-2/3 max-w-2xl h-[1px] bg-gradient-to-r from-transparent via-[#c5a363]/30 to-transparent blur-[0.5px]" />
+        </div>
       </section>
 
       {/* =========================================================================
           SECTION 4: THE EVENT DETAILS (DATE, TIMELINE & VENUE) - BEIGE SILK
       ========================================================================= */}
-      <section id="event" className="relative py-24 sm:py-32 px-6 overflow-hidden text-[#1c1917] border-t border-[#bfae94]/40">
+      <section id="event" className="relative py-28 sm:py-36 px-6 overflow-hidden text-[#1c1917]">
         {/* Champagne Beige Silk Background - Clean & Clear with subtle ambient drift */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <img
@@ -722,6 +743,9 @@ export function ComingSoon() {
           />
           <div className="absolute inset-0 bg-[#F1ECE1]/20 pointer-events-none" />
         </div>
+
+        {/* Seamless Blend from Previous Section (Champagne Beige) */}
+        <div className="absolute inset-x-0 top-0 h-40 sm:h-56 bg-gradient-to-b from-[#F1ECE1] via-[#F1ECE1]/70 to-transparent pointer-events-none z-[2]" />
 
         <div className="relative z-10 max-w-6xl mx-auto">
           {/* Header */}
@@ -850,12 +874,18 @@ export function ComingSoon() {
             </div>
           </Reveal>
         </div>
+
+        {/* Seamless Blend into Next Section (Royal Blue Velvet) */}
+        <div className="absolute inset-x-0 bottom-0 h-40 sm:h-56 bg-gradient-to-b from-transparent via-[#011438]/50 to-[#011438] pointer-events-none z-[2]" />
+        <div className="absolute inset-x-0 bottom-0 flex items-center justify-center pointer-events-none z-[3]">
+          <div className="w-2/3 max-w-2xl h-[1px] bg-gradient-to-r from-transparent via-[#c5a363]/30 to-transparent blur-[0.5px]" />
+        </div>
       </section>
 
       {/* =========================================================================
           SECTION 5: THE COLLECTION (FEATURED HAUTE STONE CURATIONS) - ROYAL BLUE VELVET
       ========================================================================= */}
-      <section id="collection" className="relative py-24 sm:py-32 px-6 overflow-hidden text-[#f7f4ee] border-t border-[#c5a363]/30">
+      <section id="collection" className="relative py-28 sm:py-36 px-6 overflow-hidden text-[#f7f4ee]">
         {/* Royal Blue Velvet Fabric Background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <img
@@ -865,6 +895,9 @@ export function ComingSoon() {
           />
           <div className="absolute inset-0 bg-[#011438]/20 pointer-events-none" />
         </div>
+
+        {/* Seamless Blend from Previous Section (Royal Blue) */}
+        <div className="absolute inset-x-0 top-0 h-40 sm:h-56 bg-gradient-to-b from-[#011438] via-[#011438]/70 to-transparent pointer-events-none z-[2]" />
 
         <div className="relative z-10 max-w-7xl mx-auto">
           {/* Header */}
@@ -967,7 +1000,7 @@ export function ComingSoon() {
       {/* =========================================================================
           SECTION 6: THE CONTACT (VIP INVITATION & CONCIERGE ACCESS) - ROYAL BLUE VELVET
       ========================================================================= */}
-      <section id="contact" className="relative py-24 sm:py-32 px-6 overflow-hidden text-[#f7f4ee] border-t border-[#c5a363]/30">
+      <section id="contact" className="relative py-28 sm:py-36 px-6 overflow-hidden text-[#f7f4ee]">
         {/* Royal Blue Velvet Fabric Background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <img
@@ -1230,6 +1263,9 @@ export function ComingSoon() {
             </Reveal>
           </div>
         </div>
+
+        {/* Seamless Blend into Footer */}
+        <div className="absolute inset-x-0 bottom-0 h-36 sm:h-52 bg-gradient-to-b from-transparent to-[#02050c] pointer-events-none z-[2]" />
       </section>
 
       {/* =========================================================================
@@ -1304,7 +1340,7 @@ export function ComingSoon() {
       {/* =========================================================================
           SECTION 7: LUXURY HAUTE FOOTER
       ========================================================================= */}
-      <footer className="relative z-20 py-16 px-6 bg-[#02050c] border-t border-[#c5a363]/30 text-center">
+      <footer className="relative z-20 py-16 px-6 bg-[#02050c] text-center">
         <div className="max-w-4xl mx-auto flex flex-col items-center">
           {/* Brand mark */}
           <div className="flex items-center mb-3">
