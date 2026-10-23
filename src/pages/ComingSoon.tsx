@@ -14,7 +14,13 @@ import {
   Mail,
   X,
   Menu,
-  ChevronDown
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Maximize2,
+  Grid,
+  LayoutGrid,
+  Eye
 } from 'lucide-react';
 import { sendContactInquiry } from '@/lib/contactService';
 import { Reveal } from '@/components/Reveal';
@@ -33,6 +39,7 @@ interface GlimpseItem {
 interface CollectionPiece {
   id: string;
   title: string;
+  category: 'monoliths' | 'strata' | 'gilded' | 'figurative';
   material: string;
   dimensions: string;
   origin: string;
@@ -40,6 +47,7 @@ interface CollectionPiece {
   image: string;
   description: string;
   status: 'Exhibition Centerpiece' | 'Private Allocation' | 'Commission on Request' | 'Limited Edition';
+  location?: string;
 }
 
 const GLIMPSES: GlimpseItem[] = [
@@ -112,47 +120,159 @@ const GLIMPSES: GlimpseItem[] = [
 const COLLECTION: CollectionPiece[] = [
   {
     id: 'c1',
-    title: 'The Golden Vein Monolith',
-    material: 'Rare Italian Calacatta Gold Marble',
-    dimensions: '240 cm × 110 cm × 45 cm',
-    origin: 'Carrara, Italy',
+    title: 'The Golden Kintsugi Totem',
+    category: 'monoliths',
+    material: 'Basalt, Nero Marquina & 24K Hand-Gilded Gold Seam',
+    dimensions: '220 cm × 90 cm × 12 cm',
+    origin: 'Tuscan Apuan Alps, Italy',
     edition: 'Unique Monolith (1 of 1)',
-    image: '/assets/images/mable hero.webp',
-    description: 'Carved from a singular 4-tonne geological block, polished to an ethereal velvet luster that emphasizes warm honeyed seams.',
+    image: '/assets/collections/aurexa_collection_1.jpeg',
+    description: 'A tripartite vertical monolith of midnight basalt discs united by an unbroken organic fissure of hand-gilded 24-karat gold leaf.',
     status: 'Exhibition Centerpiece',
+    location: 'Grand Rotunda • Column 01',
   },
   {
     id: 'c2',
-    title: 'The Stratum Bas-Relief Console',
-    material: 'Layered Grigio Orobico & Brushed Champagne Brass',
-    dimensions: '210 cm × 55 cm × 85 cm',
-    origin: 'Bergamo, Italy',
+    title: 'Chromatic Strata Horizon',
+    category: 'strata',
+    material: 'Lapis Lazuli, Malachite & Saffron Ochre on Linen',
+    dimensions: '200 cm × 120 cm',
+    origin: 'Badakhshan & Provence Quarry',
     edition: 'Limited Edition of 3',
-    image: '/assets/images/marble cutout.webp',
-    description: 'A functional sculpture presenting dynamic dark cloud striations, floating upon an invisible brass cantilever substructure.',
+    image: '/assets/collections/aurexa_collection_2.jpeg',
+    description: 'Dynamic geological sedimentation capturing primordial earth strata across vibrant cobalt lapis, emerald malachite, and fiery ochre.',
     status: 'Limited Edition',
+    location: 'East Gallery • Chamber IV',
   },
   {
     id: 'c3',
-    title: 'Aura of Silence (Abstract Torso)',
-    material: 'Pure Statuario Marble with Satin Honed Finish',
-    dimensions: '160 cm × 75 cm × 50 cm',
-    origin: 'Mount Bettogli, Italy',
+    title: 'Gilded Travertine Bas-Relief',
+    category: 'gilded',
+    material: 'Crushed Travertine, Gold Leaf & Jade Wash',
+    dimensions: '240 cm × 100 cm',
+    origin: 'Tivoli Quarry, Italy',
     edition: 'Private Collector Allocation',
-    image: '/assets/images/sculpture hero .webp',
-    description: 'An ode to classical antiquity reimagined through reductionist modernism. Hand-chiseled over 480 continuous artisan hours.',
+    image: '/assets/collections/aurexa_collection_3.jpeg',
+    description: 'An architectural totem panel featuring hand-pressed botanical impressions framed by pure gold foil and jade mineral bands.',
     status: 'Private Allocation',
+    location: 'Private Salon • Suite A',
   },
   {
     id: 'c4',
-    title: 'Translucent Amber Onyx Monolith',
-    material: 'Backlit Honey Onyx & Smoked Mirror Glass',
-    dimensions: '195 cm × 40 cm × 40 cm',
-    origin: 'Yazd Province, Persia',
+    title: 'Modernist Totemic Equilibrium',
+    category: 'monoliths',
+    material: 'Sculpted Terracotta, Saffron & Aegean Quartz',
+    dimensions: '210 cm × 85 cm',
+    origin: 'Valencia Atelier, Spain',
+    edition: 'Limited Edition of 5',
+    image: '/assets/collections/aurexa_collection_4.jpeg',
+    description: 'A study in geometric balance where cantilevered terracotta and azure blocks are embraced by a delicate tensile architectural wireframe.',
+    status: 'Limited Edition',
+    location: 'North Wing • Column 04',
+  },
+  {
+    id: 'c5',
+    title: 'The Obsidian Monolith & Wing',
+    category: 'monoliths',
+    material: 'Nero Assoluto Granite & Gold Dust Impasto',
+    dimensions: '195 cm × 105 cm',
+    origin: 'Mount Ararat & Florence',
+    edition: 'Unique Monolith (1 of 1)',
+    image: '/assets/collections/aurexa_collection_5.jpeg',
+    description: 'A razor-sharp geometric pyramid of midnight stone set in dialogue with a tactile kinetic feather swept across warm Florentine gold.',
+    status: 'Exhibition Centerpiece',
+    location: 'Grand Rotunda • Column 02',
+  },
+  {
+    id: 'c6',
+    title: 'Luminous Amber Foliage',
+    category: 'strata',
+    material: 'Honey Onyx Dust, Florentine Gold Leaf & Oil',
+    dimensions: '220 cm × 110 cm',
+    origin: 'Siena & Carrara, Italy',
+    edition: 'Private Collector Allocation',
+    image: '/assets/collections/aurexa_collection_6.jpeg',
+    description: 'Dappled sunlit canopy textures rendered through thick impasto layers of champagne gold leaf, raw amber, and forest moss.',
+    status: 'Private Allocation',
+    location: 'West Atrium • Salon III',
+  },
+  {
+    id: 'c7',
+    title: 'The Aurexa Muse (La Donna di Pietra)',
+    category: 'figurative',
+    material: 'Oil, Statuario Marble Dust & Sapphire Pigment',
+    dimensions: '210 cm × 130 cm',
+    origin: 'Milan Atelier, Italy',
     edition: 'Commission on Request',
-    image: '/assets/images/marble zoomed .webp',
-    description: 'A crystalline monolith revealing microscopic mineral crystallization when engaged by its ambient illumination control.',
+    image: '/assets/collections/aurexa_collection_7.jpeg',
+    description: 'Monumental figurative haute couture masterpiece embodying the living spirit of stone, draped in crimson velvet and sapphire silk.',
     status: 'Commission on Request',
+    location: 'Haute Salon • Private Pavilion',
+  },
+  {
+    id: 'c8',
+    title: 'Solar Flare & Nocturnal Abyss',
+    category: 'strata',
+    material: 'Volcanic Basalt Ash, 24K Leaf & Saffron Enamel',
+    dimensions: '200 cm × 115 cm',
+    origin: 'Mount Etna Quarry, Sicily',
+    edition: 'Limited Edition of 3',
+    image: '/assets/collections/aurexa_collection_8.jpeg',
+    description: 'A tempestuous gradient descending from blinding solar cadmium into deep impasto basalt textures flecked with raw gold embers.',
+    status: 'Limited Edition',
+    location: 'East Wing • Hall of Light',
+  },
+  {
+    id: 'c9',
+    title: 'Glacial Torrent & Porphyry',
+    category: 'gilded',
+    material: 'Patinated Copper, Turquoise & Raw Quartz',
+    dimensions: '230 cm × 100 cm',
+    origin: 'Valais Alps, Switzerland',
+    edition: 'Limited Edition of 3',
+    image: '/assets/collections/aurexa_collection_9.jpeg',
+    description: 'Vertical alpine cascade of oxidised copper and glacial cerulean surging over subterranean charcoal and crystalline rock formations.',
+    status: 'Limited Edition',
+    location: 'South Terrace • Suite B',
+  },
+  {
+    id: 'c10',
+    title: 'Celestial Fissure (The Core)',
+    category: 'monoliths',
+    material: 'Backlit Honey Onyx, Lapis & 24K Gold Veining',
+    dimensions: '240 cm × 115 cm',
+    origin: 'Yazd Province & Carrara',
+    edition: 'Unique Monolith (1 of 1)',
+    image: '/assets/collections/aurexa_collection_10.jpeg',
+    description: 'An incandescent vertical rift of liquid gold and deep lapis fracturing through a luminous iridescent halo of prismatic pigment.',
+    status: 'Exhibition Centerpiece',
+    location: 'Grand Rotunda • Center Column',
+  },
+  {
+    id: 'c11',
+    title: 'Arctic Stratum & Linear Rhythm',
+    category: 'strata',
+    material: 'Bianco Lasa Marble Dust & Indigo Mineral Wash',
+    dimensions: '220 cm × 105 cm',
+    origin: 'South Tyrol, Italy',
+    edition: 'Private Collector Allocation',
+    image: '/assets/collections/aurexa_collection_11.jpeg',
+    description: 'Architectural horizontal louvers evoking sub-zero ice shelves and glacial serenity, executed in frosted white marble and midnight indigo.',
+    status: 'Private Allocation',
+    location: 'West Pavilion • Room 05',
+  },
+  {
+    id: 'c12',
+    title: 'Molten Gold & Volcanic Flora',
+    category: 'gilded',
+    material: 'Carved Bas-Relief, Molten Bronze & Amber',
+    dimensions: '230 cm × 110 cm',
+    origin: 'Vesuvian Quarry & Verona',
+    edition: 'Commission on Request',
+    image: '/assets/collections/aurexa_collection_12.jpeg',
+    description: 'Tactile sculpted bas-relief leaves forged from bronze and volcanic ironstone, engulfed in a blazing ascension of molten gold and amber.',
+    status: 'Commission on Request',
+    location: 'East Atrium • Suite C',
   },
 ];
 
@@ -164,6 +284,8 @@ export function ComingSoon() {
   const [glimpseFilter, setGlimpseFilter] = useState<'all' | 'monoliths' | 'ambient' | 'details' | 'sculpture'>('all');
   const [selectedGlimpse, setSelectedGlimpse] = useState<GlimpseItem | null>(null);
   const [selectedPiece, setSelectedPiece] = useState<CollectionPiece | null>(null);
+  const [collectionFilter, setCollectionFilter] = useState<'all' | 'monoliths' | 'strata' | 'gilded' | 'figurative'>('all');
+  const [collectionColumns, setCollectionColumns] = useState<3 | 4>(3);
 
   // VIP RSVP Form State
   const [formData, setFormData] = useState({
@@ -254,20 +376,36 @@ export function ComingSoon() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Close menu on Escape key
+  // Keyboard shortcuts (Escape to close modals/menus, Arrow keys to cycle collection artworks)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && menuOpen) {
-        setMenuOpen(false);
+      if (e.key === 'Escape') {
+        if (selectedPiece) {
+          setSelectedPiece(null);
+        } else if (selectedGlimpse) {
+          setSelectedGlimpse(null);
+        } else if (menuOpen) {
+          setMenuOpen(false);
+        }
+      } else if (selectedPiece) {
+        if (e.key === 'ArrowLeft') {
+          const idx = COLLECTION.findIndex((p) => p.id === selectedPiece.id);
+          if (idx > 0) setSelectedPiece(COLLECTION[idx - 1]);
+          else setSelectedPiece(COLLECTION[COLLECTION.length - 1]);
+        } else if (e.key === 'ArrowRight') {
+          const idx = COLLECTION.findIndex((p) => p.id === selectedPiece.id);
+          if (idx < COLLECTION.length - 1) setSelectedPiece(COLLECTION[idx + 1]);
+          else setSelectedPiece(COLLECTION[0]);
+        }
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [menuOpen]);
+  }, [menuOpen, selectedPiece, selectedGlimpse]);
 
-  // Lock body scroll when overlay is open
+  // Lock body scroll when overlay or modals are open
   useEffect(() => {
-    if (menuOpen) {
+    if (menuOpen || selectedGlimpse || selectedPiece) {
       document.body.style.overflow = 'hidden';
     } else {
       document.body.style.overflow = '';
@@ -275,7 +413,7 @@ export function ComingSoon() {
     return () => {
       document.body.style.overflow = '';
     };
-  }, [menuOpen]);
+  }, [menuOpen, selectedGlimpse, selectedPiece]);
 
   const scrollTo = (id: string) => {
     setMenuOpen(false);
@@ -286,7 +424,7 @@ export function ComingSoon() {
   };
 
   const handleInquiryForPiece = (piece: CollectionPiece) => {
-    setSelectedPiece(piece);
+    setSelectedPiece(null);
     setFormData((prev) => ({
       ...prev,
       inquiryType: `Inquiry: ${piece.title}`,
@@ -1031,68 +1169,176 @@ export function ComingSoon() {
             </Reveal>
           </div>
 
-          {/* Collection Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
-            {COLLECTION.map((piece, idx) => (
-              <Reveal key={piece.id} direction="up" delay={idx * 0.15}>
-                <div
-                  className="group rounded-3xl overflow-hidden bg-gradient-to-b from-[#081528] to-[#040c17] border border-[#c5a363]/35 hover:border-[#c5a363] shadow-[0_15px_45px_rgba(0,0,0,0.7)] transition-all duration-500 flex flex-col h-full aurexa-card-hover"
+          {/* Controls: Category Filter Tabs & Column Density Switcher */}
+          <Reveal direction="up" delay={0.22}>
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10 pb-6 border-b border-[#c5a363]/20">
+              {/* Category Filter Pills */}
+              <div className="flex flex-wrap items-center justify-center gap-2">
+                {[
+                  { id: 'all', label: 'All Curations (12)' },
+                  { id: 'monoliths', label: 'Monoliths & Totems' },
+                  { id: 'strata', label: 'Mineral Strata' },
+                  { id: 'gilded', label: 'Gilded & Relief' },
+                  { id: 'figurative', label: 'Haute Muse' },
+                ].map((tab) => (
+                  <button
+                    key={tab.id}
+                    onClick={() => setCollectionFilter(tab.id as typeof collectionFilter)}
+                    className={`px-4 py-1.5 rounded-full text-[11px] uppercase tracking-[0.18em] font-medium transition-all cursor-pointer ${
+                      collectionFilter === tab.id
+                        ? 'bg-[#c5a363] text-[#050b14] font-semibold shadow-[0_0_15px_rgba(197,163,99,0.4)] scale-105'
+                        : 'bg-[#081528]/70 text-[#d4c9b5] hover:bg-[#0c2242] border border-[#c5a363]/30 hover:scale-102'
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+
+              {/* Grid Density Switcher: 3 Columns vs 4 Columns */}
+              <div className="hidden sm:flex items-center gap-1.5 bg-[#050e1c]/80 p-1 rounded-full border border-[#c5a363]/30">
+                <span className="text-[10px] uppercase tracking-[0.2em] text-[#a99e8a] pl-2.5 pr-1 font-medium">
+                  Grid Size:
+                </span>
+                <button
+                  onClick={() => setCollectionColumns(3)}
+                  className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                    collectionColumns === 3
+                      ? 'bg-[#c5a363] text-[#050b14] font-semibold shadow-sm'
+                      : 'text-[#d4c9b5] hover:text-white'
+                  }`}
+                  title="3 Columns - Balanced Gallery View"
                 >
-                  {/* Image Frame */}
-                  <div className="relative aspect-[16/10] overflow-hidden bg-[#02050a]">
+                  <LayoutGrid className="w-3 h-3" />
+                  <span>3 Col</span>
+                </button>
+                <button
+                  onClick={() => setCollectionColumns(4)}
+                  className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
+                    collectionColumns === 4
+                      ? 'bg-[#c5a363] text-[#050b14] font-semibold shadow-sm'
+                      : 'text-[#d4c9b5] hover:text-white'
+                  }`}
+                  title="4 Columns - Compact Pavilion View"
+                >
+                  <Grid className="w-3 h-3" />
+                  <span>4 Col (Compact)</span>
+                </button>
+              </div>
+            </div>
+          </Reveal>
+
+          {/* Collection Grid */}
+          <div
+            className={`grid gap-6 sm:gap-7 mb-16 ${
+              collectionColumns === 3
+                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
+                : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5'
+            }`}
+          >
+            {COLLECTION.filter((piece) => collectionFilter === 'all' || piece.category === collectionFilter).map((piece, idx) => (
+              <Reveal key={piece.id} direction="up" delay={(idx % (collectionColumns === 3 ? 3 : 4)) * 0.08}>
+                <div
+                  className="group rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-b from-[#081528] to-[#040c17] border border-[#c5a363]/30 hover:border-[#c5a363] shadow-[0_12px_35px_rgba(0,0,0,0.65)] hover:shadow-[0_20px_50px_rgba(197,163,99,0.2)] transition-all duration-500 flex flex-col h-full aurexa-card-hover"
+                >
+                  {/* Image Frame - Vertical portrait ratio reduced for elegant exhibition view */}
+                  <div
+                    onClick={() => setSelectedPiece(piece)}
+                    className="relative aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-[#02050a] cursor-pointer"
+                  >
                     <img
                       src={piece.image}
                       alt={piece.title}
-                      className="w-full h-full object-cover aurexa-img-zoom"
+                      className="w-full h-full object-cover aurexa-img-zoom transition-transform duration-700 group-hover:scale-105"
                     />
-                    <div className="absolute top-4 left-4">
-                      <span className="px-3.5 py-1 rounded-full bg-[#040810]/80 backdrop-blur-md border border-[#c5a363]/60 text-[10px] uppercase tracking-[0.22em] text-[#c5a363] font-semibold">
+
+                    {/* Atmospheric luxury shading */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#040c17] via-transparent to-black/40 opacity-70 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none" />
+
+                    {/* Top Status Badge */}
+                    <div className="absolute top-3.5 left-3.5 z-[2]">
+                      <span className="px-3 py-1 rounded-full bg-[#040810]/85 backdrop-blur-md border border-[#c5a363]/50 text-[9px] uppercase tracking-[0.2em] text-[#e8d7b8] font-semibold shadow-md">
                         {piece.status}
+                      </span>
+                    </div>
+
+                    {/* Top Right Quick Inspect Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPiece(piece);
+                      }}
+                      className="absolute top-3.5 right-3.5 z-[2] p-2 rounded-full bg-[#040810]/80 backdrop-blur-md border border-[#c5a363]/40 text-[#c5a363] hover:bg-[#c5a363] hover:text-[#040810] transition-all transform hover:scale-110 shadow-lg cursor-pointer"
+                      title="Inspect Masterpiece"
+                    >
+                      <Maximize2 className="w-3.5 h-3.5" />
+                    </button>
+
+                    {/* Bottom subtle hover text */}
+                    <div className="absolute inset-x-0 bottom-0 p-3 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-[#040c17] to-transparent pointer-events-none">
+                      <span className="text-[10px] uppercase tracking-[0.22em] text-[#f7e6c4] font-medium flex items-center gap-1.5">
+                        <Eye className="w-3.5 h-3.5 text-[#c5a363]" /> Click to Inspect Full Art
                       </span>
                     </div>
                   </div>
 
-                  {/* Body Details */}
-                  <div className="p-8 flex-1 flex flex-col justify-between">
+                  {/* Body Details - Compact luxury styling */}
+                  <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
                     <div>
+                      <div className="flex items-center justify-between gap-2 mb-1.5">
+                        <span className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363] font-semibold">
+                          {piece.edition}
+                        </span>
+                        <span className="text-[10px] text-[#8e8574] tracking-wider truncate">
+                          {piece.origin.split(',')[0]}
+                        </span>
+                      </div>
+
                       <h3
-                        className="text-2xl text-white font-normal tracking-[0.12em] mb-2 font-serif group-hover:text-[#f7e6c4] transition-colors"
+                        onClick={() => setSelectedPiece(piece)}
+                        className="text-lg sm:text-xl text-white font-normal tracking-[0.08em] mb-1 font-serif group-hover:text-[#f7e6c4] transition-colors cursor-pointer line-clamp-1"
                       >
                         {piece.title}
                       </h3>
-                      <p className="text-xs sm:text-sm text-[#b8af9d] font-light leading-relaxed mb-6">
+
+                      <p className="text-[11px] text-[#c5a363]/90 font-light tracking-wide mb-2 line-clamp-1">
+                        {piece.material}
+                      </p>
+
+                      <p className="text-xs text-[#a89f8d] font-light leading-relaxed mb-4 line-clamp-2">
                         {piece.description}
                       </p>
 
-                      {/* Specs Table */}
-                      <div className="grid grid-cols-2 gap-3 text-xs mb-8 p-4 rounded-2xl bg-[#0a1a33]/60 border border-[#c5a363]/25">
+                      {/* Compact Specs Matrix */}
+                      <div className="grid grid-cols-2 gap-2 text-xs mb-5 p-3 rounded-xl bg-[#050e1c]/80 border border-[#c5a363]/20">
                         <div>
-                          <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Material</div>
-                          <div className="text-[#f1eee7] font-medium mt-0.5">{piece.material}</div>
+                          <div className="text-[8px] uppercase tracking-[0.22em] text-[#c5a363]">Dimensions</div>
+                          <div className="text-[#f1eee7] font-medium text-[11px] truncate mt-0.5">{piece.dimensions}</div>
                         </div>
                         <div>
-                          <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Dimensions</div>
-                          <div className="text-[#f1eee7] font-medium mt-0.5">{piece.dimensions}</div>
-                        </div>
-                        <div>
-                          <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Origin</div>
-                          <div className="text-[#f1eee7] font-medium mt-0.5">{piece.origin}</div>
-                        </div>
-                        <div>
-                          <div className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363]">Edition</div>
-                          <div className="text-[#f1eee7] font-medium mt-0.5">{piece.edition}</div>
+                          <div className="text-[8px] uppercase tracking-[0.22em] text-[#c5a363]">Origin</div>
+                          <div className="text-[#f1eee7] font-medium text-[11px] truncate mt-0.5">{piece.origin}</div>
                         </div>
                       </div>
                     </div>
 
-                    {/* Inquiry CTA */}
-                    <button
-                      onClick={() => handleInquiryForPiece(piece)}
-                      className="w-full py-3.5 rounded-full bg-[#c5a363]/15 hover:bg-[#c5a363]/30 border border-[#c5a363] text-[#f7f2e7] text-xs uppercase tracking-[0.22em] font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer group-hover:shadow-[0_0_20px_rgba(197,163,99,0.3)] hover:scale-[1.01]"
-                    >
-                      <span>Inquire About This Piece</span>
-                      <ArrowRight className="w-4 h-4 text-[#c5a363] transition-transform group-hover:translate-x-1" />
-                    </button>
+                    {/* Inquiry CTA & Full View */}
+                    <div className="flex items-center gap-2 pt-2 border-t border-[#c5a363]/15">
+                      <button
+                        onClick={() => handleInquiryForPiece(piece)}
+                        className="flex-1 py-2.5 px-3 rounded-full bg-[#c5a363]/15 hover:bg-[#c5a363] hover:text-[#040810] border border-[#c5a363]/80 text-[#f7f2e7] text-[11px] uppercase tracking-[0.18em] font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer group-hover:shadow-[0_0_15px_rgba(197,163,99,0.25)] hover:scale-[1.01]"
+                      >
+                        <span>Inquire</span>
+                        <ArrowRight className="w-3.5 h-3.5 text-[#c5a363] group-hover:text-[#040810] transition-colors" />
+                      </button>
+                      <button
+                        onClick={() => setSelectedPiece(piece)}
+                        className="p-2.5 rounded-full bg-[#081528] hover:bg-[#0f2444] border border-[#c5a363]/40 text-[#c5a363] hover:text-white transition-all cursor-pointer"
+                        title="View Full Masterpiece"
+                      >
+                        <Maximize2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </Reveal>
@@ -1435,6 +1681,145 @@ export function ComingSoon() {
                 >
                   Inquire on This Installation
                 </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =========================================================================
+          LIGHTBOX MODAL FOR COLLECTION MASTERPIECES
+      ========================================================================= */}
+      {selectedPiece && (
+        <div
+          className="fixed inset-0 z-50 bg-black/92 backdrop-blur-2xl flex items-center justify-center p-3 sm:p-6 md:p-8 animate-in fade-in duration-300"
+          onClick={() => setSelectedPiece(null)}
+        >
+          <div
+            className="relative max-w-5xl w-full bg-[#061020] border border-[#c5a363]/60 rounded-3xl overflow-hidden shadow-[0_25px_70px_rgba(0,0,0,0.95)] max-h-[92vh] flex flex-col md:flex-row"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Top action buttons */}
+            <div className="absolute top-4 right-4 z-20 flex items-center gap-2">
+              <button
+                onClick={() => setSelectedPiece(null)}
+                className="p-2.5 rounded-full bg-black/70 hover:bg-[#c5a363] text-white hover:text-[#040810] border border-white/20 hover:border-[#c5a363] transition-all cursor-pointer shadow-lg"
+                title="Close (Esc)"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Left side: Artwork Image Showcase with Navigation */}
+            <div className="relative md:w-1/2 bg-[#02060f] flex items-center justify-center p-4 sm:p-6 overflow-hidden min-h-[350px] md:min-h-[580px]">
+              {/* Subtle radial glow behind art */}
+              <div className="absolute inset-0 bg-radial from-[#c5a363]/10 via-transparent to-transparent opacity-60 pointer-events-none" />
+
+              <img
+                src={selectedPiece.image}
+                alt={selectedPiece.title}
+                className="max-h-[50vh] md:max-h-[75vh] w-auto max-w-full object-contain rounded-lg shadow-[0_10px_35px_rgba(0,0,0,0.8)] border border-[#c5a363]/20"
+              />
+
+              {/* Prev / Next Floating Arrows */}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const idx = COLLECTION.findIndex((p) => p.id === selectedPiece.id);
+                  if (idx > 0) setSelectedPiece(COLLECTION[idx - 1]);
+                  else setSelectedPiece(COLLECTION[COLLECTION.length - 1]);
+                }}
+                className="absolute left-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/70 hover:bg-[#c5a363] text-white hover:text-[#040810] border border-white/20 transition-all cursor-pointer shadow-lg"
+                title="Previous Artwork (Left Arrow)"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const idx = COLLECTION.findIndex((p) => p.id === selectedPiece.id);
+                  if (idx < COLLECTION.length - 1) setSelectedPiece(COLLECTION[idx + 1]);
+                  else setSelectedPiece(COLLECTION[0]);
+                }}
+                className="absolute right-3 top-1/2 -translate-y-1/2 p-2.5 rounded-full bg-black/70 hover:bg-[#c5a363] text-white hover:text-[#040810] border border-white/20 transition-all cursor-pointer shadow-lg"
+                title="Next Artwork (Right Arrow)"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </button>
+
+              {/* Counter indicator */}
+              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full bg-black/80 backdrop-blur-md border border-[#c5a363]/30 text-[10px] uppercase tracking-[0.2em] text-[#c5a363] font-semibold">
+                {COLLECTION.findIndex((p) => p.id === selectedPiece.id) + 1} / {COLLECTION.length}
+              </div>
+            </div>
+
+            {/* Right side: Curatorial Information & VIP Acquisition */}
+            <div className="md:w-1/2 p-6 sm:p-8 md:p-10 flex flex-col justify-between overflow-y-auto max-h-[50vh] md:max-h-[85vh]">
+              <div>
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="px-3 py-1 rounded-full bg-[#c5a363]/15 border border-[#c5a363]/50 text-[10px] uppercase tracking-[0.22em] text-[#d9cbb2] font-semibold">
+                    {selectedPiece.status}
+                  </span>
+                  <span className="text-[10px] uppercase tracking-[0.2em] text-[#8e8574]">
+                    {selectedPiece.edition}
+                  </span>
+                </div>
+
+                <h3
+                  className="text-2xl sm:text-3xl font-serif text-white tracking-[0.08em] mb-2"
+                >
+                  {selectedPiece.title}
+                </h3>
+
+                <div className="w-16 h-[1.5px] bg-[#c5a363] mb-4" />
+
+                <p className="text-xs sm:text-sm text-[#b8af9d] font-light leading-relaxed mb-6">
+                  {selectedPiece.description}
+                </p>
+
+                {/* Detailed Provenance & Technical Specs */}
+                <div className="space-y-2.5 mb-6 p-4 rounded-2xl bg-[#030812]/90 border border-[#c5a363]/25">
+                  <div className="text-[9px] uppercase tracking-[0.28em] text-[#c5a363] font-semibold mb-2">
+                    Curatorial Specifications
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 text-xs">
+                    <div>
+                      <span className="text-[9px] uppercase tracking-[0.2em] text-[#8e8574] block">Medium / Material</span>
+                      <span className="text-[#f1eee7] font-medium text-xs mt-0.5 block">{selectedPiece.material}</span>
+                    </div>
+                    <div>
+                      <span className="text-[9px] uppercase tracking-[0.2em] text-[#8e8574] block">Dimensions</span>
+                      <span className="text-[#f1eee7] font-medium text-xs mt-0.5 block">{selectedPiece.dimensions}</span>
+                    </div>
+                    <div>
+                      <span className="text-[9px] uppercase tracking-[0.2em] text-[#8e8574] block">Origin & Quarry</span>
+                      <span className="text-[#f1eee7] font-medium text-xs mt-0.5 block">{selectedPiece.origin}</span>
+                    </div>
+                    <div>
+                      <span className="text-[9px] uppercase tracking-[0.2em] text-[#8e8574] block">Pavilion Location</span>
+                      <span className="text-[#f1eee7] font-medium text-xs mt-0.5 block">{selectedPiece.location || 'Exhibition Grand Wing'}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Acquisition / Inquiry Action */}
+              <div className="pt-4 border-t border-[#c5a363]/20 space-y-3">
+                <button
+                  onClick={() => {
+                    const piece = selectedPiece;
+                    setSelectedPiece(null);
+                    handleInquiryForPiece(piece);
+                  }}
+                  className="w-full py-3.5 rounded-full bg-[#c5a363] hover:bg-[#d8b878] text-[#050b14] font-semibold text-xs uppercase tracking-[0.22em] transition-all flex items-center justify-center gap-2 cursor-pointer shadow-[0_0_25px_rgba(197,163,99,0.4)] hover:scale-[1.01]"
+                >
+                  <span>Inquire About Private Acquisition</span>
+                  <ArrowRight className="w-4 h-4 text-[#050b14]" />
+                </button>
+                <p className="text-[10px] text-center text-[#8e8574] tracking-wider">
+                  Strictly accredited allocation for private collectors and architectural firms.
+                </p>
               </div>
             </div>
           </div>
