@@ -18,8 +18,6 @@ import {
   ChevronLeft,
   ChevronRight,
   Maximize2,
-  Grid,
-  LayoutGrid,
   Eye
 } from 'lucide-react';
 import { sendContactInquiry } from '@/lib/contactService';
@@ -281,11 +279,8 @@ export function ComingSoon() {
   const [activeSection, setActiveSection] = useState('hero');
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [glimpseFilter, setGlimpseFilter] = useState<'all' | 'monoliths' | 'ambient' | 'details' | 'sculpture'>('all');
   const [selectedGlimpse, setSelectedGlimpse] = useState<GlimpseItem | null>(null);
   const [selectedPiece, setSelectedPiece] = useState<CollectionPiece | null>(null);
-  const [collectionFilter, setCollectionFilter] = useState<'all' | 'monoliths' | 'strata' | 'gilded' | 'figurative'>('all');
-  const [collectionColumns, setCollectionColumns] = useState<3 | 4>(3);
 
   // VIP RSVP Form State
   const [formData, setFormData] = useState({
@@ -469,8 +464,7 @@ export function ComingSoon() {
     }
   };
 
-  const filteredGlimpses =
-    glimpseFilter === 'all' ? GLIMPSES : GLIMPSES.filter((g) => g.category === glimpseFilter);
+  const filteredGlimpses = GLIMPSES;
 
   return (
     <div className="w-full min-h-screen bg-[#040810] text-[#f7f4ee] font-sans relative selection:bg-[#c5a363]/40 selection:text-white">
@@ -488,31 +482,26 @@ export function ComingSoon() {
         <div className="pointer-events-auto">
           <button
             onClick={() => scrollTo('hero')}
-            className="flex flex-col items-start group cursor-pointer focus:outline-none select-none text-left"
+            className="flex items-center group cursor-pointer focus:outline-none select-none text-left"
             aria-label="Aurexa - Return to Hero"
           >
-            <div className="flex items-center">
-              <span
-                className="text-lg sm:text-2xl tracking-[0.38em] text-[#ffffff] font-light group-hover:text-[#f3e5c8] transition-colors leading-none drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
-                style={{ fontFamily: 'var(--font-serif)' }}
-              >
-                AUREXA
-              </span>
-            </div>
-            <span className="text-[7px] sm:text-[8px] tracking-[0.45em] text-[#c5a363] uppercase font-semibold mt-1 group-hover:text-[#d4b574] transition-colors drop-shadow-[0_2px_8px_rgba(0,0,0,0.9)]">
-              The Haute Stone Pavilion
+            <span
+              className="text-lg sm:text-2xl tracking-[0.38em] text-[#ffffff] font-light group-hover:text-[#f3e5c8] transition-colors leading-none drop-shadow-[0_2px_12px_rgba(0,0,0,0.9)]"
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              AUREXA
             </span>
           </button>
         </div>
 
-        {/* Right: Hamburger Menu Trigger (Circular luxury button matching Lunore Hero) */}
+        {/* Right: Hamburger Menu Trigger (Circular Liquid Glass button) */}
         <div className="pointer-events-auto">
           <button
             type="button"
             onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
-            className="relative w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#c5a363]/50 shadow-2xl backdrop-blur-xl bg-[#040914]/80 border border-[#c5a363]/40 hover:border-[#c5a363] hover:bg-[#071328] transition-all duration-300 active:scale-95"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#c5a363]/50 liquid-glass-menu-btn"
           >
             <div className="relative w-5 h-4 flex flex-col justify-between items-center overflow-hidden">
               <span
@@ -552,9 +541,9 @@ export function ComingSoon() {
             <button
               onClick={() => setMenuOpen(false)}
               aria-label="Close Menu"
-              className="p-3 rounded-full bg-white/5 hover:bg-white/10 border border-[#c5a363]/40 text-white hover:text-[#c5a363] transition-colors cursor-pointer"
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full flex items-center justify-center text-white hover:text-[#c5a363] cursor-pointer liquid-glass-menu-btn"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
             </button>
           </div>
 
@@ -806,62 +795,6 @@ export function ComingSoon() {
               </div>
             </Reveal>
           </div>
-
-          {/* 4 Highlight Word Pillars */}
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-14 sm:mb-16">
-            {[
-              {
-                word: 'ART',
-                num: '01',
-                sub: 'Exceptional Works & Sculptures',
-              },
-              {
-                word: 'PEOPLE',
-                num: '02',
-                sub: 'HNIs, Collectors & Artists',
-              },
-              {
-                word: 'EXPRESSION',
-                num: '03',
-                sub: 'Conversations & Live Auction',
-              },
-              {
-                word: 'CONNECTION',
-                num: '04',
-                sub: 'Shared Discovery & Passion',
-              },
-            ].map((pillar, idx) => (
-              <Reveal key={pillar.word} direction="up" delay={idx * 0.1}>
-                <div className="h-full p-6 sm:p-8 rounded-3xl bg-white/90 border border-[#d8cbbb] shadow-[0_12px_40px_rgba(60,45,25,0.06)] hover:border-[#a8884d] hover:shadow-[0_20px_50px_rgba(60,45,25,0.14)] aurexa-card-hover group backdrop-blur-sm flex flex-col items-center text-center cursor-default">
-                  <span className="text-xs sm:text-sm font-mono text-[#8f6d2f] tracking-widest uppercase mb-2 font-medium">
-                    {pillar.num}
-                  </span>
-                  <h3
-                    className="text-xl sm:text-2xl font-light tracking-[0.2em] text-[#171411] uppercase mb-2 group-hover:text-[#8f6d2f] transition-colors"
-                    style={{ fontFamily: 'var(--font-serif)' }}
-                  >
-                    {pillar.word}
-                  </h3>
-                  <p className="text-[11px] sm:text-xs text-[#544a3d] leading-relaxed font-normal">
-                    {pillar.sub}
-                  </p>
-                </div>
-              </Reveal>
-            ))}
-          </div>
-
-          {/* Discover The Experience CTA Button */}
-          <Reveal direction="up" delay={0.3} className="flex justify-center">
-            <button
-              onClick={() => scrollTo('glimpses')}
-              className="group inline-flex items-center gap-3.5 px-8 sm:px-12 py-4 sm:py-4.5 rounded-full bg-[#171411] hover:bg-[#28221b] text-[#f7f4ee] hover:text-[#f3e5c8] border border-[#a8884d]/60 shadow-[0_12px_35px_rgba(23,20,17,0.3)] hover:shadow-[0_18px_50px_rgba(168,136,77,0.4)] transition-all duration-300 transform hover:scale-[1.02] active:scale-98 cursor-pointer"
-            >
-              <span className="text-xs sm:text-sm uppercase tracking-[0.28em] font-medium">
-                Discover the Experience
-              </span>
-              <ArrowRight className="w-4 h-4 text-[#c5a363] transition-transform duration-300 group-hover:translate-x-1.5" />
-            </button>
-          </Reveal>
         </div>
 
         {/* Seamless Blend into Next Section (Royal Blue Velvet) */}
@@ -915,31 +848,6 @@ export function ComingSoon() {
               </p>
             </Reveal>
           </div>
-
-          {/* Category Filter Tabs */}
-          <Reveal direction="up" delay={0.15}>
-            <div className="flex flex-wrap items-center justify-center gap-2.5 sm:gap-4 mb-14">
-              {[
-                { id: 'all', label: 'All Works' },
-                { id: 'monoliths', label: 'Monoliths' },
-                { id: 'ambient', label: 'Ambient Salons' },
-                { id: 'sculpture', label: 'Sculptures' },
-                { id: 'details', label: 'Artisan Details' },
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setGlimpseFilter(tab.id as typeof glimpseFilter)}
-                  className={`px-5 py-2.5 rounded-full text-xs uppercase tracking-[0.2em] font-medium transition-all cursor-pointer ${
-                    glimpseFilter === tab.id
-                      ? 'bg-[#c5a363] text-[#050b14] font-semibold shadow-[0_0_20px_rgba(197,163,99,0.5)] scale-105'
-                      : 'bg-[#081528]/60 text-[#d4c9b5] hover:bg-[#0c2242] border border-[#c5a363]/30 hover:scale-102'
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-          </Reveal>
 
           {/* Glimpse Image Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1169,75 +1077,10 @@ export function ComingSoon() {
             </Reveal>
           </div>
 
-          {/* Controls: Category Filter Tabs & Column Density Switcher */}
-          <Reveal direction="up" delay={0.22}>
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-10 pb-6 border-b border-[#c5a363]/20">
-              {/* Category Filter Pills */}
-              <div className="flex flex-wrap items-center justify-center gap-2">
-                {[
-                  { id: 'all', label: 'All Curations (12)' },
-                  { id: 'monoliths', label: 'Monoliths & Totems' },
-                  { id: 'strata', label: 'Mineral Strata' },
-                  { id: 'gilded', label: 'Gilded & Relief' },
-                  { id: 'figurative', label: 'Haute Muse' },
-                ].map((tab) => (
-                  <button
-                    key={tab.id}
-                    onClick={() => setCollectionFilter(tab.id as typeof collectionFilter)}
-                    className={`px-4 py-1.5 rounded-full text-[11px] uppercase tracking-[0.18em] font-medium transition-all cursor-pointer ${
-                      collectionFilter === tab.id
-                        ? 'bg-[#c5a363] text-[#050b14] font-semibold shadow-[0_0_15px_rgba(197,163,99,0.4)] scale-105'
-                        : 'bg-[#081528]/70 text-[#d4c9b5] hover:bg-[#0c2242] border border-[#c5a363]/30 hover:scale-102'
-                    }`}
-                  >
-                    {tab.label}
-                  </button>
-                ))}
-              </div>
-
-              {/* Grid Density Switcher: 3 Columns vs 4 Columns */}
-              <div className="hidden sm:flex items-center gap-1.5 bg-[#050e1c]/80 p-1 rounded-full border border-[#c5a363]/30">
-                <span className="text-[10px] uppercase tracking-[0.2em] text-[#a99e8a] pl-2.5 pr-1 font-medium">
-                  Grid Size:
-                </span>
-                <button
-                  onClick={() => setCollectionColumns(3)}
-                  className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
-                    collectionColumns === 3
-                      ? 'bg-[#c5a363] text-[#050b14] font-semibold shadow-sm'
-                      : 'text-[#d4c9b5] hover:text-white'
-                  }`}
-                  title="3 Columns - Balanced Gallery View"
-                >
-                  <LayoutGrid className="w-3 h-3" />
-                  <span>3 Col</span>
-                </button>
-                <button
-                  onClick={() => setCollectionColumns(4)}
-                  className={`px-3 py-1 rounded-full text-[10px] uppercase tracking-[0.15em] font-medium transition-all cursor-pointer flex items-center gap-1.5 ${
-                    collectionColumns === 4
-                      ? 'bg-[#c5a363] text-[#050b14] font-semibold shadow-sm'
-                      : 'text-[#d4c9b5] hover:text-white'
-                  }`}
-                  title="4 Columns - Compact Pavilion View"
-                >
-                  <Grid className="w-3 h-3" />
-                  <span>4 Col (Compact)</span>
-                </button>
-              </div>
-            </div>
-          </Reveal>
-
           {/* Collection Grid */}
-          <div
-            className={`grid gap-6 sm:gap-7 mb-16 ${
-              collectionColumns === 3
-                ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3'
-                : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-5'
-            }`}
-          >
-            {COLLECTION.filter((piece) => collectionFilter === 'all' || piece.category === collectionFilter).map((piece, idx) => (
-              <Reveal key={piece.id} direction="up" delay={(idx % (collectionColumns === 3 ? 3 : 4)) * 0.08}>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 mb-16">
+            {COLLECTION.map((piece, idx) => (
+              <Reveal key={piece.id} direction="up" delay={(idx % 3) * 0.08}>
                 <div
                   className="group rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-b from-[#081528] to-[#040c17] border border-[#c5a363]/30 hover:border-[#c5a363] shadow-[0_12px_35px_rgba(0,0,0,0.65)] hover:shadow-[0_20px_50px_rgba(197,163,99,0.2)] transition-all duration-500 flex flex-col h-full aurexa-card-hover"
                 >

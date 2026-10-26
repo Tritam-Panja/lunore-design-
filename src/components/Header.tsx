@@ -208,7 +208,7 @@ export function Header() {
             onClick={() => setMenuOpen(!menuOpen)}
             aria-expanded={menuOpen}
             aria-label={menuOpen ? 'Close Navigation Menu' : 'Open Navigation Menu'}
-            className="relative w-12 h-12 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50 shadow-2xl backdrop-blur-xl bg-black/60 border border-white/15 hover:border-[#b89a62]/60 hover:bg-white/10 transition-all duration-300 active:scale-95"
+            className="w-12 h-12 rounded-full flex items-center justify-center text-[#f1eee7] hover:text-white cursor-pointer group focus:outline-none focus:ring-1 focus:ring-[#b89a62]/50 liquid-glass-menu-btn"
           >
             <div className="relative w-5 h-4 flex flex-col justify-between items-center overflow-hidden">
               <span
