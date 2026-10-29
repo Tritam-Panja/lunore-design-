@@ -279,7 +279,9 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
   }, [scheduleStackUpdate, useWindowScroll]);
 
   useLayoutEffect(() => {
-    const isMobile = isMobileDevice();
+    // Treat phones (< 640px) with the lightweight document flow, while tablets (640px - 1024px)
+    // use the rich desktop 3D card stack pinning with native container touch scroll
+    const isMobile = typeof window !== 'undefined' ? window.innerWidth < 640 : false;
     const isAndroidDevice = isAndroid();
     isMobileDeviceRef.current = isMobile;
 
@@ -404,7 +406,7 @@ export const ScrollStack: React.FC<ScrollStackProps> = ({
     setupLenis();
 
     const handleResize = () => {
-      isMobileDeviceRef.current = isMobileDevice();
+      isMobileDeviceRef.current = typeof window !== 'undefined' ? window.innerWidth < 640 : false;
       updateCardMetrics();
       scheduleStackUpdate();
     };

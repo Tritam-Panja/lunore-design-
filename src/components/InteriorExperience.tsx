@@ -602,6 +602,16 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
     triggerRenderLoopRef.current();
   }, [getContainerRect]);
 
+  const handleTouchMoveStage = useCallback((e: React.TouchEvent<HTMLDivElement>) => {
+    if (!isFlashlightModeRef.current || e.touches.length === 0) return;
+    const rect = getContainerRect();
+    if (!rect) return;
+    const touch = e.touches[0];
+    posRef.current.targetX = ((touch.clientX - rect.left) / rect.width) * 100;
+    posRef.current.targetY = ((touch.clientY - rect.top) / rect.height) * 100;
+    triggerRenderLoopRef.current();
+  }, [getContainerRect]);
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -647,6 +657,13 @@ export function InteriorExperience({ className = '' }: InteriorExperienceProps) 
         <div
           ref={containerRef}
           onMouseMove={handleMouseMove}
+          onTouchStart={() => {
+            if (isFlashlightMode) {
+              isHoveredRef.current = true;
+              setIsHovered(true);
+            }
+          }}
+          onTouchMove={handleTouchMoveStage}
           onMouseEnter={() => {
             if (isFlashlightMode) {
               isHoveredRef.current = true;

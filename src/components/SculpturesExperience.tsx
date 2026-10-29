@@ -629,7 +629,7 @@ const SculptureCarousel = React.memo(function SculptureCarousel({
               const mobileScaleX = ((viewportW / targetCardW) * (1 - easedP) + 1 * easedP) * (isCenter ? 1 : baseScale);
               const mobileScaleY = ((viewportH / targetCardH) * (1 - easedP) + 1 * easedP) * (isCenter ? 1 : baseScale);
 
-              const cardStyle: React.CSSProperties = isMobile
+              const cardStyle: React.CSSProperties = isMobile && !isTablet
                 ? {
                     width: `${targetCardW}px`,
                     height: `${targetCardH}px`,
@@ -649,7 +649,7 @@ const SculptureCarousel = React.memo(function SculptureCarousel({
                     willChange: 'width, height, transform',
                   };
 
-              const panelStyle: React.CSSProperties = isMobile
+              const panelStyle: React.CSSProperties = isMobile && !isTablet
                 ? {
                     borderRadius: `${heroBorderRadius}px`,
                     padding: `${Math.max(8, heroPadding)}px`,

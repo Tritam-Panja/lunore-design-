@@ -39,3 +39,15 @@ export function isMobileDevice(): boolean {
   return isIOS() || isAndroid();
 }
 
+/**
+ * Checks if device is a tablet or mobile touch device, or if viewport width is tablet-sized (768px - 1024px)
+ * or has primary touch input pointer.
+ */
+export function isTouchOrTablet(): boolean {
+  if (typeof window === 'undefined') return false;
+  const isTouch = 'ontouchstart' in window || (navigator && navigator.maxTouchPoints > 0);
+  const isTabletWidth = window.innerWidth >= 640 && window.innerWidth <= 1200;
+  return isMobileDevice() || (isTouch && isTabletWidth);
+}
+
+

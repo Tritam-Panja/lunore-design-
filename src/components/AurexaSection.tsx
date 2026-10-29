@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, useCallback, lazy, Suspense } from 
 import { Link } from 'react-router-dom';
 import { ArrowUpRight } from 'lucide-react';
 import { useLenis } from './SmoothScroll';
-import { isMobileDevice } from '../lib/device';
+import { isMobileDevice, isTouchOrTablet } from '../lib/device';
 
 const ImageTrail = lazy(() => import('./ImageTrail'));
 
@@ -201,7 +201,7 @@ export function AurexaSection() {
       const w = window.innerWidth;
       if (Math.abs(w - lastWidth) < 2) return;
       lastWidth = w;
-      setIsMobile(isMobileDevice() || w < 1024);
+      setIsMobile(w < 640);
     };
     window.addEventListener('resize', handleResize, { passive: true });
     window.addEventListener('orientationchange', handleResize, { passive: true });
@@ -319,8 +319,36 @@ export function AurexaSection() {
       }
     };
 
+    let touchStartY = 0;
+    const onTouchStart = (e: TouchEvent) => {
+      if (e.touches.length > 0) {
+        touchStartY = e.touches[0].clientY;
+      }
+    };
+
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isUnlockedRef.current && hasStarted && e.touches.length > 0) {
+        const deltaY = touchStartY - e.touches[0].clientY;
+        if (deltaY > 0) {
+          progressRef.current = Math.min(1, progressRef.current + Math.min(deltaY * 0.005, 0.15));
+          applyVisualProgress(progressRef.current);
+          if (progressRef.current >= 0.999) {
+            progressRef.current = 1;
+            applyVisualProgress(1);
+            unlockPage();
+          }
+        }
+      }
+    };
+
     window.addEventListener('wheel', onWheel, { passive: false });
-    return () => window.removeEventListener('wheel', onWheel);
+    window.addEventListener('touchstart', onTouchStart, { passive: true });
+    window.addEventListener('touchmove', onTouchMove, { passive: true });
+    return () => {
+      window.removeEventListener('wheel', onWheel);
+      window.removeEventListener('touchstart', onTouchStart);
+      window.removeEventListener('touchmove', onTouchMove);
+    };
   }, [hasStarted, isUnlocked, unlockPage, isMobile, applyVisualProgress]);
 
   return (

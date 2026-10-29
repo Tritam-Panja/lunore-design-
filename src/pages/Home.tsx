@@ -563,7 +563,29 @@ export function Home() {
                     </button>
 
                     {/* Central Parade Orbit */}
-                    <div className="relative w-full max-w-5xl h-full flex items-center justify-center">
+                    <div
+                      className="relative w-full max-w-5xl h-full flex items-center justify-center touch-pan-y"
+                      onTouchStart={(e) => {
+                        const touch = e.touches[0];
+                        (e.currentTarget as any)._touchStartX = touch.clientX;
+                        (e.currentTarget as any)._touchStartY = touch.clientY;
+                      }}
+                      onTouchEnd={(e) => {
+                        const startX = (e.currentTarget as any)._touchStartX;
+                        const startY = (e.currentTarget as any)._touchStartY;
+                        if (startX === undefined) return;
+                        const touch = e.changedTouches[0];
+                        const diffX = touch.clientX - startX;
+                        const diffY = touch.clientY - startY;
+                        if (Math.abs(diffX) > Math.abs(diffY) && Math.abs(diffX) > 35) {
+                          if (diffX < 0) {
+                            setActiveIndex((prev) => (prev === directors.length - 1 ? 0 : prev + 1));
+                          } else {
+                            setActiveIndex((prev) => (prev === 0 ? directors.length - 1 : prev - 1));
+                          }
+                        }
+                      }}
+                    >
                       {directors.map((member, idx) => {
                         const { scale, opacity, x, activeSize } = getAvatarStyle(idx);
                         const isActive = idx === activeIndex;
