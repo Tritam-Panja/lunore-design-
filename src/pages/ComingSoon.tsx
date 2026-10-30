@@ -695,108 +695,199 @@ export function ComingSoon() {
         <div className="absolute inset-x-0 top-0 h-32 sm:h-44 bg-gradient-to-b from-[#F1ECE1] via-[#F1ECE1]/70 to-transparent pointer-events-none z-[2]" />
 
         <div className="relative z-10 max-w-6xl mx-auto">
-          {/* Header */}
-          <div className="text-center max-w-5xl mx-auto mb-16 sm:mb-20">
-            <Reveal direction="down">
-              <span className="inline-block text-[11px] sm:text-xs uppercase tracking-[0.38em] text-[#8f6d2f] font-semibold mb-3">
-                Our Story
-              </span>
+          {/* =====================================================================
+              AUREXA → OUR STORY SUBSECTION (SEAMLESS EDITORIAL SILK LAYOUT)
+          ===================================================================== */}
+          <div className="text-center max-w-4xl mx-auto">
+            {/* 1. Kicker: OUR STORY label (Bold, 20px with 6px letter spacing & rich antique gold #9B702D) */}
+            <Reveal direction="down" delay={0.05}>
+              <div className="inline-flex items-center justify-center gap-3 sm:gap-5 mb-3 sm:mb-4">
+                <span className="w-8 sm:w-14 h-[1px] bg-gradient-to-r from-transparent to-[#9B702D]" />
+                <span className="text-[16px] sm:text-[18px] md:text-[20px] uppercase tracking-[5px] sm:tracking-[6px] text-[#9B702D] font-bold select-none">
+                  Our Story
+                </span>
+                <span className="w-8 sm:w-14 h-[1px] bg-gradient-to-l from-transparent to-[#9B702D]" />
+              </div>
             </Reveal>
+
+            {/* 2. Sub-label: AUREXA label (Bold, 28px with 7px letter spacing) */}
             <Reveal direction="up" delay={0.1}>
               <div
-                className="text-xs sm:text-sm uppercase tracking-[0.32em] text-[#a8884d] font-medium mb-3"
+                className="text-[22px] sm:text-[25px] md:text-[28px] uppercase tracking-[6px] sm:tracking-[7px] text-[#9B702D] font-bold mb-5 sm:mb-7 select-none"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
                 AUREXA
               </div>
+            </Reveal>
+
+            {/* 3. Main Heading: Elegant serif, 48px desktop, 32px mobile, weight 500–600, no full stop */}
+            <Reveal direction="up" delay={0.15}>
               <h2
-                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#171411] font-light tracking-[0.02em] leading-tight mb-6"
+                className="text-[30px] sm:text-[32px] md:text-[48px] text-[#14110e] font-medium md:font-semibold tracking-[-0.01em] leading-[1.2] md:leading-[1.18] mb-6 sm:mb-8 text-center"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
-                Where Art Meets the Art of Living.
+                Where Art Meets the Art of Living
               </h2>
             </Reveal>
-            <Reveal direction="zoom" delay={0.15}>
-              <div className="w-24 h-[1.5px] bg-[#a8884d] mx-auto mb-8" />
+
+            {/* 4. Subtle Champagne-Gold Divider Line */}
+            <Reveal direction="zoom" delay={0.2}>
+              <div className="flex items-center justify-center gap-3 mb-10 sm:mb-14">
+                <div className="w-16 sm:w-28 h-[1px] bg-gradient-to-r from-transparent via-[#b89a62] to-[#b89a62]/80" />
+                <span className="text-[#9B702D] text-[10px] select-none tracking-widest opacity-80">✦</span>
+                <div className="w-16 sm:w-28 h-[1px] bg-gradient-to-l from-transparent via-[#b89a62] to-[#b89a62]/80" />
+              </div>
             </Reveal>
-            <Reveal direction="up" delay={0.2}>
-              <div className="space-y-5 max-w-3xl mx-auto text-sm sm:text-base md:text-lg text-[#473f35] font-normal tracking-[0.015em] leading-relaxed">
+
+            {/* 5. Story Paragraphs: 100% Transparent directly over silk background */}
+            <div
+              className="space-y-8 md:space-y-10 max-w-3xl mx-auto text-[16px] md:text-[19px] leading-[1.8] text-[#221c15] font-normal tracking-[0.015em] text-center"
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              <Reveal direction="up" delay={0.24}>
                 <p>
                   AUREXA was born from a belief that luxury is not merely something we own, but something we experience, feel, and remember.
                 </p>
+              </Reveal>
+
+              <Reveal direction="up" delay={0.3}>
                 <p>
                   Initiated by Lunore Luxe Decor Studio, AUREXA began with a desire to take our passion for art, design, and craftsmanship beyond the spaces we create and bring it into an experience that connects people through creativity and culture.
                 </p>
+              </Reveal>
+
+              <Reveal direction="up" delay={0.36}>
                 <p>
                   We imagined a space where extraordinary artworks, sculptures, jewellery, and collectible pieces could find their audience—not simply as objects of admiration, but as expressions of stories, emotions, and individuality.
                 </p>
+              </Reveal>
+
+              <Reveal direction="up" delay={0.42}>
                 <p>
                   What began as an idea evolved into a vision: to bring art, luxury, and meaningful connections together under one roof.
                 </p>
-                <p className="font-serif italic text-base sm:text-lg md:text-xl text-[#171411] pt-2">
-                  AUREXA is our way of turning that vision into an experience.
+              </Reveal>
+            </div>
+
+            {/* 6. Final Statement: Compact editorial composition (20–25px from paragraph, 20–25px to statement) */}
+            <Reveal direction="up" delay={0.48}>
+              <div className="mt-5 sm:mt-6">
+                {/* Decorative divider lines and small central diamond/star ornament */}
+                <div className="flex items-center justify-center gap-3 mb-5 sm:mb-6">
+                  <div className="w-16 sm:w-28 h-[1px] bg-gradient-to-r from-transparent via-[#9B702D] to-[#9B702D]/80" />
+                  <span className="text-[#9B702D] text-[11px] select-none tracking-widest">✦</span>
+                  <div className="w-16 sm:w-28 h-[1px] bg-gradient-to-l from-transparent via-[#9B702D] to-[#9B702D]/80" />
+                </div>
+
+                <p
+                  className="font-serif italic text-[21px] md:text-[27px] text-[#9B702D] leading-relaxed max-w-2xl mx-auto text-center"
+                  style={{ fontFamily: 'var(--font-serif)' }}
+                >
+                  <strong className="font-bold not-italic">AUREXA</strong> is our way of turning that vision into an experience.
                 </p>
               </div>
             </Reveal>
           </div>
 
-          {/* Subtle Luxury Divider between Story & Vision */}
-          <div className="flex items-center justify-center my-14 sm:my-20">
-            <div className="h-[1px] w-20 sm:w-36 bg-gradient-to-r from-transparent via-[#a8884d]/40 to-transparent" />
-            <div className="mx-4 text-[#a8884d] text-xs font-serif italic tracking-widest">✦</div>
-            <div className="h-[1px] w-20 sm:w-36 bg-gradient-to-r from-transparent via-[#a8884d]/40 to-transparent" />
+          {/* Subtle Luxury Divider between Story & Vision (120–150px desktop, 75–90px mobile space to Our Vision) */}
+          <div className="flex items-center justify-center mt-7 sm:mt-8 mb-[80px] md:mb-[135px]">
+            <div className="h-[1px] w-20 sm:w-36 bg-gradient-to-r from-transparent via-[#9B702D]/40 to-transparent" />
+            <div className="mx-4 text-[#9B702D] text-xs font-serif italic tracking-widest">✦</div>
+            <div className="h-[1px] w-20 sm:w-36 bg-gradient-to-r from-transparent via-[#9B702D]/40 to-transparent" />
           </div>
 
-          {/* OUR VISION Block */}
-          <div className="text-center max-w-5xl mx-auto mb-16 sm:mb-20">
-            <Reveal direction="down">
-              <span className="inline-block text-[11px] sm:text-xs uppercase tracking-[0.38em] text-[#8f6d2f] font-semibold mb-3">
-                Our Vision
-              </span>
+          {/* =====================================================================
+              AUREXA → OUR VISION SUBSECTION (SEAMLESS EDITORIAL SILK LAYOUT)
+          ===================================================================== */}
+          <div className="text-center max-w-4xl mx-auto mb-16 sm:mb-20">
+            {/* 1. Kicker: OUR VISION label (Bold, 20px with 6px letter spacing & rich antique gold #9B702D) */}
+            <Reveal direction="down" delay={0.05}>
+              <div className="inline-flex items-center justify-center gap-3 sm:gap-5 mb-3 sm:mb-3.5">
+                <span className="w-8 sm:w-14 h-[1px] bg-gradient-to-r from-transparent to-[#9B702D]" />
+                <span className="text-[16px] sm:text-[18px] md:text-[20px] uppercase tracking-[5px] sm:tracking-[6px] text-[#9B702D] font-bold select-none">
+                  Our Vision
+                </span>
+                <span className="w-8 sm:w-14 h-[1px] bg-gradient-to-l from-transparent to-[#9B702D]" />
+              </div>
             </Reveal>
+
+            {/* 2. Sub-label: MORE THAN AN EXHIBITION (Bold, 28px with 5px letter spacing) */}
             <Reveal direction="up" delay={0.1}>
               <div
-                className="text-xs sm:text-sm uppercase tracking-[0.32em] text-[#a8884d] font-medium mb-3"
+                className="text-[22px] sm:text-[25px] md:text-[28px] uppercase tracking-[5px] text-[#9B702D] font-bold mb-4 sm:mb-5 select-none"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
-                More Than an Exhibition.
+                More Than an Exhibition
               </div>
+            </Reveal>
+
+            {/* 3. Main Heading: Elegant serif, 48px desktop, 32px mobile, weight 500–600, no full stop */}
+            <Reveal direction="up" delay={0.15}>
               <h2
-                className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl text-[#171411] font-light tracking-[0.02em] leading-tight mb-6"
+                className="text-[30px] sm:text-[32px] md:text-[48px] text-[#14110e] font-medium md:font-semibold tracking-[-0.01em] leading-[1.2] md:leading-[1.18] mb-6 sm:mb-8 text-center"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
-                A World of Possibilities.
+                A World of Possibilities
               </h2>
             </Reveal>
-            <Reveal direction="zoom" delay={0.15}>
-              <div className="w-24 h-[1.5px] bg-[#a8884d] mx-auto mb-8" />
+
+            {/* 4. Subtle Champagne-Gold Divider Line */}
+            <Reveal direction="zoom" delay={0.2}>
+              <div className="flex items-center justify-center gap-3 mb-10 sm:mb-14">
+                <div className="w-16 sm:w-28 h-[1px] bg-gradient-to-r from-transparent via-[#b89a62] to-[#b89a62]/80" />
+                <span className="text-[#9B702D] text-[10px] select-none tracking-widest opacity-80">✦</span>
+                <div className="w-16 sm:w-28 h-[1px] bg-gradient-to-l from-transparent via-[#b89a62] to-[#b89a62]/80" />
+              </div>
             </Reveal>
-            <Reveal direction="up" delay={0.2}>
-              <div className="space-y-5 max-w-3xl mx-auto text-sm sm:text-base md:text-lg text-[#473f35] font-normal tracking-[0.015em] leading-relaxed">
+
+            {/* 5. Vision Paragraphs: 100% Transparent directly over silk background */}
+            <div
+              className="space-y-8 md:space-y-10 max-w-3xl mx-auto text-[16px] md:text-[19px] leading-[1.8] text-[#221c15] font-normal tracking-[0.015em] text-center"
+              style={{ fontFamily: 'var(--font-serif)' }}
+            >
+              <Reveal direction="up" delay={0.24}>
                 <p>
                   We envision AUREXA as a distinguished luxury platform where artists, collectors, entrepreneurs, and premium brands come together through thoughtfully curated experiences.
                 </p>
+              </Reveal>
+
+              <Reveal direction="up" delay={0.3}>
                 <p>
                   Our ambition goes beyond a single exhibition. Through art showcases, live auctions, exclusive previews, and meaningful collaborations, we aim to create an environment where creativity meets opportunity and every interaction has the potential to become something lasting.
                 </p>
+              </Reveal>
+
+              <Reveal direction="up" delay={0.36}>
                 <p>
                   For us, exclusivity is not about keeping people out. It is about bringing the right people, ideas, and experiences together with intention.
                 </p>
+              </Reveal>
+
+              <Reveal direction="up" delay={0.42}>
                 <p>
                   As AUREXA evolves, our goal is to build a platform recognised for its curation, its character, and the connections it creates.
                 </p>
-              </div>
+              </Reveal>
 
-              {/* Highlight Quote Card */}
-              <div className="mt-8 sm:mt-10 p-6 sm:p-8 rounded-2xl bg-white/80 border border-[#a8884d]/30 shadow-[0_12px_35px_rgba(60,45,25,0.06)] backdrop-blur-sm max-w-2xl mx-auto">
-                <p
-                  className="text-base sm:text-lg md:text-xl text-[#171411] font-light italic tracking-[0.02em] leading-relaxed"
-                  style={{ fontFamily: 'var(--font-serif)' }}
-                >
-                  “Because the finest experiences are not measured by what you see, but by what stays with you.”
-                </p>
-              </div>
-            </Reveal>
+              {/* 6. Closing Quote: 25px desktop, 20px mobile, rich antique-gold, transparent directly over silk */}
+              <Reveal direction="up" delay={0.48}>
+                <div className="pt-10 sm:pt-14 mt-4 sm:mt-6">
+                  {/* Decorative divider lines and small central diamond/star ornament */}
+                  <div className="flex items-center justify-center gap-3 mb-6 sm:mb-8">
+                    <div className="w-16 sm:w-28 h-[1px] bg-gradient-to-r from-transparent via-[#9B702D] to-[#9B702D]/80" />
+                    <span className="text-[#9B702D] text-[11px] select-none tracking-widest">✦</span>
+                    <div className="w-16 sm:w-28 h-[1px] bg-gradient-to-l from-transparent via-[#9B702D] to-[#9B702D]/80" />
+                  </div>
+
+                  <p
+                    className="font-serif italic text-[20px] md:text-[25px] text-[#9B702D] leading-relaxed max-w-2xl mx-auto text-center"
+                    style={{ fontFamily: 'var(--font-serif)' }}
+                  >
+                    “Because the finest experiences are not measured by what you see, but by what stays with you.”
+                  </p>
+                </div>
+              </Reveal>
+            </div>
           </div>
         </div>
 
