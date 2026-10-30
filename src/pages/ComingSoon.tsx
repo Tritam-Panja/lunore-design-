@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { sendContactInquiry } from '@/lib/contactService';
 import { Reveal } from '@/components/Reveal';
+import FlowingMenu, { type FlowingMenuItem } from '@/components/FlowingMenu';
 
 // --- DATA STRUCTURES ---
 
@@ -271,6 +272,39 @@ const COLLECTION: CollectionPiece[] = [
     description: 'Tactile sculpted bas-relief leaves forged from bronze and volcanic ironstone, engulfed in a blazing ascension of molten gold and amber.',
     status: 'Commission on Request',
     location: 'East Atrium • Suite C',
+  },
+];
+
+const aurexaMenuItems: FlowingMenuItem[] = [
+  {
+    text: 'THE PAVILION HERO',
+    link: '#hero',
+    image: '/assets/AUREXA-HERO.jpg',
+  },
+  {
+    text: 'STORY & VISION',
+    link: '#about',
+    image: '/assets/images/aurexa-beige-silk.jpg',
+  },
+  {
+    text: 'THE GLIMPSES',
+    link: '#glimpses',
+    image: '/assets/collections/aurexa_collection_2.jpeg',
+  },
+  {
+    text: 'EVENT DETAILS',
+    link: '#event',
+    image: '/assets/collections/aurexa_collection_3.jpeg',
+  },
+  {
+    text: 'THE COLLECTION',
+    link: '#collection',
+    image: '/assets/collections/aurexa_collection_4.jpeg',
+  },
+  {
+    text: 'VIP PASS & CONTACT',
+    link: '#contact',
+    image: '/assets/collections/aurexa_collection_8.jpeg',
   },
 ];
 
@@ -526,9 +560,9 @@ export function ComingSoon() {
 
       {/* FULL-SCREEN LIQUID GLASS OVERLAY DRAWER */}
       {menuOpen && (
-        <div className="fixed inset-0 z-50 bg-[#040810]/95 backdrop-blur-2xl transition-all duration-500 overflow-y-auto p-6 sm:p-12 flex flex-col justify-between animate-in fade-in zoom-in-95">
+        <div className="fixed inset-0 z-50 bg-[#040810]/95 backdrop-blur-2xl transition-all duration-500 overflow-y-auto overscroll-contain p-4 sm:p-8 md:p-12 flex flex-col justify-between animate-in fade-in zoom-in-95">
           {/* Top Bar inside Overlay */}
-          <div className="max-w-7xl mx-auto w-full flex items-center justify-between pb-8 border-b border-[#c5a363]/25">
+          <div className="max-w-7xl mx-auto w-full flex items-center justify-between pb-4 sm:pb-6 border-b border-[#c5a363]/25 shrink-0">
             <div className="flex items-center">
               <span
                 className="text-2xl tracking-[0.38em] text-white font-light"
@@ -547,82 +581,51 @@ export function ComingSoon() {
             </button>
           </div>
 
-          {/* Links Grid inside Overlay */}
-          <div className="max-w-7xl mx-auto w-full my-auto py-10 grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
-            {/* Numbered Luxury Navigation List */}
-            <nav className="lg:col-span-7 flex flex-col gap-6">
-              {[
-                { id: 'hero', num: '01', label: 'The Pavilion Hero', sub: 'Arrival & Grand Monolith' },
-                { id: 'about', num: '02', label: 'Story & Vision', sub: 'Where Art Meets the Art of Living' },
-                { id: 'glimpses', num: '03', label: 'The Glimpses', sub: 'Curated Exhibition Gallery' },
-                { id: 'event', num: '04', label: 'Event Details', sub: '20 December 2026 Countdown' },
-                { id: 'collection', num: '05', label: 'The Collection', sub: 'Haute Stone Curations & Sculptures' },
-                { id: 'contact', num: '06', label: 'VIP Pass & Contact', sub: 'Patron Accreditation & Inquiries' },
-              ].map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => scrollTo(item.id)}
-                  className="group text-left flex items-baseline gap-6 transition-all duration-300 cursor-pointer"
-                >
-                  <span className="text-xs sm:text-sm font-mono text-[#c5a363] tracking-widest opacity-80 group-hover:opacity-100">
-                    {item.num}
-                  </span>
-                  <div className="flex flex-col">
-                    <span
-                      className={`text-2xl sm:text-4xl md:text-5xl font-light tracking-[0.12em] uppercase transition-colors ${
-                        activeSection === item.id ? 'text-[#f5e2b7]' : 'text-white/80 group-hover:text-white'
-                      }`}
-                      style={{ fontFamily: 'var(--font-serif)' }}
-                    >
-                      {item.label}
-                    </span>
-                    <span className="text-[10px] sm:text-xs text-[#a99e8a] tracking-[0.2em] uppercase font-light mt-1">
-                      {item.sub}
-                    </span>
-                  </div>
-                </button>
-              ))}
-            </nav>
-
-            {/* Quick Access VIP Card */}
-            <div className="lg:col-span-5 p-8 sm:p-10 rounded-3xl bg-[#081528]/80 border border-[#c5a363]/40 shadow-[0_20px_50px_rgba(0,0,0,0.8)] backdrop-blur-xl">
-              <span className="text-[10px] uppercase tracking-[0.3em] text-[#c5a363] font-semibold block mb-2">
-                Strictly Invite-Only
-              </span>
-              <h4 className="text-2xl font-serif text-white tracking-[0.08em] mb-2">
-                20 December 2026
-              </h4>
-              <p className="text-xs text-[#b8af9d] leading-relaxed font-light mb-6">
-                The Lunore Haute Stone Pavilion, Aerocity Design District, New Delhi.
-              </p>
-
-              <button
-                onClick={() => scrollTo('contact')}
-                className="w-full py-4 rounded-full bg-gradient-to-r from-[#d4af37] via-[#c5a363] to-[#a88647] text-[#050b14] font-semibold text-xs uppercase tracking-[0.22em] shadow-[0_10px_35px_rgba(197,163,99,0.4)] hover:shadow-[0_15px_45px_rgba(197,163,99,0.7)] transition-all cursor-pointer flex items-center justify-center gap-2 mb-6"
-              >
-                <span>Request VIP Pass</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-
-              <Link
-                to="/"
-                onClick={() => setMenuOpen(false)}
-                className="text-xs uppercase tracking-[0.2em] text-[#d6c7ab] hover:text-white transition-colors flex items-center gap-2 font-medium"
-              >
-                <ArrowLeft className="w-3.5 h-3.5 text-[#c5a363]" />
-                <span>Return to Lunore Home</span>
-              </Link>
+          {/* Main Full-Screen Flowing Menu Area */}
+          <div className="flex-1 w-full flex flex-col justify-center min-h-[520px] sm:min-h-[580px] py-4 sm:py-6 my-auto">
+            <div className="w-full h-full relative min-h-0">
+              <FlowingMenu
+                items={aurexaMenuItems}
+                speed={60}
+                direction="left"
+                followCursor={0.4}
+                textColor="#f7f4ee"
+                bgColor="transparent"
+                marqueeBgColor="#ffffff"
+                marqueeTextColor="#040810"
+                borderColor="rgba(197, 163, 99, 0.2)"
+                dividers
+                align="center"
+                imageShape="pill"
+                onItemClick={(item) => {
+                  if (item.link) {
+                    setMenuOpen(false);
+                    const targetId = item.link.replace('#', '');
+                    scrollTo(targetId);
+                  }
+                }}
+              />
             </div>
           </div>
 
           {/* Footer inside Overlay */}
-          <div className="max-w-7xl mx-auto w-full pt-6 border-t border-[#c5a363]/25 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8c8270]">
+          <div className="max-w-7xl mx-auto w-full pt-4 border-t border-[#c5a363]/25 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-[#8c8270] shrink-0 mt-4">
             <span className="tracking-[0.2em] uppercase">
               Lunore Luxe Decor Studio &bull; Aurexa Pavilion
             </span>
-            <span className="tracking-widest">
-              aurexa@lunore.com &bull; +91 (0) 98765 43210
-            </span>
+            <div className="flex items-center gap-6">
+              <Link
+                to="/"
+                onClick={() => setMenuOpen(false)}
+                className="text-xs uppercase tracking-[0.2em] text-[#c5a363] hover:text-white transition-colors flex items-center gap-1.5 font-medium"
+              >
+                <ArrowLeft className="w-3.5 h-3.5 text-[#c5a363]" />
+                <span>Return to Lunore Home</span>
+              </Link>
+              <span className="tracking-widest hidden sm:inline-block">
+                aurexa@lunore.com &bull; +91 (0) 98765 43210
+              </span>
+            </div>
           </div>
         </div>
       )}

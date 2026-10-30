@@ -2,6 +2,7 @@ import React, { useEffect, useState, useRef } from 'react';
 import { NavLink, useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, MessageCircle, MapPin, Phone, Mail, ChevronDown } from 'lucide-react';
 import { useLenis, useScrollSubscriber, scrollCoordinator } from './SmoothScroll';
+import FlowingMenu, { type FlowingMenuItem } from './FlowingMenu';
 
 interface NavItem {
   label: string;
@@ -21,6 +22,35 @@ const navLinks: NavItem[] = [
   { label: 'ABOUT', to: '/brand-story', sublabel: 'The Space For You' },
   { label: 'CONTACT', to: '/contact', sublabel: 'Start a Project' },
   { label: 'CAREERS', to: '/careers', sublabel: 'Join The Studio' },
+];
+
+
+const flowingMenuItems: FlowingMenuItem[] = [
+  {
+    text: 'PROJECTS',
+    link: '/projects',
+    image: '/assets/THE SKYLINE RESIDENCE/1.webp',
+  },
+  {
+    text: 'SERVICES',
+    link: '/the-engawa-line',
+    image: '/assets/Marbles/Avocado Green.webp',
+  },
+  {
+    text: 'ABOUT',
+    link: '/brand-story',
+    image: '/assets/images/hero.webp',
+  },
+  {
+    text: 'CONTACT',
+    link: '/contact',
+    image: '/assets/images/imagetrail1.webp',
+  },
+  {
+    text: 'CAREERS',
+    link: '/careers',
+    image: '/assets/images/carrousel 1 (1).webp',
+  }
 ];
 
 const serviceSubItems: ServiceSubItem[] = [
@@ -134,6 +164,48 @@ export function Header() {
     }
   };
 
+    const handleFlowingItemClick = (item: FlowingMenuItem, _index: number, event: React.MouseEvent<HTMLElement>) => {
+    event.preventDefault();
+    if (item.text === 'SERVICES') {
+      setServicesOpen((prev) => !prev);
+      return;
+    }
+    if (item.link) {
+      document.body.style.overflow = '';
+      setMenuOpen(false);
+      setServicesOpen(false);
+
+      if (item.link.includes('#')) {
+        const [path, hash] = item.link.split('#');
+        const targetPath = path || '/';
+        if (location.pathname === targetPath) {
+          const el = document.getElementById(hash);
+          if (el) {
+            if (lenis) {
+              lenis.scrollTo(el, { offset: 0, duration: 1.2 });
+            } else {
+              el.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+          window.history.replaceState(null, '', `/#${hash}`);
+        } else {
+          navigate(`/#${hash}`);
+        }
+        return;
+      }
+
+      if (location.pathname === item.link) {
+        if (lenis) {
+          lenis.scrollTo(0);
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } else {
+        navigate(item.link);
+      }
+    }
+  };
+
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, link: NavItem) => {
     document.body.style.overflow = '';
     setMenuOpen(false);
@@ -231,200 +303,61 @@ export function Header() {
         </div>
       </header>
 
-      {/* FULL-SCREEN LIQUID GLASS OVERLAY DRAWER */}
+      {/* FULL-SCREEN FLOWING MENU OVERLAY DRAWER */}
       {menuOpen && (
         <div
-          className="fixed inset-0 z-40 bg-black/90 backdrop-blur-xl md:backdrop-blur-2xl transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-y-auto overscroll-contain transform-gpu opacity-100 pointer-events-auto scale-100 visible"
-          style={{ WebkitOverflowScrolling: 'touch' }}
+          className="fixed inset-0 z-40 bg-[#0d0e0e]/95 backdrop-blur-2xl transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] overflow-hidden transform-gpu opacity-100 pointer-events-auto"
           aria-hidden={false}
         >
-        {/* Subtle Ambient Radial Glow */}
-        <div className="absolute top-0 right-0 w-[300px] sm:w-[600px] h-[300px] sm:h-[600px] rounded-full bg-[radial-gradient(circle_at_top_right,rgba(184,154,98,0.15)_0%,rgba(184,154,98,0.04)_45%,transparent_70%)] pointer-events-none" />
+          {/* Subtle Ambient Radial Glow */}
+          <div className="absolute top-0 right-0 w-[500px] h-[500px] rounded-full bg-[radial-gradient(circle_at_top_right,rgba(184,154,98,0.12)_0%,transparent_70%)] pointer-events-none" />
 
-        <div className="min-h-[100dvh] max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 pt-[max(5rem,calc(env(safe-area-inset-top,0px)+4.5rem))] pb-[max(2rem,calc(env(safe-area-inset-bottom,0px)+1.5rem))] flex flex-col justify-between relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start my-auto">
-            {/* Left Brand Identity Card (hidden on mobile, visible on desktop) */}
-            <div className="lg:col-span-5 hidden lg:flex flex-col justify-between h-full liquid-glass-card p-8 md:p-10 rounded-3xl">
-              <div>
-                <div className="flex items-center gap-2 mb-4">
-                  <p className="text-xs tracking-[0.35em] uppercase text-[#b89a62] font-light">
-                    Luxe Decor Studio
-                  </p>
-                </div>
-                <h2 className="text-3xl xl:text-4xl font-light leading-tight text-[#f1eee7]" style={{ fontFamily: 'var(--font-display)' }}>
-                  Architectural Elegance &amp; Fine Stone Monoliths
-                </h2>
-                <p className="mt-6 text-sm text-[#b9b5ae] font-light leading-relaxed max-w-sm">
-                  Spaces with character shaped by light, rare imported monoliths, and bespoke turnkey interior architecture.
-                </p>
-              </div>
-
-              <div className="pt-10">
-                <div className="pt-6 border-t border-white/10 text-xs font-sans text-[#85817a] space-y-2">
-                  <div className="flex items-center gap-2 text-[#b9b5ae]">
-                    <MapPin className="w-4 h-4 text-[#b89a62]" />
-                    <span>Mumbai, India</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-[#b9b5ae]">
-                    <Phone className="w-4 h-4 text-[#b89a62]" />
-                    <span className="tracking-wide">+91 97697 08628</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-[#b9b5ae]">
-                    <Mail className="w-4 h-4 text-[#b89a62]" />
-                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=support@lunoreluxedecorstudio.com" target="_blank" rel="noopener noreferrer" className="truncate hover:text-[#f3e5ab] transition-colors">support@lunoreluxedecorstudio.com</a>
-                  </div>
-                </div>
+          <div className="h-[100dvh] w-full flex flex-col justify-between relative z-10 pt-[max(4.5rem,calc(env(safe-area-inset-top,0px)+3.5rem))] pb-[max(1.25rem,calc(env(safe-area-inset-bottom,0px)+1rem))]">
+            {/* The Full Screen Flowing Menu taking the main viewport area */}
+            <div className="flex-1 w-full flex flex-col justify-center min-h-0">
+              <div className="w-full h-full relative min-h-0">
+                <FlowingMenu
+                  items={flowingMenuItems}
+                  speed={60}
+                  stretch={0.6}
+                  magnet={0.25}
+                  followCursor={0.4}
+                  textColor="#ffffff"
+                  bgColor="transparent"
+                  marqueeBgColor="#ffffff"
+                  marqueeTextColor="#120F17"
+                  direction="left"
+                  duration={0.5}
+                  bandInset={0}
+                  bandRadius={0}
+                  carryContent={false}
+                  dividers
+                  dimInactive={false}
+                  align="center"
+                  showIndex={false}
+                  showArrow={false}
+                  imageShape="pill"
+                  intro
+                  onItemClick={handleFlowingItemClick}
+                />
               </div>
             </div>
 
-            {/* Right Large Liquid Glass Navigation Items */}
-            <div className="lg:col-span-7 flex flex-col space-y-2 sm:space-y-3 w-full">
-              {navLinks.map((link, index) => {
-                const isServices = link.label === 'SERVICES';
-                return (
-                  <div
-                    key={link.label}
-                    className={`group transition-all duration-700 ease-out transform ${
-                      menuOpen
-                        ? 'translate-y-0 opacity-100'
-                        : 'translate-y-6 opacity-0'
-                    }`}
-                    style={{ transitionDelay: `${menuOpen ? 100 + index * 40 : 0}ms` }}
-                  >
-                    {isServices ? (
-                      <div className="flex flex-col">
-                        <button
-                          type="button"
-                          onClick={() => setServicesOpen((prev) => !prev)}
-                          aria-expanded={servicesOpen}
-                          className="w-full flex items-center justify-between min-h-[48px] py-3 px-4 sm:py-3.5 sm:px-6 rounded-xl sm:rounded-2xl liquid-glass-pill border border-white/10 hover:border-[#b89a62]/50 hover:bg-white/[0.07] active:scale-[0.98] transition-all duration-300 cursor-pointer text-left"
-                        >
-                          <div className="flex items-baseline gap-3 sm:gap-4">
-                            <span className="text-[10px] sm:text-xs tracking-[0.2em] text-[#b89a62] font-mono opacity-70 group-hover:opacity-100 transition-opacity">
-                              0{index + 1}
-                            </span>
-                            <span
-                              className="text-lg sm:text-2xl xl:text-3xl font-light tracking-[0.06em] sm:tracking-[0.08em] text-[#f1eee7] group-hover:text-white group-hover:translate-x-1.5 transition-all duration-300 ease-out"
-                              style={{ fontFamily: 'var(--font-display)' }}
-                            >
-                              {link.label}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center gap-2 sm:gap-3">
-                            <span className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#85817a] group-hover:text-[#b89a62] transition-colors hidden sm:inline-block">
-                              {link.sublabel}
-                            </span>
-                            <ChevronDown
-                              className={`w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b89a62] transition-transform duration-300 ease-out ${
-                                servicesOpen ? 'rotate-180 text-white' : 'opacity-60 group-hover:opacity-100'
-                              }`}
-                            />
-                          </div>
-                        </button>
-
-                        {/* Subtle Sub-services Accordion / Dropdown */}
-                        <div
-                          className={`overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] ${
-                            servicesOpen
-                              ? 'max-h-80 opacity-100 mt-2 sm:mt-2.5'
-                              : 'max-h-0 opacity-0 mt-0 pointer-events-none'
-                          }`}
-                        >
-                          <div className="flex flex-col space-y-1.5 sm:space-y-2 pl-3 sm:pl-5 border-l border-[#b89a62]/25 my-1">
-                            {serviceSubItems.map((sub) => (
-                              <button
-                                key={sub.name}
-                                type="button"
-                                onClick={(e) => handleServiceSubClick(e, sub.to)}
-                                className="group/sub flex items-center justify-between py-2 sm:py-2.5 px-3.5 sm:px-4 rounded-xl bg-white/[0.03] hover:bg-white/[0.07] border border-white/10 hover:border-[#b89a62]/40 active:scale-[0.98] transition-all duration-300 text-left w-full cursor-pointer"
-                              >
-                                <div className="flex items-center">
-                                  <span
-                                    className="text-sm sm:text-base md:text-lg font-light tracking-[0.06em] text-[#f1eee7]"
-                                    style={{ fontFamily: 'var(--font-display)', color: '#f1eee7' }}
-                                  >
-                                    {sub.name}
-                                  </span>
-                                </div>
-                                <div className="flex items-center gap-2">
-                                  <span className="text-[9px] sm:text-[10px] tracking-[0.16em] uppercase text-[#b9b5ae] hidden sm:inline-block">
-                                    {sub.sub}
-                                  </span>
-                                  <ArrowRight className="w-3 h-3 text-[#b89a62] opacity-60 group-hover/sub:opacity-100 group-hover/sub:translate-x-0.5 transition-all duration-200" />
-                                </div>
-                              </button>
-                            ))}
-                          </div>
-                        </div>
-                      </div>
-                    ) : (
-                      <NavLink
-                        to={link.to}
-                        onClick={(e) => handleLinkClick(e, link)}
-                        className="flex items-center justify-between min-h-[48px] py-3 px-4 sm:py-3.5 sm:px-6 rounded-xl sm:rounded-2xl liquid-glass-pill border border-white/10 group-hover:border-[#b89a62]/50 group-hover:bg-white/[0.07] active:scale-[0.98] transition-all duration-300 cursor-pointer"
-                      >
-                        <div className="flex items-baseline gap-3 sm:gap-4">
-                          <span className="text-[10px] sm:text-xs tracking-[0.2em] text-[#b89a62] font-mono opacity-70 group-hover:opacity-100 transition-opacity">
-                            0{index + 1}
-                          </span>
-                          <span
-                            className="text-lg sm:text-2xl xl:text-3xl font-light tracking-[0.06em] sm:tracking-[0.08em] text-[#f1eee7] group-hover:text-white group-hover:translate-x-1.5 transition-all duration-300 ease-out"
-                            style={{ fontFamily: 'var(--font-display)' }}
-                          >
-                            {link.label}
-                          </span>
-                        </div>
-
-                        <div className="flex items-center gap-2 sm:gap-3">
-                          <span className="text-[10px] sm:text-[11px] tracking-[0.2em] uppercase text-[#85817a] group-hover:text-[#b89a62] transition-colors hidden sm:inline-block">
-                            {link.sublabel}
-                          </span>
-                          <ArrowRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[#b89a62] opacity-60 group-hover:opacity-100 group-hover:translate-x-1 transition-all duration-300" />
-                        </div>
-                      </NavLink>
-                    )}
-                  </div>
-                );
-              })}
-
-              {/* Mobile Quick Contact Row */}
-              <div className="lg:hidden pt-4 pb-1 grid grid-cols-2 gap-2.5">
-                <a
-                  href="tel:+919769708628"
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-white/[0.04] border border-white/10 text-xs text-[#cfcac0] active:scale-95 transition-all"
-                >
-                  <Phone className="w-3.5 h-3.5 text-[#b89a62]" />
-                  <span>Call Studio</span>
-                </a>
-                <a
-                  href="https://wa.me/919769708628?text=Hello%20Lunore%20Studio%2C%20I%20would%20like%20to%20inquire%20about%20your%20services."
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-[#25D366]/10 border border-[#25D366]/30 text-xs text-[#25D366] active:scale-95 transition-all"
-                >
-                  <MessageCircle className="w-3.5 h-3.5 text-[#25D366] fill-current" />
-                  <span>WhatsApp</span>
-                </a>
+            {/* Minimal Luxury Footer inside full screen menu */}
+            <div className="px-6 sm:px-12 md:px-16 pt-3 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-[#85817a]">
+              <p className="text-[11px] sm:text-xs">
+                © {new Date().getFullYear()} LUNORE Luxe Decor Studio
+              </p>
+              <div className="flex items-center gap-3 sm:gap-6 text-[11px] sm:text-xs text-[#85817a]">
+                <span>Residential</span>
+                <span>•</span>
+                <span>Commercial</span>
+                <span>•</span>
+                <span>Hospitality</span>
               </div>
-            </div>
-          </div>
-
-          {/* Footer inside menu for mobile/tablet */}
-          <div className="pt-4 sm:pt-8 mt-4 sm:mt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs text-[#85817a]">
-            <p className="text-[11px] sm:text-xs">
-              © {new Date().getFullYear()} LUNORE Luxe Decor Studio
-            </p>
-            <div className="flex items-center gap-2 sm:gap-4 text-[11px] sm:text-xs text-[#85817a]">
-              <span>Residential</span>
-              <span>•</span>
-              <span>Commercial</span>
-              <span>•</span>
-              <span>Hospitality</span>
             </div>
           </div>
         </div>
-      </div>
       )}
     </>
   );
