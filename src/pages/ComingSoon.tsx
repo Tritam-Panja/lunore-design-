@@ -23,6 +23,7 @@ import {
 import { sendContactInquiry } from '@/lib/contactService';
 import { Reveal } from '@/components/Reveal';
 import FlowingMenu, { type FlowingMenuItem } from '@/components/FlowingMenu';
+import FlexCarousel from '@/components/FlexCarousel';
 
 // --- DATA STRUCTURES ---
 
@@ -115,6 +116,7 @@ const GLIMPSES: GlimpseItem[] = [
     description: 'Intimate private viewing lounges where architectural visionaries align on custom commissions and private acquisitions.',
   },
 ];
+
 
 const COLLECTION: CollectionPiece[] = [
   {
@@ -274,6 +276,13 @@ const COLLECTION: CollectionPiece[] = [
     location: 'East Atrium • Suite C',
   },
 ];
+
+const DOME_GLIMPSE_IMAGES = GLIMPSES.map((g) => ({
+  src: g.image,
+  alt: g.title,
+  title: g.title,
+  subtitle: g.medium || g.category
+}));
 
 const aurexaMenuItems: FlowingMenuItem[] = [
   {
@@ -901,7 +910,7 @@ export function ComingSoon() {
       {/* =========================================================================
           SECTION 3: THE GLIMPSES (CURATED EXHIBITION GALLERY) - ROYAL BLUE VELVET
       ========================================================================= */}
-      <section id="glimpses" className="relative py-28 sm:py-36 px-6 overflow-hidden text-[#f7f4ee]">
+      <section id="glimpses" className="relative py-24 sm:py-32 px-4 sm:px-6 overflow-hidden text-[#f7f4ee] min-h-[90vh] flex flex-col justify-center">
         {/* Royal Blue Velvet Fabric Background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <img
@@ -915,7 +924,7 @@ export function ComingSoon() {
         {/* Seamless Blend from Previous Section (Royal Blue) */}
         <div className="absolute inset-x-0 top-0 h-40 sm:h-56 bg-gradient-to-b from-[#011438] via-[#011438]/70 to-transparent pointer-events-none z-[2]" />
 
-        <div className="relative z-10 max-w-7xl mx-auto">
+        <div className="relative z-10 max-w-[1600px] w-full mx-auto flex flex-col items-center">
           {/* Header */}
           <div className="text-center max-w-3xl mx-auto mb-12">
             <Reveal direction="down">
@@ -943,44 +952,21 @@ export function ComingSoon() {
             </Reveal>
           </div>
 
-          {/* Glimpse Image Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {filteredGlimpses.map((item, idx) => (
-              <Reveal key={item.id} direction="up" delay={(idx % 4) * 0.1}>
-                <div
-                  onClick={() => setSelectedGlimpse(item)}
-                  className="group relative rounded-2xl overflow-hidden aspect-[4/5] bg-[#071324] border border-[#c5a363]/30 hover:border-[#c5a363] shadow-[0_10px_30px_rgba(0,0,0,0.6)] cursor-pointer aurexa-card-hover"
-                >
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover aurexa-img-zoom"
-                  />
-                  {/* Gradient Overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#040810] via-[#040810]/40 to-transparent opacity-85 group-hover:opacity-95 transition-opacity duration-500" />
-
-                  {/* Content info bottom */}
-                  <div className="absolute inset-x-0 bottom-0 p-5 flex flex-col transform group-hover:-translate-y-1 transition-transform duration-500">
-                    <span className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363] font-semibold mb-1">
-                      {item.category}
-                    </span>
-                    <h4
-                      className="text-base text-white font-medium tracking-[0.1em] group-hover:text-[#f7e6c4] transition-colors mb-1.5"
-                      style={{ fontFamily: 'var(--font-serif)' }}
-                    >
-                      {item.title}
-                    </h4>
-                    <p className="text-[11px] text-[#b5a995] line-clamp-2 font-light">
-                      {item.medium}
-                    </p>
-                    <div className="mt-3 flex items-center gap-1.5 text-[10px] text-[#c5a363] tracking-[0.18em] uppercase font-semibold">
-                      <span>View Detail</span>
-                      <ArrowUpRight className="w-3.5 h-3.5 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
+          {/* FlexCarousel Exhibition Gallery - Rendered Directly on Royal Blue Velvet */}
+          <div className="relative w-full h-[620px] sm:h-[680px] flex items-center justify-center overflow-visible my-auto">
+            <FlexCarousel
+              items={DOME_GLIMPSE_IMAGES}
+              preset="liquid"
+              intro="rise"
+              cardHeight={0.62}
+              gap={16}
+              radius={16}
+              squeeze={0.2}
+              focusOnClick
+              captions={false}
+              autoplay
+              interval={4.5}
+            />
           </div>
         </div>
 
