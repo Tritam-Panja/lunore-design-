@@ -23,7 +23,7 @@ import {
 import { sendContactInquiry } from '@/lib/contactService';
 import { Reveal } from '@/components/Reveal';
 import FlowingMenu, { type FlowingMenuItem } from '@/components/FlowingMenu';
-import { EmberReveal, type EmberRevealHandle } from '@/components/EmberReveal';
+import ConcaveCarousel, { type ConcaveCarouselHandle, type ConcaveCarouselItem } from '@/components/ConcaveCarousel';
 
 // --- DATA STRUCTURES ---
 
@@ -317,83 +317,12 @@ const aurexaMenuItems: FlowingMenuItem[] = [
   },
 ];
 
-const GREY_SURFACE =
-  'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAIAAAAlC+aJAAAAfUlEQVR4nNXOMREAIADEsFLB739EBAPXKMjZRpnESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZzESZy/A68udIIBygN+35oAAAAASUVORK5CYII=';
-
-interface GlimpseEmberCardProps {
-  item: GlimpseItem;
-  isRevealed: boolean;
-  onRevealed: () => void;
-  onOpenModal: () => void;
-}
-
-function GlimpseEmberCard({ item, isRevealed, onRevealed, onOpenModal }: GlimpseEmberCardProps) {
-  const emberRef = useRef<EmberRevealHandle>(null);
-  const [isBurning, setIsBurning] = useState(false);
-
-  const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (isRevealed) {
-      onOpenModal();
-      return;
-    }
-    if (isBurning) {
-      // Prevent accidental repeated clicks from restarting or breaking an animation while it is running
-      return;
-    }
-    setIsBurning(true);
-    const rect = e.currentTarget.getBoundingClientRect();
-    const x = Math.max(0, Math.min(1, (e.clientX - rect.left) / Math.max(1, rect.width)));
-    const y = Math.max(0, Math.min(1, (e.clientY - rect.top) / Math.max(1, rect.height)));
-    emberRef.current?.ignite(x, y);
-  };
-
-  return (
-    <div
-      onClick={handleClick}
-      className="group relative rounded-2xl overflow-hidden aspect-[4/5] bg-[#071324] border border-[#c5a363]/30 hover:border-[#c5a363] shadow-[0_12px_35px_rgba(0,0,0,0.65)] cursor-pointer aurexa-card-hover select-none shrink-0 w-[280px] xs:w-[320px] sm:w-[360px] md:w-[400px] snap-center transition-all duration-300"
-    >
-      {isRevealed ? (
-        <img
-          src={item.image}
-          alt={item.title}
-          className="w-full h-full object-cover aurexa-img-zoom transition-transform duration-700 pointer-events-none"
-        />
-      ) : (
-        <EmberReveal
-          ref={emberRef}
-          images={[
-            { src: GREY_SURFACE, alt: 'Unrevealed Glimpse' },
-            { src: item.image, alt: item.title }
-          ]}
-          aspectRatio={4 / 5}
-          radius={16}
-          hover={false}
-          pocketSize={0}
-          clickToBurn={false}
-          loop={false}
-          burnDuration={1.8}
-          emberColor="#e5a93c"
-          charColor="#071324"
-          glow={1.4}
-          edge={1.2}
-          roughness={0.55}
-          detail={6}
-          scorch={0.7}
-          smoke={0.4}
-          sparks={0.6}
-          shimmer={0.5}
-          onChange={(newIndex) => {
-            if (newIndex === 1) {
-              onRevealed();
-              setIsBurning(false);
-            }
-          }}
-          className="w-full h-full"
-        />
-      )}
-    </div>
-  );
-}
+const CONCAVE_GLIMPSE_ITEMS: ConcaveCarouselItem[] = GLIMPSES.map((g) => ({
+  src: g.image,
+  alt: g.title,
+  title: g.title,
+  subtitle: g.medium || g.category
+}));
 
 export function ComingSoon() {
   // Navigation & UI States
@@ -403,18 +332,6 @@ export function ComingSoon() {
   const [selectedGlimpse, setSelectedGlimpse] = useState<GlimpseItem | null>(null);
   const [selectedPiece, setSelectedPiece] = useState<CollectionPiece | null>(null);
 
-  // Glimpses Ember Reveal & Carousel State
-  const carouselRef = useRef<HTMLDivElement>(null);
-  const [revealedGlimpses, setRevealedGlimpses] = useState<Record<string, boolean>>({});
-
-  const scrollCarousel = (direction: 'left' | 'right') => {
-    if (!carouselRef.current) return;
-    const scrollAmount = 420;
-    carouselRef.current.scrollBy({
-      left: direction === 'left' ? -scrollAmount : scrollAmount,
-      behavior: 'smooth',
-    });
-  };
 
 
   // VIP RSVP Form State
@@ -1002,7 +919,7 @@ export function ComingSoon() {
       {/* =========================================================================
           SECTION 3: THE GLIMPSES (CURATED EXHIBITION GALLERY) - ROYAL BLUE VELVET
       ========================================================================= */}
-      <section id="glimpses" className="relative py-24 sm:py-32 px-4 sm:px-6 overflow-hidden text-[#f7f4ee] min-h-[90vh] flex flex-col justify-center">
+      <section id="glimpses" className="relative py-20 sm:py-28 px-4 sm:px-6 overflow-hidden text-[#f7f4ee] min-h-[85vh] flex flex-col justify-center">
         {/* Royal Blue Velvet Fabric Background */}
         <div className="absolute inset-0 pointer-events-none overflow-hidden">
           <img
@@ -1010,7 +927,7 @@ export function ComingSoon() {
             alt="Lunore Aurexa Royal Blue Velvet"
             className="w-full h-full object-cover object-center select-none aurexa-ambient-fabric scale-[1.02]"
           />
-          <div className="absolute inset-0 bg-[#011438]/20 pointer-events-none" />
+          <div className="absolute inset-0 bg-[#011438]/25 pointer-events-none" />
         </div>
 
         {/* Seamless Blend from Previous Section (Royal Blue) */}
@@ -1018,17 +935,17 @@ export function ComingSoon() {
 
         <div className="relative z-10 max-w-[1600px] w-full mx-auto flex flex-col items-center">
           {/* Header */}
-          <div className="text-center max-w-3xl mx-auto mb-10">
+          <div className="text-center max-w-3xl mx-auto mb-6 sm:mb-8">
             <Reveal direction="down">
               <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#c5a363]/15 border border-[#c5a363]/40 mb-4 backdrop-blur-md">
                 <span className="text-[10px] uppercase tracking-[0.35em] text-[#d9cbb2] font-semibold">
-                  Exhibition Gallery
+                  Curated Exhibition
                 </span>
               </div>
             </Reveal>
             <Reveal direction="up" delay={0.1}>
               <h2
-                className="text-3xl sm:text-5xl text-white font-light tracking-[0.16em] uppercase mb-6"
+                className="text-3xl sm:text-5xl text-white font-light tracking-[0.16em] uppercase mb-4"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
                 The Glimpses
@@ -1039,54 +956,37 @@ export function ComingSoon() {
             </Reveal>
           </div>
 
-          {/* Glimpse Exhibition Carousel Gallery with Ember Reveal */}
-          <div className="relative w-full max-w-7xl mx-auto my-auto">
-            {/* Carousel Navigation Controls */}
-            <div className="flex items-center justify-between mb-4 px-2 sm:px-4">
-              <div className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-[#c5a363] animate-pulse" />
-                <span className="text-[11px] uppercase tracking-[0.25em] text-[#d9cbb2] font-medium">
-                  {Object.keys(revealedGlimpses).length} of {filteredGlimpses.length} Revealed
-                </span>
-              </div>
-              <div className="flex items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => scrollCarousel('left')}
-                  aria-label="Previous Glimpse"
-                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-[#c5a363]/30 bg-[#040c1b]/75 backdrop-blur-md flex items-center justify-center text-[#c5a363] hover:text-white hover:border-[#c5a363] hover:bg-[#c5a363]/25 transition-all cursor-pointer shadow-lg active:scale-95"
-                >
-                  <ChevronLeft className="w-5 h-5" />
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollCarousel('right')}
-                  aria-label="Next Glimpse"
-                  className="w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-[#c5a363]/30 bg-[#040c1b]/75 backdrop-blur-md flex items-center justify-center text-[#c5a363] hover:text-white hover:border-[#c5a363] hover:bg-[#c5a363]/25 transition-all cursor-pointer shadow-lg active:scale-95"
-                >
-                  <ChevronRight className="w-5 h-5" />
-                </button>
-              </div>
-            </div>
-
-            {/* Horizontal Scroll Track */}
-            <div
-              ref={carouselRef}
-              className="flex gap-6 sm:gap-8 overflow-x-auto pb-6 pt-2 px-2 sm:px-4 snap-x snap-mandatory scroll-smooth no-scrollbar"
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            >
-              {filteredGlimpses.map((item) => (
-                <GlimpseEmberCard
-                  key={item.id}
-                  item={item}
-                  isRevealed={!!revealedGlimpses[item.id]}
-                  onRevealed={() => {
-                    setRevealedGlimpses((prev) => ({ ...prev, [item.id]: true }));
-                  }}
-                  onOpenModal={() => setSelectedGlimpse(item)}
-                />
-              ))}
-            </div>
+          {/* Concave Carousel - Immersive 3D Curved Gallery Wall Wrapping Around Viewer */}
+          <div className="relative w-full max-w-[1500px] h-[520px] sm:h-[600px] md:h-[660px] flex items-center justify-center my-auto overflow-hidden">
+            <ConcaveCarousel
+              items={CONCAVE_GLIMPSE_ITEMS}
+              aspect={1.25}
+              size={0.52}
+              curvature={0.72}
+              distance={3.8}
+              tilt={0}
+              gap={16}
+              radius={14}
+              reflection={0.08}
+              dim={0.28}
+              autoplay="drift"
+              speed={0.12}
+              interval={4.5}
+              snap={true}
+              inertia={0.55}
+              pauseOnHover={true}
+              draggable={true}
+              wheel={true}
+              captions={false}
+              controls={true}
+              onSelect={(_item, index) => {
+                const glimpse = GLIMPSES[index];
+                if (glimpse) {
+                  setSelectedGlimpse(glimpse);
+                }
+              }}
+              className="w-full h-full"
+            />
           </div>
         </div>
 
