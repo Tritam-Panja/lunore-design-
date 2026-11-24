@@ -24,6 +24,7 @@ import { sendContactInquiry } from '@/lib/contactService';
 import { Reveal } from '@/components/Reveal';
 import FlowingMenu, { type FlowingMenuItem } from '@/components/FlowingMenu';
 import ConcaveCarousel, { type ConcaveCarouselHandle, type ConcaveCarouselItem } from '@/components/ConcaveCarousel';
+import CardSwap, { Card } from '@/components/CardSwap';
 
 // --- DATA STRUCTURES ---
 
@@ -1016,44 +1017,23 @@ export function ComingSoon() {
 
         <div className="relative z-10 max-w-6xl mx-auto">
           {/* Header */}
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <Reveal direction="down">
-              <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#e3d9c7]/85 border border-[#a88d59]/40 mb-4 backdrop-blur-md">
-                <span className="text-[10px] uppercase tracking-[0.35em] text-[#4a3b22] font-semibold">
-                  Event Architecture
-                </span>
-              </div>
-            </Reveal>
-            <Reveal direction="up" delay={0.1}>
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
+            <Reveal direction="up">
               <h2
-                className="text-3xl sm:text-5xl text-[#171411] font-light tracking-[0.16em] uppercase mb-6"
+                className="text-3xl sm:text-5xl text-[#171411] font-light tracking-[0.16em] uppercase mb-4 sm:mb-5"
                 style={{ fontFamily: 'var(--font-serif)' }}
               >
                 Exhibition Details
               </h2>
             </Reveal>
-            <Reveal direction="zoom" delay={0.15}>
-              <div className="w-24 h-[1.5px] bg-[#a8884d] mx-auto mb-6" />
-            </Reveal>
-            <Reveal direction="up" delay={0.2}>
-              <p className="text-sm sm:text-base text-[#473f35] font-normal tracking-[0.04em]">
-                An exclusive single-evening private pavilion reserved strictly for accredited patrons and invitation holders.
-              </p>
+            <Reveal direction="zoom" delay={0.1}>
+              <div className="w-24 h-[1.5px] bg-[#a8884d] mx-auto" />
             </Reveal>
           </div>
 
           {/* Centered Countdown Timer */}
-          <Reveal direction="up" delay={0.25}>
-            <div className="relative rounded-3xl bg-white/90 border border-[#d8cbbb] p-8 sm:p-14 shadow-[0_20px_50px_rgba(60,45,25,0.08)] backdrop-blur-md max-w-4xl mx-auto text-center">
-              
-              {/* Highlight Status Badge */}
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-[#f1ece1] border border-[#a8884d]/40 mb-6">
-                <span className="w-2 h-2 rounded-full bg-[#8f6d2f] animate-pulse" />
-                <span className="text-[10px] sm:text-[11px] uppercase tracking-[0.28em] text-[#8f6d2f] font-semibold">
-                  Vernissage Opening &bull; 20th December
-                </span>
-              </div>
-
+          <Reveal direction="up" delay={0.15}>
+            <div className="relative rounded-3xl bg-white/90 border border-[#d8cbbb] p-8 sm:p-12 md:p-14 shadow-[0_20px_50px_rgba(60,45,25,0.08)] backdrop-blur-md max-w-4xl mx-auto text-center">
               {/* Main Days Left Callout */}
               <div className="mb-8">
                 <div
@@ -1151,7 +1131,7 @@ export function ComingSoon() {
 
         <div className="relative z-10 max-w-7xl mx-auto">
           {/* Header */}
-          <div className="text-center max-w-3xl mx-auto mb-16">
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-14">
             <Reveal direction="down">
               <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-[#c5a363]/15 border border-[#c5a363]/40 mb-4 backdrop-blur-md">
                 <span className="text-[10px] uppercase tracking-[0.35em] text-[#d9cbb2] font-semibold">
@@ -1177,116 +1157,121 @@ export function ComingSoon() {
             </Reveal>
           </div>
 
-          {/* Collection Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-7 mb-16">
-            {COLLECTION.map((piece, idx) => (
-              <Reveal key={piece.id} direction="up" delay={(idx % 3) * 0.08}>
-                <div
-                  className="group rounded-2xl sm:rounded-3xl overflow-hidden bg-gradient-to-b from-[#081528] to-[#040c17] border border-[#c5a363]/30 hover:border-[#c5a363] shadow-[0_12px_35px_rgba(0,0,0,0.65)] hover:shadow-[0_20px_50px_rgba(197,163,99,0.2)] transition-all duration-500 flex flex-col h-full aurexa-card-hover"
-                >
-                  {/* Image Frame - Vertical portrait ratio reduced for elegant exhibition view */}
-                  <div
-                    onClick={() => setSelectedPiece(piece)}
-                    className="relative aspect-[3/4] sm:aspect-[4/5] overflow-hidden bg-[#02050a] cursor-pointer"
+          {/* React Bits CardSwap 3D Interactive Deck */}
+          <Reveal direction="up" delay={0.25}>
+            <div className="relative w-full max-w-5xl mx-auto h-[560px] sm:h-[660px] md:h-[720px] lg:h-[780px] flex items-center justify-center">
+              <CardSwap
+                width={520}
+                height={540}
+                cardDistance={55}
+                verticalDistance={65}
+                depth={95}
+                skewAmount={5}
+                visibleCards={4}
+                delay={4000}
+                autoplay={true}
+                pauseOnHover={true}
+                draggable={true}
+                speed={1}
+                bounce={0.35}
+                parallax={0.5}
+                hoverSpread={0.12}
+                dim={0.5}
+                cardRadius={20}
+                intro={true}
+                theme="aurexa"
+                onCardClick={(index) => {
+                  const piece = COLLECTION[index];
+                  if (piece) setSelectedPiece(piece);
+                }}
+              >
+                {COLLECTION.map((piece) => (
+                  <Card
+                    key={piece.id}
+                    className="cursor-pointer group select-none h-full"
                   >
-                    <img
-                      src={piece.image}
-                      alt={piece.title}
-                      className="w-full h-full object-cover aurexa-img-zoom transition-transform duration-700 group-hover:scale-105"
-                    />
-
-                    {/* Atmospheric luxury shading */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#040c17] via-transparent to-black/40 opacity-70 group-hover:opacity-30 transition-opacity duration-500 pointer-events-none" />
-
-                    {/* Top Status Badge */}
-                    <div className="absolute top-3.5 left-3.5 z-[2]">
-                      <span className="px-3 py-1 rounded-full bg-[#040810]/85 backdrop-blur-md border border-[#c5a363]/50 text-[9px] uppercase tracking-[0.2em] text-[#e8d7b8] font-semibold shadow-md">
-                        {piece.status}
-                      </span>
-                    </div>
-
-                    {/* Top Right Quick Inspect Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedPiece(piece);
-                      }}
-                      className="absolute top-3.5 right-3.5 z-[2] p-2 rounded-full bg-[#040810]/80 backdrop-blur-md border border-[#c5a363]/40 text-[#c5a363] hover:bg-[#c5a363] hover:text-[#040810] transition-all transform hover:scale-110 shadow-lg cursor-pointer"
-                      title="Inspect Masterpiece"
-                    >
-                      <Maximize2 className="w-3.5 h-3.5" />
-                    </button>
-
-                    {/* Bottom subtle hover text */}
-                    <div className="absolute inset-x-0 bottom-0 p-3 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-gradient-to-t from-[#040c17] to-transparent pointer-events-none">
-                      <span className="text-[10px] uppercase tracking-[0.22em] text-[#f7e6c4] font-medium flex items-center gap-1.5">
-                        <Eye className="w-3.5 h-3.5 text-[#c5a363]" /> Click to Inspect Full Art
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Body Details - Compact luxury styling */}
-                  <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between">
-                    <div>
-                      <div className="flex items-center justify-between gap-2 mb-1.5">
-                        <span className="text-[9px] uppercase tracking-[0.25em] text-[#c5a363] font-semibold">
+                    <div className="card-swap-item p-4 sm:p-5 flex flex-col justify-between h-full bg-gradient-to-b from-[#fdfbf7] via-[#f7f3ea] to-[#eee6d5] text-[#171411] border border-[#c5a363]/40 rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+                      {/* Card Top: Edition & Origin */}
+                      <div className="flex items-center justify-between gap-3 px-1 pb-1 flex-none">
+                        <span className="px-3 py-1 rounded-full bg-[#171411]/5 border border-[#c5a363]/60 text-[9px] sm:text-[10px] uppercase tracking-[0.22em] text-[#8f6d2f] font-semibold">
                           {piece.edition}
                         </span>
-                        <span className="text-[10px] text-[#8e8574] tracking-wider truncate">
+                        <span className="text-[10px] sm:text-[11px] text-[#786c5a] font-medium tracking-wider truncate max-w-[200px]">
                           {piece.origin.split(',')[0]}
                         </span>
                       </div>
 
-                      <h3
-                        onClick={() => setSelectedPiece(piece)}
-                        className="text-lg sm:text-xl text-white font-normal tracking-[0.08em] mb-1 font-serif group-hover:text-[#f7e6c4] transition-colors cursor-pointer line-clamp-1"
-                      >
-                        {piece.title}
-                      </h3>
+                      {/* Center Artwork Frame */}
+                      <div className="relative flex-1 my-2 overflow-hidden rounded-xl sm:rounded-2xl border border-[#c5a363]/30 bg-gradient-to-b from-[#050e1c] to-[#02050b] shadow-inner group/media">
+                        {/* Ambient Blurred Artwork Glow to eliminate dead empty bars */}
+                        <img
+                          src={piece.image}
+                          alt=""
+                          className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-30 pointer-events-none select-none"
+                          aria-hidden="true"
+                          draggable={false}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-[#02060f]/80 via-transparent to-[#02060f]/60 pointer-events-none" />
 
-                      <p className="text-[11px] text-[#c5a363]/90 font-light tracking-wide mb-2 line-clamp-1">
-                        {piece.material}
-                      </p>
+                        {/* Complete High-Resolution Artwork (Full contain, zero cropping) */}
+                        <img
+                          src={piece.image}
+                          alt={piece.title}
+                          className="relative z-[1] w-full h-full object-contain p-2 sm:p-3 transition-transform duration-700 group-hover:scale-[1.03] pointer-events-none select-none drop-shadow-[0_12px_28px_rgba(0,0,0,0.7)]"
+                          draggable={false}
+                        />
 
-                      <p className="text-xs text-[#a89f8d] font-light leading-relaxed mb-4 line-clamp-2">
-                        {piece.description}
-                      </p>
-
-                      {/* Compact Specs Matrix */}
-                      <div className="grid grid-cols-2 gap-2 text-xs mb-5 p-3 rounded-xl bg-[#050e1c]/80 border border-[#c5a363]/20">
-                        <div>
-                          <div className="text-[8px] uppercase tracking-[0.22em] text-[#c5a363]">Dimensions</div>
-                          <div className="text-[#f1eee7] font-medium text-[11px] truncate mt-0.5">{piece.dimensions}</div>
+                        {/* Top Left Status Badge */}
+                        <div className="absolute top-3 left-3 z-[2]">
+                          <span className="px-2.5 py-1 rounded-full bg-[#040810]/85 backdrop-blur-md border border-[#c5a363]/50 text-[8px] sm:text-[9px] uppercase tracking-[0.18em] text-[#e8d7b8] font-semibold shadow-md">
+                            {piece.status}
+                          </span>
                         </div>
-                        <div>
-                          <div className="text-[8px] uppercase tracking-[0.22em] text-[#c5a363]">Origin</div>
-                          <div className="text-[#f1eee7] font-medium text-[11px] truncate mt-0.5">{piece.origin}</div>
+
+                        {/* Hover Inspect Pill */}
+                        <div className="absolute inset-0 z-[2] bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
+                          <span className="px-3.5 py-1.5 rounded-full bg-[#040810]/90 backdrop-blur-md border border-[#c5a363]/70 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-[#f7e6c4] font-medium flex items-center gap-1.5 shadow-xl">
+                            <Maximize2 className="w-3.5 h-3.5 text-[#c5a363]" /> Click to Inspect
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Card Bottom: Title, Material, Dimensions & Inspect CTA */}
+                      <div className="flex items-center justify-between gap-3 pt-1.5 px-1 flex-none">
+                        <div className="min-w-0 flex-1">
+                          <h3
+                            className="text-base sm:text-lg font-serif font-medium text-[#171411] tracking-wide truncate"
+                            style={{ fontFamily: 'var(--font-serif)' }}
+                          >
+                            {piece.title}
+                          </h3>
+                          <p className="text-[11px] sm:text-xs text-[#8f6d2f] tracking-wide font-light truncate mt-0.5">
+                            {piece.material} • {piece.dimensions}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 flex-none">
+                          <button
+                            type="button"
+                            onPointerDown={(e) => e.stopPropagation()}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setSelectedPiece(piece);
+                            }}
+                            className="px-3.5 py-1.5 rounded-full bg-[#171411] hover:bg-[#2b251f] text-[#f7f4ee] hover:text-[#f3e5c8] text-[10px] uppercase tracking-[0.18em] font-medium border border-[#a8884d]/50 transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
+                            title="Inspect Masterpiece"
+                          >
+                            <span>Inspect</span>
+                            <Maximize2 className="w-3 h-3 text-[#c5a363]" />
+                          </button>
                         </div>
                       </div>
                     </div>
-
-                    {/* Inquiry CTA & Full View */}
-                    <div className="flex items-center gap-2 pt-2 border-t border-[#c5a363]/15">
-                      <button
-                        onClick={() => handleInquiryForPiece(piece)}
-                        className="flex-1 py-2.5 px-3 rounded-full bg-[#c5a363]/15 hover:bg-[#c5a363] hover:text-[#040810] border border-[#c5a363]/80 text-[#f7f2e7] text-[11px] uppercase tracking-[0.18em] font-semibold transition-all flex items-center justify-center gap-2 cursor-pointer group-hover:shadow-[0_0_15px_rgba(197,163,99,0.25)] hover:scale-[1.01]"
-                      >
-                        <span>Inquire</span>
-                        <ArrowRight className="w-3.5 h-3.5 text-[#c5a363] group-hover:text-[#040810] transition-colors" />
-                      </button>
-                      <button
-                        onClick={() => setSelectedPiece(piece)}
-                        className="p-2.5 rounded-full bg-[#081528] hover:bg-[#0f2444] border border-[#c5a363]/40 text-[#c5a363] hover:text-white transition-all cursor-pointer"
-                        title="View Full Masterpiece"
-                      >
-                        <Maximize2 className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </Reveal>
-            ))}
-          </div>
+                  </Card>
+                ))}
+              </CardSwap>
+            </div>
+          </Reveal>
         </div>
       </section>
 
