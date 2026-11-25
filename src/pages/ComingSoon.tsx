@@ -24,7 +24,7 @@ import { sendContactInquiry } from '@/lib/contactService';
 import { Reveal } from '@/components/Reveal';
 import FlowingMenu, { type FlowingMenuItem } from '@/components/FlowingMenu';
 import ConcaveCarousel, { type ConcaveCarouselHandle, type ConcaveCarouselItem } from '@/components/ConcaveCarousel';
-import CardSwap, { Card } from '@/components/CardSwap';
+import PrismCarousel, { type PrismCarouselItem } from '@/components/PrismCarousel';
 
 // --- DATA STRUCTURES ---
 
@@ -277,6 +277,13 @@ const COLLECTION: CollectionPiece[] = [
     location: 'East Atrium • Suite C',
   },
 ];
+
+const PRISM_COLLECTION_ITEMS: PrismCarouselItem[] = COLLECTION.map((piece) => ({
+  src: piece.image,
+  alt: piece.title,
+  title: piece.title,
+  subtitle: `${piece.edition} • ${piece.material}`,
+}));
 
 const DOME_GLIMPSE_IMAGES = GLIMPSES.map((g) => ({
   src: g.image,
@@ -1157,119 +1164,37 @@ export function ComingSoon() {
             </Reveal>
           </div>
 
-          {/* React Bits CardSwap 3D Interactive Deck */}
+          {/* React Bits Pro Prism Carousel */}
           <Reveal direction="up" delay={0.25}>
-            <div className="relative w-full max-w-5xl mx-auto h-[560px] sm:h-[660px] md:h-[720px] lg:h-[780px] flex items-center justify-center">
-              <CardSwap
-                width={520}
-                height={540}
-                cardDistance={55}
-                verticalDistance={65}
-                depth={95}
-                skewAmount={5}
-                visibleCards={4}
-                delay={4000}
+            <div className="relative w-full max-w-6xl mx-auto h-[600px] sm:h-[680px] md:h-[740px] lg:h-[780px] flex items-center justify-center">
+              <PrismCarousel
+                items={PRISM_COLLECTION_ITEMS}
+                aspect={0.72}
+                size={0.76}
+                neighborScale={0.72}
+                gap={20}
+                radius={20}
+                saturation={0.15}
+                dim={0.25}
+                sweep={1.2}
+                sweepDuration={1.1}
+                dispersion={1.2}
                 autoplay={true}
-                pauseOnHover={true}
+                interval={5.0}
+                loop={true}
+                captions={true}
+                controls={true}
                 draggable={true}
-                speed={1}
-                bounce={0.35}
-                parallax={0.5}
-                hoverSpread={0.12}
-                dim={0.5}
-                cardRadius={20}
-                intro={true}
-                theme="aurexa"
-                onCardClick={(index) => {
-                  const piece = COLLECTION[index];
+                wheel={false}
+                pauseOnHover={true}
+                backgroundColor="transparent"
+                ariaLabel="AUREXA Haute Curations Prism Carousel"
+                onSelect={(_item, idx) => {
+                  const piece = COLLECTION[idx];
                   if (piece) setSelectedPiece(piece);
                 }}
-              >
-                {COLLECTION.map((piece) => (
-                  <Card
-                    key={piece.id}
-                    className="cursor-pointer group select-none h-full"
-                  >
-                    <div className="card-swap-item p-4 sm:p-5 flex flex-col justify-between h-full bg-gradient-to-b from-[#fdfbf7] via-[#f7f3ea] to-[#eee6d5] text-[#171411] border border-[#c5a363]/40 rounded-[20px] shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
-                      {/* Card Top: Edition & Origin */}
-                      <div className="flex items-center justify-between gap-3 px-1 pb-1 flex-none">
-                        <span className="px-3 py-1 rounded-full bg-[#171411]/5 border border-[#c5a363]/60 text-[9px] sm:text-[10px] uppercase tracking-[0.22em] text-[#8f6d2f] font-semibold">
-                          {piece.edition}
-                        </span>
-                        <span className="text-[10px] sm:text-[11px] text-[#786c5a] font-medium tracking-wider truncate max-w-[200px]">
-                          {piece.origin.split(',')[0]}
-                        </span>
-                      </div>
-
-                      {/* Center Artwork Frame */}
-                      <div className="relative flex-1 my-2 overflow-hidden rounded-xl sm:rounded-2xl border border-[#c5a363]/30 bg-gradient-to-b from-[#050e1c] to-[#02050b] shadow-inner group/media">
-                        {/* Ambient Blurred Artwork Glow to eliminate dead empty bars */}
-                        <img
-                          src={piece.image}
-                          alt=""
-                          className="absolute inset-0 w-full h-full object-cover blur-2xl scale-125 opacity-30 pointer-events-none select-none"
-                          aria-hidden="true"
-                          draggable={false}
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-[#02060f]/80 via-transparent to-[#02060f]/60 pointer-events-none" />
-
-                        {/* Complete High-Resolution Artwork (Full contain, zero cropping) */}
-                        <img
-                          src={piece.image}
-                          alt={piece.title}
-                          className="relative z-[1] w-full h-full object-contain p-2 sm:p-3 transition-transform duration-700 group-hover:scale-[1.03] pointer-events-none select-none drop-shadow-[0_12px_28px_rgba(0,0,0,0.7)]"
-                          draggable={false}
-                        />
-
-                        {/* Top Left Status Badge */}
-                        <div className="absolute top-3 left-3 z-[2]">
-                          <span className="px-2.5 py-1 rounded-full bg-[#040810]/85 backdrop-blur-md border border-[#c5a363]/50 text-[8px] sm:text-[9px] uppercase tracking-[0.18em] text-[#e8d7b8] font-semibold shadow-md">
-                            {piece.status}
-                          </span>
-                        </div>
-
-                        {/* Hover Inspect Pill */}
-                        <div className="absolute inset-0 z-[2] bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-                          <span className="px-3.5 py-1.5 rounded-full bg-[#040810]/90 backdrop-blur-md border border-[#c5a363]/70 text-[9px] sm:text-[10px] uppercase tracking-[0.2em] text-[#f7e6c4] font-medium flex items-center gap-1.5 shadow-xl">
-                            <Maximize2 className="w-3.5 h-3.5 text-[#c5a363]" /> Click to Inspect
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Card Bottom: Title, Material, Dimensions & Inspect CTA */}
-                      <div className="flex items-center justify-between gap-3 pt-1.5 px-1 flex-none">
-                        <div className="min-w-0 flex-1">
-                          <h3
-                            className="text-base sm:text-lg font-serif font-medium text-[#171411] tracking-wide truncate"
-                            style={{ fontFamily: 'var(--font-serif)' }}
-                          >
-                            {piece.title}
-                          </h3>
-                          <p className="text-[11px] sm:text-xs text-[#8f6d2f] tracking-wide font-light truncate mt-0.5">
-                            {piece.material} • {piece.dimensions}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center gap-2 flex-none">
-                          <button
-                            type="button"
-                            onPointerDown={(e) => e.stopPropagation()}
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedPiece(piece);
-                            }}
-                            className="px-3.5 py-1.5 rounded-full bg-[#171411] hover:bg-[#2b251f] text-[#f7f4ee] hover:text-[#f3e5c8] text-[10px] uppercase tracking-[0.18em] font-medium border border-[#a8884d]/50 transition-all cursor-pointer shadow-sm flex items-center gap-1.5"
-                            title="Inspect Masterpiece"
-                          >
-                            <span>Inspect</span>
-                            <Maximize2 className="w-3 h-3 text-[#c5a363]" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </Card>
-                ))}
-              </CardSwap>
+                className="w-full h-full"
+              />
             </div>
           </Reveal>
         </div>
